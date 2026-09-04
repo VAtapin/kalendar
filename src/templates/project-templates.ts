@@ -1,8 +1,11 @@
 import type {
   CalendarProject,
+  ImageElement,
+  LayoutElementNode,
   PageLayerNode,
   PageModel,
 } from "../document/types";
+import { BRAND_LOGO_ASSET_ID } from "../document/branding";
 import { RUSSIAN_MONTH_NAMES } from "./calendar-templates";
 
 function clone<T>(value: T): T {
@@ -77,9 +80,25 @@ function remapLayerTree(
   }
 }
 
+type TextContentElement = Extract<LayoutElementNode, { type: "text" | "month-text" }>;
+
+function isTextContentElement(element: LayoutElementNode): element is TextContentElement {
+  return element.type === "text" || element.type === "month-text";
+}
+
+function isDecorImage(element: ImageElement): boolean {
+  return element.assetId === BRAND_LOGO_ASSET_ID || element.assetId.startsWith("asset-decor-");
+}
+
+function isPhotoContentElement(element: LayoutElementNode): element is ImageElement {
+  return element.type === "image" && !isDecorImage(element);
+}
+
 /**
- * Applies one designed month as a real master page. Placed monthly photographs
- * remain assigned by image order; structural SVG decoration comes from master.
+ * Applies one designed month as a real master page. Geometry and presentation
+ * come from the master, while each month's text and photo-frame contents remain
+ * untouched. An empty target photo frame therefore stays empty. Decorative
+ * library images and SVG elements are part of the master design.
  */
 export function applyMonthMaster(
   project: CalendarProject,
@@ -93,7 +112,18 @@ export function applyMonthMaster(
     if (target.kind !== "month" || target.id === source.id) continue;
     const targetMonth = monthOf(target);
     if (!targetMonth) continue;
-    const oldImages = target.elements.filter((element) => element.type === "image").map((element) => element.assetId);
+    const oldPhotoAssets = target.elements
+      .filter(isPhotoContentElement)
+      .map((element) => element.assetId);
+    const oldTextContents = target.elements
+      .filter(isTextContentElement)
+      .map((element) => ({
+        content: clone(element.content),
+        attribution: element.type === "month-text" ? element.attribution : undefined,
+      }));
+    const oldGridRows = target.elements
+      .filter((element) => element.type === "calendar-grid")
+      .map((element) => element.weekRows);
     const next = clone(source);
     const prefix = `master-${targetMonth}-${crypto.randomUUID()}`;
     const layerIds = new Map<string, string>();
@@ -104,15 +134,20 @@ export function applyMonthMaster(
       element.id = elementIds.get(oldElementId) ?? `${prefix}-${oldElementId}`;
       element.layerId = layerIds.get(element.layerId) ?? `${prefix}-${element.layerId}`;
     });
-    next.elements.filter((element) => element.type === "image").forEach((element, index) => {
-      const preserved = oldImages[index];
-      if (preserved) {
-        element.assetId = preserved;
-        preservedImages += 1;
-      }
+    next.elements.filter(isPhotoContentElement).forEach((element, index) => {
+      const preserved = oldPhotoAssets[index] ?? "";
+      element.assetId = preserved;
+      if (preserved) preservedImages += 1;
     });
-    next.elements.forEach((element) => {
-      if (element.type === "calendar-grid") element.month = targetMonth;
+    next.elements.filter(isTextContentElement).forEach((element, index) => {
+      const preserved = oldTextContents[index];
+      if (!preserved) return;
+      element.content = clone(preserved.content);
+      if (element.type === "month-text") element.attribution = preserved.attribution;
+    });
+    next.elements.filter((element) => element.type === "calendar-grid").forEach((element, index) => {
+      element.month = targetMonth;
+      element.weekRows = oldGridRows[index] ?? element.weekRows;
     });
     next.id = target.id;
     next.name = `${RUSSIAN_MONTH_NAMES[targetMonth - 1]} ${project.year}`;
@@ -131,6 +166,7 @@ export function describeMonthMasterApplication(project: CalendarProject, sourceP
     0,
   );
   return `Мастер «${source?.name ?? "месяц"}» будет применён к ${targets.length} страницам. ` +
-    `${placedPhotos} назначенных изображений будут сохранены в соответствующих фоторамках. ` +
+    `Названия месяцев и содержимое текстовых рамок останутся своими. ` +
+    `${placedPhotos} назначенных изображений будут сохранены, а пустые фоторамки останутся пустыми. ` +
     "Геометрия, сетка, шрифты и декор остальных месяцев будут заменены; действие можно отменить.";
 }
