@@ -1,3 +1,5 @@
+import type { FoodMarkerPackId } from "../calendar/presentation/marker-packs";
+
 export type DocumentUnit = "mm";
 export type OverflowState = "none" | "warning" | "error";
 
@@ -315,7 +317,7 @@ export interface CalendarProject {
   assets: DocumentAsset[];
   customFonts?: ProjectFontFace[];
   printSettings?: PrintSettings;
-  foodMarkerPackId?: "ornamental" | "dark";
+  foodMarkerPackId?: FoodMarkerPackId;
   foodMarkerAssets?: Partial<Record<
     | "no-fast"
     | "fast"

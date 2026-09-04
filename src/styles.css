@@ -1267,33 +1267,24 @@ input {
   font-size: 11px;
 }
 
-.food-marker-pack-picker {
+.food-marker-pack-current {
   display: grid;
-  gap: 7px;
-}
-
-.food-marker-pack-option {
-  display: grid;
-  width: 100%;
   gap: 5px;
   padding: 8px;
-  border: 1px solid #46524d;
+  border: 1px solid #b79b5f;
   border-radius: 6px;
   color: #ccd5d1;
-  background: #18201d;
-  text-align: left;
-  cursor: pointer;
-}
-
-.food-marker-pack-option:hover {
-  border-color: #766942;
-  background: #212a26;
-}
-
-.food-marker-pack-option--active {
-  border-color: #b79b5f;
   background: rgb(183 155 95 / 10%);
-  box-shadow: inset 3px 0 #b79b5f;
+}
+
+.food-marker-pack-current > strong {
+  font-size: 10px;
+}
+
+.food-marker-pack-current > small {
+  color: #87938d;
+  font-size: 9px;
+  line-height: 1.3;
 }
 
 .food-marker-pack-option__preview {
@@ -1309,21 +1300,6 @@ input {
   border-radius: 4px;
   background: #eee8db;
   object-fit: contain;
-}
-
-.food-marker-pack-option > strong,
-.food-marker-pack-option > small {
-  display: block;
-}
-
-.food-marker-pack-option > strong {
-  font-size: 10px;
-}
-
-.food-marker-pack-option > small {
-  color: #87938d;
-  font-size: 9px;
-  line-height: 1.3;
 }
 
 .commemoration-filter {

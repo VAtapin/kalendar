@@ -42,7 +42,7 @@ import {
   FOOD_MARKER_PACKS,
   foodMarkerPackSource,
   getFoodMarkerPack,
-  type FoodMarkerPackId,
+  isFoodMarkerPackId,
 } from "./calendar/presentation/marker-packs";
 import { mergeMonasteryEvents } from "./calendar/engine/merge-monastery-events";
 import { FASTING_PROFILES } from "./calendar/fasting/fasting-api";
@@ -236,6 +236,7 @@ const monthNames = [
 const foodRuleOptions = Object.values(FOOD_RULES).filter((rule) => rule.id !== "no-fast");
 const foodMarkerPackOptions = FOOD_MARKER_PACKS;
 const foodMarkerPackPreviewRules: readonly FoodRuleId[] = ["fast", "fish", "strict-fast"];
+const activeFoodMarkerPack = computed(() => getFoodMarkerPack(project.value.foodMarkerPackId));
 const calendarTemplatePresets = CALENDAR_TEMPLATE_PRESETS;
 const commemorationFilterOptions = COMMEMORATION_FILTER_OPTIONS;
 const fastingProfileOptions = Object.values(FASTING_PROFILES);
@@ -1720,9 +1721,9 @@ function clearFoodMarkerAsset(rule: FoodRuleId): void {
 }
 
 function updateFoodMarkerPack(value: string): void {
-  if (value !== "ornamental" && value !== "dark") return;
+  if (!isFoodMarkerPackId(value)) return;
   mutateProject("Сменить набор знаков", () => {
-    project.value.foodMarkerPackId = value as FoodMarkerPackId;
+    project.value.foodMarkerPackId = value;
   });
 }
 
@@ -2317,24 +2318,20 @@ onBeforeUnmount(() => {
                   <button class="primary-action" type="button" @click="applyGridPresentationToAllMonths">Применить оформление ко всем месяцам</button>
                   <div v-if="selectedElement.showFoodIcons" class="food-marker-editor">
                     <strong class="food-marker-editor__heading">Набор картинок</strong>
-                    <div class="food-marker-pack-picker" role="radiogroup" aria-label="Набор картинок поста и пищи">
-                      <button
-                        v-for="pack in foodMarkerPackOptions"
-                        :key="pack.id"
-                        type="button"
-                        class="food-marker-pack-option"
-                        :class="{ 'food-marker-pack-option--active': (project.foodMarkerPackId ?? 'ornamental') === pack.id }"
-                        :aria-pressed="(project.foodMarkerPackId ?? 'ornamental') === pack.id"
-                        @click="updateFoodMarkerPack(pack.id)"
-                      >
-                        <span class="food-marker-pack-option__preview">
-                          <img v-for="rule in foodMarkerPackPreviewRules" :key="rule" :src="foodMarkerPackSource(pack.id, rule)" alt="" />
-                        </span>
-                        <strong>{{ pack.label }}</strong>
-                        <small>{{ pack.description }}</small>
-                      </button>
+                    <label class="field-control">
+                      <span>Стиль</span>
+                      <select data-testid="food-marker-pack" :value="activeFoodMarkerPack.id" @change="updateFoodMarkerPack(($event.target as HTMLSelectElement).value)">
+                        <option v-for="pack in foodMarkerPackOptions" :key="pack.id" :value="pack.id">{{ pack.label }}</option>
+                      </select>
+                    </label>
+                    <div class="food-marker-pack-current">
+                      <span class="food-marker-pack-option__preview">
+                        <img v-for="rule in foodMarkerPackPreviewRules" :key="rule" :src="foodMarkerPackSource(activeFoodMarkerPack.id, rule)" alt="" />
+                      </span>
+                      <strong>{{ activeFoodMarkerPack.label }}</strong>
+                      <small>{{ activeFoodMarkerPack.description }}</small>
                     </div>
-                    <p class="property-help">Нажмите на один из двух наборов — он сразу применяется ко всем месяцам. Легенда показывает только знаки, используемые в выбранном месяце.</p>
+                    <p class="property-help">Выбранный набор сразу применяется ко всем месяцам. Легенда показывает только знаки, используемые в выбранном месяце.</p>
                     <div v-for="rule in foodRuleOptions" :key="rule.id" class="food-marker-editor__row">
                       <img :src="foodMarkerPreviewSource(rule.id)" :alt="rule.label" />
                       <span><strong>{{ rule.label }}</strong><small>{{ foodMarkerAssetName(rule.id) }}</small></span>

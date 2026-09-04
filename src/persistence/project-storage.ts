@@ -6,6 +6,7 @@ import {
 } from "../templates/calendar-templates";
 import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-defaults";
 import { normalizedOpacity } from "../document/paint";
+import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
 
 const DATABASE_NAME = "orthodox-calendar-layout";
 const DATABASE_VERSION = 3;
@@ -216,7 +217,7 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
   project.customFonts ??= [];
   project.printSettings.cropMarkLengthMm = Math.max(0.5, project.printSettings.cropMarkLengthMm || 2);
   project.printSettings.cropMarkOffsetMm = Math.max(0, project.printSettings.cropMarkOffsetMm || 0);
-  if (project.foodMarkerPackId !== "ornamental" && project.foodMarkerPackId !== "dark") {
+  if (!isFoodMarkerPackId(project.foodMarkerPackId)) {
     project.foodMarkerPackId = "ornamental";
   }
   for (const page of project.document.pages) {

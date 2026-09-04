@@ -41,6 +41,10 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   const markerBefore = await marker.getAttribute("transform");
   const actualNumberSize = () => number.evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize));
 
+  await page.getByTestId("food-marker-pack").selectOption("gold-photo");
+  await expect(page.getByTestId("food-marker-pack")).toHaveValue("gold-photo");
+  await expect(marker.locator("image")).toHaveAttribute("href", /\/assets\/markers\/gold-photo\//);
+
   await page.getByTestId("day-number-size").fill("6");
   await expect.poll(actualNumberSize).toBeCloseTo(6 * 25.4 / 72, 2);
   const smallSize = await actualNumberSize();
