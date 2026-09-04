@@ -11,6 +11,7 @@ interface ToolDefinition {
 
 const props = defineProps<{
   activeTool: EditorTool;
+  templatesActive: boolean;
   fillColor: string;
   strokeColor: string;
 }>();
@@ -19,6 +20,7 @@ const emit = defineEmits<{
   updateFill: [color: string];
   updateStroke: [color: string];
   applyGold: [];
+  openTemplates: [];
 }>();
 
 function swapColors(): void {
@@ -64,6 +66,17 @@ const tools: ToolDefinition[] = [
         {{ tool.icon }}
       </button>
     </template>
+    <span class="tools-panel__divider"></span>
+    <button
+      type="button"
+      class="tool-button"
+      :class="{ 'tool-button--active': templatesActive }"
+      title="Шаблоны календаря"
+      aria-label="Шаблоны календаря"
+      @click="emit('openTemplates')"
+    >
+      ▤
+    </button>
     <div class="tools-panel__color-actions">
       <button type="button" title="Поменять заливку и обводку местами" @click="swapColors">↔</button>
       <button type="button" title="Цвета по умолчанию" @click="resetColors">◩</button>

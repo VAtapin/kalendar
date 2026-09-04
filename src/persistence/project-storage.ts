@@ -9,12 +9,14 @@ import { normalizedOpacity } from "../document/paint";
 import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
 
 const DATABASE_NAME = "orthodox-calendar-layout";
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 const STORE_NAME = "projects";
 const BACKUP_STORE_NAME = "backups";
 const TEMPLATE_STORE_NAME = "templates";
 const GRID_TEMPLATE_STORE_NAME = "grid-templates";
+const FILE_HANDLE_STORE_NAME = "file-handles";
 const AUTOSAVE_KEY = "current-project";
+const ACTIVE_PROJECT_FILE_HANDLE_KEY = "active-project";
 
 export interface CalendarProjectArchive {
   format: "orthodox-calendar-project";
@@ -46,6 +48,12 @@ export interface UserCalendarGridTemplate {
   name: string;
   createdAt: string;
   grid: CalendarGridElement;
+}
+
+export interface StoredProjectFileReference<THandle = unknown> {
+  handle: THandle;
+  name: string;
+  updatedAt: string;
 }
 
 function normalizeLegacyMonthLayout(page: PageModel, year: number): void {
@@ -153,10 +161,59 @@ function openDatabase(): Promise<IDBDatabase> {
       if (!database.objectStoreNames.contains(GRID_TEMPLATE_STORE_NAME)) {
         database.createObjectStore(GRID_TEMPLATE_STORE_NAME, { keyPath: "id" });
       }
+      if (!database.objectStoreNames.contains(FILE_HANDLE_STORE_NAME)) {
+        database.createObjectStore(FILE_HANDLE_STORE_NAME);
+      }
     });
     request.addEventListener("success", () => resolve(request.result));
     request.addEventListener("error", () => reject(request.error ?? new Error("Не удалось открыть хранилище")));
   });
+}
+
+/**
+ * File System Access handles are structured-cloneable and can be kept in
+ * IndexedDB. Persisting the active handle lets Ctrl+S continue writing to the
+ * same file after a reload or a development hot update.
+ */
+export async function saveActiveProjectFileReference<THandle>(
+  handle: THandle,
+  name: string,
+): Promise<void> {
+  const database = await openDatabase();
+  await new Promise<void>((resolve, reject) => {
+    const transaction = database.transaction(FILE_HANDLE_STORE_NAME, "readwrite");
+    transaction.objectStore(FILE_HANDLE_STORE_NAME).put({
+      handle,
+      name,
+      updatedAt: new Date().toISOString(),
+    } satisfies StoredProjectFileReference<THandle>, ACTIVE_PROJECT_FILE_HANDLE_KEY);
+    transaction.addEventListener("complete", () => resolve());
+    transaction.addEventListener("error", () => reject(transaction.error ?? new Error("Ошибка сохранения ссылки на файл")));
+  });
+  database.close();
+}
+
+export async function loadActiveProjectFileReference<THandle>(): Promise<StoredProjectFileReference<THandle> | undefined> {
+  const database = await openDatabase();
+  const result = await new Promise<StoredProjectFileReference<THandle> | undefined>((resolve, reject) => {
+    const transaction = database.transaction(FILE_HANDLE_STORE_NAME, "readonly");
+    const request = transaction.objectStore(FILE_HANDLE_STORE_NAME).get(ACTIVE_PROJECT_FILE_HANDLE_KEY);
+    request.addEventListener("success", () => resolve(request.result as StoredProjectFileReference<THandle> | undefined));
+    request.addEventListener("error", () => reject(request.error ?? new Error("Ошибка чтения ссылки на файл")));
+  });
+  database.close();
+  return result;
+}
+
+export async function clearActiveProjectFileReference(): Promise<void> {
+  const database = await openDatabase();
+  await new Promise<void>((resolve, reject) => {
+    const transaction = database.transaction(FILE_HANDLE_STORE_NAME, "readwrite");
+    transaction.objectStore(FILE_HANDLE_STORE_NAME).delete(ACTIVE_PROJECT_FILE_HANDLE_KEY);
+    transaction.addEventListener("complete", () => resolve());
+    transaction.addEventListener("error", () => reject(transaction.error ?? new Error("Ошибка удаления ссылки на файл")));
+  });
+  database.close();
 }
 
 export function createPersistentProjectSnapshot(project: CalendarProject): CalendarProject {

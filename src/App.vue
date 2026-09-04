@@ -5,6 +5,9 @@ import DecorLibraryPanel from "./components/DecorLibraryPanel.vue";
 import LayersPanel from "./components/LayersPanel.vue";
 import ToolsPanel from "./components/ToolsPanel.vue";
 import TextEffectsEditor from "./components/TextEffectsEditor.vue";
+import ApplicationHelpDialog, { type HelpDialogPage } from "./components/ApplicationHelpDialog.vue";
+import PageThumbnail from "./components/PageThumbnail.vue";
+import RecoveryDialog from "./components/RecoveryDialog.vue";
 import {
   changePageFormat,
   createBlankCalendarProject,
@@ -68,6 +71,9 @@ import {
   saveUserProjectTemplate,
   deleteUserCalendarGridTemplate,
   deleteUserProjectTemplate,
+  clearActiveProjectFileReference,
+  loadActiveProjectFileReference,
+  saveActiveProjectFileReference,
   type ProjectBackup,
   type UserCalendarGridTemplate,
   type UserProjectTemplate,
@@ -124,7 +130,7 @@ const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
 type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
 type MenuCommandId =
-  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "export-pdf"
+  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "export-pdf"
   | "save-user-template" | "clone-year"
   | "undo" | "redo" | "duplicate" | "delete"
   | "full-template" | "add-cover" | "add-month" | "delete-page"
@@ -135,8 +141,8 @@ type MenuCommandId =
   | "distribute-horizontal" | "distribute-vertical"
   | "bold" | "italic" | "align-left" | "align-center" | "align-right"
   | "toggle-guides" | "zoom-in" | "zoom-out" | "fit-page"
-  | "toggle-tools" | "toggle-properties" | "toggle-library" | "toggle-layers" | "toggle-pages" | "toggle-events" | "toggle-preflight" | "toggle-all-panels"
-  | "shortcuts" | "about";
+  | "toggle-tools" | "toggle-properties" | "toggle-library" | "toggle-layers" | "toggle-templates" | "toggle-pages" | "toggle-events" | "toggle-preflight" | "toggle-all-panels"
+  | "help-guide" | "shortcuts" | "about";
 
 interface WritableProjectFile {
   write(data: Blob): Promise<void>;
@@ -147,6 +153,8 @@ interface ProjectFileHandle {
   readonly name: string;
   getFile(): Promise<File>;
   createWritable(): Promise<WritableProjectFile>;
+  queryPermission?(descriptor: { mode: "readwrite" }): Promise<PermissionState>;
+  requestPermission?(descriptor: { mode: "readwrite" }): Promise<PermissionState>;
 }
 
 interface ProjectPickerWindow extends Window {
@@ -155,6 +163,7 @@ interface ProjectPickerWindow extends Window {
 }
 
 let activeProjectFileHandle: ProjectFileHandle | undefined;
+let projectFileReferenceUpdate: Promise<void> = Promise.resolve();
 interface MenuItemDefinition {
   command?: MenuCommandId;
   label?: string;
@@ -174,6 +183,8 @@ interface HistoryEntry {
   pageId: string;
 }
 const activeMenu = ref<ApplicationMenuId>();
+const helpDialogPage = ref<HelpDialogPage>();
+const recoveryDialogOpen = ref(false);
 const chromePanelsHidden = ref(false);
 const operationNotice = ref("Документ готов к редактированию");
 // Both structures are immutable and large. Deep Vue proxies only add work to
@@ -217,6 +228,7 @@ const panelVisibility = ref({
   properties: true,
   library: true,
   layers: true,
+  templates: true,
   pages: true,
   events: true,
   preflight: true,
@@ -335,7 +347,7 @@ const showToolsPanel = computed(
   () => panelVisibility.value.tools && !chromePanelsHidden.value,
 );
 const showDock = computed(
-  () => visibleDockPanels.value.length > 0 && !chromePanelsHidden.value,
+  () => (visibleDockPanels.value.length > 0 || panelVisibility.value.templates) && !chromePanelsHidden.value,
 );
 const dockPanelMaximumWidthPx = computed(() => Math.max(
   DOCK_PANEL_MIN_WIDTH_PX,
@@ -395,6 +407,8 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "save-project", label: "Сохранить", shortcut: "Ctrl+S" },
         { command: "save-as-project", label: "Сохранить как…", shortcut: "Ctrl+Shift+S" },
         { command: "download-project", label: "Скачать резервную копию…" },
+        { command: "recovery", label: "Восстановление…", disabled: projectBackups.value.length === 0 },
+        { separator: true },
         { command: "save-user-template", label: "Сохранить дизайн как шаблон…" },
         { command: "clone-year", label: "Создать копию для другого года…" },
         { separator: true },
@@ -480,6 +494,7 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "toggle-properties", label: "Свойства", checked: panelVisibility.value.properties },
         { command: "toggle-library", label: "Библиотека элементов", checked: panelVisibility.value.library },
         { command: "toggle-layers", label: "Слои", checked: panelVisibility.value.layers },
+        { command: "toggle-templates", label: "Шаблоны", checked: panelVisibility.value.templates },
         { command: "toggle-pages", label: "Страницы", checked: panelVisibility.value.pages },
         { command: "toggle-events", label: "События монастыря", checked: panelVisibility.value.events },
         { command: "toggle-preflight", label: "Предпечатная проверка", checked: panelVisibility.value.preflight },
@@ -491,7 +506,9 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
       id: "help",
       label: "Справка",
       items: [
-        { command: "shortcuts", label: "Горячие клавиши" },
+        { command: "help-guide", label: "Справка по работе" },
+        { command: "shortcuts", label: "Горячие клавиши…" },
+        { separator: true },
         { command: "about", label: "О программе" },
       ],
     },
@@ -614,13 +631,26 @@ async function initializeProject(): Promise<void> {
       project.value = normalizeCalendarProject(restored);
       operationNotice.value = "Восстановлено последнее автосохранение";
       await registerProjectFonts(project.value);
+      try {
+        const storedFile = await loadActiveProjectFileReference<ProjectFileHandle>();
+        if (storedFile?.handle) {
+          activeProjectFileHandle = storedFile.handle;
+          projectFileName.value = storedFile.name;
+          // The autosave may contain edits made after the last explicit file
+          // save, so keep the restored document marked as changed.
+          savedProjectFileSnapshot.value = undefined;
+        }
+      } catch {
+        // Browsers without serializable File System Access handles still keep
+        // the handle for the lifetime of the current editor session.
+      }
     }
     selectedPageId.value =
       project.value.document.pages.find((page) => page.id === savedPageId)?.id ??
       project.value.document.pages.find((page) => page.id === selectedPageId.value)?.id ??
       project.value.document.pages[0]?.id ??
       "";
-    if (savedDockPanel && dockPanels.some((panel) => panel.id === savedDockPanel)) {
+    if (savedDockPanel && (savedDockPanel === "templates" || dockPanels.some((panel) => panel.id === savedDockPanel))) {
       activeDockPanel.value = savedDockPanel;
     }
     [userProjectTemplates.value, userCalendarGridTemplates.value, projectBackups.value] = await Promise.all([
@@ -680,7 +710,35 @@ function isPickerCancellation(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
+async function ensureProjectFileWritePermission(handle: ProjectFileHandle): Promise<void> {
+  if (!handle.queryPermission) return;
+  let permission = await handle.queryPermission({ mode: "readwrite" });
+  if (permission === "prompt" && handle.requestPermission) {
+    permission = await handle.requestPermission({ mode: "readwrite" });
+  }
+  if (permission !== "granted") {
+    throw new Error("Нет разрешения на запись в выбранный файл. Используйте «Сохранить как…» или разрешите запись.");
+  }
+}
+
+async function rememberActiveProjectFile(handle: ProjectFileHandle): Promise<void> {
+  projectFileReferenceUpdate = projectFileReferenceUpdate
+    .then(() => saveActiveProjectFileReference(handle, handle.name))
+    .catch(() => undefined);
+  await projectFileReferenceUpdate;
+}
+
+function detachActiveProjectFile(): void {
+  activeProjectFileHandle = undefined;
+  projectFileName.value = undefined;
+  savedProjectFileSnapshot.value = undefined;
+  projectFileReferenceUpdate = projectFileReferenceUpdate
+    .then(() => clearActiveProjectFileReference())
+    .catch(() => undefined);
+}
+
 async function writeProjectFile(handle: ProjectFileHandle): Promise<void> {
+  await ensureProjectFileWritePermission(handle);
   const writable = await handle.createWritable();
   await writable.write(projectFileBlob());
   await writable.close();
@@ -688,6 +746,7 @@ async function writeProjectFile(handle: ProjectFileHandle): Promise<void> {
   projectFileName.value = handle.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
   rememberProjectName(handle.name);
+  await rememberActiveProjectFile(handle);
   await saveProjectBackup(project.value, `Сохранение ${handle.name}`);
   projectBackups.value = await listProjectBackups();
   await saveAutosaveNow();
@@ -786,6 +845,12 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   activeProjectFileHandle = handle;
   projectFileName.value = file.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
+  if (handle) await rememberActiveProjectFile(handle);
+  else {
+    projectFileReferenceUpdate = projectFileReferenceUpdate
+      .then(() => clearActiveProjectFileReference())
+      .catch(() => undefined);
+  }
   rememberProjectName(file.name);
   await loadCalendarData();
   await saveAutosaveNow();
@@ -849,9 +914,7 @@ async function createNewProject(): Promise<void> {
   ) return;
   await createRecoveryPoint("Перед созданием нового проекта");
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
-  activeProjectFileHandle = undefined;
-  projectFileName.value = undefined;
-  savedProjectFileSnapshot.value = undefined;
+  detachActiveProjectFile();
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
   selectedElementId.value = undefined;
   selectedLayerIds.value = ["layer-1"];
@@ -1390,9 +1453,7 @@ function cloneCurrentProjectToYear(): void {
     projectBackups.value = await listProjectBackups();
   });
   project.value = normalizeCalendarProject(cloneProjectForYear(project.value, year));
-  activeProjectFileHandle = undefined;
-  projectFileName.value = undefined;
-  savedProjectFileSnapshot.value = undefined;
+  detachActiveProjectFile();
   undoStack.value = [];
   redoStack.value = [];
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
@@ -1406,23 +1467,16 @@ function restoreProjectBackup(backup: ProjectBackup): void {
   mutateProject("Восстановление резервной копии", () => {
     project.value = normalizeCalendarProject(createPersistentProjectSnapshot(backup.project));
   });
-  activeProjectFileHandle = undefined;
-  projectFileName.value = undefined;
-  savedProjectFileSnapshot.value = undefined;
+  detachActiveProjectFile();
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
   void registerProjectFonts(project.value);
   void loadCalendarData();
   operationNotice.value = `Восстановлена копия «${backup.label}»; сохраните её в новый файл`;
 }
 
-function formatBackupTime(createdAt: string): string {
-  return new Date(createdAt).toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function restoreProjectBackupFromDialog(backup: ProjectBackup): void {
+  recoveryDialogOpen.value = false;
+  restoreProjectBackup(backup);
 }
 
 function placeSelectedLegend(edge: "top" | "bottom"): void {
@@ -1880,6 +1934,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "save-project": void saveProjectNow(); break;
     case "save-as-project": void saveProjectAs(); break;
     case "download-project": downloadProjectFile(); break;
+    case "recovery": recoveryDialogOpen.value = true; break;
     case "save-user-template": void saveCurrentDesignAsTemplate(); break;
     case "clone-year": cloneCurrentProjectToYear(); break;
     case "export-pdf": void exportPrintPdf(); break;
@@ -1918,12 +1973,14 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "toggle-properties": toggleDockPanel("properties"); break;
     case "toggle-library": toggleDockPanel("library"); break;
     case "toggle-layers": toggleDockPanel("layers"); break;
+    case "toggle-templates": toggleDockPanel("templates"); break;
     case "toggle-pages": toggleDockPanel("pages"); break;
     case "toggle-events": toggleDockPanel("events"); break;
     case "toggle-preflight": toggleDockPanel("preflight"); break;
     case "toggle-all-panels": toggleAllPanels(); break;
-    case "shortcuts": operationNotice.value = "V выделение · T текст · F изображение · M прямоугольник · Delete удалить · Ctrl+Z отменить · Tab панели"; break;
-    case "about": operationNotice.value = "Календарная мастерская — издательский редактор православного календаря"; break;
+    case "help-guide": helpDialogPage.value = "guide"; break;
+    case "shortcuts": helpDialogPage.value = "shortcuts"; break;
+    case "about": helpDialogPage.value = "about"; break;
   }
 }
 
@@ -2036,6 +2093,13 @@ function handleBeforeUnload(event: BeforeUnloadEvent): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
+  if (helpDialogPage.value || recoveryDialogOpen.value) {
+    if (event.key === "Escape") {
+      helpDialogPage.value = undefined;
+      recoveryDialogOpen.value = false;
+    }
+    return;
+  }
   if (event.key === "Escape") {
     activeMenu.value = undefined;
     return;
@@ -2093,6 +2157,16 @@ function handleKeydown(event: KeyboardEvent): void {
     zoomPercent.value = 55;
     return;
   }
+  if (!event.ctrlKey && !event.metaKey && !event.altKey && (event.key === "+" || event.key === "=")) {
+    event.preventDefault();
+    zoomPercent.value = Math.min(200, zoomPercent.value + 10);
+    return;
+  }
+  if (!event.ctrlKey && !event.metaKey && !event.altKey && (event.key === "-" || event.key === "−")) {
+    event.preventDefault();
+    zoomPercent.value = Math.max(15, zoomPercent.value - 10);
+    return;
+  }
   if (selectedElement.value && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
     event.preventDefault();
     const step = event.shiftKey ? 10 : 1;
@@ -2110,6 +2184,7 @@ function handleKeydown(event: KeyboardEvent): void {
     f: "image",
     m: "rectangle",
     l: "ellipse",
+    "\\": "line",
     h: "hand",
     z: "zoom",
   };
@@ -2171,6 +2246,7 @@ onBeforeUnmount(() => {
                 v-else
                 type="button"
                 role="menuitem"
+                :data-testid="item.command ? `menu-command-${item.command}` : undefined"
                 :disabled="item.disabled"
                 @click="executeMenuCommand(item.command)"
               >
@@ -2232,12 +2308,14 @@ onBeforeUnmount(() => {
       <ToolsPanel
         v-if="showToolsPanel"
         :active-tool="activeTool"
+        :templates-active="activeDockPanel === 'templates'"
         :fill-color="currentFillColor"
         :stroke-color="currentStrokeColor"
         @select="selectTool"
         @update-fill="updateFillColor"
         @update-stroke="updateStrokeColor"
         @apply-gold="applyGoldPaint"
+        @open-templates="activateDockPanel('templates')"
       />
 
       <DocumentWorkspace
@@ -2283,6 +2361,7 @@ onBeforeUnmount(() => {
             :key="panel.id"
             type="button"
             role="tab"
+            :title="panel.label"
             :aria-selected="activeDockPanel === panel.id"
             :class="{ active: activeDockPanel === panel.id }"
             @click="activateDockPanel(panel.id)"
@@ -2662,8 +2741,8 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <div v-else class="dock-content pages-dock">
-          <div class="dock-content__heading">Страницы</div>
+        <div v-else-if="activeDockPanel === 'templates'" class="dock-content templates-dock">
+          <div class="dock-content__heading">Шаблоны</div>
           <section class="template-picker">
             <h3>Шаблон календаря</h3>
             <label
@@ -2701,12 +2780,10 @@ onBeforeUnmount(() => {
               <button type="button" title="Удалить шаблон сетки" @click="removeCalendarGridTemplate(template)">×</button>
             </div>
           </section>
-          <section v-if="projectBackups.length" class="template-picker">
-            <h3>Восстановление</h3>
-            <button v-for="backup in projectBackups.slice(0, 5)" :key="backup.id" type="button" class="backup-row" :title="backup.label" @click="restoreProjectBackup(backup)">
-              {{ formatBackupTime(backup.createdAt) }}
-            </button>
-          </section>
+        </div>
+
+        <div v-else class="dock-content pages-dock">
+          <div class="dock-content__heading">Страницы</div>
           <button
             v-for="(page, pageIndex) in project.document.pages"
             :key="page.id"
@@ -2715,12 +2792,7 @@ onBeforeUnmount(() => {
             type="button"
             @click="selectPage(page.id)"
           >
-            <span
-              class="page-card__thumbnail"
-              :class="{ 'page-card__thumbnail--landscape': page.orientation === 'landscape' }"
-            >
-              <span class="page-card__safe"></span>
-            </span>
+            <PageThumbnail :page="page" :assets="project.assets" :year="project.year" />
             <span>
               <strong>{{ pageIndex + 1 }}. {{ page.name }}</strong>
               <small>{{ page.width }} × {{ page.height }} мм</small>
@@ -2729,6 +2801,18 @@ onBeforeUnmount(() => {
         </div>
       </aside>
     </div>
+
+    <ApplicationHelpDialog
+      v-if="helpDialogPage"
+      :page="helpDialogPage"
+      @close="helpDialogPage = undefined"
+    />
+    <RecoveryDialog
+      v-if="recoveryDialogOpen"
+      :backups="projectBackups"
+      @close="recoveryDialogOpen = false"
+      @restore="restoreProjectBackupFromDialog"
+    />
 
     <footer class="status-bar">
       <button

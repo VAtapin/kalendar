@@ -537,7 +537,7 @@ input {
 .dock-tabs {
   display: flex;
   min-height: 34px;
-  overflow-x: auto;
+  overflow: hidden;
   border-bottom: 1px solid #3b4641;
   background: #1b231f;
 }
@@ -545,12 +545,14 @@ input {
 .dock-tabs button {
   min-width: 0;
   flex: 1;
-  padding: 0 8px;
+  overflow: hidden;
+  padding: 0 3px;
   border: 0;
   border-right: 1px solid #36413c;
   color: #8f9b96;
   background: transparent;
-  font-size: 10px;
+  font-size: 9px;
+  text-overflow: ellipsis;
   cursor: pointer;
 }
 
@@ -822,19 +824,19 @@ input {
   box-shadow: inset 3px 0 #b79b5f;
 }
 
-.page-card__thumbnail {
-  position: relative;
+.page-thumbnail {
   display: block;
-  width: 43px;
+  width: auto;
+  max-width: 55px;
   height: 61px;
   border: 1px solid #737d79;
   background: #fff;
   box-shadow: 0 3px 10px rgb(0 0 0 / 35%);
 }
 
-.page-card__thumbnail--landscape {
+.page-thumbnail--landscape {
   width: 55px;
-  height: 39px;
+  height: auto;
 }
 
 .status-bar {
@@ -970,12 +972,6 @@ input {
   flex: 1;
   color: #c1b17f;
   text-align: center;
-}
-
-.page-card__safe {
-  position: absolute;
-  inset: 5px;
-  border: 1px dashed #bd9574;
 }
 
 .page-card strong,
@@ -1825,15 +1821,6 @@ input {
   white-space: nowrap;
 }
 
-.backup-row {
-  width: 100%;
-  min-height: 24px;
-  padding: 3px 6px;
-  text-align: left;
-  font-size: 10px;
-  line-height: 1.1;
-}
-
 .overflow-indicator {
   margin-top: 14px;
   padding: 7px 8px;
@@ -2055,6 +2042,274 @@ input {
   color: #74817b;
   font-size: 9px;
   line-height: 1.35;
+}
+
+.application-dialog-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: rgb(4 8 7 / 72%);
+  backdrop-filter: blur(3px);
+}
+
+.application-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, calc(100vw - 64px));
+  max-height: min(780px, calc(100vh - 64px));
+  overflow: hidden;
+  border: 1px solid #6f6546;
+  border-radius: 10px;
+  outline: none;
+  color: #e8eeea;
+  background: #1b2421;
+  box-shadow: 0 22px 70px rgb(0 0 0 / 55%), inset 0 1px rgb(255 255 255 / 5%);
+}
+
+.application-dialog--about {
+  width: min(570px, calc(100vw - 64px));
+}
+
+.application-dialog__header,
+.application-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #34403b;
+  background: #202b27;
+}
+
+.application-dialog__header h2,
+.application-dialog__content h3,
+.about-program p {
+  margin: 0;
+}
+
+.application-dialog__header h2 {
+  margin-top: 3px;
+  color: #f4ead1;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 25px;
+}
+
+.application-dialog__eyebrow {
+  color: #bba568;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.application-dialog__close {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #46534e;
+  border-radius: 5px;
+  color: #d7dfdb;
+  background: #18201e;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.application-dialog__close:hover {
+  border-color: #aa9151;
+  color: #fff3d3;
+}
+
+.application-dialog__content {
+  overflow: auto;
+  padding: 22px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.application-dialog__content a {
+  color: #dfc474;
+  text-underline-offset: 3px;
+}
+
+.application-dialog__content h3 {
+  color: #f1e7cc;
+  font-size: 15px;
+}
+
+.help-guide {
+  display: grid;
+  gap: 20px;
+}
+
+.help-guide section {
+  display: grid;
+  gap: 7px;
+}
+
+.help-guide p,
+.help-guide ol {
+  margin: 0;
+}
+
+.help-guide ol {
+  padding-left: 22px;
+}
+
+.help-guide code {
+  color: #f1d88e;
+}
+
+.shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcut-table th {
+  padding: 15px 8px 6px;
+  border-bottom: 1px solid #46534e;
+  color: #cdb878;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.shortcut-table tr:first-child th {
+  padding-top: 0;
+}
+
+.shortcut-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgb(255 255 255 / 5%);
+}
+
+.shortcut-table td:last-child {
+  width: 46%;
+  color: #cfd8d3;
+  white-space: nowrap;
+}
+
+.shortcut-table kbd,
+.window-menu kbd {
+  font-family: inherit;
+}
+
+.shortcut-table kbd {
+  display: inline-block;
+  min-width: 25px;
+  padding: 2px 6px;
+  border: 1px solid #59645f;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: #f5edda;
+  background: #121816;
+  text-align: center;
+}
+
+.application-dialog__note {
+  margin: 16px 0 0;
+  color: #98a49f;
+  font-size: 11px;
+}
+
+.about-program {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 18px 20px;
+}
+
+.about-program > p,
+.about-program > section {
+  grid-column: 1 / -1;
+}
+
+.about-program > section {
+  display: grid;
+  gap: 5px;
+  padding-top: 16px;
+  border-top: 1px solid #36423d;
+}
+
+.about-program__mark {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border: 1px solid #ab914c;
+  border-radius: 14px;
+  color: #2b2210;
+  background: linear-gradient(145deg, #fff0a7, #c6952e 55%, #765018);
+  box-shadow: inset 0 1px rgb(255 255 255 / 55%), 0 8px 20px rgb(0 0 0 / 30%);
+  font-family: "Yeseva One", Georgia, serif;
+  font-size: 25px;
+}
+
+.about-program > div:nth-child(2) {
+  align-self: center;
+}
+
+.about-program > div:nth-child(2) h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 24px;
+}
+
+.about-program__version {
+  margin-top: 3px !important;
+  color: #9ba7a2;
+  font-size: 11px;
+}
+
+.application-dialog__footer {
+  justify-content: flex-end;
+  padding-block: 12px;
+  border-top: 1px solid #34403b;
+  border-bottom: 0;
+}
+
+.application-dialog__footer .primary-action {
+  width: auto;
+  min-width: 100px;
+  margin: 0;
+}
+
+.recovery-dialog {
+  width: min(500px, calc(100vw - 64px));
+}
+
+.recovery-dialog__intro {
+  margin: 0 0 14px;
+  color: #a9b3ae;
+}
+
+.recovery-dialog__list {
+  display: grid;
+  gap: 6px;
+}
+
+.recovery-dialog__list button {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border: 1px solid #46534e;
+  border-radius: 5px;
+  color: #e8eeea;
+  background: #161e1b;
+  cursor: pointer;
+}
+
+.recovery-dialog__list button:hover {
+  border-color: #a68c4b;
+  background: #252f2b;
+}
+
+.recovery-dialog__list small {
+  color: #a99355;
+  font-size: 10px;
 }
 
 @media (max-width: 1260px) {

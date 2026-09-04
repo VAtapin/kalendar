@@ -2,11 +2,13 @@ import { expect, test } from "@playwright/test";
 
 test("creates a full calendar safely and keeps cell geometry independent", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("tab", { name: "Страницы" }).click();
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
   const createFull = page.getByRole("button", { name: "Создать обложку и 12 месяцев" });
   await createFull.click();
+  await page.getByRole("tab", { name: "Страницы" }).click();
   await expect(page.locator(".page-card")).toHaveCount(13);
 
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
   let replacementWarning = "";
   page.once("dialog", async (dialog) => {
     replacementWarning = dialog.message();
@@ -14,7 +16,10 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   });
   await createFull.click();
   await expect.poll(() => replacementWarning).toContain("Изменённые страницы будут удалены");
+  await page.getByRole("tab", { name: "Страницы" }).click();
   await expect(page.locator(".page-card")).toHaveCount(13);
+  await expect(page.locator(".page-card .page-thumbnail")).toHaveCount(13);
+  await expect(page.locator(".template-picker")).toHaveCount(0);
 
   await page.locator(".page-card").nth(2).click();
   const februaryLegendItems = page.locator(".legend-item");
@@ -109,7 +114,7 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   await expect(monthTitle.locator(".large-text-extrusion").first()).toBeVisible();
 
   await calendarGrid.click({ force: true });
-  await page.getByRole("tab", { name: "Страницы" }).click();
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
   page.once("dialog", async (dialog) => dialog.accept("Крупная сетка"));
   await page.getByRole("button", { name: "Сохранить выбранную сетку…" }).click();
   await expect(page.locator(".grid-template-row")).toContainText("Крупная сетка");
@@ -171,4 +176,66 @@ test("resizes the right inspector with the mouse and restores its width", async 
 
   await page.reload();
   await expect.poll(async () => (await inspector.boundingBox())?.width ?? 0).toBeCloseTo(narrowedWidth, 0);
+});
+
+test("saves repeatedly to the chosen project file and provides complete help dialogs", async ({ page }) => {
+  await page.addInitScript(() => {
+    const saveState = { pickerCalls: 0, writes: 0 };
+    Object.assign(window, { __calendarSaveTestState: saveState });
+    const handle = {
+      name: "Мой-календарь.kalendar",
+      async getFile() {
+        return new File([], this.name, { type: "application/json" });
+      },
+      async queryPermission() {
+        return "granted" as PermissionState;
+      },
+      async createWritable() {
+        return {
+          async write() { saveState.writes += 1; },
+          async close() {},
+        };
+      },
+    };
+    Object.assign(window, {
+      showSaveFilePicker: async () => {
+        saveState.pickerCalls += 1;
+        return handle;
+      },
+    });
+  });
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-save-project").click();
+  await expect(page.locator(".status-bar__notice")).toContainText("Мой-календарь.kalendar");
+  await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-save-project").click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as {
+    __calendarSaveTestState: { pickerCalls: number; writes: number };
+  }).__calendarSaveTestState)).toEqual({ pickerCalls: 1, writes: 2 });
+
+  await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-recovery").click();
+  await expect(page.getByRole("dialog", { name: "Восстановление проекта" })).toContainText("Восстановить");
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Справка", exact: true }).click();
+  await page.getByTestId("menu-command-help-guide").click();
+  await expect(page.getByRole("dialog", { name: "Справка по работе" })).toContainText("Сохранить как…");
+  await page.locator(".application-dialog__footer").getByRole("button", { name: "Закрыть" }).click();
+
+  await page.getByRole("button", { name: "Справка", exact: true }).click();
+  await page.getByTestId("menu-command-shortcuts").click();
+  await expect(page.getByRole("dialog", { name: "Горячие клавиши" })).toContainText("Ctrl");
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Справка", exact: true }).click();
+  await page.getByTestId("menu-command-about").click();
+  const about = page.getByRole("dialog", { name: "О программе" });
+  await expect(about).toContainText("Свято‑Георгиевский мужской монастырь");
+  await expect(about.getByRole("link", { name: "georg-kloster.ru" })).toHaveAttribute("href", "https://georg-kloster.ru/");
+  await expect(about.getByRole("link", { name: "ATAPIN.DE" })).toHaveAttribute("href", "https://atapin.de/");
+  await expect(about.getByRole("link", { name: "+49 171 351 72 74" })).toHaveAttribute("href", "tel:+491713517274");
+  await expect(about.getByRole("link", { name: "atapin@gmail.com" })).toHaveAttribute("href", "mailto:atapin@gmail.com");
 });
