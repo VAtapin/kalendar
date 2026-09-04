@@ -138,6 +138,7 @@ const maskBrushMode = ref<ElementMaskStrokeMode>("hide");
 const maskBrushSizeMm = ref(12);
 const selectedLayerIds = ref(["layer-1"]);
 const selectedPageId = ref(project.value.document.pages[0]?.id ?? "");
+const openPageIds = ref<string[]>(selectedPageId.value ? [selectedPageId.value] : []);
 const selectedElementId = ref<string>();
 const assetFileInput = ref<HTMLInputElement>();
 const projectFileInput = ref<HTMLInputElement>();
@@ -352,6 +353,10 @@ const selectedPage = computed(() => {
   if (!page) throw new Error("Документ должен содержать хотя бы одну страницу");
   return page;
 });
+const openPages = computed(() => openPageIds.value.flatMap((pageId) => {
+  const page = project.value.document.pages.find((item) => item.id === pageId);
+  return page ? [page] : [];
+}));
 const selectedPageIndex = computed(() =>
   Math.max(0, project.value.document.pages.findIndex((page) => page.id === selectedPage.value.id)),
 );
@@ -763,7 +768,7 @@ async function loadProjectForSharedEditing(sharedProject: CalendarProject): Prom
   project.value = normalized;
   await registerProjectFonts(project.value);
   detachActiveProjectFile();
-  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  resetPageTabs();
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
   undoStack.value = [];
@@ -978,10 +983,12 @@ async function initializeProject(): Promise<void> {
     const restored = await loadAutosavedProject();
     hasAutosavedProject.value = Boolean(restored);
     let savedPageId: string | undefined;
+    let savedOpenPageIds: string[] | undefined;
     let savedDockPanel: DockPanelId | undefined;
     try {
       const editorState = JSON.parse(localStorage.getItem(EDITOR_STATE_KEY) ?? "{}") as {
         pageId?: string;
+        openPageIds?: string[];
         dockPanel?: DockPanelId;
         dockPanelWidthPx?: number;
         zoomPercent?: number;
@@ -990,6 +997,9 @@ async function initializeProject(): Promise<void> {
         panelVisibility?: Partial<typeof panelVisibility.value>;
       };
       savedPageId = editorState.pageId;
+      savedOpenPageIds = Array.isArray(editorState.openPageIds)
+        ? editorState.openPageIds.filter((pageId): pageId is string => typeof pageId === "string")
+        : undefined;
       savedDockPanel = editorState.dockPanel;
       if (typeof editorState.zoomPercent === "number") zoomPercent.value = Math.min(100, Math.max(35, editorState.zoomPercent));
       if (typeof editorState.showGuides === "boolean") showGuides.value = editorState.showGuides;
@@ -1032,6 +1042,11 @@ async function initializeProject(): Promise<void> {
       project.value.document.pages.find((page) => page.id === selectedPageId.value)?.id ??
       project.value.document.pages[0]?.id ??
       "";
+    const availablePageIds = new Set(project.value.document.pages.map((page) => page.id));
+    openPageIds.value = [...new Set((savedOpenPageIds ?? []).filter((pageId) => availablePageIds.has(pageId)))];
+    if (selectedPageId.value && !openPageIds.value.includes(selectedPageId.value)) {
+      openPageIds.value.push(selectedPageId.value);
+    }
     if (savedDockPanel && (savedDockPanel === "templates" || dockPanels.some((panel) => panel.id === savedDockPanel))) {
       activeDockPanel.value = savedDockPanel;
     }
@@ -1265,7 +1280,7 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   project.value = loadedProject;
   ensureCalendarWorkshopBranding(project.value);
   await registerProjectFonts(project.value);
-  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  resetPageTabs();
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
   undoStack.value = [];
@@ -1349,7 +1364,7 @@ async function createNewProject(): Promise<void> {
   await createRecoveryPoint("Перед созданием нового проекта");
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
   detachActiveProjectFile();
-  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  resetPageTabs();
   selectedElementId.value = undefined;
   selectedLayerIds.value = ["layer-1"];
   undoStack.value = [];
@@ -1360,10 +1375,39 @@ async function createNewProject(): Promise<void> {
   operationNotice.value = "Создан новый проект";
 }
 
+function resetPageTabs(pageId = project.value.document.pages[0]?.id ?? ""): void {
+  selectedPageId.value = pageId;
+  openPageIds.value = pageId ? [pageId] : [];
+  selectedElementId.value = undefined;
+  selectedLayerIds.value = [];
+}
+
 function selectPage(pageId: string): void {
+  if (!project.value.document.pages.some((page) => page.id === pageId)) return;
+  if (!openPageIds.value.includes(pageId)) openPageIds.value = [...openPageIds.value, pageId];
   selectedPageId.value = pageId;
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
+}
+
+function closePageTab(pageId: string): void {
+  const tabIndex = openPageIds.value.indexOf(pageId);
+  if (tabIndex < 0) return;
+  const wasActive = selectedPageId.value === pageId;
+  const remaining = openPageIds.value.filter((id) => id !== pageId);
+  openPageIds.value = remaining;
+
+  if (!wasActive) return;
+  const nextPageId = remaining[Math.min(tabIndex, remaining.length - 1)];
+  if (nextPageId) {
+    selectedPageId.value = nextPageId;
+  } else {
+    selectedPageId.value = "";
+    activateDockPanel("pages");
+  }
+  selectedElementId.value = undefined;
+  selectedLayerIds.value = [];
+  operationNotice.value = "Вкладка закрыта; страница осталась в календаре";
 }
 
 async function applyFullCalendarTemplate(): Promise<void> {
@@ -1383,8 +1427,7 @@ async function applyFullCalendarTemplate(): Promise<void> {
       selectedTemplateId.value,
     );
   });
-  const first = project.value.document.pages[0];
-  if (first) selectPage(first.id);
+  resetPageTabs();
   operationNotice.value = "Созданы обложка и 12 месячных страниц";
 }
 
@@ -1988,7 +2031,7 @@ function applyUserProjectTemplate(template: UserProjectTemplate): void {
     };
     ensureCalendarWorkshopBranding(project.value);
   });
-  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  resetPageTabs();
   void registerProjectFonts(project.value);
   operationNotice.value = `Применён шаблон «${template.name}»`;
 }
@@ -2016,7 +2059,7 @@ function cloneCurrentProjectToYear(): void {
   detachActiveProjectFile();
   undoStack.value = [];
   redoStack.value = [];
-  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  resetPageTabs();
   void registerProjectFonts(project.value);
   void loadCalendarData();
   operationNotice.value = `Создана независимая копия проекта на ${year} год; выберите «Сохранить как…»`;
@@ -2029,7 +2072,7 @@ function restoreProjectBackup(backup: ProjectBackup): void {
     ensureCalendarWorkshopBranding(project.value);
   });
   detachActiveProjectFile();
-  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  resetPageTabs();
   void registerProjectFonts(project.value);
   void loadCalendarData();
   operationNotice.value = `Восстановлена копия «${backup.label}»; сохраните её в новый файл`;
@@ -2846,14 +2889,31 @@ watch(project, () => {
   scheduleAutosave();
   scheduleSharedSave();
 }, { deep: true });
+watch(
+  [() => project.value.document.pages.map((page) => page.id), selectedPageId],
+  ([pageIds, activePageId]) => {
+    const available = new Set(pageIds);
+    const nextOpenPageIds = openPageIds.value.filter((pageId) => available.has(pageId));
+    if (activePageId && available.has(activePageId) && !nextOpenPageIds.includes(activePageId)) {
+      nextOpenPageIds.push(activePageId);
+    }
+    if (
+      nextOpenPageIds.length !== openPageIds.value.length ||
+      nextOpenPageIds.some((pageId, index) => pageId !== openPageIds.value[index])
+    ) {
+      openPageIds.value = nextOpenPageIds;
+    }
+  },
+);
 watch(dockPanelMaximumWidthPx, () => {
   dockPanelWidthPx.value = clampDockPanelWidth(dockPanelWidthPx.value);
 });
 watch(
-  [selectedPageId, activeDockPanel, dockPanelWidthPx, zoomPercent, showGuides, selectedTemplateId, panelVisibility],
-  ([pageId, dockPanel]) => {
+  [selectedPageId, openPageIds, activeDockPanel, dockPanelWidthPx, zoomPercent, showGuides, selectedTemplateId, panelVisibility],
+  ([pageId, , dockPanel]) => {
     localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify({
       pageId,
+      openPageIds: openPageIds.value,
       dockPanel,
       dockPanelWidthPx: dockPanelWidthPx.value,
       zoomPercent: zoomPercent.value,
@@ -2969,10 +3029,33 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="document-tabs">
-        <button class="document-tab document-tab--active" type="button">
-          <span>×</span>{{ selectedPage.name }} — {{ project.name }} @ {{ zoomPercent }}%
-        </button>
+      <div class="document-tabs" role="tablist" aria-label="Открытые страницы">
+        <div
+          v-for="page in openPages"
+          :key="page.id"
+          class="document-tab"
+          :class="{ 'document-tab--active': page.id === selectedPageId }"
+        >
+          <button
+            class="document-tab__close"
+            type="button"
+            :aria-label="`Закрыть вкладку «${page.name}»`"
+            :title="`Закрыть вкладку «${page.name}» — сама страница останется в календаре`"
+            @click="closePageTab(page.id)"
+          >×</button>
+          <button
+            class="document-tab__label"
+            type="button"
+            role="tab"
+            :aria-selected="page.id === selectedPageId"
+            :title="`${page.name} — ${project.name}`"
+            @click="selectPage(page.id)"
+          >
+            <span class="document-tab__name">{{ page.name }}</span>
+            <span v-if="page.id === selectedPageId" class="document-tab__zoom">{{ zoomPercent }}%</span>
+          </button>
+        </div>
+        <span v-if="openPages.length === 0" class="document-tabs__empty">Нет открытых страниц</span>
       </div>
     </header>
 
@@ -2991,6 +3074,7 @@ onBeforeUnmount(() => {
       />
 
       <DocumentWorkspace
+        v-if="openPages.length > 0"
         :page="selectedPage"
         :assets="project.assets"
         :food-marker-pack-id="project.foodMarkerPackId"
@@ -3010,6 +3094,13 @@ onBeforeUnmount(() => {
         @geometry-end="endContinuousEdit"
         @mask-stroke="applyElementMaskStroke"
       />
+      <div v-else class="workspace-empty">
+        <div class="workspace-empty__card">
+          <strong>Все вкладки закрыты</strong>
+          <span>Страницы календаря не удалены. Выберите нужную страницу в списке справа.</span>
+          <button class="primary-action" type="button" @click="activateDockPanel('pages')">Открыть список страниц</button>
+        </div>
+      </div>
 
       <div
         v-if="showDock"

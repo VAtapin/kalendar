@@ -90,6 +90,34 @@ test("separates gold and SVG object collections", async ({ page }) => {
   await expect(page.locator(".decor-library__item-meta")).toHaveCount(0);
 });
 
+test("keeps opened calendar pages in lightweight closable tabs", async ({ page }) => {
+  await openEditor(page);
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await page.getByRole("button", { name: "Создать обложку и 12 месяцев" }).click();
+  await page.getByRole("tab", { name: "Страницы" }).click();
+
+  const openTabs = page.getByRole("tablist", { name: "Открытые страницы" });
+  await expect(openTabs.getByRole("tab")).toHaveCount(1);
+  await page.locator(".page-card").nth(1).click();
+  await page.locator(".page-card").nth(2).click();
+  await expect(openTabs.getByRole("tab")).toHaveCount(3);
+  await expect(openTabs.getByRole("tab", { name: /Февраль 2027/ })).toHaveAttribute("aria-selected", "true");
+
+  await page.getByRole("button", { name: "Закрыть вкладку «Январь 2027»" }).click();
+  await expect(openTabs.getByRole("tab")).toHaveCount(2);
+  await expect(page.locator(".page-card")).toHaveCount(13);
+  await page.getByRole("button", { name: "Закрыть вкладку «Февраль 2027»" }).click();
+  await expect(openTabs.getByRole("tab", { name: /Обложка 2027/ })).toHaveAttribute("aria-selected", "true");
+
+  await page.getByRole("button", { name: "Закрыть вкладку «Обложка 2027»" }).click();
+  await expect(openTabs.getByRole("tab")).toHaveCount(0);
+  await expect(page.getByText("Все вкладки закрыты")).toBeVisible();
+  await expect(page.locator(".page-card")).toHaveCount(13);
+  await page.locator(".page-card").nth(1).click();
+  await expect(openTabs.getByRole("tab", { name: /Январь 2027/ })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator(".workspace")).toBeVisible();
+});
+
 test("creates a full calendar safely and keeps cell geometry independent", async ({ page }) => {
   await openEditor(page);
   await page.getByRole("button", { name: "Шаблоны календаря" }).click();
