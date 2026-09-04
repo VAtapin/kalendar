@@ -2275,7 +2275,7 @@ onBeforeUnmount(() => {
                     <button type="button" @click="placeSelectedLegend('top')">Сверху</button>
                     <button type="button" @click="placeSelectedLegend('bottom')">Снизу</button>
                   </div>
-                  <p class="property-help">Легенда всегда располагает только применённые в этом месяце знаки поста в одну строку. Её также можно свободно двигать мышью.</p>
+                  <p class="property-help">Легенда располагает только применённые в этом месяце знаки в одну строку и собирает их у правого края. Свободное место остаётся слева; саму легенду можно двигать мышью.</p>
                 </div>
 
                 <div class="overflow-indicator" :class="`overflow-indicator--${selectedElementOverflowState}`">

@@ -16,6 +16,20 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   await expect.poll(() => replacementWarning).toContain("Изменённые страницы будут удалены");
   await expect(page.locator(".page-card")).toHaveCount(13);
 
+  await page.locator(".page-card").nth(2).click();
+  const februaryLegendItems = page.locator(".legend-item");
+  await expect(februaryLegendItems).toHaveCount(2);
+  const legendFrameBox = await page.locator(".legend-frame").boundingBox();
+  const firstLegendItemBox = await februaryLegendItems.first().boundingBox();
+  const lastLegendItemBox = await februaryLegendItems.last().boundingBox();
+  expect(firstLegendItemBox?.x ?? 0).toBeGreaterThan(
+    (legendFrameBox?.x ?? 0) + (legendFrameBox?.width ?? 0) / 2,
+  );
+  expect(Math.abs(
+    (legendFrameBox?.x ?? 0) + (legendFrameBox?.width ?? 0) -
+    ((lastLegendItemBox?.x ?? 0) + (lastLegendItemBox?.width ?? 0)),
+  )).toBeLessThan(10);
+
   await page.locator(".page-card").nth(1).click();
   await page.locator(".calendar-cell__number").first().click({ force: true });
   await page.getByRole("tab", { name: "Свойства" }).click();

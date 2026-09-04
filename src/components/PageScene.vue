@@ -42,6 +42,7 @@ import {
   type CalendarGridLayout,
 } from "../layout/calendar-grid-layout";
 import { layoutTextBlock, type TextBlockLayout } from "../layout/text-layout";
+import { buildRightAlignedLegendLayout } from "../layout/legend-layout";
 
 interface Point {
   x: number;
@@ -455,20 +456,26 @@ function calendarCellClipId(elementId: string, cellKey: string): string {
   return `calendar-cell-${elementId}-${cellKey}`;
 }
 
-function legendColumnWidth(element: Extract<LayoutElementNode, { type: "legend" }>): number {
-  return element.width / Math.max(1, legendPreviewItems.value.length);
-}
-
 function legendRowHeight(element: Extract<LayoutElementNode, { type: "legend" }>): number {
   return element.height;
 }
 
-function legendMarkerSize(element: Extract<LayoutElementNode, { type: "legend" }>): number {
-  return Math.max(3, Math.min(16, legendRowHeight(element) - 1.2, legendColumnWidth(element) * 0.28));
+let legendMeasureContext: CanvasRenderingContext2D | undefined;
+function measureLegendText(value: string, fontSizeMm: number): number {
+  if (typeof document === "undefined") return Array.from(value).length * fontSizeMm * 0.54;
+  legendMeasureContext ??= document.createElement("canvas").getContext("2d") ?? undefined;
+  if (!legendMeasureContext) return Array.from(value).length * fontSizeMm * 0.54;
+  legendMeasureContext.font = `600 ${fontSizeMm}px "Cormorant Garamond", Georgia, serif`;
+  return legendMeasureContext.measureText(value).width;
 }
 
-function legendLabelX(element: Extract<LayoutElementNode, { type: "legend" }>): number {
-  return legendMarkerSize(element) + 3;
+function legendLayout(element: Extract<LayoutElementNode, { type: "legend" }>) {
+  return buildRightAlignedLegendLayout(
+    element.width,
+    element.height,
+    legendPreviewItems.value,
+    measureLegendText,
+  );
 }
 
 function weekdayLabels(element: CalendarGridElement): readonly string[] {
@@ -781,22 +788,29 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         </template>
 
         <template v-else-if="element.type === 'legend'">
-          <rect :x="element.x" :y="element.y" :width="element.width" :height="element.height" class="page-element__frame" />
+          <rect :x="element.x" :y="element.y" :width="element.width" :height="element.height" class="page-element__frame legend-frame" />
           <g
             v-for="(item, index) in legendPreviewItems"
             :key="item.id"
-            :transform="`translate(${element.x + index * legendColumnWidth(element)} ${element.y})`"
+            class="legend-item"
+            :transform="`translate(${element.x + legendLayout(element).items[index]!.xMm} ${element.y})`"
           >
             <FoodMarker
               v-if="item.foodRule"
               :rule="item.foodRule"
               :source="foodMarkerSource(item.foodRule)"
-              :x="0.6"
-              :y="Math.max(0.6, (legendRowHeight(element) - legendMarkerSize(element)) / 2)"
-              :size="legendMarkerSize(element)"
+              :x="0"
+              :y="Math.max(0, (legendRowHeight(element) - legendLayout(element).markerSizeMm) / 2)"
+              :size="legendLayout(element).markerSizeMm"
             />
-            <circle v-else :cx="legendMarkerSize(element) / 2 + 0.6" :cy="legendRowHeight(element) / 2" r="2.1" :fill="item.color" />
-            <text :x="legendLabelX(element)" :y="legendRowHeight(element) / 2 + 1.1" class="legend-item__label">{{ item.label }}</text>
+            <circle v-else :cx="legendLayout(element).markerSizeMm / 2" :cy="legendRowHeight(element) / 2" r="2.1" :fill="item.color" />
+            <text
+              :x="legendLayout(element).items[index]!.widthMm"
+              :y="legendRowHeight(element) / 2 + legendLayout(element).fontSizeMm * 0.35"
+              class="legend-item__label"
+              text-anchor="end"
+              :style="{ fontSize: `${legendLayout(element).fontSizeMm}px` }"
+            >{{ item.label }}</text>
           </g>
         </template>
 

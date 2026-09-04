@@ -55,6 +55,7 @@ import {
   WEEKDAY_LABELS,
 } from "../layout/calendar-grid-layout";
 import { layoutTextBlock } from "../layout/text-layout";
+import { buildRightAlignedLegendLayout } from "../layout/legend-layout";
 import { buildPageScene } from "../rendering/page-scene";
 import {
   BUNDLED_FONT_FILES,
@@ -779,16 +780,11 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
       items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id), fill: rule.color, foodRule: rule.id });
     }
   }
-  const columns = Math.max(1, items.length);
-  const columnWidth = mm(element.width) / columns;
-  const columnWidthMm = element.width / columns;
   const rowHeightMm = element.height;
-  const markerSize = Math.max(3, Math.min(16, rowHeightMm - 1.2, columnWidthMm * 0.28));
-  const labelOffset = markerSize + 3;
-  const fontSize = Math.min(mm(3.1), mm(rowHeightMm) * 0.42);
+  const baseFontSize = Math.min(mm(3.1), mm(rowHeightMm) * 0.42);
   const legendFont = chooseFont(context.fonts, {
     fontFamily: "Cormorant Garamond",
-    fontSizePt: fontSize,
+    fontSizePt: baseFontSize,
     lineHeight: 1,
     letterSpacingPt: 0,
     fontWeight: 600,
@@ -796,22 +792,30 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
     verticalAlign: "middle",
     paddingMm: 0,
   });
+  const layout = buildRightAlignedLegendLayout(
+    element.width,
+    rowHeightMm,
+    items,
+    (value, fontSizeMm) => legendFont.widthOfTextAtSize(value, mm(fontSizeMm)) / MM_TO_PT,
+  );
+  const markerSize = layout.markerSizeMm;
+  const fontSize = mm(layout.fontSizeMm);
   items.forEach((item, index) => {
-    const column = index;
-    const x = xPt(context, element.x) + columnWidth * column;
+    const itemLayout = layout.items[index]!;
+    const x = xPt(context, element.x + itemLayout.xMm);
     const rowTopMm = element.y;
     const y = bottomPt(context, rowTopMm + rowHeightMm / 2) - fontSize * 0.32;
     if (item.foodRule) {
       drawFoodMarker(
         context,
         item.foodRule,
-        element.x + column * columnWidthMm + 0.6,
-        rowTopMm + Math.max(0.6, (rowHeightMm - markerSize) / 2),
+        element.x + itemLayout.xMm,
+        rowTopMm + Math.max(0, (rowHeightMm - markerSize) / 2),
         markerSize,
       );
     }
-    else context.pdfPage.drawCircle({ x: x + mm(markerSize / 2 + 0.6), y: bottomPt(context, rowTopMm + rowHeightMm / 2), size: mm(2.1), color: color(item.fill) });
-    context.pdfPage.drawText(item.label, { x: x + mm(labelOffset), y, size: fontSize, font: legendFont, color: color("#34413b") });
+    else context.pdfPage.drawCircle({ x: x + mm(markerSize / 2), y: bottomPt(context, rowTopMm + rowHeightMm / 2), size: mm(2.1), color: color(item.fill) });
+    context.pdfPage.drawText(item.label, { x: x + mm(itemLayout.labelOffsetMm), y, size: fontSize, font: legendFont, color: color("#34413b") });
   });
 }
 
