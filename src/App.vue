@@ -105,6 +105,16 @@ const fontFileInput = ref<HTMLInputElement>();
 const iccProfileFileInput = ref<HTMLInputElement>();
 const pendingFoodMarkerRule = ref<FoodRuleId>();
 const activeDockPanel = ref<DockPanelId>("properties");
+const DOCK_PANEL_DEFAULT_WIDTH_PX = 284;
+const DOCK_PANEL_MIN_WIDTH_PX = 180;
+const EDITOR_MIN_WORKSPACE_WIDTH_PX = 640;
+const EDITOR_RESIZER_WIDTH_PX = 7;
+const dockPanelWidthPx = ref(DOCK_PANEL_DEFAULT_WIDTH_PX);
+const viewportWidthPx = ref(typeof window === "undefined" ? 1440 : window.innerWidth);
+const dockPanelResizing = ref(false);
+let dockResizePointerId: number | undefined;
+let dockResizeStartX = 0;
+let dockResizeStartWidth = DOCK_PANEL_DEFAULT_WIDTH_PX;
 const selectedTemplateId = ref<CalendarTemplateId>("editorial-photo");
 const userProjectTemplates = ref<UserProjectTemplate[]>([]);
 const userCalendarGridTemplates = ref<UserCalendarGridTemplate[]>([]);
@@ -326,8 +336,20 @@ const showToolsPanel = computed(
 const showDock = computed(
   () => visibleDockPanels.value.length > 0 && !chromePanelsHidden.value,
 );
+const dockPanelMaximumWidthPx = computed(() => Math.max(
+  DOCK_PANEL_MIN_WIDTH_PX,
+  viewportWidthPx.value -
+    (showToolsPanel.value ? 44 : 0) -
+    EDITOR_RESIZER_WIDTH_PX -
+    EDITOR_MIN_WORKSPACE_WIDTH_PX,
+));
 const editorGridColumns = computed(() =>
-  [showToolsPanel.value ? "44px" : null, "minmax(640px, 1fr)", showDock.value ? "284px" : null]
+  [
+    showToolsPanel.value ? "44px" : null,
+    `minmax(${EDITOR_MIN_WORKSPACE_WIDTH_PX}px, 1fr)`,
+    showDock.value ? `${EDITOR_RESIZER_WIDTH_PX}px` : null,
+    showDock.value ? `${dockPanelWidthPx.value}px` : null,
+  ]
     .filter(Boolean)
     .join(" "),
 );
@@ -556,44 +578,49 @@ function scheduleAutosave(): void {
 async function initializeProject(): Promise<void> {
   try {
     const restored = await loadAutosavedProject();
+    let savedPageId: string | undefined;
+    let savedDockPanel: DockPanelId | undefined;
+    try {
+      const editorState = JSON.parse(localStorage.getItem(EDITOR_STATE_KEY) ?? "{}") as {
+        pageId?: string;
+        dockPanel?: DockPanelId;
+        dockPanelWidthPx?: number;
+        zoomPercent?: number;
+        showGuides?: boolean;
+        selectedTemplateId?: CalendarTemplateId;
+        panelVisibility?: Partial<typeof panelVisibility.value>;
+      };
+      savedPageId = editorState.pageId;
+      savedDockPanel = editorState.dockPanel;
+      if (typeof editorState.zoomPercent === "number") zoomPercent.value = Math.min(100, Math.max(35, editorState.zoomPercent));
+      if (typeof editorState.showGuides === "boolean") showGuides.value = editorState.showGuides;
+      if (CALENDAR_TEMPLATE_PRESETS.some((preset) => preset.id === editorState.selectedTemplateId)) {
+        selectedTemplateId.value = editorState.selectedTemplateId!;
+      }
+      if (editorState.panelVisibility) {
+        for (const key of Object.keys(panelVisibility.value) as Array<keyof typeof panelVisibility.value>) {
+          const stored = editorState.panelVisibility[key];
+          if (typeof stored === "boolean") panelVisibility.value[key] = stored;
+        }
+      }
+      if (typeof editorState.dockPanelWidthPx === "number" && Number.isFinite(editorState.dockPanelWidthPx)) {
+        dockPanelWidthPx.value = clampDockPanelWidth(editorState.dockPanelWidthPx);
+      }
+    } catch {
+      // A broken UI preference must never prevent the document from opening.
+    }
     if (restored) {
       project.value = normalizeCalendarProject(restored);
-      let savedPageId: string | undefined;
-      let savedDockPanel: DockPanelId | undefined;
-      try {
-        const editorState = JSON.parse(localStorage.getItem(EDITOR_STATE_KEY) ?? "{}") as {
-          pageId?: string;
-          dockPanel?: DockPanelId;
-          zoomPercent?: number;
-          showGuides?: boolean;
-          selectedTemplateId?: CalendarTemplateId;
-          panelVisibility?: Partial<typeof panelVisibility.value>;
-        };
-        savedPageId = editorState.pageId;
-        savedDockPanel = editorState.dockPanel;
-        if (typeof editorState.zoomPercent === "number") zoomPercent.value = Math.min(100, Math.max(35, editorState.zoomPercent));
-        if (typeof editorState.showGuides === "boolean") showGuides.value = editorState.showGuides;
-        if (CALENDAR_TEMPLATE_PRESETS.some((preset) => preset.id === editorState.selectedTemplateId)) {
-          selectedTemplateId.value = editorState.selectedTemplateId!;
-        }
-        if (editorState.panelVisibility) {
-          for (const key of Object.keys(panelVisibility.value) as Array<keyof typeof panelVisibility.value>) {
-            const stored = editorState.panelVisibility[key];
-            if (typeof stored === "boolean") panelVisibility.value[key] = stored;
-          }
-        }
-      } catch {
-        // A broken UI preference must never prevent the document from opening.
-      }
-      selectedPageId.value =
-        restored.document.pages.find((page) => page.id === savedPageId)?.id ??
-        restored.document.pages[0]?.id ??
-        "";
-      if (savedDockPanel && dockPanels.some((panel) => panel.id === savedDockPanel)) {
-        activeDockPanel.value = savedDockPanel;
-      }
       operationNotice.value = "Восстановлено последнее автосохранение";
       await registerProjectFonts(project.value);
+    }
+    selectedPageId.value =
+      project.value.document.pages.find((page) => page.id === savedPageId)?.id ??
+      project.value.document.pages.find((page) => page.id === selectedPageId.value)?.id ??
+      project.value.document.pages[0]?.id ??
+      "";
+    if (savedDockPanel && dockPanels.some((panel) => panel.id === savedDockPanel)) {
+      activeDockPanel.value = savedDockPanel;
     }
     [userProjectTemplates.value, userCalendarGridTemplates.value, projectBackups.value] = await Promise.all([
       listUserProjectTemplates(),
@@ -1727,6 +1754,64 @@ function updateFoodMarkerPack(value: string): void {
   });
 }
 
+function clampDockPanelWidth(width: number): number {
+  return Math.round(Math.min(
+    dockPanelMaximumWidthPx.value,
+    Math.max(DOCK_PANEL_MIN_WIDTH_PX, width),
+  ));
+}
+
+function moveDockPanelResize(event: PointerEvent): void {
+  if (event.pointerId !== dockResizePointerId) return;
+  dockPanelWidthPx.value = clampDockPanelWidth(
+    dockResizeStartWidth + dockResizeStartX - event.clientX,
+  );
+}
+
+function stopDockPanelResize(event?: PointerEvent): void {
+  if (event && event.pointerId !== dockResizePointerId) return;
+  dockResizePointerId = undefined;
+  dockPanelResizing.value = false;
+  window.removeEventListener("pointermove", moveDockPanelResize);
+  window.removeEventListener("pointerup", stopDockPanelResize);
+  window.removeEventListener("pointercancel", stopDockPanelResize);
+}
+
+function startDockPanelResize(event: PointerEvent): void {
+  if (!event.isPrimary || event.button !== 0) return;
+  event.preventDefault();
+  event.stopPropagation();
+  stopDockPanelResize();
+  dockResizePointerId = event.pointerId;
+  dockResizeStartX = event.clientX;
+  dockResizeStartWidth = dockPanelWidthPx.value;
+  dockPanelResizing.value = true;
+  window.addEventListener("pointermove", moveDockPanelResize);
+  window.addEventListener("pointerup", stopDockPanelResize);
+  window.addEventListener("pointercancel", stopDockPanelResize);
+}
+
+function resizeDockPanelWithKeyboard(event: KeyboardEvent): void {
+  const step = event.shiftKey ? 64 : 16;
+  let width = dockPanelWidthPx.value;
+  if (event.key === "ArrowLeft") width += step;
+  else if (event.key === "ArrowRight") width -= step;
+  else if (event.key === "Home") width = DOCK_PANEL_MIN_WIDTH_PX;
+  else if (event.key === "End") width = dockPanelMaximumWidthPx.value;
+  else return;
+  event.preventDefault();
+  dockPanelWidthPx.value = clampDockPanelWidth(width);
+}
+
+function resetDockPanelWidth(): void {
+  dockPanelWidthPx.value = clampDockPanelWidth(DOCK_PANEL_DEFAULT_WIDTH_PX);
+}
+
+function handleViewportResize(): void {
+  viewportWidthPx.value = window.innerWidth;
+  dockPanelWidthPx.value = clampDockPanelWidth(dockPanelWidthPx.value);
+}
+
 function activateDockPanel(panelId: DockPanelId): void {
   panelVisibility.value[panelId] = true;
   activeDockPanel.value = panelId;
@@ -2034,15 +2119,20 @@ function handleKeydown(event: KeyboardEvent): void {
 onMounted(() => {
   window.addEventListener("keydown", handleKeydown);
   window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("resize", handleViewportResize);
   void initializeProject();
 });
 watch(project, scheduleAutosave, { deep: true });
+watch(dockPanelMaximumWidthPx, () => {
+  dockPanelWidthPx.value = clampDockPanelWidth(dockPanelWidthPx.value);
+});
 watch(
-  [selectedPageId, activeDockPanel, zoomPercent, showGuides, selectedTemplateId, panelVisibility],
+  [selectedPageId, activeDockPanel, dockPanelWidthPx, zoomPercent, showGuides, selectedTemplateId, panelVisibility],
   ([pageId, dockPanel]) => {
     localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify({
       pageId,
       dockPanel,
+      dockPanelWidthPx: dockPanelWidthPx.value,
       zoomPercent: zoomPercent.value,
       showGuides: showGuides.value,
       selectedTemplateId: selectedTemplateId.value,
@@ -2054,12 +2144,14 @@ watch(
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleKeydown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
+  window.removeEventListener("resize", handleViewportResize);
+  stopDockPanelResize();
   if (autosaveTimer !== undefined) window.clearTimeout(autosaveTimer);
 });
 </script>
 
 <template>
-  <div class="app-shell" @click="activeMenu = undefined">
+  <div class="app-shell" :class="{ 'app-shell--resizing-dock': dockPanelResizing }" @click="activeMenu = undefined">
     <header class="application-header">
       <nav class="menu-bar" aria-label="Главное меню" @click.stop>
         <div class="menu-bar__brand">КМ</div>
@@ -2164,6 +2256,24 @@ onBeforeUnmount(() => {
         @geometry-start="beginContinuousEdit"
         @geometry-end="endContinuousEdit"
       />
+
+      <div
+        v-if="showDock"
+        class="inspector-resizer"
+        :class="{ 'inspector-resizer--active': dockPanelResizing }"
+        role="separator"
+        aria-label="Изменить ширину правой панели"
+        aria-orientation="vertical"
+        :aria-valuemin="DOCK_PANEL_MIN_WIDTH_PX"
+        :aria-valuemax="dockPanelMaximumWidthPx"
+        :aria-valuenow="dockPanelWidthPx"
+        tabindex="0"
+        data-testid="inspector-resizer"
+        title="Потяните для изменения ширины; двойной щелчок — исходная ширина"
+        @pointerdown="startDockPanelResize"
+        @keydown.stop="resizeDockPanelWithKeyboard"
+        @dblclick="resetDockPanelWidth"
+      ></div>
 
       <aside v-if="showDock" class="inspector-panel">
         <div class="dock-tabs" role="tablist" aria-label="Панели документа">

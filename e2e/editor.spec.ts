@@ -117,3 +117,33 @@ test("edits object opacity and a printable gold gradient", async ({ page }) => {
   await expect(stops.nth(1)).toHaveAttribute("stop-color", "#ffe7a0");
   await expect(stops.nth(2)).toHaveAttribute("stop-color", "#b7791f");
 });
+
+test("resizes the right inspector with the mouse and restores its width", async ({ page }) => {
+  await page.goto("/");
+  const inspector = page.locator(".inspector-panel");
+  const resizer = page.getByTestId("inspector-resizer");
+  await expect(inspector).toBeVisible();
+  await expect(resizer).toBeVisible();
+
+  const initialWidth = (await inspector.boundingBox())?.width ?? 0;
+  const growHandle = await resizer.boundingBox();
+  if (!growHandle) throw new Error("Inspector resize handle is not visible");
+  await page.mouse.move(growHandle.x + growHandle.width / 2, growHandle.y + 80);
+  await page.mouse.down();
+  await page.mouse.move(growHandle.x - 110, growHandle.y + 80, { steps: 6 });
+  await page.mouse.up();
+  const grownWidth = (await inspector.boundingBox())?.width ?? 0;
+  expect(grownWidth).toBeGreaterThan(initialWidth + 90);
+
+  const shrinkHandle = await resizer.boundingBox();
+  if (!shrinkHandle) throw new Error("Inspector resize handle is not visible");
+  await page.mouse.move(shrinkHandle.x + shrinkHandle.width / 2, shrinkHandle.y + 80);
+  await page.mouse.down();
+  await page.mouse.move(shrinkHandle.x + 150, shrinkHandle.y + 80, { steps: 6 });
+  await page.mouse.up();
+  const narrowedWidth = (await inspector.boundingBox())?.width ?? 0;
+  expect(narrowedWidth).toBeLessThan(grownWidth - 120);
+
+  await page.reload();
+  await expect.poll(async () => (await inspector.boundingBox())?.width ?? 0).toBeCloseTo(narrowedWidth, 0);
+});

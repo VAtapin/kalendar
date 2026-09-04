@@ -378,6 +378,12 @@ input {
   flex: 1;
 }
 
+.app-shell--resizing-dock,
+.app-shell--resizing-dock * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
 .tools-panel {
   display: flex;
   min-height: 0;
@@ -489,13 +495,43 @@ input {
 }
 
 .inspector-panel {
+  min-width: 0;
   min-height: 0;
   overflow: auto;
+  border-left: 1px solid #38423e;
   background: #202825;
 }
 
-.inspector-panel {
-  border-left: 1px solid #38423e;
+.inspector-resizer {
+  position: relative;
+  min-height: 0;
+  background: #18201d;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.inspector-resizer::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 1px;
+  background: #4a5751;
+  content: "";
+  transition: width 100ms ease, left 100ms ease, background 100ms ease;
+}
+
+.inspector-resizer:hover::after,
+.inspector-resizer:focus-visible::after,
+.inspector-resizer--active::after {
+  left: 2px;
+  width: 3px;
+  background: #c5a85f;
+}
+
+.inspector-resizer:focus-visible {
+  outline: 1px solid #ead8a4;
+  outline-offset: -1px;
 }
 
 .dock-tabs {
