@@ -43,11 +43,12 @@ const visibleItems = computed(() => {
         :key="item.id"
         type="button"
         class="decor-library__item"
-        :title="`${item.label} · исходник ${item.sourceId}`"
+        :title="`${item.label} · ${item.kind === 'image' ? `PNG, ${item.nominalDpi ?? 300} dpi` : `исходник ${item.sourceId}`}`"
         @click="emit('insert', item)"
       >
         <span class="decor-library__preview"><img :src="item.source" alt="" loading="lazy" /></span>
-        <span>{{ item.label }}</span>
+        <span class="decor-library__item-label">{{ item.label }}</span>
+        <small v-if="item.kind === 'image'" class="decor-library__item-meta">PNG · {{ item.nominalDpi ?? 300 }} dpi</small>
       </button>
     </div>
     <p v-if="visibleItems.length === 0" class="empty-panel-message">По этому запросу элементов нет.</p>

@@ -1,0 +1,24 @@
+import type { DecorLibraryItem } from "./decor-library";
+
+const ROOT = "/assets/decor/gold-print";
+
+export const GOLD_PRINT_LIBRARY_ITEMS: readonly DecorLibraryItem[] = [
+  { id: "gold-print-corner-upper-left", sourceId: "generated-gold-01", label: "Золотой ажурный угол A", category: "corners", source: `${ROOT}/corner-upper-left.png`, aspectRatio: 1, kind: "image", widthPx: 1254, heightPx: 1254, nominalDpi: 300 },
+  { id: "gold-print-corner-lower-left", sourceId: "generated-gold-02", label: "Золотой ажурный угол B", category: "corners", source: `${ROOT}/corner-lower-left.png`, aspectRatio: 1214 / 1295, kind: "image", widthPx: 1214, heightPx: 1295, nominalDpi: 300 },
+  { id: "gold-print-corner-upper-right", sourceId: "generated-gold-03", label: "Золотой ажурный угол C", category: "corners", source: `${ROOT}/corner-upper-right.png`, aspectRatio: 1, kind: "image", widthPx: 1254, heightPx: 1254, nominalDpi: 300 },
+  { id: "gold-print-vine-divider-wide", sourceId: "generated-gold-04", label: "Золотая цветочная лоза", category: "dividers", source: `${ROOT}/vine-divider-wide.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-vine-divider-scroll", sourceId: "generated-gold-05", label: "Золотая вьющаяся лоза", category: "dividers", source: `${ROOT}/vine-divider-scroll.png`, aspectRatio: 2084 / 754, kind: "image", widthPx: 2084, heightPx: 754, nominalDpi: 300 },
+  { id: "gold-print-repeat-flower-strip", sourceId: "generated-gold-06", label: "Золотая цепочка цветов", category: "dividers", source: `${ROOT}/repeat-flower-strip.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-thin-rosette-rule", sourceId: "generated-gold-07", label: "Золотая тонкая линия с розеткой", category: "dividers", source: `${ROOT}/thin-rosette-rule.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-leafy-floral-divider", sourceId: "generated-gold-08", label: "Золотая ветвь с цветами", category: "dividers", source: `${ROOT}/leafy-floral-divider.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-grand-center-divider", sourceId: "generated-gold-09", label: "Золотой парадный разделитель", category: "dividers", source: `${ROOT}/grand-center-divider.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-leaf-chain-rule", sourceId: "generated-gold-10", label: "Золотая линия с листьями", category: "dividers", source: `${ROOT}/leaf-chain-rule.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-floral-scroll-rule", sourceId: "generated-gold-11", label: "Золотой цветочный бордюр", category: "dividers", source: `${ROOT}/floral-scroll-rule.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-architectural-border", sourceId: "generated-gold-12", label: "Золотой храмовый бордюр", category: "dividers", source: `${ROOT}/architectural-border.png`, aspectRatio: 3, kind: "image", widthPx: 2172, heightPx: 724, nominalDpi: 300 },
+  { id: "gold-print-quatrefoil", sourceId: "generated-gold-13", label: "Золотая четырёхлепестковая розетка", category: "ornaments", source: `${ROOT}/quatrefoil-medallion.png`, aspectRatio: 1303 / 1207, kind: "image", widthPx: 1303, heightPx: 1207, nominalDpi: 300 },
+  { id: "gold-print-floral-sunburst", sourceId: "generated-gold-14", label: "Золотая лучевая розетка", category: "ornaments", source: `${ROOT}/floral-sunburst.png`, aspectRatio: 1, kind: "image", widthPx: 1254, heightPx: 1254, nominalDpi: 300 },
+  { id: "gold-print-pendant", sourceId: "generated-gold-15", label: "Золотая подвеска", category: "ornaments", source: `${ROOT}/pendant-vertical.png`, aspectRatio: 2 / 3, kind: "image", widthPx: 1024, heightPx: 1536, nominalDpi: 300 },
+  { id: "gold-print-heraldic", sourceId: "generated-gold-16", label: "Золотой геральдический флерон", category: "ornaments", source: `${ROOT}/heraldic-flourish.png`, aspectRatio: 2 / 3, kind: "image", widthPx: 1024, heightPx: 1536, nominalDpi: 300 },
+  { id: "gold-print-leaf-spray", sourceId: "generated-gold-17", label: "Золотая ветвь", category: "ornaments", source: `${ROOT}/leaf-spray.png`, aspectRatio: 2 / 3, kind: "image", widthPx: 1024, heightPx: 1536, nominalDpi: 300 },
+  { id: "gold-print-orthodox-cross", sourceId: "generated-gold-18", label: "Золотой православный крест", category: "symbols", source: `${ROOT}/orthodox-cross.png`, aspectRatio: 2 / 3, kind: "image", widthPx: 1024, heightPx: 1536, nominalDpi: 300 },
+] as const;

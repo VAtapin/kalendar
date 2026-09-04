@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("tab", { name: "Элементы" }).click();
+  const ornament = page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" });
+  await expect(ornament).toContainText("PNG · 300 dpi");
+  await ornament.click();
+
+  const inserted = page.locator('.page-element[data-element-type="image"].page-element--selected');
+  await expect(inserted).toHaveCount(1);
+  await expect(page.locator(".status-bar__notice")).toContainText("Золотой православный крест");
+  await expect(page.locator(".status-bar__notice")).toContainText("300 dpi");
+});
+
 test("creates a full calendar safely and keeps cell geometry independent", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Шаблоны календаря" }).click();

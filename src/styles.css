@@ -654,6 +654,17 @@ input {
   outline: none;
 }
 
+.decor-library__item-label {
+  min-width: 0;
+}
+
+.decor-library__item-meta {
+  color: #b79b5f;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .decor-library__preview {
   display: grid;
   height: 88px;

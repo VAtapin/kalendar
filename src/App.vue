@@ -26,6 +26,7 @@ import type {
   CalendarGridElement,
   CalendarProject,
   CommemorationRankFilterId,
+  ImageElement,
   MonasteryEvent,
   PageFormatId,
   PageOrientation,
@@ -1633,8 +1634,41 @@ async function loadDecorMarkup(item: DecorLibraryItem): Promise<string> {
   return response.text();
 }
 
+async function loadDecorImage(item: DecorLibraryItem): Promise<string> {
+  const response = await fetch(item.source);
+  if (!response.ok) throw new Error(`Не удалось прочитать ${item.label}`);
+  const blob = await response.blob();
+  return readFileAsDataUrl(new File([blob], `${item.id}.png`, { type: blob.type || "image/png" }));
+}
+
 async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
   try {
+    if (item.kind === "image") {
+      const asset = {
+        id: `asset-decor-${crypto.randomUUID()}`,
+        name: `${item.label}.png`,
+        mimeType: "image/png",
+        source: await loadDecorImage(item),
+        kind: "image" as const,
+        widthPx: item.widthPx,
+        heightPx: item.heightPx,
+      };
+      const created = mutateProject("Вставка печатного декора из библиотеки", () => {
+        project.value.assets.push(asset);
+        const result = createElementOnOwnLayer(selectedPage.value, "image", frameForDecor(item));
+        result.layer.name = item.label;
+        const element = result.element as ImageElement;
+        element.assetId = asset.id;
+        element.fit = "fit";
+        return result;
+      });
+      selectedLayerIds.value = [created.layer.id];
+      selectedElementId.value = created.element.id;
+      activeTool.value = "selection";
+      activeDockPanel.value = "properties";
+      operationNotice.value = `Добавлен печатный элемент «${item.label}» · ${item.nominalDpi ?? 300} dpi`;
+      return;
+    }
     const color = currentStrokeColor.value;
     const markup = recolorSvgMarkup(await loadDecorMarkup(item), color);
     const asset = {
