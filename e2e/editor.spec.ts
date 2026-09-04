@@ -36,6 +36,12 @@ test("inserts a print-ready transparent gold ornament from the objects library",
   await expect(inserted).toHaveCount(1);
   await expect(page.locator(".status-bar__notice")).toContainText("Золотой православный крест");
   await expect(page.locator(".status-bar__notice")).toContainText("300 dpi");
+
+  await page.getByRole("tab", { name: "Страницы" }).click();
+  await expect(page.getByRole("tab", { name: "Страницы" })).toHaveAttribute("aria-selected", "true");
+  await inserted.click({ force: true });
+  await expect(page.getByRole("tab", { name: "Свойства" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("button", { name: "Заменить файл…" })).toBeVisible();
 });
 
 test("keeps the compulsory workshop logo immutable on the top layer", async ({ page }) => {
@@ -116,7 +122,7 @@ test("creates a full calendar safely and keeps cell geometry independent", async
 
   await page.locator(".page-card").nth(1).click();
   await page.locator(".calendar-cell__number").first().click({ force: true });
-  await page.getByRole("tab", { name: "Свойства" }).click();
+  await expect(page.getByRole("tab", { name: "Свойства" })).toHaveAttribute("aria-selected", "true");
 
   const number = page.locator(".calendar-cell__number").first();
   const marker = page.locator(".food-marker").first();

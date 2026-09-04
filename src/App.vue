@@ -1720,7 +1720,9 @@ function selectElement(elementId: string | undefined): void {
   selectedElementId.value = elementId;
   if (!elementId) return;
   const element = selectedPage.value.elements.find((item) => item.id === elementId);
-  if (element) selectedLayerIds.value = [element.layerId];
+  if (!element) return;
+  selectedLayerIds.value = [element.layerId];
+  activateDockPanel("properties");
 }
 
 function updateElementNumber(
