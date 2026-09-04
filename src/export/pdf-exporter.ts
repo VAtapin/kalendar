@@ -4,22 +4,28 @@ import {
   PDFDict,
   PDFName,
   PDFNumber,
+  PDFOperator,
+  PDFOperatorNames,
   PDFString,
   TextRenderingMode,
   type PDFFont,
   type PDFImage,
   type PDFPage,
+  appendBezierCurve,
   clip,
   beginText,
+  closePath,
   concatTransformationMatrix,
   endText,
   endPath,
+  moveTo,
   popGraphicsState,
   pushGraphicsState,
   rectangle,
   rgb,
   setCharacterSpacing,
   setFontAndSize,
+  setGraphicsState,
   setTextMatrix,
   setTextRenderingMode,
   showText,
@@ -50,6 +56,7 @@ import type {
   ImageElement,
   LargeTextEffects,
   LayoutElementNode,
+  LinearGradientFill,
   MonthTextElement,
   PageModel,
   ShapeElement,
@@ -244,6 +251,62 @@ function trackedTextWidth(font: PDFFont, text: string, size: number, spacing: nu
   return font.widthOfTextAtSize(text, size) + Math.max(0, Array.from(text).length - 1) * spacing;
 }
 
+function drawAxialGradient(
+  page: PDFPage,
+  gradient: LinearGradientFill,
+  opacity: number,
+  coordinates: readonly [number, number, number, number],
+): void {
+  const context = page.doc.context;
+  const start = gradientColorAt(gradient, 0);
+  const center = gradientColorAt(gradient, 0.5);
+  const end = gradientColorAt(gradient, 1);
+  const interpolation = (
+    from: typeof start,
+    to: typeof start,
+  ) => context.obj({
+    FunctionType: 2,
+    Domain: [0, 1],
+    C0: [from.red, from.green, from.blue],
+    C1: [to.red, to.green, to.blue],
+    N: 1,
+  });
+  const stitchingFunction = context.obj({
+    FunctionType: 3,
+    Domain: [0, 1],
+    Functions: [interpolation(start, center), interpolation(center, end)],
+    Bounds: [0.5],
+    Encode: [0, 1, 0, 1],
+  });
+  const shading = context.obj({
+    ShadingType: 2,
+    ColorSpace: "DeviceRGB",
+    Coords: [...coordinates],
+    Function: stitchingFunction,
+    Extend: [true, true],
+  });
+
+  page.node.normalize();
+  const resources = page.node.Resources()!;
+  const shadingResourceName = PDFName.of("Shading");
+  let shadings = resources.lookupMaybe(shadingResourceName, PDFDict);
+  if (!shadings) {
+    shadings = context.obj({});
+    resources.set(shadingResourceName, shadings);
+  }
+  const shadingKey = shadings.uniqueKey("Sh");
+  shadings.set(shadingKey, context.register(shading));
+  const graphicsStateKey = page.node.newExtGState("GS", context.obj({
+    Type: "ExtGState",
+    ca: normalizedOpacity(opacity),
+    CA: normalizedOpacity(opacity),
+  }));
+  page.pushOperators(
+    setGraphicsState(graphicsStateKey),
+    PDFOperator.of(PDFOperatorNames.ShadingFill, [shadingKey]),
+  );
+}
+
 function drawTrackedText(
   page: PDFPage,
   text: string,
@@ -299,38 +362,16 @@ function drawGradientTrackedText(
   if (spacing) operators.push(setCharacterSpacing(spacing));
   operators.push(showText(newFont.encodeText(text)), endText());
   page.pushOperators(...operators);
-
-  const stripeCount = Math.max(24, Math.min(96, Math.ceil((gradient.direction === "horizontal" ? width : size) / 3)));
   const bottom = y - size * 0.28;
   const height = size * 1.35;
-  for (let index = 0; index < stripeCount; index += 1) {
-    const position = (index + 0.5) / stripeCount;
-    const channels = gradientColorAt(
-      gradient,
-      gradient.direction === "vertical" ? 1 - position : position,
-    );
-    if (gradient.direction === "horizontal") {
-      const stripeWidth = width / stripeCount;
-      page.drawRectangle({
-        x: x + stripeWidth * index,
-        y: bottom,
-        width: stripeWidth + 0.15,
-        height,
-        color: rgb(channels.red, channels.green, channels.blue),
-        opacity,
-      });
-    } else {
-      const stripeHeight = height / stripeCount;
-      page.drawRectangle({
-        x,
-        y: bottom + stripeHeight * index,
-        width: width + 0.15,
-        height: stripeHeight + 0.15,
-        color: rgb(channels.red, channels.green, channels.blue),
-        opacity,
-      });
-    }
-  }
+  drawAxialGradient(
+    page,
+    gradient,
+    opacity,
+    gradient.direction === "horizontal"
+      ? [x, bottom, x + width, bottom]
+      : [x, bottom + height, x, bottom],
+  );
   page.pushOperators(popGraphicsState());
 }
 
@@ -981,41 +1022,55 @@ function drawGradientShape(context: PageContext, element: ShapeElement, opacity:
   const y = bottomPt(context, element.y, element.height);
   const width = mm(element.width);
   const height = mm(element.height);
-  const horizontal = gradient.direction === "horizontal";
-  const steps = 96;
-
-  for (let index = 0; index < steps; index += 1) {
-    const position = (index + 0.5) / steps;
-    const channels = gradientColorAt(gradient, position);
-    const fill = rgb(channels.red, channels.green, channels.blue);
-    if (horizontal) {
-      const stripWidth = width / steps;
-      const ellipseHeight = element.shape === "ellipse"
-        ? height * Math.sqrt(Math.max(0, 1 - (position * 2 - 1) ** 2))
-        : height;
-      context.pdfPage.drawRectangle({
-        x: x + index * stripWidth - 0.05,
-        y: y + (height - ellipseHeight) / 2,
-        width: stripWidth + 0.1,
-        height: ellipseHeight,
-        color: fill,
-        opacity,
-      });
-    } else {
-      const stripHeight = height / steps;
-      const ellipseWidth = element.shape === "ellipse"
-        ? width * Math.sqrt(Math.max(0, 1 - (position * 2 - 1) ** 2))
-        : width;
-      context.pdfPage.drawRectangle({
-        x: x + (width - ellipseWidth) / 2,
-        y: y + height - (index + 1) * stripHeight - 0.05,
-        width: ellipseWidth,
-        height: stripHeight + 0.1,
-        color: fill,
-        opacity,
-      });
-    }
+  context.pdfPage.pushOperators(pushGraphicsState());
+  if (element.shape === "ellipse") {
+    const radiusX = width / 2;
+    const radiusY = height / 2;
+    const centerX = x + radiusX;
+    const centerY = y + radiusY;
+    const control = 0.5522847498307936;
+    context.pdfPage.pushOperators(
+      moveTo(centerX + radiusX, centerY),
+      appendBezierCurve(
+        centerX + radiusX, centerY + control * radiusY,
+        centerX + control * radiusX, centerY + radiusY,
+        centerX, centerY + radiusY,
+      ),
+      appendBezierCurve(
+        centerX - control * radiusX, centerY + radiusY,
+        centerX - radiusX, centerY + control * radiusY,
+        centerX - radiusX, centerY,
+      ),
+      appendBezierCurve(
+        centerX - radiusX, centerY - control * radiusY,
+        centerX - control * radiusX, centerY - radiusY,
+        centerX, centerY - radiusY,
+      ),
+      appendBezierCurve(
+        centerX + control * radiusX, centerY - radiusY,
+        centerX + radiusX, centerY - control * radiusY,
+        centerX + radiusX, centerY,
+      ),
+      closePath(),
+      clip(),
+      endPath(),
+    );
+  } else {
+    context.pdfPage.pushOperators(
+      rectangle(x, y, width, height),
+      clip(),
+      endPath(),
+    );
   }
+  drawAxialGradient(
+    context.pdfPage,
+    gradient,
+    opacity,
+    gradient.direction === "horizontal"
+      ? [x, y, x + width, y]
+      : [x, y + height, x, y],
+  );
+  context.pdfPage.pushOperators(popGraphicsState());
 }
 
 function drawShape(context: PageContext, element: ShapeElement): void {

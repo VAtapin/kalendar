@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { PDFDocument, PDFName } from "pdf-lib";
+import { PDFDict, PDFDocument, PDFName, PDFNumber } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { buildOrthodoxCalendarYear, parseMemoryDaysXml } from "../src/calendar";
 import { createBlankCalendarProject } from "../src/document/factories";
@@ -62,6 +62,14 @@ describe("PDF exporter", () => {
     expect(page.getWidth()).toBeCloseTo((105 + 6) * MM_TO_PT, 2);
     expect(page.getHeight()).toBeCloseTo((148 + 6) * MM_TO_PT, 2);
     expect(page.getTrimBox().width).toBeCloseTo(105 * MM_TO_PT, 2);
+    const shadings = page.node.Resources()?.lookupMaybe(PDFName.of("Shading"), PDFDict);
+    expect(shadings?.keys().length).toBeGreaterThan(0);
+    for (const key of shadings?.keys() ?? []) {
+      const shading = exported.context.lookup(shadings!.get(key), PDFDict);
+      expect(shading.lookup(PDFName.of("ShadingType"), PDFNumber).asNumber()).toBe(2);
+      const stitching = shading.lookup(PDFName.of("Function"), PDFDict);
+      expect(stitching.lookup(PDFName.of("FunctionType"), PDFNumber).asNumber()).toBe(3);
+    }
     expect(result.warnings.some((warning) => warning.code === "missing-asset")).toBe(true);
   });
 
