@@ -1487,7 +1487,38 @@ export async function exportCalendarProjectPdf(
   };
 }
 
-export async function loadPdfFontFiles(baseUrl = "/fonts"): Promise<PdfFontFiles> {
+export function collectBundledFontFamilies(project: CalendarProject): Set<BundledFontFamily> {
+  const result = new Set<BundledFontFamily>();
+  const knownFamilies = new Map(
+    (Object.keys(BUNDLED_FONT_FILES) as BundledFontFamily[]).map((family) => [family.toLocaleLowerCase(), family]),
+  );
+  const add = (family: string | undefined): void => {
+    if (!family) return;
+    const bundled = knownFamilies.get(family.trim().toLocaleLowerCase());
+    if (bundled) result.add(bundled);
+  };
+
+  for (const page of project.document.pages) {
+    for (const element of page.elements) {
+      if (element.type === "text" || element.type === "month-text") {
+        add(element.typography.fontFamily);
+      } else if (element.type === "calendar-grid") {
+        add(element.weekdayFontFamily ?? "Ruslan Display");
+        add(element.dayNumberFontFamily ?? "Yeseva One");
+        add(element.eventFontFamily ?? "Cormorant Garamond");
+        add(element.oldStyleFontFamily ?? "Cormorant Garamond");
+      } else if (element.type === "legend") {
+        add("Cormorant Garamond");
+      }
+    }
+  }
+  return result;
+}
+
+export async function loadPdfFontFiles(
+  baseUrl = "/fonts",
+  requestedFamilies?: ReadonlySet<BundledFontFamily>,
+): Promise<PdfFontFiles> {
   async function load(name: string): Promise<Uint8Array> {
     const response = await fetch(`${baseUrl}/${name}`);
     if (!response.ok) throw new Error(`Не удалось загрузить шрифт ${name}: HTTP ${response.status}`);
@@ -1507,6 +1538,7 @@ export async function loadPdfFontFiles(baseUrl = "/fonts"): Promise<PdfFontFiles
   for (const [family, files] of Object.entries(BUNDLED_FONT_FILES) as Array<
     [BundledFontFamily, (typeof BUNDLED_FONT_FILES)[BundledFontFamily]]
   >) {
+    if (requestedFamilies && !requestedFamilies.has(family)) continue;
     const regularFile = await load(files.regular);
     const boldFile = files.bold ? await load(files.bold) : undefined;
     const italicFile = files.italic ? await load(files.italic) : undefined;

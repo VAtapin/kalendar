@@ -257,7 +257,24 @@ const pdfExportState = ref<"idle" | "exporting" | "ready" | "error">("idle");
 const currentFillColor = ref("#f4f1e8");
 const currentStrokeColor = ref("#17201d");
 const fontOptionGroups = computed(() => [
-  { label: "Декоративные кириллические", options: FONT_OPTIONS.filter((option) => option.kind === "decorative") },
+  {
+    label: "Декоративные кириллические",
+    options: FONT_OPTIONS.filter(
+      (option) => option.kind === "decorative" && (option.scriptSupport ?? "full-cyrillic") === "full-cyrillic",
+    ),
+  },
+  {
+    label: "Декоративные — неполная кириллица",
+    options: FONT_OPTIONS.filter(
+      (option) => option.kind === "decorative" && option.scriptSupport === "partial-cyrillic",
+    ),
+  },
+  {
+    label: "Декоративные — латиница",
+    options: FONT_OPTIONS.filter(
+      (option) => option.kind === "decorative" && option.scriptSupport === "latin",
+    ),
+  },
   { label: "Книжные", options: FONT_OPTIONS.filter((option) => option.kind === "text") },
   {
     label: "Шрифты проекта",
@@ -1197,10 +1214,11 @@ async function exportPrintPdf(): Promise<void> {
   operationNotice.value = `Формируется PDF: ${project.value.document.pages.length} стр.`;
   try {
     ensureCalendarWorkshopBranding(project.value);
-    const { exportCalendarProjectPdf, loadPdfFontFiles } = await import("./export/pdf-exporter");
-    const fonts = await loadPdfFontFiles();
+    const { collectBundledFontFamilies, exportCalendarProjectPdf, loadPdfFontFiles } = await import("./export/pdf-exporter");
+    const snapshot = createPersistentProjectSnapshot(project.value);
+    const fonts = await loadPdfFontFiles("/fonts", collectBundledFontFamilies(snapshot));
     const result = await exportCalendarProjectPdf(
-      createPersistentProjectSnapshot(project.value),
+      snapshot,
       displayedCalendarYear.value,
       fonts,
     );
@@ -3283,7 +3301,14 @@ onBeforeUnmount(() => {
               <p class="property-help">{{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].description }} Версия правил {{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].rulesVersion }}.</p>
               <label class="field-stack"><span>Издатель / монастырь</span><input v-model="project.publisherProfile.name" type="text" /></label>
               <h2 class="property-subheading">Шрифты проекта</h2>
-              <button type="button" @click="requestCustomFontFile">Добавить TTF/OTF/WOFF…</button>
+              <button class="font-upload-button" type="button" @click="requestCustomFontFile">
+                <span class="font-upload-button__preview" aria-hidden="true">Аа</span>
+                <span class="font-upload-button__copy">
+                  <strong>Добавить шрифт</strong>
+                  <small>TTF · OTF · WOFF</small>
+                </span>
+                <span class="font-upload-button__plus" aria-hidden="true">＋</span>
+              </button>
               <div v-for="font in project.customFonts" :key="font.assetId" class="saved-template-row">
                 <span>{{ font.family }}</span>
                 <button type="button" title="Удалить шрифт" @click="removeProjectFont(font.assetId)">×</button>

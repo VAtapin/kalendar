@@ -1,3 +1,5 @@
+@import "./bundled-fonts.css";
+
 @font-face {
   font-family: "Ruslan Display";
   src: url("/fonts/RuslanDisplay-Regular.ttf") format("truetype");
@@ -1939,6 +1941,77 @@ input {
   background: #51462e;
   font-size: 11px;
   cursor: pointer;
+}
+
+.font-upload-button {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  grid-template-columns: 28px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border: 1px solid #59665f;
+  border-radius: 5px;
+  color: #e9eee9;
+  background: linear-gradient(180deg, #2a342f, #222b27);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+
+.font-upload-button:hover {
+  border-color: #a58b50;
+  background: linear-gradient(180deg, #343b31, #282f29);
+  box-shadow: inset 3px 0 #c5a85f;
+}
+
+.font-upload-button:focus-visible {
+  outline: 1px solid #e0c77e;
+  outline-offset: 2px;
+}
+
+.font-upload-button__preview {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid #8c7847;
+  border-radius: 4px;
+  color: #edce75;
+  background: #18201d;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.font-upload-button__copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.font-upload-button__copy strong {
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.font-upload-button__copy small {
+  color: #96a29c;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.font-upload-button__plus {
+  color: #d7bc71;
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
 }
 
 .property-help {

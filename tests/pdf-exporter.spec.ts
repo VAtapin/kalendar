@@ -14,7 +14,7 @@ import { buildOrthodoxCalendarYear, parseMemoryDaysXml } from "../src/calendar";
 import { createBlankCalendarProject } from "../src/document/factories";
 import { createGoldGradient } from "../src/document/paint";
 import { createElementOnOwnLayer } from "../src/editor/element-creation";
-import { MM_TO_PT, exportCalendarProjectPdf } from "../src/export/pdf-exporter";
+import { MM_TO_PT, collectBundledFontFamilies, exportCalendarProjectPdf } from "../src/export/pdf-exporter";
 import { createMonthTemplatePage } from "../src/templates/calendar-templates";
 
 function decodedPageContent(document: PDFDocument, pageIndex: number): string {
@@ -30,6 +30,21 @@ function decodedPageContent(document: PDFDocument, pageIndex: number): string {
 }
 
 describe("PDF exporter", () => {
+  it("loads only bundled fonts actually used by the project", () => {
+    const project = createBlankCalendarProject(2027);
+    project.document.pages = [createMonthTemplatePage("A6", "portrait", 1, 2027)];
+    const title = project.document.pages[0]!.elements.find(
+      (element) => element.type === "text" || element.type === "month-text",
+    );
+    if (!title || (title.type !== "text" && title.type !== "month-text")) throw new Error("Expected text element");
+    title.typography.fontFamily = "Italiano Decor";
+
+    const families = collectBundledFontFamilies(project);
+    expect(families).toContain("Italiano Decor");
+    expect(families).toContain("Cormorant Garamond");
+    expect(families).not.toContain("Neoneon");
+  });
+
   it("creates a Cyrillic print page with MediaBox, TrimBox and bleed", async () => {
     const workspace = resolve(import.meta.dirname, "..");
     const [xml, regular, bold, italic, boldItalic] = await Promise.all([

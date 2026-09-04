@@ -25,6 +25,11 @@ test("shows a readable mobile welcome page and keeps the editor on a large scree
 
 test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
   await openEditor(page);
+  expect(await page.evaluate(async () => {
+    const query = '18px "Monomakh Unicode"';
+    await document.fonts.load(query, "ЯНВАРЬ");
+    return document.fonts.check(query, "ЯНВАРЬ");
+  })).toBe(true);
   await page.getByRole("tab", { name: "Элементы" }).click();
   await expect(page.getByTestId("decor-collection-gold")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".decor-library__summary")).toContainText("22 из 22");
@@ -123,6 +128,7 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   await page.locator(".page-card").nth(1).click();
   await page.locator(".calendar-cell__number").first().click({ force: true });
   await expect(page.getByRole("tab", { name: "Свойства" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByLabel("Шрифт заголовков").locator('option[value="Monomakh Unicode"]')).toHaveCount(1);
 
   const number = page.locator(".calendar-cell__number").first();
   const marker = page.locator(".food-marker").first();

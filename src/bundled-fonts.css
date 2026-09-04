@@ -1,0 +1,35 @@
+@font-face { font-family: "Italiano Decor"; src: url("/fonts/ItalianoDecor.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Condens"; src: url("/fonts/Condens.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Favorit"; src: url("/fonts/Favorit.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "AGLettericaExtraCompressed"; src: url("/fonts/AGLettericaExtraCompressed.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "ST-Surzhik"; src: url("/fonts/ST-Surzhik.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "ST-Cyberillic"; src: url("/fonts/ST-Cyberillic.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "ST-Postoronnim"; src: url("/fonts/ST-Postoronnim.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Monomakh Unicode"; src: url("/fonts/MonomakhUnicode.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "IzhitsaShadowCTT"; src: url("/fonts/IzhitsaShadowCTT.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "OldCyr"; src: url("/fonts/OldCyr.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Wooden Ship Decorated"; src: url("/fonts/WoodenShipDecorated.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "DS Yermak_D"; src: url("/fonts/DSYermakD.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Rurintania"; src: url("/fonts/Rurintania.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "a_BosaNova"; src: url("/fonts/ABosaNova.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Wonderland"; src: url("/fonts/Wonderland.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Wonderland Stars"; src: url("/fonts/WonderlandStars.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Pret-a-Porter Deco"; src: url("/fonts/PretAPorterDeco.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Brevis"; src: url("/fonts/Brevis.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Avalon"; src: url("/fonts/Avalon.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Fortuna Gothic FlorishC"; src: url("/fonts/FortunaGothicFlorishC.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Country Western"; src: url("/fonts/CountryWestern.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Neoneon"; src: url("/fonts/Neoneon.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Lighthaus"; src: url("/fonts/Lighthaus.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Country Western Swing"; src: url("/fonts/CountryWesternSwing.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Aero Matics Stencil"; src: url("/fonts/AeroMaticsStencil.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Dublon"; src: url("/fonts/Dublon.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Spectrashell"; src: url("/fonts/Spectrashell.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Daray"; src: url("/fonts/Daray.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Okuda"; src: url("/fonts/Okuda.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "TauernInlineCTT"; src: url("/fonts/TauernInlineCTT.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Gazeta Sans Serif"; src: url("/fonts/GazetaSansSerif.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Afisha"; src: url("/fonts/Afisha.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Balalaika"; src: url("/fonts/Balalaika.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Lavka 2021"; src: url("/fonts/Lavka2021.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "TD Elena2021"; src: url("/fonts/TDElena2021.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
