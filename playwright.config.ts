@@ -14,10 +14,18 @@ export default defineConfig({
       ? { executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe" }
       : undefined,
   },
-  webServer: {
-    command: "npm run dev -- --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: true,
-    timeout: 30_000,
-  },
+  webServer: [
+    {
+      command: "npm run dev -- --host 127.0.0.1 --port 4173",
+      url: "http://127.0.0.1:4173",
+      reuseExistingServer: true,
+      timeout: 30_000,
+    },
+    {
+      command: "npm run api",
+      url: "http://127.0.0.1:8787/health",
+      reuseExistingServer: true,
+      timeout: 30_000,
+    },
+  ],
 });

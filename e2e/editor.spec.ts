@@ -1,7 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
+async function openEditor(page: import("@playwright/test").Page): Promise<void> {
+  await page.addInitScript(() => localStorage.setItem("orthodox-calendar-layout:verified-email-token", "e2e-local-token"));
   await page.goto("/");
+  await page.getByTestId("welcome-create").click();
+  await expect(page.locator(".workspace")).toBeVisible();
+}
+
+test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
+  await openEditor(page);
   await page.getByRole("tab", { name: "Элементы" }).click();
   await expect(page.getByTestId("decor-collection-gold")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".decor-library__summary")).toContainText("22 из 22");
@@ -16,7 +23,7 @@ test("inserts a print-ready transparent gold ornament from the objects library",
 });
 
 test("separates gold and SVG object collections", async ({ page }) => {
-  await page.goto("/");
+  await openEditor(page);
   await page.getByRole("tab", { name: "Элементы" }).click();
 
   await expect(page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" })).toBeVisible();
@@ -31,7 +38,7 @@ test("separates gold and SVG object collections", async ({ page }) => {
 });
 
 test("creates a full calendar safely and keeps cell geometry independent", async ({ page }) => {
-  await page.goto("/");
+  await openEditor(page);
   await page.getByRole("button", { name: "Шаблоны календаря" }).click();
   const createFull = page.getByRole("button", { name: "Создать обложку и 12 месяцев" });
   await createFull.click();
@@ -153,7 +160,7 @@ test("creates a full calendar safely and keeps cell geometry independent", async
 });
 
 test("edits object opacity and a printable gold gradient", async ({ page }) => {
-  await page.goto("/");
+  await openEditor(page);
   await page.getByTitle("Прямоугольник (M)").click();
   const scene = page.locator(".page-scene");
   const sceneBox = await scene.boundingBox();
@@ -179,7 +186,7 @@ test("edits object opacity and a printable gold gradient", async ({ page }) => {
 });
 
 test("resizes the right inspector with the mouse and restores its width", async ({ page }) => {
-  await page.goto("/");
+  await openEditor(page);
   const inspector = page.locator(".inspector-panel");
   const resizer = page.getByTestId("inspector-resizer");
   await expect(inspector).toBeVisible();
@@ -234,7 +241,7 @@ test("saves repeatedly to the chosen project file and provides complete help dia
       },
     });
   });
-  await page.goto("/");
+  await openEditor(page);
 
   await page.getByRole("button", { name: "Файл", exact: true }).click();
   await page.getByTestId("menu-command-save-project").click();
@@ -268,4 +275,30 @@ test("saves repeatedly to the chosen project file and provides complete help dia
   await expect(about.getByRole("link", { name: "ATAPIN.DE" })).toHaveAttribute("href", "https://atapin.de/");
   await expect(about.getByRole("link", { name: "+49 171 351 72 74" })).toHaveAttribute("href", "tel:+491713517274");
   await expect(about.getByRole("link", { name: "atapin@gmail.com" })).toHaveAttribute("href", "mailto:atapin@gmail.com");
+});
+
+test("verifies e-mail, shares one editable calendar and offers a copy to the second editor", async ({ page, browser }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Создайте православный календарь, готовый к печати" })).toBeVisible();
+  await page.getByTestId("welcome-create").click();
+  const verification = page.getByRole("dialog", { name: "Подтверждение e-mail" });
+  await verification.getByLabel("E-mail").fill(`e2e-${Date.now()}@example.com`);
+  await verification.getByRole("button", { name: "Получить ссылку" }).click();
+  await verification.getByRole("link", { name: "Открыть тестовую ссылку подтверждения" }).click();
+  await expect(page.locator(".workspace")).toBeVisible();
+
+  await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-share-project").click();
+  const linkDialog = page.getByRole("dialog", { name: "Ссылка на календарь" });
+  const shareUrl = await linkDialog.getByLabel("Ссылка").inputValue();
+  await expect(shareUrl).toContain("?shared=");
+
+  const secondContext = await browser.newContext();
+  const second = await secondContext.newPage();
+  await second.goto(shareUrl.replace("5173", "4173"));
+  const locked = second.getByRole("dialog", { name: "Совместная работа" });
+  await expect(locked).toContainText("Календарь сейчас занят");
+  await locked.getByRole("button", { name: "Сделать копию" }).click();
+  await expect(second.getByRole("dialog", { name: "Ссылка на календарь" })).toContainText("независимая копия");
+  await secondContext.close();
 });

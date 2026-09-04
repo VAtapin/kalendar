@@ -8,6 +8,10 @@ import TextEffectsEditor from "./components/TextEffectsEditor.vue";
 import ApplicationHelpDialog, { type HelpDialogPage } from "./components/ApplicationHelpDialog.vue";
 import PageThumbnail from "./components/PageThumbnail.vue";
 import RecoveryDialog from "./components/RecoveryDialog.vue";
+import WelcomePage from "./components/WelcomePage.vue";
+import EmailVerificationDialog from "./components/EmailVerificationDialog.vue";
+import SharedProjectDialog from "./components/SharedProjectDialog.vue";
+import LinkResultDialog from "./components/LinkResultDialog.vue";
 import {
   changePageFormat,
   createBlankCalendarProject,
@@ -88,6 +92,29 @@ import {
 } from "./templates/calendar-templates";
 import { checkCalendarProject, type PreflightIssue } from "./preflight/project-preflight";
 import { copyCalendarGridPresentation } from "./templates/calendar-grid-settings";
+import { ensureCalendarWorkshopBranding } from "./document/branding";
+import {
+  SharedProjectApiError,
+  confirmEmailVerification,
+  copySharedProject,
+  createSharedProject,
+  heartbeatSharedProject,
+  openSharedProject,
+  releaseSharedProject,
+  replaceSharedProjectInLocation,
+  requestEmailVerification,
+  saveSharedProject,
+  sharedProjectIdFromLocation,
+  sharedProjectUrl,
+  uploadPdfExport,
+  verificationTokenFromLocation,
+} from "./collaboration/shared-project-client";
+import type {
+  PdfExportReady,
+  SharedEditorPresence,
+  SharedProjectLease,
+  SharedProjectLeaseGranted,
+} from "./collaboration/shared-project-types";
 import { DECOR_LIBRARY_ITEMS, type DecorLibraryItem } from "./decor/decor-library";
 import { recolorSvgMarkup, svgMarkupDataUrl } from "./decor/svg-recolor";
 import { FONT_OPTIONS } from "./typography/font-catalog";
@@ -131,7 +158,7 @@ const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
 type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
 type MenuCommandId =
-  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "export-pdf"
+  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "share-project" | "export-pdf"
   | "save-user-template" | "clone-year"
   | "undo" | "redo" | "duplicate" | "delete"
   | "full-template" | "add-cover" | "add-month" | "delete-page"
@@ -186,6 +213,28 @@ interface HistoryEntry {
 const activeMenu = ref<ApplicationMenuId>();
 const helpDialogPage = ref<HelpDialogPage>();
 const recoveryDialogOpen = ref(false);
+const welcomeVisible = ref(!sharedProjectIdFromLocation() && !verificationTokenFromLocation());
+const hasAutosavedProject = ref(false);
+const emailVerificationOpen = ref(false);
+const emailVerificationBusy = ref(false);
+const emailVerificationSentTo = ref<string>();
+const emailVerificationError = ref<string>();
+const developmentVerificationUrl = ref<string>();
+type PendingVerifiedAction = "new" | "share" | "export";
+const pendingVerifiedAction = ref<PendingVerifiedAction>();
+const EMAIL_ACCESS_TOKEN_KEY = "orthodox-calendar-layout:verified-email-token";
+const VERIFIED_EMAIL_KEY = "orthodox-calendar-layout:verified-email";
+const PENDING_VERIFIED_ACTION_KEY = "orthodox-calendar-layout:pending-verified-action";
+const SHARED_PROJECTS_KEY = "orthodox-calendar-layout:shared-projects";
+const sharedRecentProjects = ref<Array<{ id: string; name: string }>>([]);
+const sharedLease = ref<SharedProjectLease>();
+const sharedAccessMode = ref<"none" | "loading" | "editing" | "locked" | "waiting" | "error">("none");
+const sharedLockEditor = ref<SharedEditorPresence>();
+const sharedAccessError = ref<string>();
+const sharedActionBusy = ref(false);
+const linkResult = ref<{ kind: "share" | "pdf"; url: string; detail?: string }>();
+const editorSessionId = crypto.randomUUID();
+const editorLabel = `Редактор ${editorSessionId.slice(0, 4).toUpperCase()}`;
 const chromePanelsHidden = ref(false);
 const operationNotice = ref("Документ готов к редактированию");
 // Both structures are immutable and large. Deep Vue proxies only add work to
@@ -216,6 +265,11 @@ const redoStack = ref<HistoryEntry[]>([]);
 let continuousEditSnapshot: string | undefined;
 let continuousEditPageId: string | undefined;
 let autosaveTimer: number | undefined;
+let sharedSaveTimer: number | undefined;
+let sharedHeartbeatTimer: number | undefined;
+let sharedWaitTimer: number | undefined;
+let sharedSaveQueue: Promise<void> = Promise.resolve();
+let sharedLastSavedSnapshot: string | undefined;
 let persistenceReady = false;
 let calendarDatasetPromise: Promise<MemoryDaysDataset> | undefined;
 let calendarRuntimePromise: Promise<{
@@ -410,6 +464,8 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "download-project", label: "Скачать резервную копию…" },
         { command: "recovery", label: "Восстановление…", disabled: projectBackups.value.length === 0 },
         { separator: true },
+        { command: "share-project", label: sharedLease.value ? "Ссылка для совместной работы…" : "Поделиться для совместной работы…" },
+        { separator: true },
         { command: "save-user-template", label: "Сохранить дизайн как шаблон…" },
         { command: "clone-year", label: "Создать копию для другого года…" },
         { separator: true },
@@ -534,6 +590,7 @@ function mutateProject<T>(label: string, mutation: () => T): T {
 
 function restoreProjectSnapshot(snapshot: string, pageId?: string): void {
   const restored = normalizeCalendarProject(JSON.parse(snapshot) as CalendarProject);
+  ensureCalendarWorkshopBranding(restored);
   project.value = restored;
   selectedPageId.value =
     restored.document.pages.find((page) => page.id === pageId)?.id ??
@@ -594,9 +651,288 @@ function scheduleAutosave(): void {
   autosaveTimer = window.setTimeout(() => void saveAutosaveNow(), 700);
 }
 
+function verifiedAccessToken(): string | undefined {
+  return localStorage.getItem(EMAIL_ACCESS_TOKEN_KEY) ?? undefined;
+}
+
+function requestVerifiedAction(action: PendingVerifiedAction): boolean {
+  if (verifiedAccessToken()) return true;
+  pendingVerifiedAction.value = action;
+  localStorage.setItem(PENDING_VERIFIED_ACTION_KEY, action);
+  emailVerificationSentTo.value = undefined;
+  emailVerificationError.value = undefined;
+  developmentVerificationUrl.value = undefined;
+  emailVerificationOpen.value = true;
+  return false;
+}
+
+async function submitEmailVerification(email: string): Promise<void> {
+  emailVerificationBusy.value = true;
+  emailVerificationError.value = undefined;
+  try {
+    const result = await requestEmailVerification(email);
+    emailVerificationSentTo.value = email;
+    developmentVerificationUrl.value = result.developmentVerificationUrl;
+  } catch (error) {
+    emailVerificationError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    emailVerificationBusy.value = false;
+  }
+}
+
+function closeEmailVerification(): void {
+  if (emailVerificationBusy.value) return;
+  emailVerificationOpen.value = false;
+}
+
+function rememberSharedProject(projectId: string, name: string): void {
+  sharedRecentProjects.value = [
+    { id: projectId, name },
+    ...sharedRecentProjects.value.filter((item) => item.id !== projectId),
+  ].slice(0, 12);
+  localStorage.setItem(SHARED_PROJECTS_KEY, JSON.stringify(sharedRecentProjects.value));
+}
+
+function loadSharedProjectHistory(): void {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(SHARED_PROJECTS_KEY) ?? "[]") as unknown;
+    sharedRecentProjects.value = Array.isArray(parsed)
+      ? parsed.filter((item): item is { id: string; name: string } => Boolean(
+        item && typeof item === "object" &&
+        typeof (item as { id?: unknown }).id === "string" &&
+        typeof (item as { name?: unknown }).name === "string",
+      )).slice(0, 12)
+      : [];
+  } catch {
+    sharedRecentProjects.value = [];
+  }
+}
+
+function stopSharedTimers(): void {
+  if (sharedSaveTimer !== undefined) window.clearTimeout(sharedSaveTimer);
+  if (sharedHeartbeatTimer !== undefined) window.clearInterval(sharedHeartbeatTimer);
+  if (sharedWaitTimer !== undefined) window.clearTimeout(sharedWaitTimer);
+  sharedSaveTimer = undefined;
+  sharedHeartbeatTimer = undefined;
+  sharedWaitTimer = undefined;
+}
+
+async function loadProjectForSharedEditing(sharedProject: CalendarProject): Promise<void> {
+  const normalized = normalizeCalendarProject(sharedProject);
+  ensureCalendarWorkshopBranding(normalized);
+  project.value = normalized;
+  await registerProjectFonts(project.value);
+  detachActiveProjectFile();
+  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  selectedElementId.value = undefined;
+  selectedLayerIds.value = [];
+  undoStack.value = [];
+  redoStack.value = [];
+  await loadCalendarData();
+  await saveAutosaveNow();
+}
+
+function establishSharedLease(result: SharedProjectLeaseGranted): void {
+  stopSharedTimers();
+  sharedLease.value = {
+    projectId: result.projectId,
+    leaseToken: result.leaseToken,
+    revision: result.revision,
+    expiresAt: result.expiresAt,
+  };
+  sharedLastSavedSnapshot = serializeEditableProject();
+  sharedAccessMode.value = "editing";
+  sharedAccessError.value = undefined;
+  sharedLockEditor.value = undefined;
+  replaceSharedProjectInLocation(result.projectId);
+  rememberSharedProject(result.projectId, project.value.name);
+  sharedHeartbeatTimer = window.setInterval(() => void refreshSharedLease(), 15_000);
+  operationNotice.value = "Общий календарь открыт для редактирования";
+}
+
+async function saveSharedProjectNow(showNotice = false): Promise<void> {
+  if (!sharedLease.value || sharedAccessMode.value !== "editing") return;
+  const snapshot = serializeEditableProject();
+  if (snapshot === sharedLastSavedSnapshot) return;
+  const leaseAtStart = sharedLease.value;
+  const projectAtStart = createPersistentProjectSnapshot(project.value);
+  sharedSaveQueue = sharedSaveQueue.then(async () => {
+    if (sharedLease.value?.projectId !== leaseAtStart.projectId || sharedAccessMode.value !== "editing") return;
+    try {
+      const saved = await saveSharedProject(sharedLease.value, projectAtStart);
+      if (!sharedLease.value) return;
+      sharedLease.value.revision = saved.revision;
+      sharedLastSavedSnapshot = snapshot;
+      if (showNotice) operationNotice.value = "Изменения сохранены в общем календаре";
+    } catch (error) {
+      operationNotice.value = `Общий календарь не сохранён: ${error instanceof Error ? error.message : String(error)}`;
+      if (error instanceof SharedProjectApiError && [403, 409].includes(error.status)) {
+        stopSharedTimers();
+        sharedLease.value = undefined;
+        sharedAccessMode.value = "error";
+        sharedAccessError.value = "Право редактирования потеряно. Проверьте доступ к календарю ещё раз.";
+      }
+    }
+  });
+  await sharedSaveQueue;
+}
+
+function scheduleSharedSave(): void {
+  if (sharedAccessMode.value !== "editing" || !sharedLease.value) return;
+  if (sharedSaveTimer !== undefined) window.clearTimeout(sharedSaveTimer);
+  sharedSaveTimer = window.setTimeout(() => void saveSharedProjectNow(), 1_200);
+}
+
+async function refreshSharedLease(): Promise<void> {
+  const lease = sharedLease.value;
+  if (!lease) return;
+  try {
+    const refreshed = await heartbeatSharedProject(lease);
+    if (sharedLease.value?.projectId === lease.projectId) sharedLease.value.expiresAt = refreshed.expiresAt;
+  } catch (error) {
+    if (error instanceof SharedProjectApiError && [403, 409].includes(error.status)) {
+      stopSharedTimers();
+      sharedLease.value = undefined;
+      sharedAccessMode.value = "error";
+      sharedAccessError.value = "Сервер больше не подтверждает право редактирования. Возможно, документ уже открыт в другом месте.";
+    } else {
+      operationNotice.value = "Нет связи с сервером совместной работы; повторяем автоматически";
+    }
+  }
+}
+
+async function leaveSharedProject(removeFromAddress = true): Promise<void> {
+  stopSharedTimers();
+  const lease = sharedLease.value;
+  if (lease) {
+    await saveSharedProjectNow();
+    void releaseSharedProject(lease).catch(() => undefined);
+  }
+  sharedLease.value = undefined;
+  sharedAccessMode.value = "none";
+  sharedLockEditor.value = undefined;
+  sharedAccessError.value = undefined;
+  sharedLastSavedSnapshot = undefined;
+  sharedSaveQueue = Promise.resolve();
+  if (removeFromAddress) replaceSharedProjectInLocation();
+}
+
+async function attemptOpenSharedProject(projectId: string, loadPreview = true): Promise<void> {
+  if (sharedWaitTimer !== undefined) window.clearTimeout(sharedWaitTimer);
+  try {
+    const result = await openSharedProject(projectId, editorSessionId, editorLabel);
+    if (loadPreview || result.status === "editing") await loadProjectForSharedEditing(result.project);
+    if (result.status === "editing") {
+      establishSharedLease(result);
+      return;
+    }
+    sharedLease.value = undefined;
+    sharedLockEditor.value = result.editor;
+    sharedAccessMode.value = sharedAccessMode.value === "waiting" ? "waiting" : "locked";
+    if (sharedAccessMode.value === "waiting") {
+      sharedWaitTimer = window.setTimeout(() => void attemptOpenSharedProject(projectId, false), 5_000);
+    }
+  } catch (error) {
+    sharedAccessMode.value = "error";
+    sharedAccessError.value = error instanceof Error ? error.message : String(error);
+  }
+}
+
+async function openSharedProjectById(projectId: string): Promise<void> {
+  await leaveSharedProject(false);
+  welcomeVisible.value = false;
+  replaceSharedProjectInLocation(projectId);
+  sharedAccessMode.value = "loading";
+  await attemptOpenSharedProject(projectId);
+}
+
+function waitForSharedProject(): void {
+  const projectId = sharedProjectIdFromLocation();
+  if (!projectId) return;
+  sharedAccessMode.value = "waiting";
+  void attemptOpenSharedProject(projectId, false);
+}
+
+async function copyCurrentSharedProject(): Promise<void> {
+  const projectId = sharedProjectIdFromLocation();
+  if (!projectId) return;
+  sharedActionBusy.value = true;
+  try {
+    const result = await copySharedProject(projectId, editorSessionId, editorLabel);
+    await loadProjectForSharedEditing(result.project);
+    establishSharedLease(result);
+    linkResult.value = { kind: "share", url: result.shareUrl, detail: "Создана независимая копия. Изменения исходного календаря в неё больше не попадут." };
+  } catch (error) {
+    sharedAccessMode.value = "error";
+    sharedAccessError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    sharedActionBusy.value = false;
+  }
+}
+
+async function shareCurrentProject(): Promise<void> {
+  if (!requestVerifiedAction("share")) return;
+  ensureCalendarWorkshopBranding(project.value);
+  if (sharedLease.value) {
+    await saveSharedProjectNow(true);
+    linkResult.value = { kind: "share", url: sharedProjectUrl(sharedLease.value.projectId) };
+    return;
+  }
+  sharedActionBusy.value = true;
+  operationNotice.value = "Сохраняем календарь на сервере…";
+  try {
+    const result = await createSharedProject(
+      createPersistentProjectSnapshot(project.value),
+      verifiedAccessToken()!,
+      editorSessionId,
+      editorLabel,
+    );
+    establishSharedLease(result);
+    linkResult.value = { kind: "share", url: result.shareUrl };
+  } catch (error) {
+    if (error instanceof SharedProjectApiError && error.code === "email_required") {
+      localStorage.removeItem(EMAIL_ACCESS_TOKEN_KEY);
+      requestVerifiedAction("share");
+    } else operationNotice.value = `Не удалось создать общую ссылку: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    sharedActionBusy.value = false;
+  }
+}
+
+async function copyResultLink(): Promise<void> {
+  if (!linkResult.value) return;
+  try {
+    await navigator.clipboard.writeText(linkResult.value.url);
+    operationNotice.value = "Ссылка скопирована";
+  } catch {
+    operationNotice.value = "Выделите ссылку и скопируйте её вручную";
+  }
+}
+
+function continueFromWelcome(): void {
+  welcomeVisible.value = false;
+}
+
+async function openLocalProjectFromWelcome(): Promise<void> {
+  await requestProjectFile();
+}
+
+async function showWelcomePage(): Promise<void> {
+  await leaveSharedProject();
+  welcomeVisible.value = true;
+}
+
+function retrySharedProject(): void {
+  const projectId = sharedProjectIdFromLocation();
+  if (!projectId) return;
+  sharedAccessMode.value = "loading";
+  void attemptOpenSharedProject(projectId, false);
+}
+
 async function initializeProject(): Promise<void> {
   try {
     const restored = await loadAutosavedProject();
+    hasAutosavedProject.value = Boolean(restored);
     let savedPageId: string | undefined;
     let savedDockPanel: DockPanelId | undefined;
     try {
@@ -630,6 +966,7 @@ async function initializeProject(): Promise<void> {
     }
     if (restored) {
       project.value = normalizeCalendarProject(restored);
+      ensureCalendarWorkshopBranding(project.value);
       operationNotice.value = "Восстановлено последнее автосохранение";
       await registerProjectFonts(project.value);
       try {
@@ -675,6 +1012,37 @@ async function initializeProject(): Promise<void> {
     persistenceReady = true;
   }
   await loadCalendarData();
+}
+
+async function runPendingVerifiedAction(action: PendingVerifiedAction | undefined): Promise<void> {
+  if (!action) return;
+  pendingVerifiedAction.value = undefined;
+  localStorage.removeItem(PENDING_VERIFIED_ACTION_KEY);
+  if (action === "new") await createNewProject();
+  else if (action === "share") await shareCurrentProject();
+  else await exportPrintPdf();
+}
+
+async function initializeApplication(): Promise<void> {
+  loadSharedProjectHistory();
+  await initializeProject();
+  const verificationToken = verificationTokenFromLocation();
+  if (verificationToken) {
+    try {
+      const confirmed = await confirmEmailVerification(verificationToken);
+      localStorage.setItem(EMAIL_ACCESS_TOKEN_KEY, confirmed.accessToken);
+      localStorage.setItem(VERIFIED_EMAIL_KEY, confirmed.email);
+      operationNotice.value = `E-mail ${confirmed.email} подтверждён`;
+      replaceSharedProjectInLocation(sharedProjectIdFromLocation());
+      const pending = localStorage.getItem(PENDING_VERIFIED_ACTION_KEY) as PendingVerifiedAction | null;
+      await runPendingVerifiedAction(pending ?? undefined);
+    } catch (error) {
+      welcomeVisible.value = true;
+      operationNotice.value = `Ссылка подтверждения недействительна: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  }
+  const projectId = sharedProjectIdFromLocation();
+  if (projectId && sharedAccessMode.value === "none") await openSharedProjectById(projectId);
 }
 
 function projectFileBlob(): Blob {
@@ -788,16 +1156,8 @@ async function saveProjectNow(): Promise<void> {
   }
 }
 
-function downloadBlob(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = fileName;
-  anchor.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 async function exportPrintPdf(): Promise<void> {
+  if (!requestVerifiedAction("export")) return;
   if (!displayedCalendarYear.value) {
     operationNotice.value = "PDF пока не создан: календарные данные ещё загружаются";
     return;
@@ -805,6 +1165,7 @@ async function exportPrintPdf(): Promise<void> {
   pdfExportState.value = "exporting";
   operationNotice.value = `Формируется PDF: ${project.value.document.pages.length} стр.`;
   try {
+    ensureCalendarWorkshopBranding(project.value);
     const { exportCalendarProjectPdf, loadPdfFontFiles } = await import("./export/pdf-exporter");
     const fonts = await loadPdfFontFiles();
     const result = await exportCalendarProjectPdf(
@@ -814,13 +1175,28 @@ async function exportPrintPdf(): Promise<void> {
     );
     const safeName = project.value.name.replace(/[^\p{L}\p{N}._-]+/gu, "-");
     const pdfBytes = Uint8Array.from(result.bytes);
-    downloadBlob(new Blob([pdfBytes.buffer], { type: "application/pdf" }), `${safeName}-${project.value.year}-print.pdf`);
+    const fileName = `${safeName}-${project.value.year}-print.pdf`;
+    const pdfBlob = new Blob([pdfBytes.buffer], { type: "application/pdf" });
+    operationNotice.value = `PDF сформирован; передаём на сервер: 0%`;
+    const ready: PdfExportReady = await uploadPdfExport(
+      pdfBlob,
+      fileName,
+      verifiedAccessToken()!,
+      (percent) => { operationNotice.value = `PDF сформирован; передаём на сервер: ${percent}%`; },
+    );
     pdfExportState.value = "ready";
-    operationNotice.value = result.warnings.length
-      ? `PDF создан; предпечатных предупреждений: ${result.warnings.length}`
-      : "Печатный PDF создан без предупреждений";
+    linkResult.value = {
+      kind: "pdf",
+      url: ready.downloadUrl,
+      detail: `${(ready.size / 1024 / 1024).toFixed(1)} МБ${result.warnings.length ? ` · предпечатных предупреждений: ${result.warnings.length}` : " · без предпечатных предупреждений"}`,
+    };
+    operationNotice.value = "PDF сохранён на сервере; ссылка на скачивание готова";
   } catch (error) {
     pdfExportState.value = "error";
+    if (error instanceof SharedProjectApiError && error.code === "email_required") {
+      localStorage.removeItem(EMAIL_ACCESS_TOKEN_KEY);
+      requestVerifiedAction("export");
+    }
     operationNotice.value = `Ошибка PDF: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -832,11 +1208,13 @@ function selectPreflightIssue(item: PreflightIssue): void {
 }
 
 async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Promise<void> {
+  await leaveSharedProject();
   await createRecoveryPoint(`Перед открытием ${file.name}`);
   const candidate: unknown = JSON.parse(await file.text());
   const loadedProject = parseProjectArchive(candidate);
   if (!loadedProject) throw new Error("Неподдерживаемый формат проекта");
   project.value = loadedProject;
+  ensureCalendarWorkshopBranding(project.value);
   await registerProjectFonts(project.value);
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
   selectedElementId.value = undefined;
@@ -855,6 +1233,8 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   rememberProjectName(file.name);
   await loadCalendarData();
   await saveAutosaveNow();
+  hasAutosavedProject.value = true;
+  welcomeVisible.value = false;
   operationNotice.value = `Открыт файл проекта: ${file.name}`;
 }
 
@@ -909,10 +1289,12 @@ async function createRecoveryPoint(label: string): Promise<void> {
 }
 
 async function createNewProject(): Promise<void> {
+  if (!requestVerifiedAction("new")) return;
   if (
     project.value.document.pages.some((page) => page.elements.length > 0) &&
     !window.confirm("Создать новый проект? Текущий проект будет закрыт. Если он ещё не сохранён в файл, сначала нажмите «Сохранить как…».")
   ) return;
+  await leaveSharedProject();
   await createRecoveryPoint("Перед созданием нового проекта");
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
   detachActiveProjectFile();
@@ -921,6 +1303,8 @@ async function createNewProject(): Promise<void> {
   selectedLayerIds.value = ["layer-1"];
   undoStack.value = [];
   redoStack.value = [];
+  hasAutosavedProject.value = true;
+  welcomeVisible.value = false;
   void loadCalendarData();
   operationNotice.value = "Создан новый проект";
 }
@@ -1429,6 +1813,7 @@ function applyUserProjectTemplate(template: UserProjectTemplate): void {
         ...(current.customFonts ?? []).filter((font) => !(prepared.customFonts ?? []).some((item) => item.assetId === font.assetId)),
       ],
     };
+    ensureCalendarWorkshopBranding(project.value);
   });
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
   void registerProjectFonts(project.value);
@@ -1454,6 +1839,7 @@ function cloneCurrentProjectToYear(): void {
     projectBackups.value = await listProjectBackups();
   });
   project.value = normalizeCalendarProject(cloneProjectForYear(project.value, year));
+  ensureCalendarWorkshopBranding(project.value);
   detachActiveProjectFile();
   undoStack.value = [];
   redoStack.value = [];
@@ -1467,6 +1853,7 @@ function restoreProjectBackup(backup: ProjectBackup): void {
   if (!window.confirm(`Восстановить резервную копию «${backup.label}» от ${new Date(backup.createdAt).toLocaleString("ru-RU")}?`)) return;
   mutateProject("Восстановление резервной копии", () => {
     project.value = normalizeCalendarProject(createPersistentProjectSnapshot(backup.project));
+    ensureCalendarWorkshopBranding(project.value);
   });
   detachActiveProjectFile();
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
@@ -1969,6 +2356,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "save-as-project": void saveProjectAs(); break;
     case "download-project": downloadProjectFile(); break;
     case "recovery": recoveryDialogOpen.value = true; break;
+    case "share-project": void shareCurrentProject(); break;
     case "save-user-template": void saveCurrentDesignAsTemplate(); break;
     case "clone-year": cloneCurrentProjectToYear(); break;
     case "export-pdf": void exportPrintPdf(); break;
@@ -2121,13 +2509,18 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 function handleBeforeUnload(event: BeforeUnloadEvent): void {
+  if (sharedLease.value && sharedLastSavedSnapshot === serializeEditableProject()) return;
   if (savedProjectFileSnapshot.value === serializeEditableProject()) return;
   event.preventDefault();
   event.returnValue = "";
 }
 
+function handlePageHide(): void {
+  if (sharedLease.value) void releaseSharedProject(sharedLease.value).catch(() => undefined);
+}
+
 function handleKeydown(event: KeyboardEvent): void {
-  if (helpDialogPage.value || recoveryDialogOpen.value) {
+  if (helpDialogPage.value || recoveryDialogOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
       helpDialogPage.value = undefined;
       recoveryDialogOpen.value = false;
@@ -2229,10 +2622,14 @@ function handleKeydown(event: KeyboardEvent): void {
 onMounted(() => {
   window.addEventListener("keydown", handleKeydown);
   window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("pagehide", handlePageHide);
   window.addEventListener("resize", handleViewportResize);
-  void initializeProject();
+  void initializeApplication();
 });
-watch(project, scheduleAutosave, { deep: true });
+watch(project, () => {
+  scheduleAutosave();
+  scheduleSharedSave();
+}, { deep: true });
 watch(dockPanelMaximumWidthPx, () => {
   dockPanelWidthPx.value = clampDockPanelWidth(dockPanelWidthPx.value);
 });
@@ -2254,17 +2651,31 @@ watch(
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleKeydown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
+  window.removeEventListener("pagehide", handlePageHide);
   window.removeEventListener("resize", handleViewportResize);
   stopDockPanelResize();
   if (autosaveTimer !== undefined) window.clearTimeout(autosaveTimer);
+  const lease = sharedLease.value;
+  stopSharedTimers();
+  if (lease) void releaseSharedProject(lease).catch(() => undefined);
 });
 </script>
 
 <template>
   <div class="app-shell" :class="{ 'app-shell--resizing-dock': dockPanelResizing }" @click="activeMenu = undefined">
+    <WelcomePage
+      v-if="welcomeVisible"
+      :current-project-name="hasAutosavedProject ? project.name : undefined"
+      :recent-project-names="recentProjectNames"
+      :shared-projects="sharedRecentProjects"
+      @create="createNewProject"
+      @continue="continueFromWelcome"
+      @open="openLocalProjectFromWelcome"
+      @open-shared="openSharedProjectById"
+      @help="helpDialogPage = 'guide'"
+    />
     <header class="application-header">
       <nav class="menu-bar" aria-label="Главное меню" @click.stop>
-        <div class="menu-bar__brand">КМ</div>
         <div v-for="menu in applicationMenus" :key="menu.id" class="menu-bar__window">
           <button
             type="button"
@@ -2296,7 +2707,9 @@ onBeforeUnmount(() => {
 
       <div class="control-bar">
         <div class="brand">
-          <div class="brand__mark" aria-hidden="true">К</div>
+          <button class="brand__home" type="button" title="На стартовую страницу" @click="showWelcomePage">
+            <img class="brand__logo" src="/brand/logo-symbol.png" alt="Календарная мастерская" />
+          </button>
           <div>
             <strong>Календарная мастерская</strong>
             <span>{{ project.name }}</span>
@@ -2318,6 +2731,7 @@ onBeforeUnmount(() => {
           <span v-if="calendarLoadState === 'ready'" class="status-chip">
             XML: {{ calendarDataset?.statistics.recordCount }}
           </span>
+          <span v-if="sharedAccessMode === 'editing'" class="status-chip status-chip--online">● Общий календарь</span>
         </div>
         <div class="control-bar__controls">
           <label class="toggle-control">
@@ -2846,6 +3260,34 @@ onBeforeUnmount(() => {
       :backups="projectBackups"
       @close="recoveryDialogOpen = false"
       @restore="restoreProjectBackupFromDialog"
+    />
+    <EmailVerificationDialog
+      v-if="emailVerificationOpen"
+      :busy="emailVerificationBusy"
+      :sent-to="emailVerificationSentTo"
+      :error="emailVerificationError"
+      :development-verification-url="developmentVerificationUrl"
+      @submit="submitEmailVerification"
+      @close="closeEmailVerification"
+    />
+    <SharedProjectDialog
+      v-if="sharedAccessMode === 'loading' || sharedAccessMode === 'locked' || sharedAccessMode === 'waiting' || sharedAccessMode === 'error'"
+      :mode="sharedAccessMode"
+      :editor="sharedLockEditor"
+      :error="sharedAccessError"
+      :busy="sharedActionBusy"
+      @wait="waitForSharedProject"
+      @retry="retrySharedProject"
+      @copy="copyCurrentSharedProject"
+      @home="showWelcomePage"
+    />
+    <LinkResultDialog
+      v-if="linkResult"
+      :kind="linkResult.kind"
+      :url="linkResult.url"
+      :detail="linkResult.detail"
+      @copy="copyResultLink"
+      @close="linkResult = undefined"
     />
 
     <footer class="status-bar">

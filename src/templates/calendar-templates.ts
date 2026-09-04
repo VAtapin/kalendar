@@ -9,6 +9,7 @@ import type {
 } from "../document/types";
 import { createElementOnOwnLayer, type ElementIdFactory } from "../editor/element-creation";
 import { applyDefaultCalendarCellGeometry } from "./calendar-cell-defaults";
+import { BRAND_LOGO_ASSET_ID, BRAND_LOGO_HEIGHT_RATIO } from "../document/branding";
 
 export const RUSSIAN_MONTH_NAMES = [
   "Январь",
@@ -297,13 +298,38 @@ export function createCoverTemplatePage(
   const publisher = createElementOnOwnLayer(
     page,
     "text",
-    { x: margin, y: page.height * 0.84, width: page.width - margin * 2, height: page.height * 0.07 },
+    { x: margin, y: page.height * 0.815, width: page.width - margin * 2, height: page.height * 0.035 },
     { idFactory, fillColor: "#d6ac43" },
   ).element as TextElement;
   publisher.content.title = publisherName;
   publisher.typography.fontFamily = "Cormorant Garamond";
   publisher.typography.fontSizePt = Math.max(14, page.width * 0.06);
   publisher.typography.align = "center";
+
+  const brandWidth = page.width * 0.26;
+  const brandHeight = brandWidth * BRAND_LOGO_HEIGHT_RATIO;
+  const brand = createElementOnOwnLayer(
+    page,
+    "image",
+    {
+      x: (page.width - brandWidth) / 2,
+      y: page.height - brandHeight - Math.max(4, page.safeArea.bottom * 0.55),
+      width: brandWidth,
+      height: brandHeight,
+    },
+    { idFactory },
+  ).element;
+  if (brand.type === "image") {
+    brand.assetId = BRAND_LOGO_ASSET_ID;
+    brand.fit = "fit";
+    brand.locked = true;
+    const layer = page.layers.find((item) => item.id === brand.layerId);
+    if (layer) {
+      layer.name = "Фирменный знак Календарной мастерской";
+      layer.locked = true;
+      layer.color = "#c9a548";
+    }
+  }
 
   createElementOnOwnLayer(
     page,

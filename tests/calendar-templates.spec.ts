@@ -6,6 +6,7 @@ import {
   requiredMonthWeekRows,
 } from "../src/templates/calendar-templates";
 import { flattenObjectLayers } from "../src/document/layer-operations";
+import { BRAND_LOGO_ASSET_ID } from "../src/document/branding";
 
 describe("calendar templates", () => {
   it("creates a cover and twelve independent month pages", () => {
@@ -14,6 +15,15 @@ describe("calendar templates", () => {
     expect(pages[0]?.kind).toBe("cover");
     expect(pages[1]?.kind).toBe("month");
     expect(pages[12]?.name).toContain("Декабрь");
+  });
+
+  it("locks the monastery wordmark onto every generated calendar cover", () => {
+    const cover = createFullCalendarTemplate("A3", "portrait", 2027, "Издатель")[0];
+    const wordmark = cover?.elements.find(
+      (element) => element.type === "image" && element.assetId === BRAND_LOGO_ASSET_ID,
+    );
+    expect(wordmark).toMatchObject({ type: "image", locked: true, visible: true });
+    expect(cover?.layers.find((layer) => layer.id === wordmark?.layerId)).toMatchObject({ locked: true, visible: true });
   });
 
   it("keeps every template object on its own layer", () => {

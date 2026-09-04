@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "tsx scripts/calendar-api-server.ts",
     "build": "vue-tsc -b && vite build",
     "assets:decor": "tsx scripts/build-decor-library.ts",
     "assets:png-dpi": "tsx scripts/set-png-dpi.ts",
@@ -22,12 +23,14 @@
     "@pdf-lib/fontkit": "^1.1.1",
     "dejavu-fonts-ttf": "^2.37.3",
     "fast-xml-parser": "^5.11.1",
+    "nodemailer": "^10.0.0",
     "pdf-lib": "^1.17.1",
     "vue": "^3.5.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.4.1",
+    "@types/nodemailer": "^7.0.12",
     "@types/pngjs": "^6.0.5",
     "@vitejs/plugin-vue": "^6.0.0",
     "pngjs": "^7.0.0",

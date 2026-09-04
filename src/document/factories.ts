@@ -7,6 +7,7 @@ import type {
   PageOrientation,
   StyleTheme,
 } from "./types";
+import { createBrandLogoAsset, BRAND_LOGO_ASSET_ID } from "./branding";
 
 export const PAGE_FORMATS: Readonly<
   Record<PageFormatId, { label: string; width: number; height: number }>
@@ -180,13 +181,13 @@ export function createBlankCalendarProject(year = 2027): CalendarProject {
     layoutRevision: 6,
     id: "calendar-project",
     name: `Православный календарь ${year}`,
-    publisherProfile: { name: "Издатель" },
+    publisherProfile: { name: "Издатель", logoAssetId: BRAND_LOGO_ASSET_ID },
     year,
     fastingProfileId: "typikon-strict",
     calendarData: null,
     monasteryEvents: [],
     styleTheme: createDefaultTheme(),
-    assets: [],
+    assets: [createBrandLogoAsset()],
     customFonts: [],
     printSettings: {
       includeCropMarks: true,
