@@ -1167,7 +1167,6 @@ input {
 .calendar-cell__number {
   fill: #17201d;
   font-family: "Yeseva One", Georgia, serif;
-  font-size: 5px;
   font-weight: 700;
 }
 
@@ -1183,13 +1182,11 @@ input {
 .calendar-cell__old-style {
   fill: #76817c;
   font-family: Arial, sans-serif;
-  font-size: 1.55px;
 }
 
 .calendar-cell__event {
   fill: #2a3530;
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 2.15px;
 }
 
 .calendar-cell__event--feast {
@@ -1706,6 +1703,57 @@ input {
   color: #84918b;
   font-size: 10px;
   line-height: 1.45;
+}
+
+.cell-object-controls {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0;
+  padding: 8px;
+  border: 1px solid #39433f;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 2%);
+}
+
+.cell-object-controls > strong {
+  color: #d7c58f;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.saved-template-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px;
+}
+
+.grid-template-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 4px;
+}
+
+.grid-template-row button:first-child {
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-template-row button:first-child {
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backup-row {
+  width: 100%;
+  min-height: 24px;
+  padding: 3px 6px;
+  text-align: left;
+  font-size: 10px;
+  line-height: 1.1;
 }
 
 .overflow-indicator {

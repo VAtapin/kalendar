@@ -15,6 +15,7 @@ import type { ElementFrame } from "../editor/element-creation";
 import { flattenObjectLayers } from "../document/layer-operations";
 import { buildPageScene } from "../rendering/page-scene";
 import type { OrthodoxCalendarYear } from "../calendar";
+import type { FastingProfileId } from "../calendar/fasting/fasting-api";
 import {
   dayNumberTypikonStyle,
   eventTypikonStyle,
@@ -68,6 +69,7 @@ const props = defineProps<{
   assets: DocumentAsset[];
   foodMarkerPackId?: FoodMarkerPackId;
   foodMarkerAssets?: Partial<Record<FoodRuleId, string>>;
+  fastingProfileId?: FastingProfileId;
   calendarYear?: OrthodoxCalendarYear;
   pixelsPerMm: number;
   showGuides: boolean;
@@ -124,7 +126,7 @@ const legendPreviewItems = computed<LegendPreviewItem[]>(() => {
     items.push({ id: "monastery", label: "событие монастыря", color: "#8a641b" });
   }
   const foodRules = grids.some((grid) => grid.showFoodIcons)
-    ? usedFoodRulesForMonths(calendar.days, months)
+    ? usedFoodRulesForMonths(calendar.days, months, props.fastingProfileId)
     : new Set<FoodRuleId>();
   for (const rule of Object.values(FOOD_RULES)) {
     if (rule.id !== "no-fast" && foodRules.has(rule.id)) {
@@ -445,6 +447,10 @@ function calendarCellText(element: CalendarGridElement, cell: CalendarGridCellLa
   );
 }
 
+function calendarCellPrimaryTypikonEvent(element: CalendarGridElement, cell: CalendarGridCellLayout) {
+  return calendarCellText(element, cell).lines.find((line) => !line.isContinuation)?.event;
+}
+
 function calendarCellClipId(elementId: string, cellKey: string): string {
   return `calendar-cell-${elementId}-${cellKey}`;
 }
@@ -476,17 +482,14 @@ function weekdayLabels(element: CalendarGridElement): readonly string[] {
 }
 
 function weekdayFontSizeMm(element: CalendarGridElement): number {
-  const requestedSize = fontSizeMm(element.weekdayFontSizePt ?? 18);
+  const requestedSize = Math.max(0.1, fontSizeMm(element.weekdayFontSizePt ?? 18));
   const labels = weekdayLabels(element);
   const availableWidth = Math.max(1, element.width / 7 - 2);
   const widestEstimatedWidth = Math.max(
     1,
     ...labels.map((label) => Array.from(label).length * requestedSize * 0.56),
   );
-  return Math.max(
-    fontSizeMm(10),
-    requestedSize * Math.min(1, availableWidth / widestEstimatedWidth),
-  );
+  return requestedSize * Math.min(1, availableWidth / widestEstimatedWidth);
 }
 </script>
 
@@ -522,6 +525,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         class="page-element"
         :class="{ 'page-element--selected': selectedElementId === element.id }"
         :data-element-id="element.id"
+        :data-element-type="element.type"
         :transform="rotationTransform(element.x, element.y, element.width, element.height, element.rotation)"
         @pointerdown="beginElementInteraction($event, element)"
       >
@@ -703,8 +707,8 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                 :clip-path="`url(#${calendarCellClipId(element.id, cell.key)})`"
               >
                 <text
-                  :x="cell.x + calendarCellTypography(element).paddingMm"
-                  :y="cell.y + calendarCellTypography(element).paddingMm + calendarCellTypography(element).dayNumberFontSizeMm"
+                  :x="cell.x + calendarCellTypography(element).dayNumberXOffsetMm"
+                  :y="cell.y + calendarCellTypography(element).dayNumberYOffsetMm + calendarCellTypography(element).dayNumberFontSizeMm"
                   :font-size="calendarCellTypography(element).dayNumberFontSizeMm"
                   :style="{
                     fill: element.showFeastColors === false ? '#17201d' : dayNumberTypikonStyle(cell.day).color,
@@ -712,33 +716,36 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                     fontFamily: element.dayNumberFontFamily ?? 'Yeseva One',
                   }"
                   class="calendar-cell__number"
+                  :data-calendar-date="cell.day.isoDate"
                 >
                   {{ cell.day.date.day }}
                 </text>
                 <text
                   v-if="element.showOldStyleDate"
-                  :x="cell.x + calendarCellTypography(element).paddingMm"
-                  :y="cell.y + calendarCellTypography(element).paddingMm + calendarCellTypography(element).dayNumberFontSizeMm + 2.6"
+                  :x="cell.x + calendarCellTypography(element).oldStyleXOffsetMm"
+                  :y="cell.y + calendarCellTypography(element).oldStyleYOffsetMm + calendarCellTypography(element).oldStyleFontSizeMm"
+                  :font-size="calendarCellTypography(element).oldStyleFontSizeMm"
+                  :style="{ fontFamily: element.oldStyleFontFamily ?? 'Cormorant Garamond' }"
                   class="calendar-cell__old-style"
                 >
                   ст. ст. {{ cell.day.oldStyleDate.day }}.{{ cell.day.oldStyleDate.month }}
                 </text>
                 <FoodMarker
-                  v-if="element.showFoodIcons && resolveFoodRule(cell.day).id !== 'no-fast'"
-                  :rule="resolveFoodRule(cell.day).id"
-                  :source="foodMarkerSource(resolveFoodRule(cell.day).id)"
+                  v-if="element.showFoodIcons && resolveFoodRule(cell.day, fastingProfileId).id !== 'no-fast'"
+                  :rule="resolveFoodRule(cell.day, fastingProfileId).id"
+                  :source="foodMarkerSource(resolveFoodRule(cell.day, fastingProfileId).id)"
                   :x="cell.x + calendarFoodMarkerGeometry(element, cell).xOffsetMm"
                   :y="cell.y + calendarFoodMarkerGeometry(element, cell).yOffsetMm"
                   :size="calendarFoodMarkerGeometry(element, cell).sizeMm"
                 />
+                <TypikonRankMarker
+                  v-if="element.showTypikonIcons === true && calendarCellPrimaryTypikonEvent(element, cell)"
+                  :kind="typikonMarkForEvent(calendarCellPrimaryTypikonEvent(element, cell)!)"
+                  :x="cell.x + calendarCellTypography(element).eventMarkerXOffsetMm"
+                  :y="cell.y + calendarCellTypography(element).eventMarkerYOffsetMm"
+                  :size="calendarCellTypography(element).eventMarkerSizeMm"
+                />
                 <template v-for="line in calendarCellText(element, cell).lines" :key="line.key">
-                  <TypikonRankMarker
-                    v-if="element.showTypikonIcons === true && !line.isContinuation"
-                    :kind="typikonMarkForEvent(line.event)"
-                    :x="cell.x + calendarCellTypography(element).contentLeftMm + 0.1"
-                    :y="cell.y + line.baselineY - line.fontSizeMm * 0.92"
-                    :size="calendarCellTypography(element).eventMarkerSizeMm"
-                  />
                   <text
                     :x="cell.x + line.x"
                     :y="cell.y + line.baselineY"

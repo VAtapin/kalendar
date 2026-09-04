@@ -56,8 +56,8 @@ describe("calendar templates", () => {
     const compact = createMonthTemplatePageWithPreset("A3", "portrait", 9, 2027, "photo-feature");
     const editorialGrid = editorial.elements.find((element) => element.type === "calendar-grid");
     const compactGrid = compact.elements.find((element) => element.type === "calendar-grid");
-    expect(editorialGrid?.type === "calendar-grid" ? editorialGrid.dayNumberFontSizePt : 0).toBe(28);
-    expect(editorialGrid?.type === "calendar-grid" ? editorialGrid.eventFontSizePt : 0).toBe(9);
+    expect(editorialGrid?.type === "calendar-grid" ? editorialGrid.dayNumberFontSizePt : 0).toBe(30);
+    expect(editorialGrid?.type === "calendar-grid" ? editorialGrid.eventFontSizePt : 0).toBe(10);
     expect(compactGrid?.type === "calendar-grid" ? compactGrid.dayNumberFontSizePt : 0).toBeGreaterThanOrEqual(26);
     expect(compactGrid?.type === "calendar-grid" ? compactGrid.eventFontSizePt : 0).toBeGreaterThanOrEqual(8.5);
   });

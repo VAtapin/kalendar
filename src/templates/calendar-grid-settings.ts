@@ -19,9 +19,27 @@ const PRESENTATION_KEYS = [
   "dayNumberFontFamily",
   "eventFontFamily",
   "dayNumberFontSizePt",
+  "dayNumberXOffsetMm",
+  "dayNumberYOffsetMm",
+  "oldStyleFontFamily",
+  "oldStyleFontSizePt",
+  "oldStyleXOffsetMm",
+  "oldStyleYOffsetMm",
+  "foodMarkerSizeMm",
+  "foodMarkerXOffsetMm",
+  "foodMarkerYOffsetMm",
   "eventFontSizePt",
+  "eventTextXOffsetMm",
+  "eventTextYOffsetMm",
+  "eventTextRightInsetMm",
+  "eventTextBottomInsetMm",
+  "typikonMarkerSizeMm",
+  "typikonMarkerXOffsetMm",
+  "typikonMarkerYOffsetMm",
   "autoFitText",
   "minimumEventFontSizePt",
+  "eventLineSpacingPt",
+  "eventGapPt",
   "eventLineHeight",
   "cellPaddingMm",
   "gridStyle",
@@ -39,7 +57,11 @@ export function copyCalendarGridPresentation(
     if (value === undefined) {
       delete (target as unknown as Record<string, unknown>)[key];
     } else {
-      (target as unknown as Record<string, unknown>)[key] = structuredClone(value);
+      // Sources selected in Vue are proxies; structuredClone rejects proxies.
+      // Presentation values are JSON-safe, so materialise them before copying.
+      (target as unknown as Record<string, unknown>)[key] = typeof value === "object"
+        ? JSON.parse(JSON.stringify(value))
+        : value;
     }
   }
 }

@@ -3,6 +3,9 @@ import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   plugins: [vue()],
+  optimizeDeps: {
+    entries: ["index.html"],
+  },
   server: {
     watch: {
       // Large source datasets are loaded at runtime and must not participate in HMR.

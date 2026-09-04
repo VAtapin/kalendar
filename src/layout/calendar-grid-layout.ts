@@ -3,6 +3,7 @@ import type { CalendarGridElement } from "../document/types";
 import { layoutTextBlock, type MeasureTextWidth } from "./text-layout";
 import {
   isMinorCommemorationEvent,
+  isRequiredCalendarEvent,
   selectCalendarCellEvents,
 } from "../calendar/presentation/calendar-content-policy";
 
@@ -42,17 +43,31 @@ export interface CalendarCellTextLayout {
   lines: CalendarCellTextLine[];
   hiddenEventCount: number;
   truncatedEventCount: number;
+  hiddenRequiredEventCount: number;
+  omittedMinorEventCount: number;
+  truncatedRequiredEventCount: number;
   usedFontSizePt?: number;
 }
 
 export interface CalendarCellTypography {
   dayNumberFontSizeMm: number;
+  dayNumberXOffsetMm: number;
+  dayNumberYOffsetMm: number;
+  oldStyleFontSizeMm: number;
+  oldStyleXOffsetMm: number;
+  oldStyleYOffsetMm: number;
   eventFontSizeMm: number;
   eventLineHeightMm: number;
+  eventGapMm: number;
   paddingMm: number;
   contentLeftMm: number;
+  eventTopMm: number;
+  eventRightInsetMm: number;
+  eventBottomInsetMm: number;
   eventMarkerWidthMm: number;
   eventMarkerSizeMm: number;
+  eventMarkerXOffsetMm: number;
+  eventMarkerYOffsetMm: number;
   foodMarkerSizeMm: number;
 }
 
@@ -63,50 +78,62 @@ export interface CalendarFoodMarkerGeometry {
 }
 
 export function calendarCellTypography(element: CalendarGridElement): CalendarCellTypography {
-  const dayNumberFontSizeMm = (element.dayNumberFontSizePt ?? 28) * (25.4 / 72);
-  const eventFontSizeMm = (element.eventFontSizePt ?? 9) * (25.4 / 72);
-  const eventLineHeightMm = eventFontSizeMm * (element.eventLineHeight ?? 1.08);
-  const paddingMm = Math.max(0.4, element.cellPaddingMm ?? 1.5);
+  const dayNumberFontSizeMm = Math.max(0.1, element.dayNumberFontSizePt ?? 30) * (25.4 / 72);
+  const oldStyleFontSizeMm = Math.max(0.1, element.oldStyleFontSizePt ?? 4.4) * (25.4 / 72);
+  const eventFontSizeMm = Math.max(0.1, element.eventFontSizePt ?? 10) * (25.4 / 72);
+  const legacyLineSpacingPt = (element.eventFontSizePt ?? 10) * ((element.eventLineHeight ?? 1.08) - 1);
+  const eventLineSpacingPt = element.eventLineSpacingPt ?? legacyLineSpacingPt;
+  const eventLineHeightMm = Math.max(0.05, (element.eventFontSizePt ?? 10) + eventLineSpacingPt) * (25.4 / 72);
+  const eventGapMm = (element.eventGapPt ?? 1) * (25.4 / 72);
+  const paddingMm = element.cellPaddingMm ?? 1.5;
   const cellWidthMm = element.width / 7;
   const maximumNumberRailMm = Math.max(7.2, cellWidthMm * 0.43);
   const numberRailMm = Math.min(
     maximumNumberRailMm,
     Math.max(14.2, dayNumberFontSizeMm * 1.35),
   );
-  const eventMarkerSizeMm = Math.min(4.6, Math.max(4.1, eventFontSizeMm * 1.5));
+  const defaultEventMarkerSizeMm = Math.min(4.6, Math.max(4.1, eventFontSizeMm * 1.5));
+  const eventMarkerSizeMm = Math.max(0.1, element.typikonMarkerSizeMm ?? defaultEventMarkerSizeMm);
   const eventMarkerWidthMm = element.showTypikonIcons === true ? eventMarkerSizeMm + 0.7 : 0;
+  const defaultContentLeftMm = paddingMm + numberRailMm + eventMarkerWidthMm;
+  const defaultFoodMarkerSizeMm = Math.min(
+    dayNumberFontSizeMm * 0.92,
+    Math.max(7, Math.min(9.5, numberRailMm - 0.4)),
+  );
   return {
     dayNumberFontSizeMm,
+    dayNumberXOffsetMm: element.dayNumberXOffsetMm ?? paddingMm,
+    dayNumberYOffsetMm: element.dayNumberYOffsetMm ?? paddingMm,
+    oldStyleFontSizeMm,
+    oldStyleXOffsetMm: element.oldStyleXOffsetMm ?? paddingMm,
+    oldStyleYOffsetMm: element.oldStyleYOffsetMm ?? paddingMm + dayNumberFontSizeMm + 1.05,
     eventFontSizeMm,
     eventLineHeightMm,
+    eventGapMm,
     paddingMm,
-    contentLeftMm: paddingMm + numberRailMm,
-    eventMarkerWidthMm,
+    contentLeftMm: element.eventTextXOffsetMm ?? defaultContentLeftMm,
+    eventTopMm: element.eventTextYOffsetMm ?? paddingMm,
+    eventRightInsetMm: element.eventTextRightInsetMm ?? paddingMm,
+    eventBottomInsetMm: element.eventTextBottomInsetMm ?? paddingMm,
+    // Kept as a public measurement for existing integrations. Text position is
+    // now independent and no longer changes when the marker is resized.
+    eventMarkerWidthMm: 0,
     eventMarkerSizeMm,
-    // The marker is deliberately almost as prominent as the date, but never
-    // larger than it. It forms one vertical stack with the date number.
-    foodMarkerSizeMm: Math.min(
-      dayNumberFontSizeMm * 0.92,
-      Math.max(7, Math.min(9.5, numberRailMm - 0.4)),
-    ),
+    eventMarkerXOffsetMm: element.typikonMarkerXOffsetMm ?? paddingMm + numberRailMm,
+    eventMarkerYOffsetMm: element.typikonMarkerYOffsetMm ?? 0,
+    foodMarkerSizeMm: Math.max(0.1, element.foodMarkerSizeMm ?? defaultFoodMarkerSizeMm),
   };
 }
 
 export function calendarFoodMarkerGeometry(
   element: CalendarGridElement,
-  cell: CalendarGridCellLayout,
+  _cell: CalendarGridCellLayout,
 ): CalendarFoodMarkerGeometry {
   const typography = calendarCellTypography(element);
-  const yOffsetMm = typography.paddingMm + typography.dayNumberFontSizeMm +
-    (element.showOldStyleDate ? 5 : 2);
-  const availableHeightMm = Math.max(0, cell.height - yOffsetMm - typography.paddingMm);
-  const sizeMm = Math.max(0, Math.min(typography.foodMarkerSizeMm, availableHeightMm));
   return {
-    // Same left edge as the date number: the sign must read as being below the
-    // number rather than as a separate icon beside it.
-    xOffsetMm: typography.paddingMm,
-    yOffsetMm,
-    sizeMm,
+    xOffsetMm: element.foodMarkerXOffsetMm ?? typography.dayNumberXOffsetMm,
+    yOffsetMm: element.foodMarkerYOffsetMm ?? typography.dayNumberYOffsetMm + typography.dayNumberFontSizeMm + 2,
+    sizeMm: typography.foodMarkerSizeMm,
   };
 }
 
@@ -120,34 +147,60 @@ export function layoutCalendarCellText(
   measure: MeasureTextWidth,
 ): CalendarCellTextLayout {
   const day = cell.day;
-  if (!day) return { lines: [], hiddenEventCount: 0, truncatedEventCount: 0 };
+  if (!day) return {
+    lines: [],
+    hiddenEventCount: 0,
+    truncatedEventCount: 0,
+    hiddenRequiredEventCount: 0,
+    omittedMinorEventCount: 0,
+    truncatedRequiredEventCount: 0,
+  };
   const typography = calendarCellTypography(element);
   const contentWidth = Math.max(
     typography.eventFontSizeMm * 2,
-    cell.width - typography.contentLeftMm - typography.eventMarkerWidthMm - typography.paddingMm,
-  );
-  const totalLineCapacity = Math.max(
-    1,
-    Math.floor((cell.height - typography.paddingMm * 2) / typography.eventLineHeightMm),
+    cell.width - typography.contentLeftMm - typography.eventRightInsetMm,
   );
   const displayEvents = selectCalendarCellEvents(element, day.events);
-  const visibleEvents = displayEvents.slice(0, Math.max(1, element.maxVisibleEvents ?? 3));
-  const hiddenEventCount = Math.max(0, displayEvents.length - visibleEvents.length);
+  const requiredEvents = displayEvents.filter(isRequiredCalendarEvent);
+  const minorEvents = displayEvents.filter(isMinorCommemorationEvent);
+  const requestedLimit = Math.max(0, element.maxVisibleEvents ?? 3);
+  // maxVisibleEvents is a limit for optional content, never permission to hide
+  // a great/medium feast or a memorial day.
+  const visibleEvents = [
+    ...requiredEvents,
+    ...minorEvents.slice(0, Math.max(0, requestedLimit - requiredEvents.length)),
+  ];
+  const gapsHeightMm = Math.max(0, visibleEvents.length - 1) * typography.eventGapMm;
+  const totalLineCapacity = Math.max(
+    1,
+    Math.floor((cell.height - typography.eventTopMm - typography.eventBottomInsetMm - gapsHeightMm) / typography.eventLineHeightMm),
+  );
+  const omittedByLimit = Math.max(0, minorEvents.length - Math.max(0, requestedLimit - requiredEvents.length));
+  const hiddenEventCount = omittedByLimit;
   let remainingLines = totalLineCapacity;
-  let cursor = typography.paddingMm + typography.eventFontSizeMm;
+  let cursor = typography.eventTopMm + typography.eventFontSizeMm;
   let truncatedEventCount = 0;
+  let hiddenRequiredEventCount = 0;
+  let omittedMinorEventCount = omittedByLimit;
+  let truncatedRequiredEventCount = 0;
+  let renderedEventCount = 0;
   const lines: CalendarCellTextLine[] = [];
 
   visibleEvents.forEach((event, eventIndex) => {
     if (remainingLines <= 0) {
-      truncatedEventCount += 1;
+      if (isMinorCommemorationEvent(event)) omittedMinorEventCount += 1;
+      else {
+        hiddenRequiredEventCount += 1;
+        truncatedEventCount += 1;
+        truncatedRequiredEventCount += 1;
+      }
       return;
     }
     const remainingEvents = Math.max(1, visibleEvents.length - eventIndex);
     const fairShare = Math.max(1, Math.floor(remainingLines / remainingEvents));
     // A single important commemoration may use the otherwise empty height of
     // the cell. With several events the fair-share limit still keeps balance.
-    const allowedLines = Math.min(5, fairShare, remainingLines);
+    const allowedLines = Math.min(fairShare, remainingLines);
     const candidates = eventDisplayCandidates(event);
     let eventLayout = layoutTextBlock(
       candidates.at(-1) ?? event.title,
@@ -167,8 +220,15 @@ export function layoutCalendarCellText(
       eventLayout = candidateLayout;
       if (!candidateLayout.overflow) break;
     }
-    if (eventLayout.overflow && isMinorCommemorationEvent(event)) return;
-    if (eventLayout.overflow) truncatedEventCount += 1;
+    if (eventLayout.overflow && isMinorCommemorationEvent(event)) {
+      omittedMinorEventCount += 1;
+      return;
+    }
+    if (eventLayout.overflow) {
+      truncatedEventCount += 1;
+      truncatedRequiredEventCount += 1;
+    }
+    if (renderedEventCount > 0) cursor += typography.eventGapMm;
     eventLayout.lines.forEach((line, lineIndex) => {
       const isLast = lineIndex === eventLayout.lines.length - 1;
       const text = isLast && eventLayout.overflow && !line.text.endsWith("…")
@@ -178,7 +238,7 @@ export function layoutCalendarCellText(
         key: `${event.id}-${lineIndex}`,
         text,
         event,
-        x: typography.contentLeftMm + typography.eventMarkerWidthMm,
+        x: typography.contentLeftMm,
         baselineY: cursor,
         fontSizeMm: typography.eventFontSizeMm,
         isContinuation: lineIndex > 0,
@@ -186,12 +246,16 @@ export function layoutCalendarCellText(
       cursor += typography.eventLineHeightMm;
       remainingLines -= 1;
     });
+    if (eventLayout.lines.length > 0) renderedEventCount += 1;
   });
 
   return {
     lines,
     hiddenEventCount,
     truncatedEventCount,
+    hiddenRequiredEventCount,
+    omittedMinorEventCount,
+    truncatedRequiredEventCount,
   };
 }
 
@@ -201,10 +265,10 @@ export function layoutCalendarCellTextAutoFit(
   cell: CalendarGridCellLayout,
   measure: (text: string, fontSizeMm: number) => number,
 ): CalendarCellTextLayout {
-  const requested = element.eventFontSizePt ?? 9;
+  const requested = Math.max(0.1, element.eventFontSizePt ?? 10);
   const minimum = element.autoFitText === false
     ? requested
-    : Math.min(requested, Math.max(3, element.minimumEventFontSizePt ?? 8));
+    : Math.min(requested, Math.max(0.1, element.minimumEventFontSizePt ?? 9));
   let best: CalendarCellTextLayout | undefined;
   for (let size = requested; size >= minimum - 0.001; size -= 0.25) {
     const candidateSize = Math.max(minimum, size);
@@ -219,9 +283,17 @@ export function layoutCalendarCellTextAutoFit(
     best = candidate;
     // A deliberate event-count limit cannot be solved by shrinking the type.
     // Keep the requested print size whenever every selected visible item fits.
-    if (candidate.truncatedEventCount === 0) break;
+    if (candidate.hiddenRequiredEventCount === 0 && candidate.truncatedRequiredEventCount === 0) break;
   }
-  return best ?? { lines: [], hiddenEventCount: 0, truncatedEventCount: 0, usedFontSizePt: requested };
+  return best ?? {
+    lines: [],
+    hiddenEventCount: 0,
+    truncatedEventCount: 0,
+    hiddenRequiredEventCount: 0,
+    omittedMinorEventCount: 0,
+    truncatedRequiredEventCount: 0,
+    usedFontSizePt: requested,
+  };
 }
 
 export function buildCalendarGridLayout(

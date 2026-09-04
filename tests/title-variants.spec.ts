@@ -14,4 +14,16 @@ describe("calendar title variants", () => {
     expect(createVeryShortCalendarTitle("Преподобного А; Мученика Б; Святителя В"))
       .toBe("Прп. А; Мч. Б; и др.");
   });
+
+  it("removes dates and secondary ranks from a print-cell variant", () => {
+    expect(createVeryShortCalendarTitle(
+      "Святителя Тихона, патриарха Московского и всея России чудотворца (1925)",
+    )).toBe("Свт. Тихона");
+  });
+
+  it("shortens common feast formulas without losing their subject", () => {
+    expect(createVeryShortCalendarTitle(
+      "Рождество Пресвятой Владычицы нашей Богородицы и Приснодевы Марии",
+    )).toBe("Рождество Пресвятой Богородицы");
+  });
 });

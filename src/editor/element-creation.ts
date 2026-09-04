@@ -7,6 +7,7 @@ import type {
   TextTypography,
 } from "../document/types";
 import type { EditorTool } from "./types";
+import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-defaults";
 
 export interface ElementFrame {
   x: number;
@@ -145,16 +146,18 @@ export function createElementOnOwnLayer(
         minorCommemorationFallback: 2,
         dayNumberFontFamily: "Yeseva One",
         eventFontFamily: "Cormorant Garamond",
-        dayNumberFontSizePt: 28,
-        eventFontSizePt: 9,
+        dayNumberFontSizePt: 30,
+        eventFontSizePt: 10,
         autoFitText: true,
-        minimumEventFontSizePt: 8,
-        eventLineHeight: 1.08,
+        minimumEventFontSizePt: 9,
+        eventLineSpacingPt: 0.8,
+        eventGapPt: 1,
         cellPaddingMm: 1.5,
         gridStyle: "editorial",
         weekdayFontFamily: "Ruslan Display",
         weekdayFontSizePt: 18,
       };
+      applyDefaultCalendarCellGeometry(element);
       break;
     default:
       throw new Error(`Инструмент ${tool} не поддерживается`);

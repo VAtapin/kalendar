@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { createBlankCalendarProject } from "../src/document/factories";
 import { attachElementToLayer, createEmptyLayer } from "../src/document/layer-operations";
 import type { MonthTextElement } from "../src/document/types";
-import { createPersistentProjectSnapshot, normalizeCalendarProject } from "../src/persistence/project-storage";
+import {
+  createPersistentProjectSnapshot,
+  createProjectArchive,
+  normalizeCalendarProject,
+  parseProjectArchive,
+} from "../src/persistence/project-storage";
 import { createMonthTemplatePageWithPreset } from "../src/templates/calendar-templates";
 
 describe("project storage migration", () => {
@@ -110,16 +115,33 @@ describe("project storage migration", () => {
     grid.minimumEventFontSizePt = 7;
 
     normalizeCalendarProject(project);
-    expect(grid.dayNumberFontSizePt).toBe(28);
-    expect(grid.eventFontSizePt).toBe(9);
-    expect(grid.minimumEventFontSizePt).toBe(8);
+    expect(grid.dayNumberFontSizePt).toBe(30);
+    expect(grid.eventFontSizePt).toBe(10);
+    expect(grid.minimumEventFontSizePt).toBe(9);
     expect(grid.showTypikonIcons).toBe(false);
-    expect(project.layoutRevision).toBe(3);
+    expect(project.layoutRevision).toBe(5);
 
     grid.dayNumberFontSizePt = 24;
     grid.eventFontSizePt = 8;
     normalizeCalendarProject(project);
     expect(grid.dayNumberFontSizePt).toBe(24);
     expect(grid.eventFontSizePt).toBe(8);
+  });
+
+  it("round-trips a self-contained project archive and accepts legacy project JSON", () => {
+    const project = createBlankCalendarProject(2027);
+    project.assets.push({
+      id: "embedded-font",
+      name: "Custom.ttf",
+      mimeType: "font/ttf",
+      source: "data:font/ttf;base64,AA==",
+      kind: "font",
+    });
+    project.customFonts = [{ assetId: "embedded-font", family: "Custom", fontWeight: 400, fontStyle: "normal" }];
+    const archive = createProjectArchive(project);
+    expect(archive.manifest.embeddedAssetCount).toBe(1);
+    expect(archive.manifest.embeddedFontCount).toBe(1);
+    expect(parseProjectArchive(JSON.parse(JSON.stringify(archive)))?.name).toBe(project.name);
+    expect(parseProjectArchive(JSON.parse(JSON.stringify(project)))?.name).toBe(project.name);
   });
 });

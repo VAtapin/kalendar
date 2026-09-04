@@ -119,9 +119,31 @@ export interface CalendarGridElement extends LayoutElement<"calendar-grid"> {
   dayNumberFontFamily?: string;
   eventFontFamily?: string;
   dayNumberFontSizePt?: number;
+  /** Absolute position inside every day cell, measured from its top-left corner. */
+  dayNumberXOffsetMm?: number;
+  dayNumberYOffsetMm?: number;
+  oldStyleFontFamily?: string;
+  oldStyleFontSizePt?: number;
+  oldStyleXOffsetMm?: number;
+  oldStyleYOffsetMm?: number;
+  foodMarkerSizeMm?: number;
+  foodMarkerXOffsetMm?: number;
+  foodMarkerYOffsetMm?: number;
   eventFontSizePt?: number;
+  eventTextXOffsetMm?: number;
+  eventTextYOffsetMm?: number;
+  eventTextRightInsetMm?: number;
+  eventTextBottomInsetMm?: number;
+  typikonMarkerSizeMm?: number;
+  typikonMarkerXOffsetMm?: number;
+  typikonMarkerYOffsetMm?: number;
   autoFitText?: boolean;
   minimumEventFontSizePt?: number;
+  /** Extra leading between lines of the same event, in typographic points. */
+  eventLineSpacingPt?: number;
+  /** Extra distance between two separate events, in typographic points. */
+  eventGapPt?: number;
+  /** @deprecated Legacy multiplier; migrated to eventLineSpacingPt. */
   eventLineHeight?: number;
   cellPaddingMm?: number;
   gridStyle?: "editorial" | "boxed" | "minimal";
@@ -208,9 +230,16 @@ export interface DocumentAsset {
   name: string;
   mimeType: string;
   source: string;
-  kind: "image" | "svg";
+  kind: "image" | "svg" | "font" | "icc-profile";
   widthPx?: number;
   heightPx?: number;
+}
+
+export interface ProjectFontFace {
+  assetId: string;
+  family: string;
+  fontWeight: 400 | 700;
+  fontStyle: "normal" | "italic";
 }
 
 export interface PublisherProfile {
@@ -223,6 +252,12 @@ export interface PrintSettings {
   includeCropMarks: boolean;
   cropMarkLengthMm: number;
   cropMarkOffsetMm: number;
+  bindingEdge?: "none" | "top" | "left" | "right";
+  bindingSafeMm?: number;
+  pdfStandard?: "PDF-1.7" | "PDF/X-4";
+  colorProfile?: "sRGB" | "CMYK-custom";
+  iccProfileAssetId?: string;
+  outputConditionName?: string;
 }
 
 export interface MonasteryEvent {
@@ -262,10 +297,12 @@ export interface CalendarProject {
   name: string;
   publisherProfile: PublisherProfile;
   year: number;
+  fastingProfileId?: "typikon-strict" | "parish";
   calendarData: unknown;
   monasteryEvents: MonasteryEvent[];
   styleTheme: StyleTheme;
   assets: DocumentAsset[];
+  customFonts?: ProjectFontFace[];
   printSettings?: PrintSettings;
   foodMarkerPackId?: "ornamental" | "dark";
   foodMarkerAssets?: Partial<Record<

@@ -80,6 +80,23 @@ export function isMinorCommemorationEvent(event: ResolvedCalendarEvent): boolean
 }
 
 /**
+ * Records that must survive print fitting. Minor commemorations are the only
+ * records the renderer may silently omit when the cell is short.
+ */
+export function isRequiredCalendarEvent(event: ResolvedCalendarEvent): boolean {
+  return !isMinorCommemorationEvent(event);
+}
+
+function eventPrintRank(event: ResolvedCalendarEvent): number {
+  if (event.typeCode < 0) return 0;
+  if (event.typeCode <= 1) return 1;
+  if (event.typeCode === 2) return 2;
+  if (event.typeCode >= 3 && event.typeCode <= 5) return 3;
+  if (event.typeCode === 9) return 4;
+  return 10;
+}
+
+/**
  * The XML contains several data channels. A printed wall-calendar cell shows
  * feasts and commemorations by default; fasting remains available to the food
  * marker system, while readings and marriage rules can be explicitly enabled.
@@ -114,7 +131,7 @@ export function selectCalendarCellEvents(
     ((event.typeCode >= 0 && event.typeCode <= 5) || event.typeCode === 9) &&
     !isLiturgicalCycleLabel(event),
   );
-  const minorLimit = Math.max(0, Math.min(3, element.minorCommemorationFallback ?? 2));
+  const minorLimit = Math.max(0, element.minorCommemorationFallback ?? 2);
   const selectedMinorIds = new Set(
     hasPrimaryCommemoration
       ? []
@@ -124,7 +141,13 @@ export function selectCalendarCellEvents(
           .map((event) => event.id),
   );
 
-  return events.filter((event) =>
-    isCalendarCellEvent(element, event) || selectedMinorIds.has(event.id),
-  );
+  return events
+    .map((event, index) => ({ event, index }))
+    .filter(({ event }) => isCalendarCellEvent(element, event) || selectedMinorIds.has(event.id))
+    .sort((left, right) =>
+      eventPrintRank(left.event) - eventPrintRank(right.event) ||
+      right.event.priority - left.event.priority ||
+      left.index - right.index,
+    )
+    .map(({ event }) => event);
 }

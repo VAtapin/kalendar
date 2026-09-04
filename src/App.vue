@@ -39,6 +39,7 @@ import {
   type FoodMarkerPackId,
 } from "./calendar/presentation/marker-packs";
 import { mergeMonasteryEvents } from "./calendar/engine/merge-monastery-events";
+import { FASTING_PROFILES } from "./calendar/fasting/fasting-api";
 import type { MemoryDaysDataset, OrthodoxCalendarYear } from "./calendar/types";
 import {
   COMMEMORATION_FILTER_OPTIONS,
@@ -46,11 +47,23 @@ import {
   commemorationFilterForElement,
 } from "./calendar/presentation/calendar-content-policy";
 import {
+  createProjectArchive,
   createPersistentProjectSnapshot,
-  isCalendarProject,
+  listProjectBackups,
+  listUserCalendarGridTemplates,
+  listUserProjectTemplates,
   loadAutosavedProject,
   normalizeCalendarProject,
+  parseProjectArchive,
   saveAutosavedProject,
+  saveProjectBackup,
+  saveUserCalendarGridTemplate,
+  saveUserProjectTemplate,
+  deleteUserCalendarGridTemplate,
+  deleteUserProjectTemplate,
+  type ProjectBackup,
+  type UserCalendarGridTemplate,
+  type UserProjectTemplate,
 } from "./persistence/project-storage";
 import {
   CALENDAR_TEMPLATE_PRESETS,
@@ -64,6 +77,11 @@ import { copyCalendarGridPresentation } from "./templates/calendar-grid-settings
 import { DECOR_LIBRARY_ITEMS, type DecorLibraryItem } from "./decor/decor-library";
 import { recolorSvgMarkup, svgMarkupDataUrl } from "./decor/svg-recolor";
 import { FONT_OPTIONS } from "./typography/font-catalog";
+import {
+  applyMonthMaster,
+  cloneProjectForYear,
+  describeMonthMasterApplication,
+} from "./templates/project-templates";
 
 const project = ref(createBlankCalendarProject());
 const zoomPercent = ref(55);
@@ -77,14 +95,23 @@ const projectFileInput = ref<HTMLInputElement>();
 const projectFileName = ref<string>();
 const savedProjectFileSnapshot = ref<string>();
 const foodMarkerFileInput = ref<HTMLInputElement>();
+const fontFileInput = ref<HTMLInputElement>();
+const iccProfileFileInput = ref<HTMLInputElement>();
 const pendingFoodMarkerRule = ref<FoodRuleId>();
 const activeDockPanel = ref<DockPanelId>("properties");
 const selectedTemplateId = ref<CalendarTemplateId>("editorial-photo");
+const userProjectTemplates = ref<UserProjectTemplate[]>([]);
+const userCalendarGridTemplates = ref<UserCalendarGridTemplate[]>([]);
+const projectBackups = ref<ProjectBackup[]>([]);
+const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
+const recentProjectNames = ref<string[]>([]);
 type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
 type MenuCommandId =
   | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "export-pdf"
+  | "save-user-template" | "clone-year"
   | "undo" | "redo" | "duplicate" | "delete"
   | "full-template" | "add-cover" | "add-month" | "delete-page"
+  | "apply-month-master"
   | "bring-front" | "send-back" | "group" | "toggle-lock" | "toggle-visible"
   | "align-object-left" | "align-object-center" | "align-object-right"
   | "align-object-top" | "align-object-middle" | "align-object-bottom"
@@ -141,11 +168,20 @@ const persistenceState = ref<"loading" | "saved" | "saving" | "error">("loading"
 const pdfExportState = ref<"idle" | "exporting" | "ready" | "error">("idle");
 const currentFillColor = ref("#f4f1e8");
 const currentStrokeColor = ref("#17201d");
-const fontOptionGroups = [
+const fontOptionGroups = computed(() => [
   { label: "Декоративные кириллические", options: FONT_OPTIONS.filter((option) => option.kind === "decorative") },
   { label: "Книжные", options: FONT_OPTIONS.filter((option) => option.kind === "text") },
+  {
+    label: "Шрифты проекта",
+    options: (project.value.customFonts ?? []).map((font) => ({
+      family: font.family,
+      label: `${font.family} — встроенный`,
+      description: "Встроен в проект и печатный PDF",
+      kind: "decorative" as const,
+    })),
+  },
   { label: "Системные", options: FONT_OPTIONS.filter((option) => option.kind === "system") },
-] as const;
+].filter((group) => group.options.length > 0));
 const undoStack = ref<HistoryEntry[]>([]);
 const redoStack = ref<HistoryEntry[]>([]);
 let continuousEditSnapshot: string | undefined;
@@ -196,6 +232,7 @@ const foodMarkerPackOptions = FOOD_MARKER_PACKS;
 const foodMarkerPackPreviewRules: readonly FoodRuleId[] = ["fast", "fish", "strict-fast"];
 const calendarTemplatePresets = CALENDAR_TEMPLATE_PRESETS;
 const commemorationFilterOptions = COMMEMORATION_FILTER_OPTIONS;
+const fastingProfileOptions = Object.values(FASTING_PROFILES);
 const decorLibraryItems = DECOR_LIBRARY_ITEMS;
 
 const selectedPage = computed(() => {
@@ -230,6 +267,31 @@ const cropMarkLengthMm = computed({
     project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
     project.value.printSettings.cropMarkLengthMm = Math.max(0.5, value);
   },
+});
+const bindingEdge = computed({
+  get: () => project.value.printSettings?.bindingEdge ?? "top",
+  set: (value: "none" | "top" | "left" | "right") => {
+    project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
+    project.value.printSettings.bindingEdge = value;
+  },
+});
+const bindingSafeMm = computed({
+  get: () => project.value.printSettings?.bindingSafeMm ?? 12,
+  set: (value: number) => {
+    project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
+    project.value.printSettings.bindingSafeMm = Math.max(0, value);
+  },
+});
+const pdfStandard = computed({
+  get: () => project.value.printSettings?.pdfStandard ?? "PDF-1.7",
+  set: (value: "PDF-1.7" | "PDF/X-4") => {
+    project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
+    project.value.printSettings.pdfStandard = value;
+  },
+});
+const iccProfileName = computed(() => {
+  const assetId = project.value.printSettings?.iccProfileAssetId;
+  return project.value.assets.find((asset) => asset.id === assetId)?.name;
 });
 const cropMarkOffsetMm = computed({
   get: () => project.value.printSettings?.cropMarkOffsetMm ?? 0.5,
@@ -303,6 +365,8 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "save-project", label: "Сохранить", shortcut: "Ctrl+S" },
         { command: "save-as-project", label: "Сохранить как…", shortcut: "Ctrl+Shift+S" },
         { command: "download-project", label: "Скачать резервную копию…" },
+        { command: "save-user-template", label: "Сохранить дизайн как шаблон…" },
+        { command: "clone-year", label: "Создать копию для другого года…" },
         { separator: true },
         { command: "export-pdf", label: "Экспортировать печатный PDF…", shortcut: "Ctrl+E", disabled: pdfExportState.value === "exporting" },
       ],
@@ -322,6 +386,8 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
       id: "layout",
       label: "Макет",
       items: [
+        { command: "apply-month-master", label: "Сделать выбранный месяц мастер-страницей", disabled: selectedPage.value.kind !== "month" },
+        { separator: true },
         { command: "full-template", label: "Создать календарь: обложка + 12 месяцев" },
         { command: "add-cover", label: "Добавить обложку" },
         { command: "add-month", label: "Добавить страницу месяца" },
@@ -483,7 +549,7 @@ function scheduleAutosave(): void {
 async function initializeProject(): Promise<void> {
   try {
     const restored = await loadAutosavedProject();
-    if (restored && isCalendarProject(restored)) {
+    if (restored) {
       project.value = normalizeCalendarProject(restored);
       let savedPageId: string | undefined;
       let savedDockPanel: DockPanelId | undefined;
@@ -520,6 +586,20 @@ async function initializeProject(): Promise<void> {
         activeDockPanel.value = savedDockPanel;
       }
       operationNotice.value = "Восстановлено последнее автосохранение";
+      await registerProjectFonts(project.value);
+    }
+    [userProjectTemplates.value, userCalendarGridTemplates.value, projectBackups.value] = await Promise.all([
+      listUserProjectTemplates(),
+      listUserCalendarGridTemplates(),
+      listProjectBackups(),
+    ]);
+    try {
+      const recent = JSON.parse(localStorage.getItem(RECENT_PROJECTS_KEY) ?? "[]") as unknown;
+      recentProjectNames.value = Array.isArray(recent)
+        ? recent.filter((item): item is string => typeof item === "string").slice(0, 8)
+        : [];
+    } catch {
+      recentProjectNames.value = [];
     }
     persistenceState.value = "saved";
   } catch (error) {
@@ -532,13 +612,18 @@ async function initializeProject(): Promise<void> {
 }
 
 function projectFileBlob(): Blob {
-  return new Blob([JSON.stringify(createPersistentProjectSnapshot(project.value), null, 2)], {
-    type: "application/json",
+  return new Blob([JSON.stringify(createProjectArchive(project.value), null, 2)], {
+    type: "application/vnd.orthodox-calendar-project+json",
   });
 }
 
 function suggestedProjectFileName(): string {
-  return `${project.value.name.replace(/[^\p{L}\p{N}._-]+/gu, "-")}.kalendar.json`;
+  return `${project.value.name.replace(/[^\p{L}\p{N}._-]+/gu, "-")}.kalendar`;
+}
+
+function rememberProjectName(name: string): void {
+  recentProjectNames.value = [name, ...recentProjectNames.value.filter((item) => item !== name)].slice(0, 8);
+  localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(recentProjectNames.value));
 }
 
 function downloadProjectFile(markAsCurrent = false): void {
@@ -567,6 +652,9 @@ async function writeProjectFile(handle: ProjectFileHandle): Promise<void> {
   activeProjectFileHandle = handle;
   projectFileName.value = handle.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
+  rememberProjectName(handle.name);
+  await saveProjectBackup(project.value, `Сохранение ${handle.name}`);
+  projectBackups.value = await listProjectBackups();
   await saveAutosaveNow();
   operationNotice.value = `Проект сохранён в файл: ${handle.name}`;
 }
@@ -583,7 +671,7 @@ async function saveProjectAs(): Promise<void> {
       suggestedName: suggestedProjectFileName(),
       types: [{
         description: "Проект календаря",
-        accept: { "application/json": [".json"] },
+        accept: { "application/vnd.orthodox-calendar-project+json": [".kalendar"] },
       }],
     });
     await writeProjectFile(handle);
@@ -649,9 +737,12 @@ function selectPreflightIssue(item: PreflightIssue): void {
 }
 
 async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Promise<void> {
+  await createRecoveryPoint(`Перед открытием ${file.name}`);
   const candidate: unknown = JSON.parse(await file.text());
-  if (!isCalendarProject(candidate)) throw new Error("Неподдерживаемый формат проекта");
-  project.value = normalizeCalendarProject(candidate);
+  const loadedProject = parseProjectArchive(candidate);
+  if (!loadedProject) throw new Error("Неподдерживаемый формат проекта");
+  project.value = loadedProject;
+  await registerProjectFonts(project.value);
   selectedPageId.value = project.value.document.pages[0]?.id ?? "";
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
@@ -660,6 +751,7 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   activeProjectFileHandle = handle;
   projectFileName.value = file.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
+  rememberProjectName(file.name);
   await loadCalendarData();
   await saveAutosaveNow();
   operationNotice.value = `Открыт файл проекта: ${file.name}`;
@@ -681,7 +773,7 @@ async function requestProjectFile(): Promise<void> {
       multiple: false,
       types: [{
         description: "Проект календаря",
-        accept: { "application/json": [".json"] },
+        accept: { "application/vnd.orthodox-calendar-project+json": [".kalendar", ".json"] },
       }],
     });
     if (!handle) return;
@@ -705,11 +797,22 @@ async function openProjectFile(event: Event): Promise<void> {
   }
 }
 
-function createNewProject(): void {
+async function createRecoveryPoint(label: string): Promise<void> {
+  try {
+    await saveProjectBackup(project.value, label);
+    projectBackups.value = await listProjectBackups();
+  } catch {
+    // A failed local backup is surfaced by autosave status, but must not trap
+    // the user in the current project when they explicitly confirmed a switch.
+  }
+}
+
+async function createNewProject(): Promise<void> {
   if (
     project.value.document.pages.some((page) => page.elements.length > 0) &&
     !window.confirm("Создать новый проект? Текущий проект будет закрыт. Если он ещё не сохранён в файл, сначала нажмите «Сохранить как…».")
   ) return;
+  await createRecoveryPoint("Перед созданием нового проекта");
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
   activeProjectFileHandle = undefined;
   projectFileName.value = undefined;
@@ -729,11 +832,12 @@ function selectPage(pageId: string): void {
   selectedLayerIds.value = [];
 }
 
-function applyFullCalendarTemplate(): void {
+async function applyFullCalendarTemplate(): Promise<void> {
   if (
     project.value.document.pages.some((page) => page.elements.length > 0) &&
     !window.confirm("Заменить все текущие страницы новой обложкой и 12 месяцами? Изменённые страницы будут удалены. После создания действие можно отменить через Ctrl+Z.")
   ) return;
+  await createRecoveryPoint("Перед заменой страниц полным шаблоном");
   mutateProject("Создание полного календаря", () => {
     project.value.document.pages = createFullCalendarTemplate(
       selectedPage.value.formatId,
@@ -1145,6 +1249,147 @@ function applyGridPresentationToAllMonths(): void {
     : "Других месячных сеток в документе нет";
 }
 
+async function saveSelectedGridAsTemplate(): Promise<void> {
+  const grid = selectedElement.value;
+  if (!grid || grid.type !== "calendar-grid") {
+    operationNotice.value = "Сначала выберите календарную сетку";
+    return;
+  }
+  const name = window.prompt("Название шаблона календарной сетки", "Моя календарная сетка");
+  if (!name?.trim()) return;
+  const saved = await saveUserCalendarGridTemplate(name.trim(), grid);
+  userCalendarGridTemplates.value = [saved, ...userCalendarGridTemplates.value];
+  operationNotice.value = `Шаблон сетки «${saved.name}» сохранён`;
+}
+
+function applyCalendarGridTemplate(template: UserCalendarGridTemplate, allMonths: boolean): void {
+  const selectedGrid = selectedElement.value?.type === "calendar-grid" ? selectedElement.value : undefined;
+  if (!allMonths && !selectedGrid) {
+    operationNotice.value = "Сначала выберите календарную сетку месяца";
+    return;
+  }
+  let updated = 0;
+  mutateProject(allMonths ? "Шаблон сетки для всех месяцев" : "Шаблон календарной сетки", () => {
+    for (const page of project.value.document.pages) {
+      if (page.kind !== "month") continue;
+      for (const grid of page.elements) {
+        if (grid.type !== "calendar-grid") continue;
+        if (!allMonths && grid.id !== selectedGrid?.id) continue;
+        copyCalendarGridPresentation(template.grid, grid);
+        updated += 1;
+      }
+    }
+  });
+  operationNotice.value = allMonths
+    ? `Шаблон «${template.name}» применён к ${updated} месяцам`
+    : `Шаблон «${template.name}» применён к выбранной сетке`;
+}
+
+async function removeCalendarGridTemplate(template: UserCalendarGridTemplate): Promise<void> {
+  if (!window.confirm(`Удалить шаблон сетки «${template.name}»?`)) return;
+  await deleteUserCalendarGridTemplate(template.id);
+  userCalendarGridTemplates.value = userCalendarGridTemplates.value.filter((item) => item.id !== template.id);
+  operationNotice.value = `Шаблон сетки «${template.name}» удалён`;
+}
+
+function applySelectedMonthAsMaster(): void {
+  if (selectedPage.value.kind !== "month") {
+    operationNotice.value = "Сначала выберите страницу месяца";
+    return;
+  }
+  const summary = describeMonthMasterApplication(project.value, selectedPage.value.id);
+  if (!window.confirm(`${summary}\n\nПрименить мастер-страницу?`)) return;
+  const result = mutateProject("Применение мастер-страницы", () =>
+    applyMonthMaster(project.value, selectedPage.value.id),
+  );
+  operationNotice.value = `Мастер применён к ${result.changedPages} страницам; сохранено назначений фотографий: ${result.preservedImages}`;
+}
+
+async function saveCurrentDesignAsTemplate(): Promise<void> {
+  const name = window.prompt("Название пользовательского шаблона", `${project.value.name} — дизайн`);
+  if (!name?.trim()) return;
+  const saved = await saveUserProjectTemplate(name.trim(), project.value);
+  userProjectTemplates.value = [saved, ...userProjectTemplates.value];
+  operationNotice.value = `Шаблон «${saved.name}» сохранён локально`;
+}
+
+function applyUserProjectTemplate(template: UserProjectTemplate): void {
+  if (!window.confirm(`Применить шаблон «${template.name}» ко всему документу? Текущие страницы будут заменены; действие можно отменить.`)) return;
+  const current = project.value;
+  const prepared = cloneProjectForYear(template.project, current.year);
+  mutateProject("Применение пользовательского шаблона", () => {
+    project.value = {
+      ...prepared,
+      id: current.id,
+      name: current.name,
+      publisherProfile: current.publisherProfile,
+      monasteryEvents: current.monasteryEvents,
+      assets: [...prepared.assets, ...current.assets.filter((asset) => !prepared.assets.some((item) => item.id === asset.id))],
+      customFonts: [
+        ...(prepared.customFonts ?? []),
+        ...(current.customFonts ?? []).filter((font) => !(prepared.customFonts ?? []).some((item) => item.assetId === font.assetId)),
+      ],
+    };
+  });
+  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  void registerProjectFonts(project.value);
+  operationNotice.value = `Применён шаблон «${template.name}»`;
+}
+
+async function removeUserProjectTemplate(template: UserProjectTemplate): Promise<void> {
+  if (!window.confirm(`Удалить шаблон «${template.name}»?`)) return;
+  await deleteUserProjectTemplate(template.id);
+  userProjectTemplates.value = userProjectTemplates.value.filter((item) => item.id !== template.id);
+  operationNotice.value = `Шаблон «${template.name}» удалён`;
+}
+
+function cloneCurrentProjectToYear(): void {
+  const answer = window.prompt("Год для копии проекта", String(project.value.year + 1));
+  if (answer === null) return;
+  const year = Math.round(Number(answer));
+  if (!Number.isInteger(year) || year < 1900 || year > 2200) {
+    operationNotice.value = "Введите год от 1900 до 2200";
+    return;
+  }
+  void saveProjectBackup(project.value, `Перед созданием копии на ${year} год`).then(async () => {
+    projectBackups.value = await listProjectBackups();
+  });
+  project.value = normalizeCalendarProject(cloneProjectForYear(project.value, year));
+  activeProjectFileHandle = undefined;
+  projectFileName.value = undefined;
+  savedProjectFileSnapshot.value = undefined;
+  undoStack.value = [];
+  redoStack.value = [];
+  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  void registerProjectFonts(project.value);
+  void loadCalendarData();
+  operationNotice.value = `Создана независимая копия проекта на ${year} год; выберите «Сохранить как…»`;
+}
+
+function restoreProjectBackup(backup: ProjectBackup): void {
+  if (!window.confirm(`Восстановить резервную копию «${backup.label}» от ${new Date(backup.createdAt).toLocaleString("ru-RU")}?`)) return;
+  mutateProject("Восстановление резервной копии", () => {
+    project.value = normalizeCalendarProject(createPersistentProjectSnapshot(backup.project));
+  });
+  activeProjectFileHandle = undefined;
+  projectFileName.value = undefined;
+  savedProjectFileSnapshot.value = undefined;
+  selectedPageId.value = project.value.document.pages[0]?.id ?? "";
+  void registerProjectFonts(project.value);
+  void loadCalendarData();
+  operationNotice.value = `Восстановлена копия «${backup.label}»; сохраните её в новый файл`;
+}
+
+function formatBackupTime(createdAt: string): string {
+  return new Date(createdAt).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function placeSelectedLegend(edge: "top" | "bottom"): void {
   const element = selectedElement.value;
   if (!element || element.type !== "legend") return;
@@ -1160,6 +1405,108 @@ function placeSelectedLegend(edge: "top" | "bottom"): void {
 
 function requestAssetFile(): void {
   assetFileInput.value?.click();
+}
+
+function requestCustomFontFile(): void {
+  fontFileInput.value?.click();
+}
+
+function requestIccProfileFile(): void {
+  iccProfileFileInput.value?.click();
+}
+
+async function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(String(reader.result)));
+    reader.addEventListener("error", () => reject(reader.error ?? new Error("Ошибка чтения файла")));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function registerProjectFonts(targetProject: CalendarProject = project.value): Promise<void> {
+  if (!("fonts" in document) || typeof FontFace === "undefined") return;
+  for (const face of targetProject.customFonts ?? []) {
+    const asset = targetProject.assets.find((item) => item.id === face.assetId && item.kind === "font");
+    if (!asset) continue;
+    try {
+      const loaded = await new FontFace(face.family, `url(${JSON.stringify(asset.source)})`, {
+        style: face.fontStyle,
+        weight: String(face.fontWeight),
+      }).load();
+      document.fonts.add(loaded);
+    } catch {
+      // Preflight reports an unavailable font; one bad custom face must not
+      // prevent the rest of the project from opening.
+    }
+  }
+}
+
+async function importCustomFont(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const suggested = file.name.replace(/\.(?:ttf|otf|woff2?)$/iu, "").replace(/[-_]+/gu, " ").trim();
+    const family = window.prompt("Название семейства шрифта", suggested);
+    if (!family?.trim()) return;
+    const source = await readFileAsDataUrl(file);
+    const assetId = `asset-font-${crypto.randomUUID()}`;
+    mutateProject("Добавление шрифта проекта", () => {
+      project.value.assets.push({
+        id: assetId,
+        name: file.name,
+        mimeType: file.type || "font/ttf",
+        source,
+        kind: "font",
+      });
+      project.value.customFonts ??= [];
+      project.value.customFonts.push({
+        assetId,
+        family: family.trim(),
+        fontWeight: 400,
+        fontStyle: "normal",
+      });
+    });
+    await registerProjectFonts();
+    operationNotice.value = `Шрифт «${family.trim()}» встроен в проект`;
+  } finally {
+    input.value = "";
+  }
+}
+
+async function importIccProfile(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const source = await readFileAsDataUrl(file);
+    const assetId = `asset-icc-${crypto.randomUUID()}`;
+    mutateProject("Профиль типографии", () => {
+      project.value.assets.push({
+        id: assetId,
+        name: file.name,
+        mimeType: file.type || "application/vnd.iccprofile",
+        source,
+        kind: "icc-profile",
+      });
+      project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
+      project.value.printSettings.iccProfileAssetId = assetId;
+      project.value.printSettings.colorProfile = "CMYK-custom";
+      project.value.printSettings.pdfStandard = "PDF/X-4";
+      project.value.printSettings.outputConditionName = file.name.replace(/\.(?:icc|icm)$/iu, "");
+    });
+    operationNotice.value = `ICC-профиль «${file.name}» встроен; включён PDF/X-4`;
+  } finally {
+    input.value = "";
+  }
+}
+
+function removeProjectFont(assetId: string): void {
+  mutateProject("Удаление шрифта проекта", () => {
+    project.value.customFonts = (project.value.customFonts ?? []).filter((font) => font.assetId !== assetId);
+    project.value.assets = project.value.assets.filter((asset) => asset.id !== assetId);
+  });
 }
 
 function frameForDecor(item: DecorLibraryItem): ElementFrame {
@@ -1259,12 +1606,7 @@ async function importSelectedAsset(event: Event): Promise<void> {
   const file = input.files?.[0];
   const element = selectedElement.value;
   if (!file || !element || (element.type !== "image" && element.type !== "svg")) return;
-  const source = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(String(reader.result)));
-    reader.addEventListener("error", () => reject(reader.error ?? new Error("Ошибка чтения файла")));
-    reader.readAsDataURL(file);
-  });
+  const source = await readFileAsDataUrl(file);
   const dimensions = element.type === "image" && !/svg/i.test(file.type)
     ? await readRasterDimensions(source)
     : undefined;
@@ -1321,12 +1663,7 @@ async function importFoodMarkerAsset(event: Event): Promise<void> {
   const rule = pendingFoodMarkerRule.value;
   if (!file || !rule) return;
   try {
-    const source = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener("load", () => resolve(String(reader.result)));
-      reader.addEventListener("error", () => reject(reader.error ?? new Error("Ошибка чтения файла")));
-      reader.readAsDataURL(file);
-    });
+    const source = await readFileAsDataUrl(file);
     const asset = {
       id: `asset-food-${crypto.randomUUID()}`,
       name: file.name,
@@ -1442,11 +1779,13 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
   activeMenu.value = undefined;
   if (!command) return;
   switch (command) {
-    case "new-project": createNewProject(); break;
+    case "new-project": void createNewProject(); break;
     case "open-project": void requestProjectFile(); break;
     case "save-project": void saveProjectNow(); break;
     case "save-as-project": void saveProjectAs(); break;
     case "download-project": downloadProjectFile(); break;
+    case "save-user-template": void saveCurrentDesignAsTemplate(); break;
+    case "clone-year": cloneCurrentProjectToYear(); break;
     case "export-pdf": void exportPrintPdf(); break;
     case "undo": undo(); break;
     case "redo": redo(); break;
@@ -1456,6 +1795,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "add-cover": addCoverTemplatePage(); break;
     case "add-month": addMonthTemplatePage(selectedElement.value?.type === "calendar-grid" ? selectedElement.value.month : 1); break;
     case "delete-page": deleteCurrentPage(); break;
+    case "apply-month-master": applySelectedMonthAsMaster(); break;
     case "bring-front": moveSelectionToEdge("front"); break;
     case "send-back": moveSelectionToEdge("back"); break;
     case "group": groupSelectedLayers(); break;
@@ -1747,6 +2087,7 @@ onBeforeUnmount(() => {
         :assets="project.assets"
         :food-marker-pack-id="project.foodMarkerPackId"
         :food-marker-assets="project.foodMarkerAssets"
+        :fasting-profile-id="project.fastingProfileId"
         :calendar-year="displayedCalendarYear"
         :pixels-per-mm="pixelsPerMm"
         :show-guides="showGuides"
@@ -1824,38 +2165,69 @@ onBeforeUnmount(() => {
                   <label class="field-control"><span>Названия</span><select v-model="selectedElement.weekdayLabelMode"><option value="full">Полные</option><option value="short">Короткие</option><option value="custom">Свои</option></select></label>
                   <label class="field-control"><span>Стиль сетки</span><select v-model="selectedElement.gridStyle"><option value="editorial">Издательская</option><option value="boxed">Табличная</option><option value="minimal">Без линий</option></select></label>
                   <label class="field-control"><span>Шрифт заголовков</span><select v-model="selectedElement.weekdayFontFamily" :style="{ fontFamily: selectedElement.weekdayFontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
-                  <label class="field-control"><span>Заголовки, pt</span><input v-model.number="selectedElement.weekdayFontSizePt" type="number" min="5" max="28" step="0.5" /></label>
+                  <label class="field-control"><span>Заголовки, pt</span><input v-model.number="selectedElement.weekdayFontSizePt" type="number" step="0.5" /></label>
                   <div v-if="selectedElement.weekdayLabelMode === 'custom'" class="weekday-label-editor">
                     <input
                       v-for="(_, index) in 7"
                       :key="index"
                       :value="selectedElement.customWeekdayLabels?.[index] ?? ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'][index]"
                       type="text"
-                      maxlength="16"
                       @input="updateWeekdayLabel(selectedElement, index, ($event.target as HTMLInputElement).value)"
                     />
                   </div>
-                  <label class="field-control"><span>Событий в ячейке</span><input v-model.number="selectedElement.maxVisibleEvents" type="number" min="1" max="12" /></label>
+                  <label class="field-control"><span>Событий в ячейке</span><input v-model.number="selectedElement.maxVisibleEvents" type="number" step="1" /></label>
                   <label class="field-control"><span>Состав памятей</span><select :value="selectedElement.commemorationDetail ?? 'standard'" @change="updateCommemorationPreset(selectedElement, ($event.target as HTMLSelectElement).value)"><option value="main">Пасха, двунадесятые и великие</option><option value="standard">Великие и средние</option><option value="full">Все допустимые</option><option value="custom">Свой выбор</option></select></label>
                   <div class="commemoration-filter">
                     <label v-for="option in commemorationFilterOptions" :key="option.id" class="checkbox-field">
                       <input :checked="commemorationFilterEnabled(selectedElement, option.id)" type="checkbox" @change="updateCommemorationFilter(selectedElement, option.id, ($event.target as HTMLInputElement).checked)" />
                       <span>{{ option.label }}</span>
                     </label>
-                    <label class="field-control"><span>Малых памятей в пустой день</span><input v-model.number="selectedElement.minorCommemorationFallback" type="number" min="0" max="3" /></label>
+                    <label class="field-control"><span>Малых памятей в пустой день</span><input v-model.number="selectedElement.minorCommemorationFallback" type="number" step="1" /></label>
                   </div>
                   <label class="field-control"><span>Шрифт числа</span><select v-model="selectedElement.dayNumberFontFamily" :style="{ fontFamily: selectedElement.dayNumberFontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
-                  <label class="field-control"><span>Размер числа, pt</span><input v-model.number="selectedElement.dayNumberFontSizePt" type="number" min="6" max="36" step="0.5" /></label>
+                  <label class="field-control"><span>Размер числа, pt</span><input v-model.number="selectedElement.dayNumberFontSizePt" data-testid="day-number-size" type="number" step="0.5" /></label>
+                  <div class="cell-object-controls">
+                    <strong>Число дня — положение от левого верхнего угла</strong>
+                    <label class="field-control"><span>X, мм</span><input v-model.number="selectedElement.dayNumberXOffsetMm" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.dayNumberYOffsetMm" type="number" step="0.1" /></label>
+                  </div>
                   <label class="field-control"><span>Шрифт событий</span><select v-model="selectedElement.eventFontFamily" :style="{ fontFamily: selectedElement.eventFontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
-                  <label class="field-control"><span>Текст событий, pt</span><input v-model.number="selectedElement.eventFontSizePt" type="number" min="3" max="18" step="0.25" /></label>
+                  <label class="field-control"><span>Текст событий, pt</span><input v-model.number="selectedElement.eventFontSizePt" data-testid="event-font-size" type="number" step="0.25" /></label>
                   <label class="checkbox-field"><input :checked="selectedElement.autoFitText !== false" type="checkbox" @change="selectedElement.autoFitText = ($event.target as HTMLInputElement).checked" /><span>Автоподбор кегля</span></label>
-                  <label v-if="selectedElement.autoFitText !== false" class="field-control"><span>Минимум, pt</span><input :value="selectedElement.minimumEventFontSizePt ?? 8" type="number" min="3" :max="selectedElement.eventFontSizePt ?? 18" step="0.25" @input="selectedElement.minimumEventFontSizePt = Number(($event.target as HTMLInputElement).value)" /></label>
-                  <label class="field-control"><span>Интерлиньяж событий</span><input v-model.number="selectedElement.eventLineHeight" type="number" min="0.8" max="2" step="0.02" /></label>
-                  <label class="field-control"><span>Отступ ячейки, мм</span><input v-model.number="selectedElement.cellPaddingMm" type="number" min="0.4" max="8" step="0.1" /></label>
+                  <label v-if="selectedElement.autoFitText !== false" class="field-control"><span>Не уменьшать ниже, pt</span><input :value="selectedElement.minimumEventFontSizePt ?? 9" data-testid="event-minimum-size" type="number" step="0.25" @input="selectedElement.minimumEventFontSizePt = Number(($event.target as HTMLInputElement).value)" /></label>
+                  <p v-if="selectedElement.autoFitText !== false" class="property-help">Автоподбор уменьшает заданный выше кегль только тогда, когда важный текст не помещается.</p>
+                  <label class="field-control"><span>Между строками, pt</span><input v-model.number="selectedElement.eventLineSpacingPt" type="number" step="0.25" /></label>
+                  <label class="field-control"><span>Между событиями, pt</span><input v-model.number="selectedElement.eventGapPt" type="number" step="0.25" /></label>
+                  <div class="cell-object-controls">
+                    <strong>Текст событий — независимая область</strong>
+                    <label class="field-control"><span>X, мм</span><input v-model.number="selectedElement.eventTextXOffsetMm" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.eventTextYOffsetMm" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Поле справа, мм</span><input v-model.number="selectedElement.eventTextRightInsetMm" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Поле снизу, мм</span><input v-model.number="selectedElement.eventTextBottomInsetMm" type="number" step="0.1" /></label>
+                  </div>
                   <label class="checkbox-field"><input v-model="selectedElement.showOldStyleDate" type="checkbox" /><span>Дата по старому стилю</span></label>
+                  <div v-if="selectedElement.showOldStyleDate" class="cell-object-controls">
+                    <strong>Дата по старому стилю</strong>
+                    <label class="field-control"><span>Шрифт</span><select v-model="selectedElement.oldStyleFontFamily" :style="{ fontFamily: selectedElement.oldStyleFontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
+                    <label class="field-control"><span>Размер, pt</span><input v-model.number="selectedElement.oldStyleFontSizePt" type="number" step="0.25" /></label>
+                    <label class="field-control"><span>X, мм</span><input v-model.number="selectedElement.oldStyleXOffsetMm" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.oldStyleYOffsetMm" type="number" step="0.1" /></label>
+                  </div>
                   <label class="checkbox-field"><input v-model="selectedElement.showFeastColors" type="checkbox" /><span>Цвета праздников</span></label>
                   <label class="checkbox-field"><input v-model="selectedElement.showTypikonIcons" type="checkbox" /><span>Включить знаки типикона</span></label>
+                  <div v-if="selectedElement.showTypikonIcons" class="cell-object-controls">
+                    <strong>Знак типикона</strong>
+                    <label class="field-control"><span>Размер, мм</span><input v-model.number="selectedElement.typikonMarkerSizeMm" data-testid="typikon-marker-size" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>X, мм</span><input v-model.number="selectedElement.typikonMarkerXOffsetMm" data-testid="typikon-marker-x" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.typikonMarkerYOffsetMm" data-testid="typikon-marker-y" type="number" step="0.1" /></label>
+                  </div>
                   <label class="checkbox-field"><input v-model="selectedElement.showFoodIcons" type="checkbox" /><span>Значки пищи и поста</span></label>
+                  <div v-if="selectedElement.showFoodIcons" class="cell-object-controls">
+                    <strong>Значок пищи / поста</strong>
+                    <label class="field-control"><span>Размер, мм</span><input v-model.number="selectedElement.foodMarkerSizeMm" data-testid="food-marker-size" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>X, мм</span><input v-model.number="selectedElement.foodMarkerXOffsetMm" data-testid="food-marker-x" type="number" step="0.1" /></label>
+                    <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.foodMarkerYOffsetMm" data-testid="food-marker-y" type="number" step="0.1" /></label>
+                  </div>
                   <label class="checkbox-field"><input v-model="selectedElement.showFastingText" type="checkbox" /><span>Текстовые записи о посте</span></label>
                   <label class="checkbox-field"><input v-model="selectedElement.showMarriageRules" type="checkbox" /><span>Правила венчания</span></label>
                   <label class="checkbox-field"><input v-model="selectedElement.showScriptureReadings" type="checkbox" /><span>Чтения Священного Писания</span></label>
@@ -1914,7 +2286,15 @@ onBeforeUnmount(() => {
               <template v-else>
               <label class="field-stack"><span>Название проекта</span><input v-model="project.name" type="text" /></label>
               <label class="field-control"><span>Календарный год</span><input :value="project.year" type="number" min="1900" max="2200" @change="updateProjectYear" /></label>
+              <label class="field-control"><span>Правила поста</span><select v-model="project.fastingProfileId"><option v-for="profile in fastingProfileOptions" :key="profile.id" :value="profile.id">{{ profile.label }}</option></select></label>
+              <p class="property-help">{{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].description }} Версия правил {{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].rulesVersion }}.</p>
               <label class="field-stack"><span>Издатель / монастырь</span><input v-model="project.publisherProfile.name" type="text" /></label>
+              <h2 class="property-subheading">Шрифты проекта</h2>
+              <button type="button" @click="requestCustomFontFile">Добавить TTF/OTF/WOFF…</button>
+              <div v-for="font in project.customFonts" :key="font.assetId" class="saved-template-row">
+                <span>{{ font.family }}</span>
+                <button type="button" title="Удалить шрифт" @click="removeProjectFont(font.assetId)">×</button>
+              </div>
               <label class="field-stack"><span>Название страницы</span><input v-model="selectedPage.name" type="text" /></label>
               <button class="primary-action" type="button" @click="activateDockPanel('events')">Дополнительные даты и события…</button>
               <div class="inspector-divider"></div>
@@ -1972,6 +2352,12 @@ onBeforeUnmount(() => {
                 <label><span>Длина</span><input v-model.number="cropMarkLengthMm" type="number" min="0.5" max="10" step="0.5" /></label>
                 <label><span>Отступ</span><input v-model.number="cropMarkOffsetMm" type="number" min="0" max="10" step="0.5" /></label>
               </div>
+              <h2 class="property-subheading">Переплёт и типография</h2>
+              <label class="field-control"><span>Сторона переплёта</span><select v-model="bindingEdge"><option value="none">Без переплёта</option><option value="top">Сверху / пружина</option><option value="left">Слева</option><option value="right">Справа</option></select></label>
+              <label v-if="bindingEdge !== 'none'" class="field-control"><span>Защитная зона, мм</span><input v-model.number="bindingSafeMm" type="number" min="0" max="40" step="0.5" /></label>
+              <label class="field-control"><span>Стандарт PDF</span><select v-model="pdfStandard"><option value="PDF-1.7">PDF 1.7</option><option value="PDF/X-4">PDF/X-4</option></select></label>
+              <button type="button" @click="requestIccProfileFile">{{ iccProfileName ? 'Заменить ICC-профиль…' : 'Загрузить ICC-профиль типографии…' }}</button>
+              <p class="property-help">{{ iccProfileName ? `Встроен профиль: ${iccProfileName}` : 'Для PDF/X-4 нужен ICC/ICM-файл типографии.' }}</p>
               </template>
             </section>
           </details>
@@ -2077,6 +2463,34 @@ onBeforeUnmount(() => {
             <button class="primary-action" type="button" @click="applyFullCalendarTemplate">
               Создать обложку и 12 месяцев
             </button>
+            <button v-if="selectedPage.kind === 'month'" type="button" @click="applySelectedMonthAsMaster">
+              Сделать этот месяц мастер-страницей…
+            </button>
+          </section>
+          <section class="template-picker">
+            <h3>Мои шаблоны</h3>
+            <button class="primary-action" type="button" @click="saveCurrentDesignAsTemplate">Сохранить текущий дизайн…</button>
+            <p v-if="userProjectTemplates.length === 0" class="empty-panel-message">Сохранённых шаблонов пока нет.</p>
+            <div v-for="template in userProjectTemplates" :key="template.id" class="saved-template-row">
+              <button type="button" @click="applyUserProjectTemplate(template)">{{ template.name }}</button>
+              <button type="button" title="Удалить шаблон" @click="removeUserProjectTemplate(template)">×</button>
+            </div>
+          </section>
+          <section class="template-picker">
+            <h3>Шаблоны календарной сетки</h3>
+            <button class="primary-action" type="button" :disabled="selectedElement?.type !== 'calendar-grid'" @click="saveSelectedGridAsTemplate">Сохранить выбранную сетку…</button>
+            <p v-if="userCalendarGridTemplates.length === 0" class="empty-panel-message">Сохранённых сеток пока нет.</p>
+            <div v-for="template in userCalendarGridTemplates" :key="template.id" class="grid-template-row">
+              <button type="button" :title="`Применить «${template.name}» к выбранной сетке`" @click="applyCalendarGridTemplate(template, false)">{{ template.name }}</button>
+              <button type="button" title="Применить ко всем месяцам" @click="applyCalendarGridTemplate(template, true)">12×</button>
+              <button type="button" title="Удалить шаблон сетки" @click="removeCalendarGridTemplate(template)">×</button>
+            </div>
+          </section>
+          <section v-if="projectBackups.length" class="template-picker">
+            <h3>Восстановление</h3>
+            <button v-for="backup in projectBackups.slice(0, 5)" :key="backup.id" type="button" class="backup-row" :title="backup.label" @click="restoreProjectBackup(backup)">
+              {{ formatBackupTime(backup.createdAt) }}
+            </button>
           </section>
           <button
             v-for="(page, pageIndex) in project.document.pages"
@@ -2127,7 +2541,7 @@ onBeforeUnmount(() => {
       ref="projectFileInput"
       class="visually-hidden"
       type="file"
-      accept=".json,.kalendar.json,application/json"
+      accept=".kalendar,.json,.kalendar.json,application/json"
       @change="openProjectFile"
     />
     <input
@@ -2137,5 +2551,7 @@ onBeforeUnmount(() => {
       accept="image/png,image/jpeg,image/webp"
       @change="importFoodMarkerAsset"
     />
+    <input ref="fontFileInput" class="visually-hidden" type="file" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf" @change="importCustomFont" />
+    <input ref="iccProfileFileInput" class="visually-hidden" type="file" accept=".icc,.icm,application/vnd.iccprofile" @change="importIccProfile" />
   </div>
 </template>

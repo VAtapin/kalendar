@@ -82,6 +82,7 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 3, day: 15 }).foodRule.id).toBe("strict-fast");
     expect(rule({ year: 2027, month: 3, day: 17 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 3, day: 18 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 3, day: 22 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 3, day: 20 }).foodRule.id).toBe("oil");
     expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("fast");
     expect(rule({ year: 2027, month: 4, day: 25 }).foodRule.id).toBe("fish");
@@ -92,7 +93,7 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 6, day: 28 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 6, day: 29 }).foodRule.id).toBe("fish");
     expect(rule({ year: 2027, month: 6, day: 30 }).foodRule.id).toBe("dry-eating");
-    expect(rule({ year: 2027, month: 8, day: 16 }).foodRule.id).toBe("dry-eating");
+    expect(rule({ year: 2027, month: 8, day: 16 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 8, day: 17 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 8, day: 19 }).foodRule.id).toBe("fish");
   });
@@ -103,7 +104,7 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 12, day: 20 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 12, day: 22 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 12, day: 25 }).foodRule.id).toBe("fish");
-    expect(rule({ year: 2027, month: 1, day: 4 }).foodRule.id).toBe("dry-eating");
+    expect(rule({ year: 2027, month: 1, day: 4 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 1, day: 6 }).foodRule.id).toBe("strict-fast");
   });
 
@@ -145,5 +146,23 @@ describe("fasting calculation API", () => {
   it("keeps date arithmetic available to API consumers", () => {
     const greatLent = calculateFastingPeriods(2027).find((period) => period.id === "great-lent");
     expect(greatLent && addDays(greatLent.start, 48)).toEqual({ year: 2027, month: 5, day: 2 });
+  });
+
+  it("offers a named milder parish profile without changing strict defaults", () => {
+    const date = { year: 2027, month: 7, day: 14 };
+    expect(calculateFastingDay(calendarDay(date)).foodRule.id).toBe("dry-eating");
+    const parish = calculateFastingDay(calendarDay(date), "parish");
+    expect(parish.profileId).toBe("parish");
+    expect(parish.foodRule.id).toBe("dry-eating");
+  });
+
+  it("implements the published parish table separately from the monastic profile", () => {
+    const parishRule = (date: CalendarDate) => calculateFastingDay(calendarDay(date), "parish").foodRule.id;
+    expect(parishRule({ year: 2027, month: 6, day: 28 })).toBe("fish");
+    expect(parishRule({ year: 2027, month: 6, day: 30 })).toBe("oil");
+    expect(parishRule({ year: 2027, month: 11, day: 29 })).toBe("fish");
+    expect(parishRule({ year: 2027, month: 12, day: 1 })).toBe("oil");
+    expect(parishRule({ year: 2027, month: 12, day: 20 })).toBe("oil");
+    expect(parishRule({ year: 2027, month: 12, day: 22 })).toBe("boiled-no-oil");
   });
 });

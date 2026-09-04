@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "assets:decor": "tsx scripts/build-decor-library.ts",
+    "api": "tsx scripts/calendar-api-server.ts",
     "export:sample": "tsx scripts/generate-sample-pdf.ts",
     "typecheck": "vue-tsc -b",
-    "test": "vitest run tests"
+    "test": "vitest run tests",
+    "test:e2e": "playwright test",
+    "test:visual": "tsx scripts/visual-regression.ts",
+    "test:visual:update": "tsx scripts/visual-regression.ts --update",
+    "benchmark": "tsx scripts/benchmark.ts"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
@@ -19,8 +24,11 @@
     "vue": "^3.5.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "^26.4.1",
+    "@types/pngjs": "^6.0.5",
     "@vitejs/plugin-vue": "^6.0.0",
+    "pngjs": "^7.0.0",
     "tsx": "^4.23.13",
     "typescript": "^5.9.0",
     "vite": "^7.0.0",

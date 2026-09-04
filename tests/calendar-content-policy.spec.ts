@@ -68,4 +68,13 @@ describe("calendar cell content policy", () => {
     expect(selectCalendarCellEvents(grid, [week, minor])).toEqual([minor]);
     expect(selectCalendarCellEvents(grid, [event(9), minor]).map((item) => item.id)).toEqual(["9"]);
   });
+
+  it("sorts mandatory feasts ahead of lesser fallback records", () => {
+    const selected = selectCalendarCellEvents(grid, [
+      event(18, "Малая", "minor"),
+      event(4, "Средняя", "medium"),
+      event(1, "Двунадесятая", "twelve"),
+    ]);
+    expect(selected.map((item) => item.id)).toEqual(["twelve", "medium"]);
+  });
 });

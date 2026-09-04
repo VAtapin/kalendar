@@ -5,6 +5,7 @@ import type { ElementFrame } from "../editor/element-creation";
 import type { EditorTool } from "../editor/types";
 import type { OrthodoxCalendarYear } from "../calendar";
 import type { FoodRuleId } from "../calendar/presentation/fasting";
+import type { FastingProfileId } from "../calendar/fasting/fasting-api";
 import type { FoodMarkerPackId } from "../calendar/presentation/marker-packs";
 import HorizontalRuler from "./HorizontalRuler.vue";
 import PageScene from "./PageScene.vue";
@@ -15,6 +16,7 @@ const props = defineProps<{
   assets: DocumentAsset[];
   foodMarkerPackId?: FoodMarkerPackId;
   foodMarkerAssets?: Partial<Record<FoodRuleId, string>>;
+  fastingProfileId?: FastingProfileId;
   calendarYear?: OrthodoxCalendarYear;
   pixelsPerMm: number;
   showGuides: boolean;
@@ -66,6 +68,7 @@ const mediaEndY = computed(() => props.page.height + props.page.bleed.bottom);
         :assets="assets"
         :food-marker-pack-id="foodMarkerPackId"
         :food-marker-assets="foodMarkerAssets"
+        :fasting-profile-id="fastingProfileId"
         :calendar-year="calendarYear"
         :pixels-per-mm="pixelsPerMm"
         :show-guides="showGuides"

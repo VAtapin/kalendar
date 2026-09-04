@@ -1,6 +1,10 @@
 import fontkit from "@pdf-lib/fontkit";
 import {
   PDFDocument,
+  PDFDict,
+  PDFName,
+  PDFNumber,
+  PDFString,
   type PDFFont,
   type PDFImage,
   type PDFPage,
@@ -83,7 +87,7 @@ export interface PdfExportWarning {
   pageId: string;
   pageName: string;
   elementId?: string;
-  code: "missing-asset" | "unsupported-asset" | "text-overflow" | "calendar-overflow";
+  code: "missing-asset" | "unsupported-asset" | "unsupported-font" | "missing-output-profile" | "text-overflow" | "calendar-overflow";
   message: string;
 }
 
@@ -120,6 +124,7 @@ interface PageContext {
   pdfPage: PDFPage;
   page: PageModel;
   calendar?: OrthodoxCalendarYear;
+  fastingProfileId: CalendarProject["fastingProfileId"];
   fonts: EmbeddedFonts;
   assets: Map<string, DocumentAsset>;
   warnings: PdfExportWarning[];
@@ -518,7 +523,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     const usedRules = new Set(
       context.calendar.days
         .filter((day) => day.date.month === element.month)
-        .map((day) => resolveFoodRule(day).id)
+        .map((day) => resolveFoodRule(day, context.fastingProfileId).id)
         .filter((rule) => rule !== "no-fast"),
     );
     for (const rule of usedRules) {
@@ -550,7 +555,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     ...labels.map((label) => headingFont.widthOfTextAtSize(label, headingFontSize)),
   );
   const fittedHeadingSize = Math.max(
-    10,
+    0.1,
     headingFontSize * Math.min(1, availableLabelWidth / widestRequestedLabel),
   );
   labels.forEach((label, column) => {
@@ -619,7 +624,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     const numberSize = mm(typography.dayNumberFontSizeMm);
     const numberFont = chooseFont(context.fonts, {
       fontFamily: element.dayNumberFontFamily ?? "Yeseva One",
-      fontSizePt: element.dayNumberFontSizePt ?? 28,
+      fontSizePt: element.dayNumberFontSizePt ?? 30,
       lineHeight: 1,
       letterSpacingPt: 0,
       fontWeight: numberStyle.fontWeight,
@@ -628,27 +633,38 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
       paddingMm: 0,
     });
     context.pdfPage.drawText(String(cell.day.date.day), {
-      x: cellX + mm(typography.paddingMm),
-      y: bottomPt(context, cell.y + typography.paddingMm + typography.dayNumberFontSizeMm) - numberSize * 0.12,
+      x: cellX + mm(typography.dayNumberXOffsetMm),
+      y: bottomPt(context, cell.y + typography.dayNumberYOffsetMm + typography.dayNumberFontSizeMm) - numberSize * 0.12,
       size: numberSize,
       font: numberFont,
       color: color(element.showFeastColors === false ? "#17201d" : numberStyle.color),
     });
     if (element.showOldStyleDate) {
       const oldStyle = `ст. ст. ${cell.day.oldStyleDate.day}.${cell.day.oldStyleDate.month}`;
+      const oldStyleSize = mm(typography.oldStyleFontSizeMm);
+      const oldStyleFont = chooseFont(context.fonts, {
+        fontFamily: element.oldStyleFontFamily ?? "Cormorant Garamond",
+        fontSizePt: element.oldStyleFontSizePt ?? 4.4,
+        lineHeight: 1,
+        letterSpacingPt: 0,
+        fontWeight: 400,
+        align: "left",
+        verticalAlign: "top",
+        paddingMm: 0,
+      });
       context.pdfPage.drawText(oldStyle, {
-        x: cellX + mm(typography.paddingMm),
-        y: bottomPt(context, cell.y + typography.paddingMm + typography.dayNumberFontSizeMm + 2.6) - mm(1.55) * 0.15,
-        size: mm(1.55),
-        font: context.fonts.regular,
+        x: cellX + mm(typography.oldStyleXOffsetMm),
+        y: bottomPt(context, cell.y + typography.oldStyleYOffsetMm + typography.oldStyleFontSizeMm) - oldStyleSize * 0.15,
+        size: oldStyleSize,
+        font: oldStyleFont,
         color: color("#76817c"),
       });
     }
-    if (element.showFoodIcons && resolveFoodRule(cell.day).id !== "no-fast") {
+    if (element.showFoodIcons && resolveFoodRule(cell.day, context.fastingProfileId).id !== "no-fast") {
       const marker = calendarFoodMarkerGeometry(element, cell);
       drawFoodMarker(
         context,
-        resolveFoodRule(cell.day).id,
+        resolveFoodRule(cell.day, context.fastingProfileId).id,
         cell.x + marker.xOffsetMm,
         cell.y + marker.yOffsetMm,
         marker.sizeMm,
@@ -657,7 +673,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
 
     const eventMeasureFont = chooseFont(context.fonts, {
       fontFamily: element.eventFontFamily ?? "Cormorant Garamond",
-      fontSizePt: element.eventFontSizePt ?? 9,
+      fontSizePt: element.eventFontSizePt ?? 10,
       lineHeight: element.eventLineHeight ?? 1.08,
       letterSpacingPt: 0,
       fontWeight: 400,
@@ -670,11 +686,21 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
       cell,
       (value, fontSizeMm) => eventMeasureFont.widthOfTextAtSize(value, mm(fontSizeMm)) / MM_TO_PT,
     );
+    const primaryTypikonEvent = eventTextLayout.lines.find((line) => !line.isContinuation)?.event;
+    if (element.showTypikonIcons === true && primaryTypikonEvent) {
+      drawTypikonRankMarker(
+        context,
+        primaryTypikonEvent,
+        cell.x + typography.eventMarkerXOffsetMm,
+        cell.y + typography.eventMarkerYOffsetMm,
+        typography.eventMarkerSizeMm,
+      );
+    }
     for (const line of eventTextLayout.lines) {
       const style = eventTypikonStyle(line.event, cell.day);
       const eventFont = chooseFont(context.fonts, {
         fontFamily: element.eventFontFamily ?? "Cormorant Garamond",
-        fontSizePt: element.eventFontSizePt ?? 9,
+        fontSizePt: element.eventFontSizePt ?? 10,
         lineHeight: element.eventLineHeight ?? 1.08,
         letterSpacingPt: 0,
         fontWeight: style.fontWeight,
@@ -683,16 +709,6 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
         paddingMm: 0,
       });
       const eventSize = mm(line.fontSizeMm);
-      if (element.showTypikonIcons === true && !line.isContinuation) {
-        const markerSize = typography.eventMarkerSizeMm;
-        drawTypikonRankMarker(
-          context,
-          line.event,
-          cell.x + typography.contentLeftMm + 0.1,
-          cell.y + line.baselineY - line.fontSizeMm * 0.92,
-          markerSize,
-        );
-      }
       context.pdfPage.drawText(line.text, {
         x: cellX + mm(line.x),
         y: bottomPt(context, cell.y + line.baselineY) - eventSize * 0.15,
@@ -756,7 +772,7 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
     items.push({ id: "monastery", label: "событие монастыря", fill: "#8a641b" });
   }
   const rules = pageGrids.some((grid) => grid.showFoodIcons)
-    ? usedFoodRulesForMonths(context.calendar?.days ?? [], months)
+    ? usedFoodRulesForMonths(context.calendar?.days ?? [], months, context.fastingProfileId)
     : new Set<FoodRuleId>();
   for (const rule of Object.values(FOOD_RULES)) {
     if (rule.id !== "no-fast" && rules.has(rule.id)) {
@@ -882,6 +898,60 @@ async function embedFontFamily(
   return { regular, bold, italic, boldItalic };
 }
 
+function setPdfXMetadata(pdfDocument: PDFDocument, project: CalendarProject): void {
+  const now = new Date().toISOString();
+  const title = project.name.replace(/[<>&]/gu, (character) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[character] ?? character));
+  const xmp = `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about="" xmlns:pdfxid="http://www.npes.org/pdfx/ns/id/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="http://ns.adobe.com/xap/1.0/" pdfxid:GTS_PDFXVersion="PDF/X-4" xmp:CreateDate="${now}" xmp:ModifyDate="${now}">
+   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">${title}</rdf:li></rdf:Alt></dc:title>
+  </rdf:Description>
+ </rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>`;
+  const metadata = pdfDocument.context.stream(new TextEncoder().encode(xmp), {
+    Type: PDFName.of("Metadata"),
+    Subtype: PDFName.of("XML"),
+  });
+  pdfDocument.catalog.set(PDFName.of("Metadata"), pdfDocument.context.register(metadata));
+  const infoRef = pdfDocument.context.trailerInfo.Info;
+  if (infoRef) {
+    const info = pdfDocument.context.lookup(infoRef, PDFDict);
+    info.set(PDFName.of("GTS_PDFXVersion"), PDFString.of("PDF/X-4"));
+    info.set(PDFName.of("Trapped"), PDFName.of("False"));
+  }
+}
+
+async function attachOutputIntent(
+  pdfDocument: PDFDocument,
+  project: CalendarProject,
+  assets: Map<string, DocumentAsset>,
+  options: PdfExportOptions,
+): Promise<boolean> {
+  const profileId = project.printSettings?.iccProfileAssetId;
+  const profileAsset = profileId ? assets.get(profileId) : undefined;
+  if (!profileAsset) return false;
+  const profileBytes = await bytesFromSource(profileAsset.source, options);
+  if (!profileBytes?.length) return false;
+  const profileStream = pdfDocument.context.flateStream(profileBytes, {
+    N: PDFNumber.of(project.printSettings?.colorProfile === "CMYK-custom" ? 4 : 3),
+  });
+  const profileRef = pdfDocument.context.register(profileStream);
+  const outputCondition = project.printSettings?.outputConditionName || profileAsset.name;
+  const intent = pdfDocument.context.obj({
+    Type: PDFName.of("OutputIntent"),
+    S: PDFName.of("GTS_PDFX"),
+    OutputConditionIdentifier: PDFString.of(outputCondition),
+    Info: PDFString.of(outputCondition),
+    RegistryName: PDFString.of("https://www.color.org"),
+    DestOutputProfile: profileRef,
+  });
+  const intentRef = pdfDocument.context.register(intent);
+  pdfDocument.catalog.set(PDFName.of("OutputIntents"), pdfDocument.context.obj([intentRef]));
+  return true;
+}
+
 export async function exportCalendarProjectPdf(
   project: CalendarProject,
   calendar: OrthodoxCalendarYear | undefined,
@@ -895,6 +965,8 @@ export async function exportCalendarProjectPdf(
   pdfDocument.setCreator("Календарная мастерская");
   pdfDocument.setProducer("Календарная мастерская / pdf-lib");
   pdfDocument.setSubject(`Православный календарь на ${project.year} год`);
+  const warnings: PdfExportWarning[] = [];
+  const assets = new Map(project.assets.map((asset) => [asset.id, asset]));
 
   const regular = await pdfDocument.embedFont(fontFiles.regular, { subset: true });
   const bold = await pdfDocument.embedFont(fontFiles.bold, { subset: true });
@@ -904,6 +976,32 @@ export async function exportCalendarProjectPdf(
   for (const [family, files] of Object.entries(fontFiles.bundled ?? {})) {
     if (!files) continue;
     bundled.set(family.toLocaleLowerCase(), await embedFontFamily(pdfDocument, files));
+  }
+  const customFontFiles = new Map<string, PdfFontFamilyFiles>();
+  for (const face of project.customFonts ?? []) {
+    const asset = assets.get(face.assetId);
+    if (!asset) continue;
+    const bytes = await bytesFromSource(asset.source, options);
+    if (!bytes) continue;
+    const key = face.family.toLocaleLowerCase();
+    const files = customFontFiles.get(key) ?? { regular: bytes };
+    if (face.fontWeight >= 700 && face.fontStyle === "italic") files.boldItalic = bytes;
+    else if (face.fontWeight >= 700) files.bold = bytes;
+    else if (face.fontStyle === "italic") files.italic = bytes;
+    else files.regular = bytes;
+    customFontFiles.set(key, files);
+  }
+  for (const [family, files] of customFontFiles) {
+    try {
+      bundled.set(family, await embedFontFamily(pdfDocument, files));
+    } catch {
+      warnings.push({
+        pageId: project.document.pages[0]?.id ?? "project",
+        pageName: project.document.pages[0]?.name ?? project.name,
+        code: "unsupported-font",
+        message: `Пользовательский шрифт «${family}» не удалось встроить в PDF.`,
+      });
+    }
   }
   const fonts: EmbeddedFonts = {
     regular,
@@ -916,7 +1014,6 @@ export async function exportCalendarProjectPdf(
     serifBoldItalic: fontFiles.serifBoldItalic ? await pdfDocument.embedFont(fontFiles.serifBoldItalic, { subset: true }) : boldItalic,
     bundled,
   };
-  const assets = new Map(project.assets.map((asset) => [asset.id, asset]));
   const foodImages = new Map<FoodRuleId, PDFImage>();
   for (const rule of Object.keys(FOOD_RULES) as FoodRuleId[]) {
     const assetId = project.foodMarkerAssets?.[rule];
@@ -947,7 +1044,17 @@ export async function exportCalendarProjectPdf(
       // The calendar remains exportable if an installed marker file is damaged.
     }
   }
-  const warnings: PdfExportWarning[] = [];
+  if (project.printSettings?.pdfStandard === "PDF/X-4") {
+    setPdfXMetadata(pdfDocument, project);
+    if (!await attachOutputIntent(pdfDocument, project, assets, options)) {
+      warnings.push({
+        pageId: project.document.pages[0]?.id ?? "project",
+        pageName: project.document.pages[0]?.name ?? project.name,
+        code: "missing-output-profile",
+        message: "PDF/X-4 создан без Output Intent: загрузите ICC-профиль типографии.",
+      });
+    }
+  }
 
   for (const page of project.document.pages) {
     const scene = buildPageScene(page);
@@ -972,6 +1079,7 @@ export async function exportCalendarProjectPdf(
       pdfPage,
       page,
       calendar,
+      fastingProfileId: project.fastingProfileId,
       fonts,
       assets,
       warnings,

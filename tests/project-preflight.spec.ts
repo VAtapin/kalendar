@@ -3,6 +3,7 @@ import { buildOrthodoxCalendarYear, parseMemoryDaysXml } from "../src/calendar";
 import { createBlankCalendarProject } from "../src/document/factories";
 import { checkCalendarProject } from "../src/preflight/project-preflight";
 import { createMonthTemplatePage } from "../src/templates/calendar-templates";
+import { createFullCalendarTemplate } from "../src/templates/calendar-templates";
 
 const xml = `<MemoryDays><event>
   <s_month>1</s_month><s_date>1</s_date><f_month>1</f_month><f_date>1</f_date>
@@ -49,5 +50,45 @@ describe("project preflight", () => {
     const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
     const resolution = checkCalendarProject(project, calendar).find((item) => item.code === "low-image-resolution");
     expect(resolution?.severity).toBe("error");
+  });
+
+  it("checks annual page completeness and order", () => {
+    const project = createBlankCalendarProject(2027);
+    project.document.pages = createFullCalendarTemplate("A3", "portrait", 2027, "Издатель");
+    project.document.pages.splice(5, 1);
+    const twoMonths = project.document.pages.filter((page) => page.kind === "month").slice(0, 2);
+    if (twoMonths.length === 2) {
+      const left = project.document.pages.indexOf(twoMonths[0]!);
+      const right = project.document.pages.indexOf(twoMonths[1]!);
+      [project.document.pages[left], project.document.pages[right]] = [project.document.pages[right]!, project.document.pages[left]!];
+    }
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
+    const codes = checkCalendarProject(project, calendar).map((item) => item.code);
+    expect(codes).toContain("missing-month-page");
+    expect(codes).toContain("page-order");
+  });
+
+  it("checks binding safety, glyph coverage and PDF/X output intent", () => {
+    const project = createBlankCalendarProject(2027);
+    const page = createMonthTemplatePage("A3", "portrait", 1, 2027, () => crypto.randomUUID());
+    const title = page.elements.find((element) => element.type === "text");
+    if (!title || title.type !== "text") throw new Error("title expected");
+    title.y = 1;
+    title.content.title = "Январь 😀";
+    project.document.pages = [page];
+    project.printSettings = {
+      includeCropMarks: true,
+      cropMarkLengthMm: 2,
+      cropMarkOffsetMm: 0.5,
+      bindingEdge: "top",
+      bindingSafeMm: 20,
+      pdfStandard: "PDF/X-4",
+      colorProfile: "CMYK-custom",
+    };
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
+    const codes = checkCalendarProject(project, calendar).map((item) => item.code);
+    expect(codes).toContain("binding-safe-area");
+    expect(codes).toContain("missing-glyph");
+    expect(codes).toContain("missing-output-intent");
   });
 });

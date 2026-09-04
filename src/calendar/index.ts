@@ -6,3 +6,4 @@ export * from "./engine/merge-monastery-events";
 export * from "./pascha/orthodox-pascha";
 export * from "./xml/parse-memory-days";
 export * from "./fasting/fasting-api";
+export * from "./api/public-api";

@@ -13,6 +13,7 @@ import {
 } from "../layout/calendar-grid-layout";
 import { layoutTextBlock } from "../layout/text-layout";
 import { cropMarksFitBleed } from "../export/print-marks";
+import { unsupportedGlyphs } from "../typography/glyph-coverage";
 
 export type PreflightSeverity = "warning" | "error";
 
@@ -24,13 +25,20 @@ export interface PreflightIssue {
     | "missing-food-marker"
     | "calendar-row-overflow"
     | "calendar-text-overflow"
+    | "calendar-required-event-hidden"
     | "text-overflow"
     | "outside-page"
     | "outside-safe-area"
     | "missing-calendar-grid"
     | "missing-calendar-data"
     | "low-image-resolution"
-    | "crop-marks-outside-bleed";
+    | "crop-marks-outside-bleed"
+    | "binding-safe-area"
+    | "missing-glyph"
+    | "missing-output-intent"
+    | "missing-month-page"
+    | "duplicate-month-page"
+    | "page-order";
   message: string;
   pageId: string;
   pageName: string;
@@ -65,6 +73,63 @@ function isOutsideSafeArea(element: LayoutElementNode, page: PageModel): boolean
   const right = page.width - page.safeArea.right;
   const bottom = page.height - page.safeArea.bottom;
   return element.x < left || element.y < top || element.x + element.width > right || element.y + element.height > bottom;
+}
+
+function isInBindingZone(
+  element: LayoutElementNode,
+  page: PageModel,
+  edge: NonNullable<CalendarProject["printSettings"]>["bindingEdge"],
+  margin: number,
+): boolean {
+  if (!edge || edge === "none" || margin <= 0) return false;
+  if (edge === "top") return element.y < margin;
+  if (edge === "left") return element.x < margin;
+  if (edge === "right") return element.x + element.width > page.width - margin;
+  return false;
+}
+
+function printableElementText(element: LayoutElementNode): string {
+  if (element.type === "text" || element.type === "month-text") {
+    return `${element.content.title} ${element.type === "month-text" ? element.attribution ?? "" : ""}`;
+  }
+  if (element.type === "calendar-grid") {
+    const labels = element.customWeekdayLabels ?? [];
+    return labels.join(" ");
+  }
+  return "";
+}
+
+function checkPageSequence(project: CalendarProject): PreflightIssue[] {
+  const monthPages = project.document.pages
+    .map((page, index) => ({
+      page,
+      index,
+      month: page.elements.find((element): element is CalendarGridElement => element.type === "calendar-grid")?.month,
+    }))
+    .filter((entry): entry is { page: PageModel; index: number; month: number } => entry.page.kind === "month" && Boolean(entry.month));
+  // Partial one-page documents are legitimate. Sequence completeness becomes
+  // mandatory once the project clearly represents a full annual calendar.
+  if (monthPages.length < 10) return [];
+  const anchor = project.document.pages[0] ?? monthPages[0]!.page;
+  const issues: PreflightIssue[] = [];
+  for (let month = 1; month <= 12; month += 1) {
+    const occurrences = monthPages.filter((entry) => entry.month === month);
+    if (occurrences.length === 0) {
+      issues.push(issue(anchor, undefined, "missing-month-page", "error", `В документе отсутствует страница месяца № ${month}.`));
+    } else if (occurrences.length > 1) {
+      issues.push(issue(occurrences[1]!.page, undefined, "duplicate-month-page", "error", `Месяц № ${month} представлен более одного раза.`));
+    }
+  }
+  const actual = monthPages.map((entry) => entry.month);
+  const ordered = [...actual].sort((left, right) => left - right);
+  if (actual.some((month, index) => month !== ordered[index])) {
+    issues.push(issue(anchor, undefined, "page-order", "error", "Страницы месяцев расположены не по календарному порядку."));
+  }
+  const coverIndex = project.document.pages.findIndex((page) => page.kind === "cover");
+  if (coverIndex > 0) {
+    issues.push(issue(project.document.pages[coverIndex]!, undefined, "page-order", "warning", "Обложка должна быть первой страницей документа."));
+  }
+  return issues;
 }
 
 function checkTextFrame(
@@ -106,6 +171,7 @@ function checkCalendarGrid(
     ));
   }
   let overflowingDays = 0;
+  let daysWithHiddenRequiredEvents = 0;
   for (const cell of layout.cells) {
     if (!cell.day) continue;
     const text = layoutCalendarCellTextAutoFit(
@@ -113,7 +179,17 @@ function checkCalendarGrid(
       cell,
       (value, fontSizeMm) => value.length * fontSizeMm * 0.52,
     );
-    if (text.hiddenEventCount > 0 || text.truncatedEventCount > 0) overflowingDays += 1;
+    if (text.truncatedRequiredEventCount > 0) overflowingDays += 1;
+    if (text.hiddenRequiredEventCount > 0) daysWithHiddenRequiredEvents += 1;
+  }
+  if (daysWithHiddenRequiredEvents > 0) {
+    issues.push(issue(
+      page,
+      element,
+      "calendar-required-event-hidden",
+      "error",
+      `На ${daysWithHiddenRequiredEvents} ${daysWithHiddenRequiredEvents === 1 ? "дне" : "днях"} не помещается обязательный великий или средний праздник.`,
+    ));
   }
   if (overflowingDays > 0) {
     issues.push(issue(
@@ -121,7 +197,7 @@ function checkCalendarGrid(
       element,
       "calendar-text-overflow",
       "warning",
-      `На ${overflowingDays} ${overflowingDays === 1 ? "дне" : "днях"} менее значимые памяти скрыты или текст сокращён для печати.`,
+      `На ${overflowingDays} ${overflowingDays === 1 ? "дне" : "днях"} название обязательного праздника сокращено многоточием.`,
     ));
   }
   return issues;
@@ -134,6 +210,23 @@ export function checkCalendarProject(
 ): PreflightIssue[] {
   const issues: PreflightIssue[] = [];
   const assets = new Map(project.assets.map((asset) => [asset.id, asset]));
+
+  if (project.printSettings?.pdfStandard === "PDF/X-4") {
+    const profile = project.printSettings.iccProfileAssetId
+      ? assets.get(project.printSettings.iccProfileAssetId)
+      : undefined;
+    if (!profile || profile.kind !== "icc-profile") {
+      const page = project.document.pages[0];
+      if (page) issues.push(issue(page, undefined, "missing-output-intent", "error", "Для PDF/X-4 не загружен ICC-профиль типографии."));
+    }
+  }
+  for (const face of project.customFonts ?? []) {
+    const asset = assets.get(face.assetId);
+    if (!asset || asset.kind !== "font") {
+      const page = project.document.pages[0];
+      if (page) issues.push(issue(page, undefined, "missing-asset", "error", `Не найден файл пользовательского шрифта «${face.family}».`));
+    }
+  }
 
   for (const page of project.document.pages) {
     if (project.printSettings?.includeCropMarks && !cropMarksFitBleed(page, project.printSettings)) {
@@ -189,6 +282,21 @@ export function checkCalendarProject(
       ) {
         issues.push(issue(page, element, "outside-safe-area", "warning", "Важный объект выходит за безопасную область."));
       }
+      if (
+        (element.type === "text" || element.type === "month-text" || element.type === "calendar-grid" || element.type === "legend") &&
+        isInBindingZone(
+          element,
+          page,
+          project.printSettings?.bindingEdge,
+          project.printSettings?.bindingSafeMm ?? 0,
+        )
+      ) {
+        issues.push(issue(page, element, "binding-safe-area", "warning", "Важный объект входит в защитную зону переплёта или пружины."));
+      }
+      const missingGlyphs = unsupportedGlyphs(printableElementText(element));
+      if (missingGlyphs.length) {
+        issues.push(issue(page, element, "missing-glyph", "warning", `Нужно проверить глифы шрифта: ${missingGlyphs.slice(0, 8).join(" ")}.`));
+      }
       if (element.type === "text" || element.type === "month-text") {
         const textIssue = checkTextFrame(page, element);
         if (textIssue) issues.push(textIssue);
@@ -204,5 +312,6 @@ export function checkCalendarProject(
       }
     }
   }
+  issues.push(...checkPageSequence(project));
   return issues;
 }

@@ -23,4 +23,21 @@ describe("public Orthodox calendar API", () => {
     api.clearCache();
     expect(api.getYear(2027).year).toBe(2027);
   });
+
+  it("exposes the selected rules profile and merges local events", () => {
+    const api = createOrthodoxCalendarApiFromXml(xml, "test.xml", {
+      profileId: "parish",
+      monasteryEvents: [{
+        id: "local",
+        title: "Местный праздник",
+        dateRule: { type: "annual", month: 7, day: 14 },
+        priority: 999,
+      }],
+    });
+    expect(api.profile.id).toBe("parish");
+    expect(api.getDay({ year: 2027, month: 7, day: 14 })?.events.some((event) => event.title === "Местный праздник")).toBe(true);
+    // The Apostles fast ends on 11 July civil in 2027; this Wednesday is
+    // therefore governed by the ordinary weekly rule in both profiles.
+    expect(api.getFasting({ year: 2027, month: 7, day: 14 })?.foodRule.id).toBe("dry-eating");
+  });
 });

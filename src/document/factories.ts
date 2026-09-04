@@ -89,8 +89,25 @@ export function changePageFormat(
     } else if (element.type === "calendar-grid") {
       if (element.dayNumberFontSizePt !== undefined) element.dayNumberFontSizePt *= scale;
       if (element.eventFontSizePt !== undefined) element.eventFontSizePt *= scale;
+      if (element.eventLineSpacingPt !== undefined) element.eventLineSpacingPt *= scale;
+      if (element.eventGapPt !== undefined) element.eventGapPt *= scale;
       if (element.cellPaddingMm !== undefined) element.cellPaddingMm *= scale;
       if (element.weekdayFontSizePt !== undefined) element.weekdayFontSizePt *= scale;
+      if (element.oldStyleFontSizePt !== undefined) element.oldStyleFontSizePt *= scale;
+      if (element.dayNumberXOffsetMm !== undefined) element.dayNumberXOffsetMm *= scaleX;
+      if (element.dayNumberYOffsetMm !== undefined) element.dayNumberYOffsetMm *= scaleY;
+      if (element.oldStyleXOffsetMm !== undefined) element.oldStyleXOffsetMm *= scaleX;
+      if (element.oldStyleYOffsetMm !== undefined) element.oldStyleYOffsetMm *= scaleY;
+      if (element.foodMarkerSizeMm !== undefined) element.foodMarkerSizeMm *= scale;
+      if (element.foodMarkerXOffsetMm !== undefined) element.foodMarkerXOffsetMm *= scaleX;
+      if (element.foodMarkerYOffsetMm !== undefined) element.foodMarkerYOffsetMm *= scaleY;
+      if (element.eventTextXOffsetMm !== undefined) element.eventTextXOffsetMm *= scaleX;
+      if (element.eventTextYOffsetMm !== undefined) element.eventTextYOffsetMm *= scaleY;
+      if (element.eventTextRightInsetMm !== undefined) element.eventTextRightInsetMm *= scaleX;
+      if (element.eventTextBottomInsetMm !== undefined) element.eventTextBottomInsetMm *= scaleY;
+      if (element.typikonMarkerSizeMm !== undefined) element.typikonMarkerSizeMm *= scale;
+      if (element.typikonMarkerXOffsetMm !== undefined) element.typikonMarkerXOffsetMm *= scaleX;
+      if (element.typikonMarkerYOffsetMm !== undefined) element.typikonMarkerYOffsetMm *= scaleY;
     }
   }
   page.safeArea = {
@@ -160,19 +177,26 @@ function createDefaultTheme(): StyleTheme {
 export function createBlankCalendarProject(year = 2027): CalendarProject {
   return {
     schemaVersion: 1,
-    layoutRevision: 3,
+    layoutRevision: 5,
     id: "calendar-project",
     name: `Православный календарь ${year}`,
     publisherProfile: { name: "Издатель" },
     year,
+    fastingProfileId: "typikon-strict",
     calendarData: null,
     monasteryEvents: [],
     styleTheme: createDefaultTheme(),
     assets: [],
+    customFonts: [],
     printSettings: {
       includeCropMarks: true,
       cropMarkLengthMm: 2,
       cropMarkOffsetMm: 0.5,
+      bindingEdge: "top",
+      bindingSafeMm: 12,
+      pdfStandard: "PDF-1.7",
+      colorProfile: "sRGB",
+      outputConditionName: "sRGB IEC61966-2.1",
     },
     foodMarkerPackId: "ornamental",
     foodMarkerAssets: {},

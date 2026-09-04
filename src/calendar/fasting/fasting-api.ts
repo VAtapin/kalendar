@@ -14,8 +14,10 @@ import {
   toIsoDate,
 } from "../date/calendar-date";
 import { buildOrthodoxCalendarYear } from "../engine/build-calendar-year";
+import { mergeMonasteryEvents } from "../engine/merge-monastery-events";
 import { calculateOrthodoxPascha } from "../pascha/orthodox-pascha";
 import { parseMemoryDaysXml } from "../xml/parse-memory-days";
+import type { MonasteryEvent } from "../../document/types";
 
 export type FoodRuleId =
   | "no-fast"
@@ -65,9 +67,19 @@ export interface FastingDayInput {
   events?: readonly Pick<ResolvedCalendarEvent, "title" | "typeCode">[];
 }
 
+export type FastingProfileId = "typikon-strict" | "parish";
+
+export interface FastingProfile {
+  id: FastingProfileId;
+  label: string;
+  description: string;
+  rulesVersion: string;
+  sourceUrls: readonly string[];
+}
+
 export interface FastingDayResolution {
   date: CalendarDate;
-  profileId: "typikon-strict";
+  profileId: FastingProfileId;
   period?: FastingPeriodId;
   foodRule: FoodRule;
   memorial: boolean;
@@ -76,14 +88,31 @@ export interface FastingDayResolution {
 }
 
 /**
- * The strict table is intentionally a named profile. A milder parish profile
- * can be added later without changing callers or the page-layout code.
+ * Both published tables are named profiles, so callers select the intended
+ * pastoral context without changing page-layout code.
  */
 export const FASTING_PROFILE_ID = "typikon-strict" as const;
 export const FASTING_RULE_SOURCE_URLS = [
   "https://otrada-i-uteshenie.ru/kalendar/",
   "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
 ] as const;
+
+export const FASTING_PROFILES: Readonly<Record<FastingProfileId, FastingProfile>> = {
+  "typikon-strict": {
+    id: "typikon-strict",
+    label: "Строгий устав",
+    description: "Монастырская мера с сухоядением и днями полного воздержания.",
+    rulesVersion: "2026.09",
+    sourceUrls: FASTING_RULE_SOURCE_URLS,
+  },
+  parish: {
+    id: "parish",
+    label: "Приходская практика",
+    description: "Смягчённое отображение для мирян без назначения личной меры поста.",
+    rulesVersion: "2026.09",
+    sourceUrls: FASTING_RULE_SOURCE_URLS,
+  },
+} as const;
 
 const PERIOD_LABELS: Record<FastingPeriodId, string> = {
   "great-lent": "Великий пост",
@@ -146,11 +175,11 @@ function weeklyGreatFastRule(
   if (majorSaint && (weekday === 1 || weekday === 3 || weekday === 5)) {
     return result(input, "boiled-no-oil", "Великий или полиелейный праздник: горячая пища без масла", period);
   }
-  if (weekday === 1 || weekday === 3 || weekday === 5) {
-    return result(input, "dry-eating", "Понедельник, среда или пятница строгой седмичной меры", period);
+  if (weekday === 3 || weekday === 5) {
+    return result(input, "dry-eating", "Среда или пятница строгой седмичной меры", period);
   }
-  if (weekday === 2 || weekday === 4) {
-    return result(input, "boiled-no-oil", "Вторник или четверг: горячая пища без масла", period);
+  if (weekday === 1 || weekday === 2 || weekday === 4) {
+    return result(input, "boiled-no-oil", "Понедельник, вторник или четверг: горячая пища без масла", period);
   }
   return result(input, "oil", "Суббота или воскресенье: пища с растительным маслом", period);
 }
@@ -280,7 +309,7 @@ export function fastingPeriodForDate(date: CalendarDate): FastingPeriod | undefi
  * Pure calculation API. XML is used only for feast ranks and local exceptions;
  * all standard fast periods are calculated from Pascha and fixed Julian dates.
  */
-export function calculateFastingDay(input: FastingDayInput): FastingDayResolution {
+function calculateStrictFastingDay(input: FastingDayInput): FastingDayResolution {
   const weekday = input.weekday ?? dayOfWeek(input.date);
   const offset = paschaOffset(input.date);
 
@@ -389,13 +418,58 @@ export function calculateFastingDay(input: FastingDayInput): FastingDayResolutio
   return result(input, "no-fast", "Постного правила на этот день нет");
 }
 
-export function resolveFoodRuleForDay(input: FastingDayInput): FoodRule {
-  const resolution = calculateFastingDay(input);
+function applyParishProfile(
+  input: FastingDayInput,
+  strict: FastingDayResolution,
+): FastingDayResolution {
+  const weekday = input.weekday ?? dayOfWeek(input.date);
+  const oldStyle = gregorianToJulian(input.date);
+  const oldOrdinal = oldStyle.month * 100 + oldStyle.day;
+  let foodRule = strict.foodRule;
+  let qualification = "; приходская таблица";
+
+  if (strict.period === "apostles-fast") {
+    foodRule = weekday === 3 || weekday === 5 ? FOOD_RULES.oil : FOOD_RULES.fish;
+  } else if (strict.period === "nativity-fast" && oldOrdinal <= 1206) {
+    foodRule = weekday === 3 || weekday === 5 ? FOOD_RULES.oil : FOOD_RULES.fish;
+  } else if (strict.period === "nativity-fast" && oldOrdinal < 1220) {
+    foodRule = weekday === 0 || weekday === 6
+      ? FOOD_RULES.fish
+      : weekday === 3 || weekday === 5
+        ? FOOD_RULES["boiled-no-oil"]
+        : FOOD_RULES.oil;
+  } else if (foodRule.id === "strict-fast") {
+    foodRule = FOOD_RULES["dry-eating"];
+    qualification = "; приходской профиль: без полного воздержания";
+  }
+  return {
+    ...strict,
+    profileId: "parish",
+    foodRule,
+    reason: `${strict.reason}${qualification}`,
+  };
+}
+
+/** Pure, deterministic calculation for the selected published rule profile. */
+export function calculateFastingDay(
+  input: FastingDayInput,
+  profileId: FastingProfileId = FASTING_PROFILE_ID,
+): FastingDayResolution {
+  const strict = calculateStrictFastingDay(input);
+  return profileId === "parish" ? applyParishProfile(input, strict) : strict;
+}
+
+export function resolveFoodRuleForDay(
+  input: FastingDayInput,
+  profileId: FastingProfileId = FASTING_PROFILE_ID,
+): FoodRule {
+  const resolution = calculateFastingDay(input, profileId);
   return resolution.memorial ? FOOD_RULES.memorial : resolution.foodRule;
 }
 
 export interface OrthodoxCalendarApi {
   readonly dataset: MemoryDaysDataset;
+  readonly profile: FastingProfile;
   getYear(year: number): OrthodoxCalendarYear;
   getDay(date: CalendarDate): OrthodoxCalendarDay | undefined;
   getFasting(date: CalendarDate): FastingDayResolution | undefined;
@@ -404,26 +478,39 @@ export interface OrthodoxCalendarApi {
   clearCache(): void;
 }
 
+export interface OrthodoxCalendarApiOptions {
+  profileId?: FastingProfileId;
+  monasteryEvents?: readonly MonasteryEvent[];
+}
+
 /** Creates a reusable calendar/feast/fasting API backed by one parsed dataset. */
-export function createOrthodoxCalendarApi(dataset: MemoryDaysDataset): OrthodoxCalendarApi {
+export function createOrthodoxCalendarApi(
+  dataset: MemoryDaysDataset,
+  options: OrthodoxCalendarApiOptions = {},
+): OrthodoxCalendarApi {
   const years = new Map<number, OrthodoxCalendarYear>();
+  const profile = FASTING_PROFILES[options.profileId ?? FASTING_PROFILE_ID];
   const getYear = (year: number) => {
     let calendar = years.get(year);
     if (!calendar) {
       calendar = buildOrthodoxCalendarYear(year, dataset);
+      if (options.monasteryEvents?.length) {
+        calendar = mergeMonasteryEvents(calendar, [...options.monasteryEvents]);
+      }
       years.set(year, calendar);
     }
     return calendar;
   };
   return {
     dataset,
+    profile,
     getYear,
     getDay(date) {
       return getYear(date.year).daysByIsoDate[toIsoDate(date)];
     },
     getFasting(date) {
       const day = getYear(date.year).daysByIsoDate[toIsoDate(date)];
-      return day ? calculateFastingDay(day) : undefined;
+      return day ? calculateFastingDay(day, profile.id) : undefined;
     },
     getFastingPeriods: calculateFastingPeriods,
     getPascha: calculateOrthodoxPascha,
@@ -436,6 +523,7 @@ export function createOrthodoxCalendarApi(dataset: MemoryDaysDataset): OrthodoxC
 export function createOrthodoxCalendarApiFromXml(
   xml: string,
   sourceName = "MemoryDays.xml",
+  options: OrthodoxCalendarApiOptions = {},
 ): OrthodoxCalendarApi {
-  return createOrthodoxCalendarApi(parseMemoryDaysXml(xml, sourceName));
+  return createOrthodoxCalendarApi(parseMemoryDaysXml(xml, sourceName), options);
 }

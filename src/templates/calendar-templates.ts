@@ -8,6 +8,7 @@ import type {
   TextElement,
 } from "../document/types";
 import { createElementOnOwnLayer, type ElementIdFactory } from "../editor/element-creation";
+import { applyDefaultCalendarCellGeometry } from "./calendar-cell-defaults";
 
 export const RUSSIAN_MONTH_NAMES = [
   "Январь",
@@ -135,10 +136,21 @@ export function createMonthTemplatePageWithPreset(
           gridStyle: "editorial" as const,
           weekdayMode: "full" as const,
         };
-  const photoHeight = page.height * preset.photoHeight;
-  const titleHeight = page.height * 0.065;
-  const gridY = page.height * preset.gridY;
-  const gridHeight = page.height * preset.gridHeight;
+  const isA5 = formatId === "A5";
+  const isA6 = formatId === "A6";
+  const compactLayout = isA6
+    ? templateId === "classic-grid"
+      ? { photoHeight: 0.27, titleY: 0.285, titleHeight: 0.045, gridY: 0.34, gridHeight: 0.605 }
+      : templateId === "photo-feature"
+        ? { photoHeight: 0.39, titleY: 0.03, titleHeight: 0.05, gridY: 0.43, gridHeight: 0.515 }
+        : { photoHeight: 0.33, titleY: 0.345, titleHeight: 0.05, gridY: 0.405, gridHeight: 0.54 }
+    : isA5 && templateId === "photo-feature"
+      ? { photoHeight: 0.46, titleY: 0.03, titleHeight: 0.055, gridY: 0.495, gridHeight: 0.45 }
+      : undefined;
+  const photoHeight = page.height * (compactLayout?.photoHeight ?? preset.photoHeight);
+  const titleHeight = page.height * (compactLayout?.titleHeight ?? 0.065);
+  const gridY = page.height * (compactLayout?.gridY ?? preset.gridY);
+  const gridHeight = page.height * (compactLayout?.gridHeight ?? preset.gridHeight);
 
   createElementOnOwnLayer(
     page,
@@ -149,7 +161,7 @@ export function createMonthTemplatePageWithPreset(
   const monthTitle = createElementOnOwnLayer(
     page,
     "text",
-    { x: margin, y: page.height * preset.titleY, width: contentWidth, height: titleHeight },
+    { x: margin, y: page.height * (compactLayout?.titleY ?? preset.titleY), width: contentWidth, height: titleHeight },
     { idFactory, fillColor: preset.titleColor },
   ).element as TextElement;
   monthTitle.content.title = `${RUSSIAN_MONTH_NAMES[month - 1] ?? "Месяц"} ${year}`;
@@ -169,10 +181,33 @@ export function createMonthTemplatePageWithPreset(
     grid.weekRows = Math.max(4, Math.min(6, requiredMonthWeekRows(year, month))) as 4 | 5 | 6;
     grid.gridStyle = preset.gridStyle;
     grid.weekdayLabelMode = preset.weekdayMode;
+    if (isA6) {
+      grid.weekdayLabelMode = "short";
+      grid.weekdayFontSizePt = 13;
+      grid.dayNumberFontSizePt = 24;
+      grid.eventFontSizePt = 7.5;
+      grid.minimumEventFontSizePt = 7;
+      grid.eventLineSpacingPt = 0.3;
+      grid.eventGapPt = 0.75;
+      grid.cellPaddingMm = 0.6;
+    } else if (isA5) {
+      grid.weekdayFontSizePt = Math.min(grid.weekdayFontSizePt ?? 18, 15);
+      grid.dayNumberFontSizePt = Math.min(grid.dayNumberFontSizePt ?? 30, 26);
+      grid.eventFontSizePt = Math.min(grid.eventFontSizePt ?? 10, 8.5);
+      grid.minimumEventFontSizePt = Math.min(grid.eventFontSizePt, 7.5);
+      grid.cellPaddingMm = 0.8;
+    }
     if (templateId === "photo-feature") {
-      grid.eventFontSizePt = Math.max(8.5, (grid.eventFontSizePt ?? 9) * 0.94);
-      grid.minimumEventFontSizePt = Math.min(grid.eventFontSizePt, 8);
-      grid.dayNumberFontSizePt = Math.max(26, (grid.dayNumberFontSizePt ?? 28) * 0.94);
+      if (!isA6) {
+        grid.eventFontSizePt = Math.max(8.5, (grid.eventFontSizePt ?? 10) * 0.94);
+        grid.minimumEventFontSizePt = Math.min(grid.eventFontSizePt, 8);
+        grid.dayNumberFontSizePt = Math.max(26, (grid.dayNumberFontSizePt ?? 30) * 0.94);
+      }
+    }
+    applyDefaultCalendarCellGeometry(grid, true);
+    if (isA6) {
+      grid.foodMarkerSizeMm = 4.8;
+      grid.foodMarkerYOffsetMm = (grid.dayNumberYOffsetMm ?? 0.6) + 8.8;
     }
   }
 

@@ -29,6 +29,10 @@ function typePriority(typeCode: number): number {
   return Math.max(1, 650 - typeCode);
 }
 
+function eventDedupeKey(event: ResolvedCalendarEvent): string {
+  return `${event.typeCode}:${event.title.toLocaleLowerCase("ru").replace(/[\s.,;:()]+/gu, " ").trim()}`;
+}
+
 export function buildOrthodoxCalendarYear(
   year: number,
   dataset: MemoryDaysDataset,
@@ -74,6 +78,12 @@ export function buildOrthodoxCalendarYear(
   }
 
   for (const day of days) {
+    const uniqueEvents = new Map<string, ResolvedCalendarEvent>();
+    for (const event of day.events) {
+      const key = eventDedupeKey(event);
+      if (!uniqueEvents.has(key)) uniqueEvents.set(key, event);
+    }
+    day.events = [...uniqueEvents.values()];
     day.events.sort(
       (left, right) =>
         right.priority - left.priority ||
