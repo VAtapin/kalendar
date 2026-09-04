@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import type { PageLayerNode, PageModel } from "../document/types";
+import { computed, ref, watch } from "vue";
+import type { DocumentAsset, PageLayerNode, PageModel, PageObjectLayer } from "../document/types";
 import { countObjectLayers } from "../document/layer-operations";
 
 interface DisplayRow {
@@ -10,8 +10,16 @@ interface DisplayRow {
   inheritedLocked: boolean;
 }
 
+interface MaskSourceOption {
+  elementId: string;
+  label: string;
+  kind: "image" | "svg";
+  source: string;
+}
+
 const props = defineProps<{
   page: PageModel;
+  assets: DocumentAsset[];
   selectedLayerIds: string[];
   protectedLayerIds?: string[];
 }>();
@@ -29,11 +37,16 @@ const emit = defineEmits<{
   sendBack: [];
   move: [sourceId: string, targetId: string, placement: "before" | "after" | "inside"];
   rename: [nodeId: string, name: string];
+  uploadMask: [targetLayerId: string];
+  applyMask: [targetLayerId: string, sourceElementId: string];
+  toggleMask: [targetLayerId: string, enabled: boolean];
+  removeMask: [targetLayerId: string];
 }>();
 
 const draggedNodeId = ref<string>();
 const editingNodeId = ref<string>();
 const editingName = ref("");
+const selectedMaskSourceElementId = ref("");
 
 const displayRows = computed<DisplayRow[]>(() => {
   const rows: DisplayRow[] = [];
@@ -70,6 +83,55 @@ const protectedSelection = computed(() =>
 );
 const primarySelectionProtected = computed(() =>
   Boolean(primarySelectionId.value && protectedLayerIdSet.value.has(primarySelectionId.value)),
+);
+const primaryObjectLayer = computed<PageObjectLayer | undefined>(() => {
+  if (props.selectedLayerIds.length !== 1) return undefined;
+  const row = displayRows.value.find((candidate) => candidate.node.id === primarySelectionId.value);
+  return row?.node.kind === "layer" && row.node.elementId ? row.node : undefined;
+});
+const primaryObjectLayerLocked = computed(() => {
+  const row = displayRows.value.find((candidate) => candidate.node.id === primaryObjectLayer.value?.id);
+  return Boolean(row && (row.node.locked || row.inheritedLocked || protectedLayerIdSet.value.has(row.node.id)));
+});
+const assetById = computed(() => new Map(props.assets.map((asset) => [asset.id, asset])));
+const layerNameByElementId = computed(() => {
+  const result = new Map<string, string>();
+  for (const row of displayRows.value) {
+    if (row.node.kind === "layer" && row.node.elementId) result.set(row.node.elementId, row.node.name);
+  }
+  return result;
+});
+const maskSourceOptions = computed<MaskSourceOption[]>(() => props.page.elements.flatMap((element) => {
+  if (
+    element.id === primaryObjectLayer.value?.elementId ||
+    (element.type !== "image" && element.type !== "svg") ||
+    !element.assetId
+  ) return [];
+  const asset = assetById.value.get(element.assetId);
+  if (!asset) return [];
+  return [{
+    elementId: element.id,
+    label: layerNameByElementId.value.get(element.id) ?? asset.name,
+    kind: element.type,
+    source: asset.source,
+  }];
+}));
+const selectedMaskSource = computed(() =>
+  maskSourceOptions.value.find((option) => option.elementId === selectedMaskSourceElementId.value),
+);
+const currentMaskPreviewSource = computed(() => {
+  const assetId = primaryObjectLayer.value?.mask?.assetId;
+  return assetId ? assetById.value.get(assetId)?.source : undefined;
+});
+
+watch(
+  () => [primaryObjectLayer.value?.id, maskSourceOptions.value.map((option) => option.elementId).join("|")],
+  () => {
+    if (!maskSourceOptions.value.some((option) => option.elementId === selectedMaskSourceElementId.value)) {
+      selectedMaskSourceElementId.value = maskSourceOptions.value[0]?.elementId ?? "";
+    }
+  },
+  { immediate: true },
 );
 
 function objectCount(node: PageLayerNode): number {
@@ -201,8 +263,8 @@ function beginDrag(nodeId: string, event: DragEvent): void {
           {{ row.node.locked || row.inheritedLocked ? "◆" : "◇" }}
         </button>
         <span class="layer-row__color" :style="{ backgroundColor: row.node.color }"></span>
-        <span class="layer-row__kind" aria-hidden="true">
-          {{ row.node.kind === "group" ? "▰" : row.node.elementId ? "◆" : "□" }}
+        <span class="layer-row__kind" :title="row.node.kind === 'layer' && row.node.mask ? 'К слою применена маска' : undefined" aria-hidden="true">
+          {{ row.node.kind === "group" ? "▰" : row.node.mask ? "◩" : row.node.elementId ? "◆" : "□" }}
         </span>
         <input
           v-if="editingNodeId === row.node.id"
@@ -230,6 +292,70 @@ function beginDrag(nodeId: string, event: DragEvent): void {
         Переместить на самый низ
       </div>
     </div>
+    <section v-if="primaryObjectLayer" class="layer-mask-panel" data-testid="layer-mask-panel">
+      <div class="layer-mask-panel__heading">
+        <span class="layer-mask-panel__icon">◩</span>
+        <span><strong>Маска слоя</strong><small>{{ primaryObjectLayer.name }}</small></span>
+      </div>
+
+      <div v-if="primaryObjectLayer.mask" class="layer-mask-current">
+        <span class="layer-mask-preview">
+          <img v-if="currentMaskPreviewSource" :src="currentMaskPreviewSource" alt="" />
+        </span>
+        <label class="checkbox-field">
+          <input
+            :checked="primaryObjectLayer.mask.enabled !== false"
+            :disabled="primaryObjectLayerLocked"
+            data-testid="layer-mask-enabled"
+            type="checkbox"
+            @change="emit('toggleMask', primaryObjectLayer.id, ($event.target as HTMLInputElement).checked)"
+          />
+          <span>Маска включена</span>
+        </label>
+      </div>
+
+      <label v-if="maskSourceOptions.length" class="field-stack">
+        <span>Взять форму из элемента</span>
+        <select v-model="selectedMaskSourceElementId" data-testid="layer-mask-source">
+          <option v-for="option in maskSourceOptions" :key="option.elementId" :value="option.elementId">
+            {{ option.label }} · {{ option.kind === "svg" ? "SVG" : "изображение" }}
+          </option>
+        </select>
+      </label>
+      <div v-if="selectedMaskSource" class="layer-mask-source-card">
+        <span class="layer-mask-preview layer-mask-preview--large">
+          <img :src="selectedMaskSource.source" alt="" />
+        </span>
+        <span><strong>{{ selectedMaskSource.label }}</strong><small>Будет скопирован в маску слоя</small></span>
+      </div>
+      <button
+        v-if="maskSourceOptions.length"
+        class="primary-action"
+        type="button"
+        :disabled="primaryObjectLayerLocked || !selectedMaskSourceElementId"
+        @click="emit('applyMask', primaryObjectLayer.id, selectedMaskSourceElementId)"
+      >
+        Применить элемент как маску
+      </button>
+      <button
+        type="button"
+        :disabled="primaryObjectLayerLocked"
+        @click="emit('uploadMask', primaryObjectLayer.id)"
+      >
+        Загрузить чёрно-белую маску…
+      </button>
+      <button
+        v-if="primaryObjectLayer.mask"
+        class="layer-mask-panel__remove"
+        type="button"
+        :disabled="primaryObjectLayerLocked"
+        @click="emit('removeMask', primaryObjectLayer.id)"
+      >
+        Удалить маску со слоя
+      </button>
+      <p>Белое показывает слой, чёрное скрывает, серое делает его полупрозрачным. Исходный объект не изменяется.</p>
+      <p v-if="primaryObjectLayerLocked" class="layer-mask-panel__locked">Слой заблокирован — сначала разблокируйте его.</p>
+    </section>
     <p class="layers-hint">Ctrl/⌘ — несколько слоёв. Shift при переносе — не вкладывать в папку.</p>
   </div>
 </template>

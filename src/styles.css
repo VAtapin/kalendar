@@ -1255,11 +1255,6 @@ input {
   cursor: crosshair;
 }
 
-.page-scene--tool-mask,
-.page-scene--tool-mask .page-element {
-  cursor: crosshair;
-}
-
 .page-scene--tool-hand {
   cursor: grab;
 }
@@ -2381,6 +2376,103 @@ input {
   color: #74817b;
   font-size: 9px;
   line-height: 1.35;
+}
+
+.layer-mask-panel {
+  display: grid;
+  gap: 8px;
+  margin: 12px 10px 4px;
+  padding: 10px;
+  border: 1px solid #62583d;
+  border-radius: 5px;
+  background: linear-gradient(145deg, rgb(183 155 95 / 10%), rgb(255 255 255 / 2%));
+}
+
+.layer-mask-panel__heading,
+.layer-mask-current,
+.layer-mask-source-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.layer-mask-panel__heading > span:last-child,
+.layer-mask-source-card > span:last-child {
+  display: grid;
+  min-width: 0;
+}
+
+.layer-mask-panel__heading small,
+.layer-mask-source-card small {
+  overflow: hidden;
+  color: #8f9a95;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer-mask-panel__icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #75663e;
+  color: #f0d87e;
+  background: #19211e;
+  font-size: 17px;
+}
+
+.layer-mask-preview {
+  display: grid;
+  overflow: hidden;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #6a715f;
+  border-radius: 3px;
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #ddd 25%, transparent 25%),
+    linear-gradient(-45deg, #ddd 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ddd 75%),
+    linear-gradient(-45deg, transparent 75%, #ddd 75%);
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+  background-size: 10px 10px;
+}
+
+.layer-mask-preview--large {
+  width: 58px;
+  height: 44px;
+}
+
+.layer-mask-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.layer-mask-current .checkbox-field {
+  flex: 1;
+}
+
+.layer-mask-panel > button {
+  min-height: 30px;
+}
+
+.layer-mask-panel__remove {
+  color: #d7aaa2;
+}
+
+.layer-mask-panel > p {
+  margin: 0;
+  color: #8d9994;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.layer-mask-panel .layer-mask-panel__locked {
+  color: #d2a76d;
 }
 
 .application-dialog-backdrop {

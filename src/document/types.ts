@@ -37,29 +37,13 @@ export interface LayoutElement<TType extends LayoutElementType = LayoutElementTy
   opacity?: number;
   /** Non-destructive clipping radius for the printable object frame. */
   cornerRadiusMm?: number;
-  /** Optional Photoshop-style non-destructive paint mask. */
-  mask?: ElementMask;
 }
 
-export type ElementMaskStrokeMode = "hide" | "reveal";
-
-export interface ElementMaskPoint {
-  /** Horizontal position inside the object frame, normalized to 0..1. */
-  x: number;
-  /** Vertical position inside the object frame, normalized to 0..1. */
-  y: number;
-}
-
-export interface ElementMaskStroke {
-  id: string;
-  mode: ElementMaskStrokeMode;
-  sizeMm: number;
-  points: ElementMaskPoint[];
-}
-
-export interface ElementMask {
+/** A non-destructive luminosity mask attached to an object layer. */
+export interface LayerMask {
   enabled: boolean;
-  strokes: ElementMaskStroke[];
+  /** Image or SVG asset: white reveals, black hides, gray is translucent. */
+  assetId: string;
 }
 
 export interface TextVariants {
@@ -278,6 +262,7 @@ export interface PageLayerBase {
 export interface PageObjectLayer extends PageLayerBase {
   kind: "layer";
   elementId?: string;
+  mask?: LayerMask;
 }
 
 /** A non-printing folder used to organise layers and nested folders. */

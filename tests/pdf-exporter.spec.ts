@@ -143,7 +143,7 @@ describe("PDF exporter", () => {
     expect(result.warnings.some((warning) => warning.code === "missing-output-profile")).toBe(false);
   });
 
-  it("exports image rotation, crop focus, rounded corners and a painted mask", async () => {
+  it("exports image rotation, crop focus, rounded corners and a layer luminosity mask", async () => {
     const workspace = resolve(import.meta.dirname, "..");
     const [regular, bold, italic, boldItalic] = await Promise.all([
       readFile(resolve(workspace, "public/fonts/DejaVuSans.ttf")),
@@ -155,25 +155,30 @@ describe("PDF exporter", () => {
     const page = project.document.pages[0]!;
     page.elements = [];
     page.layers = [];
-    const image = createElementOnOwnLayer(page, "image", { x: 20, y: 30, width: 70, height: 40 }).element;
+    const created = createElementOnOwnLayer(page, "image", { x: 20, y: 30, width: 70, height: 40 });
+    const image = created.element;
     if (image.type !== "image") throw new Error("Expected image");
     image.assetId = "test-image";
     image.rotation = 90;
     image.fit = "crop";
     image.crop = { x: 1, y: 0, width: 1, height: 1 };
     image.cornerRadiusMm = 6;
-    image.mask = {
+    created.layer.mask = {
       enabled: true,
-      strokes: [{
-        id: "mask-stroke",
-        mode: "hide",
-        sizeMm: 8,
-        points: [{ x: 0.2, y: 0.2 }, { x: 0.8, y: 0.8 }],
-      }],
+      assetId: "test-mask",
     };
     project.assets.push({
       id: "test-image",
       name: "test.png",
+      mimeType: "image/png",
+      kind: "image",
+      widthPx: 2,
+      heightPx: 1,
+      source: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAFElEQVR42mNk+M/wn4GBgYGJAQoAHgQCAf2uK0sAAAAASUVORK5CYII=",
+    });
+    project.assets.push({
+      id: "test-mask",
+      name: "mask.png",
       mimeType: "image/png",
       kind: "image",
       widthPx: 2,

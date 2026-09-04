@@ -8,8 +8,6 @@ import {
   PDFOperatorNames,
   PDFString,
   TextRenderingMode,
-  LineCapStyle,
-  LineJoinStyle,
   type PDFFont,
   type PDFImage,
   type PDFPage,
@@ -21,6 +19,7 @@ import {
   endText,
   endPath,
   fill,
+  drawObject,
   lineTo,
   moveTo,
   popGraphicsState,
@@ -31,14 +30,11 @@ import {
   setFontAndSize,
   setGraphicsState,
   setFillingGrayscaleColor,
-  setLineCap,
-  setLineJoin,
-  setLineWidth,
-  setStrokingGrayscaleColor,
   setTextMatrix,
   setTextRenderingMode,
   showText,
-  stroke,
+  scale,
+  translate,
 } from "pdf-lib";
 import type { OrthodoxCalendarYear } from "../calendar";
 import {
@@ -95,6 +91,7 @@ import {
 } from "../typography/font-catalog";
 import { buildCropMarkSegments } from "./print-marks";
 import { calculateImagePlacement } from "../document/image-placement";
+import { findLayerLocation } from "../document/layer-operations";
 
 export const MM_TO_PT = 72 / 25.4;
 
@@ -262,22 +259,25 @@ function roundedRectanglePath(x: number, y: number, width: number, height: numbe
   ];
 }
 
-function circlePath(x: number, y: number, radius: number): PDFOperator[] {
-  const k = 0.5522847498;
-  return [
-    moveTo(x + radius, y),
-    appendBezierCurve(x + radius, y + k * radius, x + k * radius, y + radius, x, y + radius),
-    appendBezierCurve(x - k * radius, y + radius, x - radius, y + k * radius, x - radius, y),
-    appendBezierCurve(x - radius, y - k * radius, x - k * radius, y - radius, x, y - radius),
-    appendBezierCurve(x + k * radius, y - radius, x + radius, y - k * radius, x + radius, y),
-    closePath(),
-  ];
-}
-
-function beginElementMask(context: PageContext, element: LayoutElementNode): boolean {
+async function beginElementMask(context: PageContext, element: LayoutElementNode): Promise<boolean> {
   const radius = Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
-  const strokes = element.mask?.enabled === false ? [] : element.mask?.strokes ?? [];
-  if (radius <= 0 && strokes.length === 0) return false;
+  const layer = findLayerLocation(context.page, element.layerId)?.node;
+  const layerMask = layer?.kind === "layer" && layer.mask?.enabled !== false ? layer.mask : undefined;
+  const maskAsset = layerMask ? context.assets.get(layerMask.assetId) : undefined;
+  let maskImage: PDFImage | undefined;
+  if (maskAsset) maskImage = await embedAssetImage(context, maskAsset, element);
+  if (layerMask && !maskImage) {
+    context.warnings.push({
+      pageId: context.page.id,
+      pageName: context.page.name,
+      elementId: element.id,
+      code: maskAsset ? "unsupported-asset" : "missing-asset",
+      message: maskAsset
+        ? `Маску слоя «${maskAsset.name}» не удалось поместить в PDF.`
+        : "Файл маски слоя не найден.",
+    });
+  }
+  if (radius <= 0 && !maskImage) return false;
 
   const frameX = xPt(context, element.x);
   const frameY = bottomPt(context, element.y, element.height);
@@ -288,32 +288,23 @@ function beginElementMask(context: PageContext, element: LayoutElementNode): boo
     ...roundedRectanglePath(frameX, frameY, frameWidth, frameHeight, mm(radius)),
     clip(),
     endPath(),
-    setFillingGrayscaleColor(1),
+    setFillingGrayscaleColor(maskImage ? 0 : 1),
     rectangle(frameX, frameY, frameWidth, frameHeight),
     fill(),
   ];
-  for (const item of strokes) {
-    const points = item.points.filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
-    if (!points.length) continue;
-    const gray = item.mode === "hide" ? 0 : 1;
-    const pointX = (point: { x: number }) => frameX + Math.max(0, Math.min(1, point.x)) * frameWidth;
-    const pointY = (point: { y: number }) => frameY + (1 - Math.max(0, Math.min(1, point.y))) * frameHeight;
-    if (points.length === 1) {
-      operators.push(
-        setFillingGrayscaleColor(gray),
-        ...circlePath(pointX(points[0]!), pointY(points[0]!), mm(Math.max(0.5, item.sizeMm)) / 2),
-        fill(),
-      );
-      continue;
-    }
+  if (maskImage) {
+    const placement = calculateImagePlacement(
+      { x: element.x, y: element.y, width: element.width, height: element.height },
+      maskImage.width,
+      maskImage.height,
+      "fit",
+    );
     operators.push(
-      setStrokingGrayscaleColor(gray),
-      setLineWidth(mm(Math.max(0.5, item.sizeMm))),
-      setLineCap(LineCapStyle.Round),
-      setLineJoin(LineJoinStyle.Round),
-      moveTo(pointX(points[0]!), pointY(points[0]!)),
-      ...points.slice(1).map((point) => lineTo(pointX(point), pointY(point))),
-      stroke(),
+      pushGraphicsState(),
+      translate(xPt(context, placement.x), bottomPt(context, placement.y, placement.height)),
+      scale(mm(placement.width), mm(placement.height)),
+      drawObject(PDFName.of("LayerMaskImage")),
+      popGraphicsState(),
     );
   }
   operators.push(popGraphicsState());
@@ -324,11 +315,11 @@ function beginElementMask(context: PageContext, element: LayoutElementNode): boo
     Group: {
       Type: "Group",
       S: "Transparency",
-      CS: "DeviceGray",
+      CS: maskImage ? "DeviceRGB" : "DeviceGray",
       I: true,
       K: false,
     },
-    Resources: {},
+    Resources: maskImage ? { XObject: { LayerMaskImage: maskImage.ref } } : {},
   });
   const groupReference = pdfContext.register(group);
   const graphicsState = pdfContext.obj({
@@ -685,7 +676,7 @@ async function rasterizeDataUrl(
 async function embedAssetImage(
   context: PageContext,
   asset: DocumentAsset,
-  element: ImageElement | SvgElement,
+  element: Pick<LayoutElementNode, "width" | "height">,
 ): Promise<PDFImage | undefined> {
   try {
     const bytes = bytesFromDataUrl(asset.source);
@@ -1229,7 +1220,7 @@ function drawShape(context: PageContext, element: ShapeElement): void {
 
 async function drawElement(context: PageContext, element: LayoutElementNode): Promise<void> {
   const rotated = beginElementRotation(context, element);
-  const masked = beginElementMask(context, element);
+  const masked = await beginElementMask(context, element);
   try {
     if (element.type === "text" || element.type === "month-text") {
       drawTextFrame(context, element);

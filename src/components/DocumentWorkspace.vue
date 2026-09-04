@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { DocumentAsset, ElementMaskStroke, ElementMaskStrokeMode, PageModel } from "../document/types";
+import type { DocumentAsset, PageModel } from "../document/types";
 import type { ElementFrame } from "../editor/element-creation";
 import type { EditorTool } from "../editor/types";
 import type { OrthodoxCalendarYear } from "../calendar";
@@ -22,8 +22,6 @@ const props = defineProps<{
   showGuides: boolean;
   activeTool: EditorTool;
   selectedElementId?: string;
-  maskBrushMode: ElementMaskStrokeMode;
-  maskBrushSizeMm: number;
 }>();
 
 const emit = defineEmits<{
@@ -32,7 +30,6 @@ const emit = defineEmits<{
   geometryStart: [];
   updateGeometry: [elementId: string, frame: ElementFrame];
   geometryEnd: [];
-  maskStroke: [elementId: string, stroke: ElementMaskStroke];
 }>();
 
 function forwardCreate(tool: EditorTool, frame: ElementFrame): void {
@@ -41,10 +38,6 @@ function forwardCreate(tool: EditorTool, frame: ElementFrame): void {
 
 function forwardGeometry(elementId: string, frame: ElementFrame): void {
   emit("updateGeometry", elementId, frame);
-}
-
-function forwardMaskStroke(elementId: string, stroke: ElementMaskStroke): void {
-  emit("maskStroke", elementId, stroke);
 }
 
 const mediaStartX = computed(() => -props.page.bleed.left);
@@ -81,14 +74,11 @@ const mediaEndY = computed(() => props.page.height + props.page.bleed.bottom);
         :show-guides="showGuides"
         :active-tool="activeTool"
         :selected-element-id="selectedElementId"
-        :mask-brush-mode="maskBrushMode"
-        :mask-brush-size-mm="maskBrushSizeMm"
         @create="forwardCreate"
         @select="emit('select', $event)"
         @geometry-start="emit('geometryStart')"
         @update-geometry="forwardGeometry"
         @geometry-end="emit('geometryEnd')"
-        @mask-stroke="forwardMaskStroke"
       />
     </div>
   </main>

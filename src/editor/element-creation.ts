@@ -182,6 +182,7 @@ export function duplicateElementOnOwnLayer(
     `layer-object-${idFactory()}`,
     `${sourceLayer?.name ?? "Объект"} — копия`,
   );
+  if (sourceLayer?.mask) layer.mask = JSON.parse(JSON.stringify(sourceLayer.mask));
   const element = JSON.parse(JSON.stringify(source)) as LayoutElementNode;
   element.id = `element-${idFactory()}`;
   element.layerId = layer.id;

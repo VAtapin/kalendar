@@ -7,7 +7,6 @@ export type EditorTool =
   | "line"
   | "svg"
   | "calendar-grid"
-  | "mask"
   | "hand"
   | "zoom";
 

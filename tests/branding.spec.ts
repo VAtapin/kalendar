@@ -28,9 +28,9 @@ describe("calendar workshop branding", () => {
     logo.fit = "fill";
     logo.crop = { x: 0, y: 1, width: 1, height: 1 };
     logo.cornerRadiusMm = 100;
-    logo.mask = {
+    layer.mask = {
       enabled: true,
-      strokes: [{ id: "hide-logo", mode: "hide", sizeMm: 100, points: [{ x: 0.5, y: 0.5 }] }],
+      assetId: "hide-logo",
     };
     layer.visible = false;
     layer.locked = false;
@@ -57,7 +57,7 @@ describe("calendar workshop branding", () => {
     });
     expect(logo.crop).toBeUndefined();
     expect(logo.cornerRadiusMm).toBeUndefined();
-    expect(logo.mask).toBeUndefined();
+    expect(layer.mask).toBeUndefined();
     expect(flattenObjectLayers(cover.layers).at(-1)?.layer.id).toBe(layer.id);
   });
 });

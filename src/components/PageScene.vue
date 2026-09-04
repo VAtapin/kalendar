@@ -5,10 +5,9 @@ import TypikonRankMarker from "./TypikonRankMarker.vue";
 import type {
   CalendarGridElement,
   DocumentAsset,
-  ElementMaskStroke,
-  ElementMaskStrokeMode,
   ImageElement,
   LargeTextEffects,
+  LayerMask,
   LayoutElementNode,
   MonthTextElement,
   PageModel,
@@ -76,11 +75,6 @@ type GeometryInteraction =
       original: ElementFrame;
     };
 
-interface MaskInteraction {
-  elementId: string;
-  stroke: ElementMaskStroke;
-}
-
 const props = defineProps<{
   page: PageModel;
   assets: DocumentAsset[];
@@ -92,8 +86,6 @@ const props = defineProps<{
   showGuides: boolean;
   activeTool: EditorTool;
   selectedElementId?: string;
-  maskBrushMode: ElementMaskStrokeMode;
-  maskBrushSizeMm: number;
 }>();
 
 const emit = defineEmits<{
@@ -102,16 +94,24 @@ const emit = defineEmits<{
   geometryStart: [];
   updateGeometry: [elementId: string, frame: ElementFrame];
   geometryEnd: [];
-  maskStroke: [elementId: string, stroke: ElementMaskStroke];
 }>();
 
 const svg = ref<SVGSVGElement>();
 const dragStart = ref<Point>();
 const dragEnd = ref<Point>();
 const geometryInteraction = ref<GeometryInteraction>();
-const maskInteraction = ref<MaskInteraction>();
 const scene = computed(() => buildPageScene(props.page));
 const assetById = computed(() => new Map(props.assets.map((asset) => [asset.id, asset])));
+const layerMaskByElementId = computed(() => {
+  const masks = new Map<string, LayerMask>();
+  for (const { layer } of flattenObjectLayers(props.page.layers)) {
+    const mask = layer.mask;
+    if (layer.elementId && mask?.enabled !== false && mask && assetById.value.has(mask.assetId)) {
+      masks.set(layer.elementId, mask);
+    }
+  }
+  return masks;
+});
 const calendarLayouts = computed(() => {
   const layouts = new Map<string, CalendarGridLayout>();
   if (!props.calendarYear) return layouts;
@@ -235,18 +235,6 @@ function beginCreation(event: PointerEvent): void {
 }
 
 function updateCreation(event: PointerEvent): void {
-  if (maskInteraction.value) {
-    const element = scene.value.elements.find((item) => item.id === maskInteraction.value?.elementId);
-    const point = toDocumentPoint(event, false);
-    if (!element || !point) return;
-    const normalized = maskPointForElement(element, point);
-    const points = maskInteraction.value.stroke.points;
-    const previous = points.at(-1);
-    if (!previous || Math.hypot(normalized.x - previous.x, normalized.y - previous.y) >= 0.002) {
-      points.push(normalized);
-    }
-    return;
-  }
   if (geometryInteraction.value) {
     updateGeometryInteraction(event);
     return;
@@ -257,13 +245,6 @@ function updateCreation(event: PointerEvent): void {
 }
 
 function finishCreation(event: PointerEvent): void {
-  if (maskInteraction.value) {
-    const interaction = maskInteraction.value;
-    maskInteraction.value = undefined;
-    emit("maskStroke", interaction.elementId, interaction.stroke);
-    svg.value?.releasePointerCapture(event.pointerId);
-    return;
-  }
   if (geometryInteraction.value) {
     geometryInteraction.value = undefined;
     emit("geometryEnd");
@@ -285,24 +266,6 @@ function finishCreation(event: PointerEvent): void {
 }
 
 function beginElementInteraction(event: PointerEvent, element: LayoutElementNode): void {
-  if (props.activeTool === "mask") {
-    event.stopPropagation();
-    emit("select", element.id);
-    if (element.locked || effectivelyLockedElementIds.value.has(element.id)) return;
-    const point = toDocumentPoint(event, false);
-    if (!point) return;
-    maskInteraction.value = {
-      elementId: element.id,
-      stroke: {
-        id: `mask-${crypto.randomUUID()}`,
-        mode: props.maskBrushMode,
-        sizeMm: Math.max(0.5, props.maskBrushSizeMm),
-        points: [maskPointForElement(element, point)],
-      },
-    };
-    svg.value?.setPointerCapture(event.pointerId);
-    return;
-  }
   if (props.activeTool !== "selection") return;
   event.stopPropagation();
   emit("select", element.id);
@@ -325,20 +288,6 @@ function beginElementInteraction(event: PointerEvent, element: LayoutElementNode
   };
   emit("geometryStart");
   svg.value?.setPointerCapture(event.pointerId);
-}
-
-function maskPointForElement(element: LayoutElementNode, point: Point): { x: number; y: number } {
-  const centerX = element.x + element.width / 2;
-  const centerY = element.y + element.height / 2;
-  const radians = -(element.rotation * Math.PI) / 180;
-  const dx = point.x - centerX;
-  const dy = point.y - centerY;
-  const localX = centerX + dx * Math.cos(radians) - dy * Math.sin(radians);
-  const localY = centerY + dx * Math.sin(radians) + dy * Math.cos(radians);
-  return {
-    x: Math.max(0, Math.min(1, (localX - element.x) / Math.max(0.0001, element.width))),
-    y: Math.max(0, Math.min(1, (localY - element.y) / Math.max(0.0001, element.height))),
-  };
 }
 
 function beginResize(
@@ -470,27 +419,19 @@ function elementCornerRadius(element: LayoutElementNode): number {
   return Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
 }
 
-function visibleMaskStrokes(element: LayoutElementNode): ElementMaskStroke[] {
-  const strokes = element.mask?.enabled === false ? [] : element.mask?.strokes ?? [];
-  const draft = maskInteraction.value?.elementId === element.id ? maskInteraction.value.stroke : undefined;
-  return draft ? [...strokes, draft] : strokes;
+function elementLayerMask(element: LayoutElementNode): LayerMask | undefined {
+  return layerMaskByElementId.value.get(element.id);
+}
+
+function elementLayerMaskSource(element: LayoutElementNode): string | undefined {
+  const mask = elementLayerMask(element);
+  return mask ? assetSource(mask.assetId) : undefined;
 }
 
 function elementNeedsMask(element: LayoutElementNode): boolean {
   return elementCornerRadius(element) > 0 ||
     (element.type === "image" && element.fit === "crop") ||
-    visibleMaskStrokes(element).length > 0;
-}
-
-function maskStrokePoints(element: LayoutElementNode, stroke: ElementMaskStroke): string {
-  return stroke.points
-    .map((point) => `${element.x + point.x * element.width},${element.y + point.y * element.height}`)
-    .join(" ");
-}
-
-function maskStrokeFirstPoint(element: LayoutElementNode, stroke: ElementMaskStroke): Point {
-  const point = stroke.points[0] ?? { x: 0.5, y: 0.5 };
-  return { x: element.x + point.x * element.width, y: element.y + point.y * element.height };
+    Boolean(elementLayerMaskSource(element));
 }
 
 function foodMarkerSource(rule: FoodRuleId): string | undefined {
@@ -701,26 +642,17 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                 :y="element.y"
                 :width="element.width"
                 :height="element.height"
-                fill="#fff"
+                :fill="elementLayerMaskSource(element) ? '#000' : '#fff'"
               />
-              <template v-for="stroke in visibleMaskStrokes(element)" :key="stroke.id">
-                <polyline
-                  v-if="stroke.points.length > 1"
-                  :points="maskStrokePoints(element, stroke)"
-                  fill="none"
-                  :stroke="stroke.mode === 'hide' ? '#000' : '#fff'"
-                  :stroke-width="stroke.sizeMm"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <circle
-                  v-else
-                  :cx="maskStrokeFirstPoint(element, stroke).x"
-                  :cy="maskStrokeFirstPoint(element, stroke).y"
-                  :r="stroke.sizeMm / 2"
-                  :fill="stroke.mode === 'hide' ? '#000' : '#fff'"
-                />
-              </template>
+              <image
+                v-if="elementLayerMaskSource(element)"
+                :href="elementLayerMaskSource(element)"
+                :x="element.x"
+                :y="element.y"
+                :width="element.width"
+                :height="element.height"
+                preserveAspectRatio="xMidYMid meet"
+              />
             </g>
           </mask>
         </defs>

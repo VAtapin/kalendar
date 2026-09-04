@@ -272,7 +272,7 @@ test("edits object opacity and a printable gold gradient", async ({ page }) => {
   await expect(stops.nth(2)).toHaveAttribute("stop-color", "#b7791f");
 });
 
-test("positions a cropped image manually and paints a non-destructive mask", async ({ page }) => {
+test("positions a cropped image manually and applies a layer mask from an element", async ({ page }) => {
   await openEditor(page);
   await page.getByTitle("Изображение (F)").click();
   const scene = page.locator(".page-scene");
@@ -297,15 +297,33 @@ test("positions a cropped image manually and paints a non-destructive mask", asy
 
   await page.getByTestId("corner-radius").fill("8");
   await expect(page.locator('.page-element--selected clipPath[id^="object-mask-frame-"] > rect')).toHaveAttribute("rx", "8");
-  await page.getByRole("button", { name: "Скрыть", exact: true }).click();
-  const elementBox = await page.locator(".page-element--selected").boundingBox();
-  if (!elementBox) throw new Error("Selected image is not visible");
-  await page.mouse.move(elementBox.x + elementBox.width * 0.3, elementBox.y + elementBox.height * 0.3);
-  await page.mouse.down();
-  await page.mouse.move(elementBox.x + elementBox.width * 0.7, elementBox.y + elementBox.height * 0.7, { steps: 5 });
-  await page.mouse.up();
-  await expect(page.locator('.page-element--selected mask polyline')).toHaveCount(1);
-  await expect(page.getByText(/Показывать маску \(штрихов: 1\)/)).toBeVisible();
+  const targetElementId = await page.locator(".page-element--selected").getAttribute("data-element-id");
+  if (!targetElementId) throw new Error("Target image id is missing");
+
+  await page.getByRole("tab", { name: "Элементы" }).click();
+  await page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" }).click();
+  await page.locator(`.page-element[data-element-id="${targetElementId}"]`).click();
+  await page.getByRole("tab", { name: "Слои" }).click();
+  await expect(page.getByTestId("layer-mask-panel")).toBeVisible();
+  const sourceOption = page.getByTestId("layer-mask-source").locator("option").filter({ hasText: "Золотой православный крест" });
+  const sourceElementId = await sourceOption.getAttribute("value");
+  if (!sourceElementId) throw new Error("Mask source element is missing");
+  await page.getByTestId("layer-mask-source").selectOption(sourceElementId);
+  await page.getByRole("button", { name: "Применить элемент как маску" }).click();
+
+  await expect(page.getByTestId("layer-mask-enabled")).toBeChecked();
+  await expect(page.locator(`.page-element[data-element-id="${targetElementId}"] mask image`)).toHaveAttribute("href", /^data:image\/png/);
+
+  const [maskFileChooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.getByRole("button", { name: "Загрузить чёрно-белую маску…" }).click(),
+  ]);
+  await maskFileChooser.setFiles({
+    name: "oval-mask.svg",
+    mimeType: "image/svg+xml",
+    buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120"><rect width="200" height="120" fill="black"/><ellipse cx="100" cy="60" rx="86" ry="48" fill="white"/></svg>'),
+  });
+  await expect(page.locator(`.page-element[data-element-id="${targetElementId}"] mask image`)).toHaveAttribute("href", /^data:image\/svg\+xml/);
 });
 
 test("resizes the right inspector with the mouse and restores its width", async ({ page }) => {

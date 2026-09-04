@@ -31,11 +31,13 @@ import type {
   CalendarGridElement,
   CalendarProject,
   CommemorationRankFilterId,
-  ElementMaskStroke,
-  ElementMaskStrokeMode,
+  DocumentAsset,
   ImageElement,
   MonasteryEvent,
   PageFormatId,
+  PageModel,
+  PageLayerNode,
+  PageObjectLayer,
   PageOrientation,
   SvgElement,
 } from "./document/types";
@@ -134,13 +136,13 @@ const project = ref(createBlankCalendarProject());
 const zoomPercent = ref(55);
 const showGuides = ref(true);
 const activeTool = ref<EditorTool>("selection");
-const maskBrushMode = ref<ElementMaskStrokeMode>("hide");
-const maskBrushSizeMm = ref(12);
 const selectedLayerIds = ref(["layer-1"]);
 const selectedPageId = ref(project.value.document.pages[0]?.id ?? "");
 const openPageIds = ref<string[]>(selectedPageId.value ? [selectedPageId.value] : []);
 const selectedElementId = ref<string>();
 const assetFileInput = ref<HTMLInputElement>();
+const layerMaskFileInput = ref<HTMLInputElement>();
+const pendingLayerMaskTarget = ref<{ pageId: string; layerId: string }>();
 const projectFileInput = ref<HTMLInputElement>();
 const projectFileName = ref<string>();
 const savedProjectFileSnapshot = ref<string>();
@@ -1851,39 +1853,130 @@ function updateSelectedCornerRadius(event: Event): void {
   element.cornerRadiusMm = Math.max(0, Math.min(value, element.width / 2, element.height / 2));
 }
 
-function applyElementMaskStroke(elementId: string, stroke: ElementMaskStroke): void {
-  const element = selectedPage.value.elements.find((item) => item.id === elementId);
-  if (!element) return;
-  if (isCalendarWorkshopBrandElement(selectedPage.value, element)) {
-    rejectProtectedBrandChange();
+function editableLayerMaskTarget(page: PageModel, layerId: string): PageObjectLayer | undefined {
+  const location = findLayerLocation(page, layerId);
+  if (
+    location?.node.kind !== "layer" ||
+    !location.node.elementId ||
+    location.node.locked ||
+    location.node.protected ||
+    location.ancestors.some((group) => group.locked || group.protected)
+  ) return undefined;
+  return location.node;
+}
+
+function projectUsesLayerMaskAsset(assetId: string): boolean {
+  const usesAsset = (nodes: PageLayerNode[]): boolean => nodes.some((node) =>
+    node.kind === "group" ? usesAsset(node.children) : node.mask?.assetId === assetId,
+  );
+  return project.value.document.pages.some((page) => usesAsset(page.layers));
+}
+
+function removeUnusedLayerMaskAsset(assetId: string | undefined): void {
+  if (!assetId || !assetId.startsWith("asset-layer-mask-") || projectUsesLayerMaskAsset(assetId)) return;
+  project.value.assets = project.value.assets.filter((asset) => asset.id !== assetId);
+}
+
+function layerMaskAssetCopy(asset: DocumentAsset, label: string): DocumentAsset {
+  return {
+    ...asset,
+    id: `asset-layer-mask-${crypto.randomUUID()}`,
+    name: `Маска — ${label}`,
+  };
+}
+
+function applyLayerMaskFromElement(targetLayerId: string, sourceElementId: string): void {
+  const page = selectedPage.value;
+  const target = editableLayerMaskTarget(page, targetLayerId);
+  const sourceElement = page.elements.find((element) => element.id === sourceElementId);
+  if (!target || !sourceElement || (sourceElement.type !== "image" && sourceElement.type !== "svg")) {
+    operationNotice.value = "Не удалось применить маску: выберите обычный незаблокированный слой и PNG/SVG-элемент";
     return;
   }
-  mutateProject(stroke.mode === "hide" ? "Скрытие маской" : "Восстановление маской", () => {
-    element.mask ??= { enabled: true, strokes: [] };
-    element.mask.enabled = true;
-    element.mask.strokes.push(stroke);
+  const sourceAsset = project.value.assets.find((asset) => asset.id === sourceElement.assetId);
+  if (!sourceAsset) {
+    operationNotice.value = "У выбранного элемента нет доступного изображения";
+    return;
+  }
+  const sourceLayer = findLayerLocation(page, sourceElement.layerId)?.node;
+  const maskAsset = layerMaskAssetCopy(sourceAsset, sourceLayer?.name ?? sourceAsset.name);
+  mutateProject("Маска слоя из элемента", () => {
+    const previousAssetId = target.mask?.assetId;
+    project.value.assets.push(maskAsset);
+    target.mask = { enabled: true, assetId: maskAsset.id };
+    removeUnusedLayerMaskAsset(previousAssetId);
   });
-  selectedElementId.value = elementId;
-  selectedLayerIds.value = [element.layerId];
-  activeDockPanel.value = "properties";
-  operationNotice.value = stroke.mode === "hide" ? "Область скрыта маской" : "Область восстановлена маской";
+  selectedLayerIds.value = [target.id];
+  selectedElementId.value = target.elementId;
+  operationNotice.value = `К слою «${target.name}» применена маска из «${sourceLayer?.name ?? sourceAsset.name}»`;
 }
 
-function clearSelectedElementMask(): void {
-  const element = selectedElement.value;
-  if (!element || selectedElementIsProtectedBrand.value || !element.mask?.strokes.length) return;
-  mutateProject("Очистка маски", () => {
-    element.mask = undefined;
-  });
-  operationNotice.value = "Маска очищена";
+function requestLayerMaskFile(targetLayerId: string): void {
+  const target = editableLayerMaskTarget(selectedPage.value, targetLayerId);
+  if (!target) {
+    operationNotice.value = "Маску можно добавить только к незаблокированному объектному слою";
+    return;
+  }
+  pendingLayerMaskTarget.value = { pageId: selectedPage.value.id, layerId: targetLayerId };
+  layerMaskFileInput.value?.click();
 }
 
-function setSelectedElementMaskEnabled(enabled: boolean): void {
-  const element = selectedElement.value;
-  if (!element || selectedElementIsProtectedBrand.value || !element.mask) return;
-  mutateProject(enabled ? "Включение маски" : "Отключение маски", () => {
-    element.mask!.enabled = enabled;
+async function importLayerMaskFile(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  const pending = pendingLayerMaskTarget.value;
+  try {
+    if (!file || !pending) return;
+    const page = project.value.document.pages.find((candidate) => candidate.id === pending.pageId);
+    const target = page ? editableLayerMaskTarget(page, pending.layerId) : undefined;
+    if (!page || !target) {
+      operationNotice.value = "Слой для маски больше недоступен";
+      return;
+    }
+    const source = await readFileAsDataUrl(file);
+    const svg = /svg/iu.test(file.type) || /\.svg$/iu.test(file.name);
+    const dimensions = svg ? undefined : await readRasterDimensions(source);
+    const asset: DocumentAsset = {
+      id: `asset-layer-mask-${crypto.randomUUID()}`,
+      name: `Маска — ${file.name}`,
+      mimeType: file.type || (svg ? "image/svg+xml" : "image/png"),
+      source,
+      kind: svg ? "svg" : "image",
+      ...dimensions,
+    };
+    mutateProject("Загрузка маски слоя", () => {
+      const previousAssetId = target.mask?.assetId;
+      project.value.assets.push(asset);
+      target.mask = { enabled: true, assetId: asset.id };
+      removeUnusedLayerMaskAsset(previousAssetId);
+    });
+    operationNotice.value = `Чёрно-белая маска добавлена к слою «${target.name}»`;
+  } catch (error) {
+    operationNotice.value = error instanceof Error ? error.message : "Не удалось загрузить маску";
+  } finally {
+    pendingLayerMaskTarget.value = undefined;
+    input.value = "";
+  }
+}
+
+function setLayerMaskEnabled(targetLayerId: string, enabled: boolean): void {
+  const target = editableLayerMaskTarget(selectedPage.value, targetLayerId);
+  if (!target?.mask) return;
+  mutateProject(enabled ? "Включение маски слоя" : "Отключение маски слоя", () => {
+    target.mask!.enabled = enabled;
   });
+  operationNotice.value = enabled ? "Маска слоя включена" : "Маска слоя временно отключена";
+}
+
+function removeLayerMask(targetLayerId: string): void {
+  const target = editableLayerMaskTarget(selectedPage.value, targetLayerId);
+  if (!target?.mask) return;
+  mutateProject("Удаление маски слоя", () => {
+    const previousAssetId = target.mask?.assetId;
+    target.mask = undefined;
+    removeUnusedLayerMaskAsset(previousAssetId);
+  });
+  operationNotice.value = `Маска удалена со слоя «${target.name}»`;
 }
 
 function updateWeekdayLabel(element: CalendarGridElement, index: number, value: string): void {
@@ -2668,11 +2761,9 @@ function selectTool(tool: EditorTool): void {
     line: "Линия",
     svg: "SVG и декор",
     "calendar-grid": "Календарная сетка",
-    mask: "Маска объекта",
     hand: "Рука",
     zoom: "Масштаб",
   };
-  if (tool === "mask") activeDockPanel.value = "properties";
   operationNotice.value = `Инструмент: ${labels[tool]}`;
 }
 
@@ -2870,7 +2961,6 @@ function handleKeydown(event: KeyboardEvent): void {
     m: "rectangle",
     l: "ellipse",
     "\\": "line",
-    q: "mask",
     h: "hand",
     z: "zoom",
   };
@@ -3085,14 +3175,11 @@ onBeforeUnmount(() => {
         :show-guides="showGuides"
         :active-tool="activeTool"
         :selected-element-id="selectedElementId"
-        :mask-brush-mode="maskBrushMode"
-        :mask-brush-size-mm="maskBrushSizeMm"
         @create="createElement"
         @select="selectElement"
         @update-geometry="updateElementGeometry"
         @geometry-start="beginContinuousEdit"
         @geometry-end="endContinuousEdit"
-        @mask-stroke="applyElementMaskStroke"
       />
       <div v-else class="workspace-empty">
         <div class="workspace-empty__card">
@@ -3181,24 +3268,7 @@ onBeforeUnmount(() => {
                       @input="updateSelectedCornerRadius"
                     />
                   </label>
-                  <div class="mask-controls__heading">
-                    <strong>Маска объекта</strong>
-                    <span>Рисуйте прямо по объекту</span>
-                  </div>
-                  <div class="button-pair">
-                    <button type="button" :class="{ active: maskBrushMode === 'hide' }" @click="maskBrushMode = 'hide'; selectTool('mask')">Скрыть</button>
-                    <button type="button" :class="{ active: maskBrushMode === 'reveal' }" @click="maskBrushMode = 'reveal'; selectTool('mask')">Вернуть</button>
-                  </div>
-                  <label class="field-control">
-                    <span>Кисть, мм</span>
-                    <input v-model.number="maskBrushSizeMm" data-testid="mask-brush-size" type="number" min="0.5" max="100" step="0.5" />
-                  </label>
-                  <label v-if="selectedElement.mask?.strokes.length" class="checkbox-field">
-                    <input :checked="selectedElement.mask.enabled !== false" type="checkbox" @change="setSelectedElementMaskEnabled(($event.target as HTMLInputElement).checked)" />
-                    <span>Показывать маску (штрихов: {{ selectedElement.mask.strokes.length }})</span>
-                  </label>
-                  <button v-if="selectedElement.mask?.strokes.length" type="button" @click="clearSelectedElementMask">Очистить маску</button>
-                  <p class="property-help">Чёрная кисть скрывает, белая возвращает. Исходный объект не изменяется.</p>
+                  <p class="property-help">Маска теперь применяется к слою во вкладке «Слои».</p>
                 </div>
 
                 <div v-if="selectedElement.type === 'text' || selectedElement.type === 'month-text'" class="object-properties">
@@ -3484,6 +3554,7 @@ onBeforeUnmount(() => {
           <div class="dock-content__heading">Слои текущей страницы</div>
           <LayersPanel
             :page="selectedPage"
+            :assets="project.assets"
             :selected-layer-ids="selectedLayerIds"
             :protected-layer-ids="protectedBrandLayerIds"
             @select="selectLayer"
@@ -3498,6 +3569,10 @@ onBeforeUnmount(() => {
             @toggle-expanded="(id) => { const layer = findLayer(id); if (layer?.kind === 'group') layer.expanded = !layer.expanded; }"
             @toggle-visible="toggleLayerPropertyById($event, 'visible')"
             @toggle-locked="toggleLayerPropertyById($event, 'locked')"
+            @upload-mask="requestLayerMaskFile"
+            @apply-mask="applyLayerMaskFromElement"
+            @toggle-mask="setLayerMaskEnabled"
+            @remove-mask="removeLayerMask"
           />
         </div>
 
@@ -3679,6 +3754,14 @@ onBeforeUnmount(() => {
       type="file"
       accept="image/*,.svg"
       @change="importSelectedAsset"
+    />
+    <input
+      ref="layerMaskFileInput"
+      class="visually-hidden"
+      data-testid="layer-mask-file"
+      type="file"
+      accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg"
+      @change="importLayerMaskFile"
     />
     <input
       ref="projectFileInput"

@@ -3,11 +3,13 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import type {
   DocumentAsset,
   ImageElement,
+  LayerMask,
   LayoutElementNode,
   PageModel,
   SvgElement,
 } from "../document/types";
 import { calculateImagePlacement } from "../document/image-placement";
+import { flattenObjectLayers } from "../document/layer-operations";
 
 const props = defineProps<{
   page: PageModel;
@@ -89,15 +91,16 @@ function applyElementRotation(
   context.translate(-centerX, -centerY);
 }
 
-function elementNeedsMask(element: LayoutElementNode): boolean {
+function elementNeedsMask(element: LayoutElementNode, layerMask: LayerMask | undefined): boolean {
   return (element.cornerRadiusMm ?? 0) > 0 ||
     (element.type === "image" && element.fit === "crop") ||
-    (element.mask?.enabled !== false && Boolean(element.mask?.strokes.length));
+    Boolean(layerMask?.enabled !== false && layerMask?.assetId);
 }
 
 function drawElementMask(
   context: CanvasRenderingContext2D,
   element: LayoutElementNode,
+  maskBitmap: ImageBitmap | undefined,
   scaleX: number,
   scaleY: number,
 ): void {
@@ -115,30 +118,33 @@ function drawElementMask(
   context.beginPath();
   context.roundRect(x, y, width, height, radius);
   context.clip();
-  context.fillStyle = "#fff";
+  context.fillStyle = maskBitmap ? "#000" : "#fff";
   context.fillRect(x, y, width, height);
-  for (const stroke of element.mask?.enabled === false ? [] : element.mask?.strokes ?? []) {
-    if (!stroke.points.length) continue;
-    context.globalCompositeOperation = stroke.mode === "hide" ? "destination-out" : "source-over";
-    context.strokeStyle = "#fff";
-    context.fillStyle = "#fff";
-    context.lineWidth = Math.max(0.5, stroke.sizeMm * (scaleX + scaleY) / 2);
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    context.beginPath();
-    const first = stroke.points[0]!;
-    context.moveTo(x + first.x * width, y + first.y * height);
-    for (const point of stroke.points.slice(1)) {
-      context.lineTo(x + point.x * width, y + point.y * height);
-    }
-    if (stroke.points.length === 1) {
-      context.arc(x + first.x * width, y + first.y * height, context.lineWidth / 2, 0, Math.PI * 2);
-      context.fill();
-    } else {
-      context.stroke();
-    }
+  if (maskBitmap) {
+    const placement = calculateImagePlacement(
+      { x, y, width, height },
+      maskBitmap.width,
+      maskBitmap.height,
+      "fit",
+    );
+    context.drawImage(maskBitmap, placement.x, placement.y, placement.width, placement.height);
   }
   context.restore();
+  if (maskBitmap) {
+    const pixels = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+    for (let index = 0; index < pixels.data.length; index += 4) {
+      const luminance = (
+        (pixels.data[index] ?? 0) * 0.2126 +
+        (pixels.data[index + 1] ?? 0) * 0.7152 +
+        (pixels.data[index + 2] ?? 0) * 0.0722
+      ) / 255;
+      pixels.data[index] = 255;
+      pixels.data[index + 1] = 255;
+      pixels.data[index + 2] = 255;
+      pixels.data[index + 3] = Math.round((pixels.data[index + 3] ?? 0) * luminance);
+    }
+    context.putImageData(pixels, 0, 0);
+  }
 }
 
 function drawElementContent(
@@ -261,11 +267,23 @@ async function renderThumbnail(): Promise<void> {
     (element): element is ImageElement | SvgElement => element.visible && (element.type === "image" || element.type === "svg"),
   );
   const bitmaps = new Map<string, ImageBitmap>();
+  const layerMasksByElementId = new Map<string, LayerMask>();
+  for (const { layer } of flattenObjectLayers(props.page.layers)) {
+    const mask = layer.mask;
+    if (layer.elementId && mask?.enabled !== false && mask) layerMasksByElementId.set(layer.elementId, mask);
+  }
+  const maskBitmaps = new Map<string, ImageBitmap>();
   await Promise.all(assetElements.map(async (element) => {
     const asset = props.assets.find((item) => item.id === element.assetId);
     if (!asset) return;
     const bitmap = await bitmapForAsset(asset);
     if (bitmap) bitmaps.set(element.id, bitmap);
+  }));
+  await Promise.all([...layerMasksByElementId.values()].map(async (mask) => {
+    const asset = props.assets.find((item) => item.id === mask.assetId);
+    if (!asset) return;
+    const bitmap = await bitmapForAsset(asset);
+    if (bitmap) maskBitmaps.set(mask.assetId, bitmap);
   }));
   if (revision !== renderRevision) return;
   drawPlaceholder(context, target.width, target.height);
@@ -286,8 +304,9 @@ async function renderThumbnail(): Promise<void> {
     applyElementRotation(elementContext, element, scaleX, scaleY);
     drawElementContent(elementContext, element, bitmaps.get(element.id), scaleX, scaleY);
     elementContext.restore();
-    if (elementNeedsMask(element)) {
-      drawElementMask(maskContext, element, scaleX, scaleY);
+    const layerMask = layerMasksByElementId.get(element.id);
+    if (elementNeedsMask(element, layerMask)) {
+      drawElementMask(maskContext, element, layerMask ? maskBitmaps.get(layerMask.assetId) : undefined, scaleX, scaleY);
       elementContext.save();
       elementContext.globalCompositeOperation = "destination-in";
       elementContext.drawImage(maskCanvas, 0, 0);
