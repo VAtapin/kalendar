@@ -142,10 +142,12 @@ const pendingFoodMarkerRule = ref<FoodRuleId>();
 const activeDockPanel = ref<DockPanelId>("properties");
 const DOCK_PANEL_DEFAULT_WIDTH_PX = 284;
 const DOCK_PANEL_MIN_WIDTH_PX = 180;
+const COMPACT_VIEWPORT_MAX_WIDTH_PX = 1000;
 const EDITOR_MIN_WORKSPACE_WIDTH_PX = 640;
 const EDITOR_RESIZER_WIDTH_PX = 7;
 const dockPanelWidthPx = ref(DOCK_PANEL_DEFAULT_WIDTH_PX);
 const viewportWidthPx = ref(typeof window === "undefined" ? 1440 : window.innerWidth);
+const compactViewport = computed(() => viewportWidthPx.value <= COMPACT_VIEWPORT_MAX_WIDTH_PX);
 const dockPanelResizing = ref(false);
 let dockResizePointerId: number | undefined;
 let dockResizeStartX = 0;
@@ -213,7 +215,7 @@ interface HistoryEntry {
 const activeMenu = ref<ApplicationMenuId>();
 const helpDialogPage = ref<HelpDialogPage>();
 const recoveryDialogOpen = ref(false);
-const welcomeVisible = ref(!sharedProjectIdFromLocation() && !verificationTokenFromLocation());
+const welcomeVisible = ref(compactViewport.value || (!sharedProjectIdFromLocation() && !verificationTokenFromLocation()));
 const hasAutosavedProject = ref(false);
 const emailVerificationOpen = ref(false);
 const emailVerificationBusy = ref(false);
@@ -837,6 +839,10 @@ async function attemptOpenSharedProject(projectId: string, loadPreview = true): 
 }
 
 async function openSharedProjectById(projectId: string): Promise<void> {
+  if (compactViewport.value) {
+    welcomeVisible.value = true;
+    return;
+  }
   await leaveSharedProject(false);
   welcomeVisible.value = false;
   replaceSharedProjectInLocation(projectId);
@@ -1033,14 +1039,17 @@ async function initializeApplication(): Promise<void> {
       operationNotice.value = `E-mail ${confirmed.email} подтверждён`;
       replaceSharedProjectInLocation(sharedProjectIdFromLocation());
       const pending = localStorage.getItem(PENDING_VERIFIED_ACTION_KEY) as PendingVerifiedAction | null;
-      await runPendingVerifiedAction(pending ?? undefined);
+      if (!compactViewport.value) await runPendingVerifiedAction(pending ?? undefined);
+      else welcomeVisible.value = true;
     } catch (error) {
       welcomeVisible.value = true;
       operationNotice.value = `Ссылка подтверждения недействительна: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
   const projectId = sharedProjectIdFromLocation();
-  if (projectId && sharedAccessMode.value === "none") await openSharedProjectById(projectId);
+  if (projectId && sharedAccessMode.value === "none" && !compactViewport.value) {
+    await openSharedProjectById(projectId);
+  }
 }
 
 function projectFileBlob(): Blob {
@@ -2282,8 +2291,18 @@ function resetDockPanelWidth(): void {
 }
 
 function handleViewportResize(): void {
+  const wasCompact = compactViewport.value;
   viewportWidthPx.value = window.innerWidth;
   dockPanelWidthPx.value = clampDockPanelWidth(dockPanelWidthPx.value);
+  if (!wasCompact && compactViewport.value) {
+    welcomeVisible.value = true;
+    if (sharedAccessMode.value !== "none") void leaveSharedProject(false);
+    return;
+  }
+  if (wasCompact && !compactViewport.value) {
+    const projectId = sharedProjectIdFromLocation();
+    if (projectId && sharedAccessMode.value === "none") void openSharedProjectById(projectId);
+  }
 }
 
 function activateDockPanel(panelId: DockPanelId): void {
@@ -2660,12 +2679,20 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="app-shell" :class="{ 'app-shell--resizing-dock': dockPanelResizing }" @click="activeMenu = undefined">
+  <div
+    class="app-shell"
+    :class="{
+      'app-shell--resizing-dock': dockPanelResizing,
+      'app-shell--mobile-welcome': compactViewport,
+    }"
+    @click="activeMenu = undefined"
+  >
     <WelcomePage
       v-if="welcomeVisible"
       :current-project-name="hasAutosavedProject ? project.name : undefined"
       :recent-project-names="recentProjectNames"
       :shared-projects="sharedRecentProjects"
+      :compact-mode="compactViewport"
       @create="createNewProject"
       @continue="continueFromWelcome"
       @open="openLocalProjectFromWelcome"

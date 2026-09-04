@@ -7,6 +7,22 @@ async function openEditor(page: import("@playwright/test").Page): Promise<void> 
   await expect(page.locator(".workspace")).toBeVisible();
 }
 
+test("shows a readable mobile welcome page and keeps the editor on a large screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/?shared=mobile-link-must-not-lock");
+
+  await expect(page.getByRole("heading", { name: "Создайте православный календарь, готовый к печати" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Свято‑Георгиевский мужской монастырь" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "ATAPIN.DE", exact: true })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+  await page.getByTestId("welcome-create").click();
+  const notice = page.getByRole("dialog", { name: "Для работы нужен большой экран" });
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText("Откройте, пожалуйста, эту же страницу или полученную ссылку на компьютере.");
+  await expect(page.locator(".shared-lock-backdrop")).toHaveCount(0);
+});
+
 test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
   await openEditor(page);
   await page.getByRole("tab", { name: "Элементы" }).click();

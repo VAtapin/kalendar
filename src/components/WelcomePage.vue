@@ -1,8 +1,11 @@
 <script setup lang="ts">
-defineProps<{
+import { nextTick, ref } from "vue";
+
+const props = defineProps<{
   currentProjectName?: string;
   recentProjectNames: string[];
   sharedProjects: Array<{ id: string; name: string }>;
+  compactMode?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -12,6 +15,33 @@ const emit = defineEmits<{
   openShared: [id: string];
   help: [];
 }>();
+
+const desktopRequiredOpen = ref(false);
+const desktopRequiredDialog = ref<HTMLElement>();
+
+async function requireDesktop(): Promise<boolean> {
+  if (!props.compactMode) return false;
+  desktopRequiredOpen.value = true;
+  await nextTick();
+  desktopRequiredDialog.value?.focus();
+  return true;
+}
+
+async function requestCreate(): Promise<void> {
+  if (!(await requireDesktop())) emit("create");
+}
+
+async function requestContinue(): Promise<void> {
+  if (!(await requireDesktop())) emit("continue");
+}
+
+async function requestOpen(): Promise<void> {
+  if (!(await requireDesktop())) emit("open");
+}
+
+async function requestOpenShared(id: string): Promise<void> {
+  if (!(await requireDesktop())) emit("openShared", id);
+}
 </script>
 
 <template>
@@ -27,9 +57,9 @@ const emit = defineEmits<{
         <h1>Создайте православный календарь, готовый к печати</h1>
         <p>Создайте обложку и страницы на каждый месяц, добавьте праздники, посты, фотографии и оформление — и получите готовый PDF для печати.</p>
         <div class="welcome-hero__actions">
-          <button type="button" class="welcome-primary" data-testid="welcome-create" @click="emit('create')">Создать календарь</button>
-          <button v-if="currentProjectName" type="button" @click="emit('continue')">Продолжить последний</button>
-          <button type="button" @click="emit('open')">Открыть календарь…</button>
+          <button type="button" class="welcome-primary" data-testid="welcome-create" @click="requestCreate">Создать календарь</button>
+          <button v-if="currentProjectName" type="button" @click="requestContinue">Продолжить последний</button>
+          <button type="button" @click="requestOpen">Открыть календарь…</button>
         </div>
       </div>
       <img class="welcome-hero__art" src="/brand/share-card.png" alt="Календарная мастерская Свято-Георгиевского монастыря" />
@@ -42,19 +72,38 @@ const emit = defineEmits<{
       <article><strong>Готово к печати</strong><span>Скачайте готовый PDF и передайте его в типографию.</span></article>
     </section>
 
+    <section class="welcome-mobile-about" aria-label="О проекте">
+      <div>
+        <span class="welcome-hero__eyebrow">О проекте</span>
+        <h2>Календарная мастерская</h2>
+        <p>Онлайн‑инструмент для подготовки православных календарей: от церковных дат и постов до собственной вёрстки и печатного PDF.</p>
+      </div>
+      <article>
+        <h3>Свято‑Георгиевский мужской монастырь</h3>
+        <p>Проект монастыря Берлинской епархии в Гётчендорфе.</p>
+        <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
+      </article>
+      <article>
+        <h3>Разработка и связь</h3>
+        <a href="https://atapin.de/" target="_blank" rel="noreferrer">ATAPIN.DE</a>
+        <a href="tel:+491713517274">+49 171 351 72 74</a>
+        <a href="mailto:atapin@gmail.com">atapin@gmail.com</a>
+      </article>
+    </section>
+
     <section class="welcome-projects">
       <div class="welcome-section-title">
         <div><h2>Мои календари</h2></div>
         <button type="button" @click="emit('help')">Помощь</button>
       </div>
       <div class="welcome-projects__grid">
-        <button v-if="currentProjectName" type="button" @click="emit('continue')">
+        <button v-if="currentProjectName" type="button" @click="requestContinue">
           <strong>{{ currentProjectName }}</strong><span>Последняя работа · сохранена на этом компьютере</span>
         </button>
-        <button v-for="item in sharedProjects" :key="item.id" type="button" @click="emit('openShared', item.id)">
+        <button v-for="item in sharedProjects" :key="item.id" type="button" @click="requestOpenShared(item.id)">
           <strong>{{ item.name }}</strong><span>Совместная версия · доступна по ссылке</span>
         </button>
-        <button type="button" @click="emit('open')">
+        <button type="button" @click="requestOpen">
           <strong>Открыть календарь с компьютера</strong><span>Выберите ранее сохранённый файл календаря</span>
         </button>
       </div>
@@ -65,5 +114,36 @@ const emit = defineEmits<{
       <button type="button" @click="emit('help')">Помощь</button>
       <a href="https://atapin.de/" target="_blank" rel="noreferrer">Разработка ATAPIN.DE</a>
     </footer>
+
+    <div v-if="desktopRequiredOpen" class="application-dialog-backdrop" @click.self="desktopRequiredOpen = false">
+      <section
+        ref="desktopRequiredDialog"
+        class="application-dialog welcome-device-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Для работы нужен большой экран"
+        tabindex="-1"
+        @keydown.esc.stop="desktopRequiredOpen = false"
+      >
+        <header class="application-dialog__header">
+          <div>
+            <span class="application-dialog__eyebrow">Календарная мастерская</span>
+            <h2>Для работы нужен большой экран</h2>
+          </div>
+          <button type="button" class="application-dialog__close" aria-label="Закрыть" @click="desktopRequiredOpen = false">×</button>
+        </header>
+        <div class="application-dialog__content welcome-device-dialog__content">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="7" y="10" width="50" height="34" rx="3" />
+            <path d="M25 54h14M32 44v10" />
+          </svg>
+          <p>Создание и редактирование календаря рассчитано на компьютер или устройство с большим экраном.</p>
+          <p>Откройте, пожалуйста, эту же страницу или полученную ссылку на компьютере.</p>
+        </div>
+        <footer class="application-dialog__footer">
+          <button type="button" class="primary-action" @click="desktopRequiredOpen = false">Понятно</button>
+        </footer>
+      </section>
+    </div>
   </main>
 </template>
