@@ -5,6 +5,7 @@ import DecorLibraryPanel from "./components/DecorLibraryPanel.vue";
 import LayersPanel from "./components/LayersPanel.vue";
 import ToolsPanel from "./components/ToolsPanel.vue";
 import TextEffectsEditor from "./components/TextEffectsEditor.vue";
+import FoodMarkerPackSelect from "./components/FoodMarkerPackSelect.vue";
 import ApplicationHelpDialog, { type HelpDialogPage } from "./components/ApplicationHelpDialog.vue";
 import PageThumbnail from "./components/PageThumbnail.vue";
 import RecoveryDialog from "./components/RecoveryDialog.vue";
@@ -48,7 +49,6 @@ import { alignElements, distributeElements, type AlignMode, type DistributeMode 
 import type { DockPanelId, EditorTool } from "./editor/types";
 import { FOOD_RULES, type FoodRuleId } from "./calendar/presentation/fasting";
 import {
-  FOOD_MARKER_PACKS,
   foodMarkerPackSource,
   getFoodMarkerPack,
   isFoodMarkerPackId,
@@ -312,8 +312,6 @@ const monthNames = [
   "Декабрь",
 ] as const;
 const foodRuleOptions = Object.values(FOOD_RULES).filter((rule) => rule.id !== "no-fast");
-const foodMarkerPackOptions = FOOD_MARKER_PACKS;
-const foodMarkerPackPreviewRules: readonly FoodRuleId[] = ["fast", "fish", "strict-fast"];
 const activeFoodMarkerPack = computed(() => getFoodMarkerPack(project.value.foodMarkerPackId));
 const calendarTemplatePresets = CALENDAR_TEMPLATE_PRESETS;
 const commemorationFilterOptions = COMMEMORATION_FILTER_OPTIONS;
@@ -2972,19 +2970,10 @@ onBeforeUnmount(() => {
                   <button class="primary-action" type="button" @click="applyGridPresentationToAllMonths">Применить оформление ко всем месяцам</button>
                   <div v-if="selectedElement.showFoodIcons" class="food-marker-editor">
                     <strong class="food-marker-editor__heading">Набор картинок</strong>
-                    <label class="field-control">
-                      <span>Стиль</span>
-                      <select data-testid="food-marker-pack" :value="activeFoodMarkerPack.id" @change="updateFoodMarkerPack(($event.target as HTMLSelectElement).value)">
-                        <option v-for="pack in foodMarkerPackOptions" :key="pack.id" :value="pack.id">{{ pack.label }}</option>
-                      </select>
-                    </label>
-                    <div class="food-marker-pack-current">
-                      <span class="food-marker-pack-option__preview">
-                        <img v-for="rule in foodMarkerPackPreviewRules" :key="rule" :src="foodMarkerPackSource(activeFoodMarkerPack.id, rule)" alt="" />
-                      </span>
-                      <strong>{{ activeFoodMarkerPack.label }}</strong>
-                      <small>{{ activeFoodMarkerPack.description }}</small>
-                    </div>
+                    <FoodMarkerPackSelect
+                      :model-value="activeFoodMarkerPack.id"
+                      @update:model-value="updateFoodMarkerPack"
+                    />
                     <p class="property-help">Выбранный набор сразу применяется ко всем месяцам. Легенда показывает только знаки, используемые в выбранном месяце.</p>
                     <div v-for="rule in foodRuleOptions" :key="rule.id" class="food-marker-editor__row">
                       <img :src="foodMarkerPreviewSource(rule.id)" :alt="rule.label" />

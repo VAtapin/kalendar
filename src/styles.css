@@ -1357,27 +1357,81 @@ input {
   font-size: 11px;
 }
 
-.food-marker-pack-current {
+.food-marker-pack-select {
+  position: relative;
   display: grid;
   gap: 5px;
-  padding: 8px;
-  border: 1px solid #b79b5f;
-  border-radius: 6px;
-  color: #ccd5d1;
-  background: rgb(183 155 95 / 10%);
 }
 
-.food-marker-pack-current > strong {
+.food-marker-pack-select__label {
+  color: #bac4bf;
   font-size: 10px;
 }
 
-.food-marker-pack-current > small {
-  color: #87938d;
-  font-size: 9px;
-  line-height: 1.3;
+.food-marker-pack-select__trigger,
+.food-marker-pack-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px;
+  gap: 6px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #4a5751;
+  border-radius: 6px;
+  color: #dbe3df;
+  background: #1a211f;
+  text-align: left;
+  cursor: pointer;
+}
+
+.food-marker-pack-select__trigger {
+  border-color: #b79b5f;
+  background: rgb(183 155 95 / 10%);
+}
+
+.food-marker-pack-select__trigger:hover,
+.food-marker-pack-select__trigger:focus-visible,
+.food-marker-pack-option:hover,
+.food-marker-pack-option:focus-visible {
+  border-color: #d7b861;
+  outline: none;
+  background: rgb(183 155 95 / 16%);
+}
+
+.food-marker-pack-select__chevron,
+.food-marker-pack-option__check {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: center;
+  color: #e2c574;
+  font-size: 17px;
+}
+
+.food-marker-pack-select__menu {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 5px);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 6px;
+  max-height: min(430px, 62vh);
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid #6b785f;
+  border-radius: 7px;
+  background: #101614;
+  box-shadow: 0 16px 32px rgb(0 0 0 / 48%);
+}
+
+.food-marker-pack-option--selected {
+  border-color: #b79b5f;
+  background: rgb(183 155 95 / 13%);
 }
 
 .food-marker-pack-option__preview {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
@@ -1390,6 +1444,24 @@ input {
   border-radius: 4px;
   background: #eee8db;
   object-fit: contain;
+}
+
+.food-marker-pack-option__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.food-marker-pack-option__copy strong {
+  color: #e4e9e6;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.food-marker-pack-option__copy small {
+  color: #8f9b95;
+  font-size: 9px;
+  line-height: 1.3;
 }
 
 .commemoration-filter {
