@@ -9,7 +9,11 @@ import type {
 } from "../document/types";
 import { createElementOnOwnLayer, type ElementIdFactory } from "../editor/element-creation";
 import { applyDefaultCalendarCellGeometry } from "./calendar-cell-defaults";
-import { BRAND_LOGO_ASSET_ID, BRAND_LOGO_HEIGHT_RATIO } from "../document/branding";
+import {
+  BRAND_LOGO_ASSET_ID,
+  BRAND_LOGO_HEIGHT_RATIO,
+  BRAND_LOGO_LAYER_NAME,
+} from "../document/branding";
 
 export const RUSSIAN_MONTH_NAMES = [
   "Январь",
@@ -325,9 +329,11 @@ export function createCoverTemplatePage(
     brand.locked = true;
     const layer = page.layers.find((item) => item.id === brand.layerId);
     if (layer) {
-      layer.name = "Фирменный знак Календарной мастерской";
+      layer.name = BRAND_LOGO_LAYER_NAME;
       layer.locked = true;
       layer.color = "#c9a548";
+      layer.protected = true;
+      layer.pinnedToFront = true;
     }
   }
 

@@ -92,7 +92,11 @@ import {
 } from "./templates/calendar-templates";
 import { checkCalendarProject, type PreflightIssue } from "./preflight/project-preflight";
 import { copyCalendarGridPresentation } from "./templates/calendar-grid-settings";
-import { ensureCalendarWorkshopBranding } from "./document/branding";
+import {
+  calendarWorkshopBrandProtectedLayerIds,
+  ensureCalendarWorkshopBranding,
+  isCalendarWorkshopBrandElement,
+} from "./document/branding";
 import {
   SharedProjectApiError,
   confirmEmailVerification,
@@ -333,6 +337,17 @@ const selectedPageIndex = computed(() =>
 const selectedElement = computed(() =>
   selectedPage.value.elements.find((element) => element.id === selectedElementId.value),
 );
+const protectedBrandLayerIds = computed(() =>
+  calendarWorkshopBrandProtectedLayerIds(selectedPage.value),
+);
+const protectedBrandLayerIdSet = computed(() => new Set(protectedBrandLayerIds.value));
+const selectedElementIsProtectedBrand = computed(() =>
+  isCalendarWorkshopBrandElement(selectedPage.value, selectedElement.value),
+);
+const selectionIncludesProtectedBrand = computed(() =>
+  selectedElementIsProtectedBrand.value ||
+  selectedLayerIds.value.some((layerId) => protectedBrandLayerIdSet.value.has(layerId)),
+);
 const projectFileStatus = computed(() => {
   if (!projectFileName.value) return "Файл проекта не выбран";
   return savedProjectFileSnapshot.value === serializeEditableProject()
@@ -450,6 +465,10 @@ const selectedElementOverflowState = computed(() => {
 });
 const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
   const hasSelection = Boolean(selectedElement.value || selectedLayerIds.value.length > 0);
+  const protectedSelection = selectionIncludesProtectedBrand.value;
+  const protectedElementSelection = selectedLayerElements.value.some((element) =>
+    isCalendarWorkshopBrandElement(selectedPage.value, element),
+  );
   const textSelected =
     selectedElement.value?.type === "text" || selectedElement.value?.type === "month-text";
   return [
@@ -479,8 +498,8 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "undo", label: "Отменить", shortcut: "Ctrl+Z", disabled: undoStack.value.length === 0 },
         { command: "redo", label: "Повторить", shortcut: "Ctrl+Y", disabled: redoStack.value.length === 0 },
         { separator: true },
-        { command: "duplicate", label: "Дублировать", shortcut: "Ctrl+D", disabled: !selectedElement.value },
-        { command: "delete", label: "Удалить", shortcut: "Delete", disabled: !hasSelection },
+        { command: "duplicate", label: "Дублировать", shortcut: "Ctrl+D", disabled: !selectedElement.value || protectedSelection },
+        { command: "delete", label: "Удалить", shortcut: "Delete", disabled: !hasSelection || protectedSelection },
       ],
     },
     {
@@ -500,23 +519,23 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
       id: "object",
       label: "Объект",
       items: [
-        { command: "bring-front", label: "На самый верх", disabled: !hasSelection },
-        { command: "send-back", label: "На самый низ", disabled: !hasSelection },
-        { command: "group", label: "Объединить слои в папку", disabled: selectedLayerIds.value.length < 2 },
+        { command: "bring-front", label: "На самый верх", disabled: !hasSelection || protectedSelection },
+        { command: "send-back", label: "На самый низ", disabled: !hasSelection || protectedSelection },
+        { command: "group", label: "Объединить слои в папку", disabled: selectedLayerIds.value.length < 2 || protectedSelection },
         { separator: true },
-        { command: "align-object-left", label: "Выровнять по левому краю", disabled: selectedLayerElements.value.length < 2 },
-        { command: "align-object-center", label: "Выровнять по центру горизонтально", disabled: selectedLayerElements.value.length < 2 },
-        { command: "align-object-right", label: "Выровнять по правому краю", disabled: selectedLayerElements.value.length < 2 },
-        { command: "align-object-top", label: "Выровнять по верхнему краю", disabled: selectedLayerElements.value.length < 2 },
-        { command: "align-object-middle", label: "Выровнять по центру вертикально", disabled: selectedLayerElements.value.length < 2 },
-        { command: "align-object-bottom", label: "Выровнять по нижнему краю", disabled: selectedLayerElements.value.length < 2 },
-        { command: "distribute-horizontal", label: "Распределить по горизонтали", disabled: selectedLayerElements.value.length < 3 },
-        { command: "distribute-vertical", label: "Распределить по вертикали", disabled: selectedLayerElements.value.length < 3 },
+        { command: "align-object-left", label: "Выровнять по левому краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
+        { command: "align-object-center", label: "Выровнять по центру горизонтально", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
+        { command: "align-object-right", label: "Выровнять по правому краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
+        { command: "align-object-top", label: "Выровнять по верхнему краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
+        { command: "align-object-middle", label: "Выровнять по центру вертикально", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
+        { command: "align-object-bottom", label: "Выровнять по нижнему краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
+        { command: "distribute-horizontal", label: "Распределить по горизонтали", disabled: selectedLayerElements.value.length < 3 || protectedElementSelection },
+        { command: "distribute-vertical", label: "Распределить по вертикали", disabled: selectedLayerElements.value.length < 3 || protectedElementSelection },
         { separator: true },
-        { command: "toggle-lock", label: "Блокировать / разблокировать", disabled: !hasSelection },
-        { command: "toggle-visible", label: "Показать / скрыть", disabled: !hasSelection },
-        { command: "duplicate", label: "Дублировать", disabled: !selectedElement.value },
-        { command: "delete", label: "Удалить", disabled: !hasSelection },
+        { command: "toggle-lock", label: "Блокировать / разблокировать", disabled: !hasSelection || protectedSelection },
+        { command: "toggle-visible", label: "Показать / скрыть", disabled: !hasSelection || protectedSelection },
+        { command: "duplicate", label: "Дублировать", disabled: !selectedElement.value || protectedSelection },
+        { command: "delete", label: "Удалить", disabled: !hasSelection || protectedSelection },
       ],
     },
     {
@@ -1053,6 +1072,7 @@ async function initializeApplication(): Promise<void> {
 }
 
 function projectFileBlob(): Blob {
+  ensureCalendarWorkshopBranding(project.value);
   return new Blob([JSON.stringify(createProjectArchive(project.value), null, 2)], {
     type: "application/vnd.orthodox-calendar-project+json",
   });
@@ -1298,7 +1318,9 @@ async function createRecoveryPoint(label: string): Promise<void> {
 async function createNewProject(): Promise<void> {
   if (!requestVerifiedAction("new")) return;
   if (
-    project.value.document.pages.some((page) => page.elements.length > 0) &&
+    project.value.document.pages.some((page) =>
+      page.elements.some((element) => !isCalendarWorkshopBrandElement(page, element)),
+    ) &&
     !window.confirm("Создать новый проект? Текущий проект будет закрыт. Если он ещё не сохранён в файл, сначала нажмите «Сохранить как…».")
   ) return;
   await leaveSharedProject();
@@ -1324,7 +1346,9 @@ function selectPage(pageId: string): void {
 
 async function applyFullCalendarTemplate(): Promise<void> {
   if (
-    project.value.document.pages.some((page) => page.elements.length > 0) &&
+    project.value.document.pages.some((page) =>
+      page.elements.some((element) => !isCalendarWorkshopBrandElement(page, element)),
+    ) &&
     !window.confirm("Заменить все текущие страницы новой обложкой и 12 месяцами? Изменённые страницы будут удалены. После создания действие можно отменить через Ctrl+Z.")
   ) return;
   await createRecoveryPoint("Перед заменой страниц полным шаблоном");
@@ -1411,6 +1435,7 @@ function deleteCurrentPage(): void {
   const currentIndex = selectedPageIndex.value;
   mutateProject("Удаление страницы", () => {
     project.value.document.pages.splice(currentIndex, 1);
+    ensureCalendarWorkshopBranding(project.value);
   });
   const next = project.value.document.pages[Math.min(currentIndex, project.value.document.pages.length - 1)];
   if (next) selectPage(next.id);
@@ -1489,6 +1514,14 @@ function findLayer(layerId: string) {
   return findLayerLocation(selectedPage.value, layerId)?.node;
 }
 
+function rejectProtectedBrandChange(): void {
+  operationNotice.value = "Фирменный знак обязателен: он всегда виден, заблокирован и находится выше остальных слоёв";
+}
+
+function isProtectedBrandLayer(layerId: string | undefined): boolean {
+  return Boolean(layerId && protectedBrandLayerIdSet.value.has(layerId));
+}
+
 function addLayer(): void {
   const selected = findLayer(selectedLayerIds.value.at(-1) ?? "");
   const parentGroupId = selected?.kind === "group" ? selected.id : undefined;
@@ -1520,6 +1553,10 @@ function addLayerGroup(): void {
 }
 
 function groupSelectedLayers(): void {
+  if (selectionIncludesProtectedBrand.value) {
+    rejectProtectedBrandChange();
+    return;
+  }
   try {
     const group = mutateProject("Группировка слоёв", () =>
       groupLayerNodes(
@@ -1552,6 +1589,10 @@ function moveLayer(
   targetId: string,
   placement: "before" | "after" | "inside",
 ): void {
+  if (isProtectedBrandLayer(sourceId) || isProtectedBrandLayer(targetId)) {
+    rejectProtectedBrandChange();
+    return;
+  }
   try {
     mutateProject("Перемещение слоя", () =>
       moveLayerNode(selectedPage.value, sourceId, targetId, placement),
@@ -1563,6 +1604,10 @@ function moveLayer(
 }
 
 function renameLayer(layerId: string, name: string): void {
+  if (isProtectedBrandLayer(layerId)) {
+    rejectProtectedBrandChange();
+    return;
+  }
   const layer = findLayer(layerId);
   if (layer) mutateProject("Переименование слоя", () => (layer.name = name));
 }
@@ -1572,6 +1617,10 @@ function deleteSelection(): void {
     ? [selectedElement.value.layerId]
     : [...selectedLayerIds.value];
   if (ids.length === 0) return;
+  if (ids.some((id) => isProtectedBrandLayer(id))) {
+    rejectProtectedBrandChange();
+    return;
+  }
   try {
     let removedObjects = 0;
     mutateProject("Удаление выбранного", () => {
@@ -1590,6 +1639,10 @@ function deleteSelection(): void {
 function moveSelectionToEdge(edge: "front" | "back"): void {
   const nodeId = selectedElement.value?.layerId ?? selectedLayerIds.value.at(-1);
   if (!nodeId) return;
+  if (isProtectedBrandLayer(nodeId)) {
+    rejectProtectedBrandChange();
+    return;
+  }
   try {
     mutateProject(edge === "front" ? "На передний план" : "На задний план", () =>
       moveLayerNodeToEdge(selectedPage.value, nodeId, edge),
@@ -1602,12 +1655,20 @@ function moveSelectionToEdge(edge: "front" | "back"): void {
 
 function alignSelection(mode: AlignMode): void {
   if (selectedLayerElements.value.length < 2) return;
+  if (selectedLayerElements.value.some((element) => isCalendarWorkshopBrandElement(selectedPage.value, element))) {
+    rejectProtectedBrandChange();
+    return;
+  }
   mutateProject("Выравнивание объектов", () => alignElements(selectedLayerElements.value, mode));
   operationNotice.value = `Выровнено объектов: ${selectedLayerElements.value.length}`;
 }
 
 function distributeSelection(mode: DistributeMode): void {
   if (selectedLayerElements.value.length < 3) return;
+  if (selectedLayerElements.value.some((element) => isCalendarWorkshopBrandElement(selectedPage.value, element))) {
+    rejectProtectedBrandChange();
+    return;
+  }
   mutateProject("Распределение объектов", () => distributeElements(selectedLayerElements.value, mode));
   operationNotice.value = `Распределено объектов: ${selectedLayerElements.value.length}`;
 }
@@ -1615,6 +1676,10 @@ function distributeSelection(mode: DistributeMode): void {
 function duplicateSelection(): void {
   const elementId = selectedElementId.value;
   if (!elementId) return;
+  if (selectedElementIsProtectedBrand.value) {
+    rejectProtectedBrandChange();
+    return;
+  }
   const duplicated = mutateProject("Дублирование объекта", () =>
     duplicateElementOnOwnLayer(selectedPage.value, elementId),
   );
@@ -1661,12 +1726,20 @@ function updateElementNumber(
   const element = selectedElement.value;
   const value = Number((event.target as HTMLInputElement).value);
   if (!element || !Number.isFinite(value)) return;
+  if (selectedElementIsProtectedBrand.value) {
+    rejectProtectedBrandChange();
+    return;
+  }
   element[property] = property === "width" || property === "height" ? Math.max(0.2, value) : value;
 }
 
 function updateElementGeometry(elementId: string, frame: ElementFrame): void {
   const element = selectedPage.value.elements.find((item) => item.id === elementId);
   if (!element) return;
+  if (isCalendarWorkshopBrandElement(selectedPage.value, element)) {
+    rejectProtectedBrandChange();
+    return;
+  }
   element.x = frame.x;
   element.y = frame.y;
   element.width = Math.max(0.2, frame.width);
@@ -1888,6 +1961,10 @@ function placeSelectedLegend(edge: "top" | "bottom"): void {
 }
 
 function requestAssetFile(): void {
+  if (selectedElementIsProtectedBrand.value) {
+    rejectProtectedBrandChange();
+    return;
+  }
   assetFileInput.value?.click();
 }
 
@@ -2126,6 +2203,11 @@ async function importSelectedAsset(event: Event): Promise<void> {
   const file = input.files?.[0];
   const element = selectedElement.value;
   if (!file || !element || (element.type !== "image" && element.type !== "svg")) return;
+  if (isCalendarWorkshopBrandElement(selectedPage.value, element)) {
+    input.value = "";
+    rejectProtectedBrandChange();
+    return;
+  }
   const source = await readFileAsDataUrl(file);
   const dimensions = element.type === "image" && !/svg/i.test(file.type)
     ? await readRasterDimensions(source)
@@ -2340,8 +2422,24 @@ function toggleSelectedLayerProperty(property: "locked" | "visible"): void {
   const nodeId = selectedElement.value?.layerId ?? selectedLayerIds.value.at(-1);
   const node = nodeId ? findLayer(nodeId) : undefined;
   if (!node) return;
+  if (isProtectedBrandLayer(nodeId)) {
+    rejectProtectedBrandChange();
+    return;
+  }
   mutateProject(property === "locked" ? "Блокировка слоя" : "Видимость слоя", () => {
     node[property] = !node[property];
+  });
+}
+
+function toggleLayerPropertyById(layerId: string, property: "locked" | "visible"): void {
+  if (isProtectedBrandLayer(layerId)) {
+    rejectProtectedBrandChange();
+    return;
+  }
+  const layer = findLayer(layerId);
+  if (!layer) return;
+  mutateProject(property === "locked" ? "Блокировка слоя" : "Видимость слоя", () => {
+    layer[property] = !layer[property];
   });
 }
 
@@ -2455,6 +2553,7 @@ function updateFillColor(color: string): void {
 }
 
 function supportsElementOpacity(element: typeof selectedElement.value): boolean {
+  if (isCalendarWorkshopBrandElement(selectedPage.value, element)) return false;
   return element?.type === "text" || element?.type === "month-text" ||
     element?.type === "image" || element?.type === "svg" || element?.type === "shape";
 }
@@ -2613,6 +2712,10 @@ function handleKeydown(event: KeyboardEvent): void {
   }
   if (selectedElement.value && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
     event.preventDefault();
+    if (selectedElementIsProtectedBrand.value) {
+      rejectProtectedBrandChange();
+      return;
+    }
     const step = event.shiftKey ? 10 : 1;
     mutateProject("Перемещение с клавиатуры", () => {
       if (event.key === "ArrowLeft") selectedElement.value!.x -= step;
@@ -2744,10 +2847,10 @@ onBeforeUnmount(() => {
           <span class="context-controls__icon">
             {{ activeTool === "text" ? "T" : activeTool === "image" ? "▧" : "↖" }}
           </span>
-          <label><span>X</span><input :value="selectedElement?.x ?? '—'" :disabled="!selectedElement" type="number" step="0.1" @change="updateElementNumber('x', $event)" /></label>
-          <label><span>Y</span><input :value="selectedElement?.y ?? '—'" :disabled="!selectedElement" type="number" step="0.1" @change="updateElementNumber('y', $event)" /></label>
-          <label><span>W</span><input :value="selectedElement?.width ?? '—'" :disabled="!selectedElement" type="number" step="0.1" @change="updateElementNumber('width', $event)" /></label>
-          <label><span>H</span><input :value="selectedElement?.height ?? '—'" :disabled="!selectedElement" type="number" step="0.1" @change="updateElementNumber('height', $event)" /></label>
+          <label><span>X</span><input :value="selectedElement?.x ?? '—'" :disabled="!selectedElement || selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('x', $event)" /></label>
+          <label><span>Y</span><input :value="selectedElement?.y ?? '—'" :disabled="!selectedElement || selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('y', $event)" /></label>
+          <label><span>W</span><input :value="selectedElement?.width ?? '—'" :disabled="!selectedElement || selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('width', $event)" /></label>
+          <label><span>H</span><input :value="selectedElement?.height ?? '—'" :disabled="!selectedElement || selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('height', $event)" /></label>
           <span class="context-controls__unit">мм</span>
         </div>
         <div class="control-bar__status">
@@ -2851,11 +2954,11 @@ onBeforeUnmount(() => {
               <template v-if="selectedElement">
                 <dl class="property-list property-list--object">
                   <div><dt>Тип</dt><dd>{{ selectedElement.type }}</dd></div>
-                  <label><span>X</span><input :value="selectedElement.x" type="number" step="0.1" @change="updateElementNumber('x', $event)" /></label>
-                  <label><span>Y</span><input :value="selectedElement.y" type="number" step="0.1" @change="updateElementNumber('y', $event)" /></label>
-                  <label><span>Ширина</span><input :value="selectedElement.width" type="number" min="0.2" step="0.1" @change="updateElementNumber('width', $event)" /></label>
-                  <label><span>Высота</span><input :value="selectedElement.height" type="number" min="0.2" step="0.1" @change="updateElementNumber('height', $event)" /></label>
-                  <label><span>Поворот</span><input :value="selectedElement.rotation" type="number" step="1" @change="updateElementNumber('rotation', $event)" /></label>
+                  <label><span>X</span><input :value="selectedElement.x" :disabled="selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('x', $event)" /></label>
+                  <label><span>Y</span><input :value="selectedElement.y" :disabled="selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('y', $event)" /></label>
+                  <label><span>Ширина</span><input :value="selectedElement.width" :disabled="selectedElementIsProtectedBrand" type="number" min="0.2" step="0.1" @change="updateElementNumber('width', $event)" /></label>
+                  <label><span>Высота</span><input :value="selectedElement.height" :disabled="selectedElementIsProtectedBrand" type="number" min="0.2" step="0.1" @change="updateElementNumber('height', $event)" /></label>
+                  <label><span>Поворот</span><input :value="selectedElement.rotation" :disabled="selectedElementIsProtectedBrand" type="number" step="1" @change="updateElementNumber('rotation', $event)" /></label>
                 </dl>
 
                 <div v-if="supportsElementOpacity(selectedElement)" class="opacity-controls">
@@ -2898,16 +3001,22 @@ onBeforeUnmount(() => {
                 </div>
 
                 <div v-else-if="selectedElement.type === 'image' || selectedElement.type === 'svg'" class="object-properties">
-                  <button class="primary-action" type="button" @click="requestAssetFile">
-                    {{ selectedElement.assetId ? "Заменить файл…" : "Выбрать файл…" }}
-                  </button>
-                  <label v-if="selectedElement.type === 'image'" class="field-control"><span>Заполнение</span><select v-model="selectedElement.fit"><option value="crop">С обрезкой</option><option value="fit">Вписать</option><option value="fill">Растянуть</option></select></label>
-                  <label v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="field-control">
-                    <span>Цвет SVG</span>
-                    <input :value="selectedElement.decorColor ?? '#17201d'" type="color" @change="updateSelectedDecorColor" />
-                  </label>
-                  <button v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой цвет SVG</button>
-                  <p v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="property-help">Векторный элемент из библиотеки: цвет меняется без потери качества.</p>
+                  <div v-if="selectedElementIsProtectedBrand" class="protected-brand-notice" data-testid="protected-brand-notice">
+                    <strong>Обязательный фирменный знак</strong>
+                    <span>Всегда виден и находится на самом верхнем слое.</span>
+                  </div>
+                  <template v-else>
+                    <button class="primary-action" type="button" @click="requestAssetFile">
+                      {{ selectedElement.assetId ? "Заменить файл…" : "Выбрать файл…" }}
+                    </button>
+                    <label v-if="selectedElement.type === 'image'" class="field-control"><span>Заполнение</span><select v-model="selectedElement.fit"><option value="crop">С обрезкой</option><option value="fit">Вписать</option><option value="fill">Растянуть</option></select></label>
+                    <label v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="field-control">
+                      <span>Цвет SVG</span>
+                      <input :value="selectedElement.decorColor ?? '#17201d'" type="color" @change="updateSelectedDecorColor" />
+                    </label>
+                    <button v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой цвет SVG</button>
+                    <p v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="property-help">Векторный элемент из библиотеки: цвет меняется без потери качества.</p>
+                  </template>
                   <p v-if="selectedAssetInfo()" class="property-help">{{ selectedAssetInfo() }}</p>
                 </div>
 
@@ -3134,6 +3243,7 @@ onBeforeUnmount(() => {
           <LayersPanel
             :page="selectedPage"
             :selected-layer-ids="selectedLayerIds"
+            :protected-layer-ids="protectedBrandLayerIds"
             @select="selectLayer"
             @add="addLayer"
             @add-group="addLayerGroup"
@@ -3144,8 +3254,8 @@ onBeforeUnmount(() => {
             @rename="renameLayer"
             @move="moveLayer"
             @toggle-expanded="(id) => { const layer = findLayer(id); if (layer?.kind === 'group') layer.expanded = !layer.expanded; }"
-            @toggle-visible="(id) => { const layer = findLayer(id); if (layer) layer.visible = !layer.visible; }"
-            @toggle-locked="(id) => { const layer = findLayer(id); if (layer) layer.locked = !layer.locked; }"
+            @toggle-visible="toggleLayerPropertyById($event, 'visible')"
+            @toggle-locked="toggleLayerPropertyById($event, 'locked')"
           />
         </div>
 

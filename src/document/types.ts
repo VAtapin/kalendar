@@ -239,6 +239,10 @@ export interface PageLayerBase {
   visible: boolean;
   locked: boolean;
   color: string;
+  /** A system layer that the editor must not rename, move, hide or remove. */
+  protected?: boolean;
+  /** Keeps this layer above ordinary printable layers. */
+  pinnedToFront?: boolean;
 }
 
 /** A leaf in the page layer tree. It may contain zero or one printable object. */

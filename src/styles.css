@@ -1827,6 +1827,22 @@ input {
   border-top: 1px solid #38423e;
 }
 
+.protected-brand-notice {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid #806f44;
+  border-radius: 5px;
+  color: #d8c995;
+  background: linear-gradient(145deg, rgb(212 175 55 / 12%), rgb(255 255 255 / 2%));
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.protected-brand-notice strong {
+  color: #f0d87e;
+}
+
 .opacity-controls,
 .gradient-controls {
   display: grid;

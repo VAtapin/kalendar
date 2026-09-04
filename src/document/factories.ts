@@ -7,7 +7,11 @@ import type {
   PageOrientation,
   StyleTheme,
 } from "./types";
-import { createBrandLogoAsset, BRAND_LOGO_ASSET_ID } from "./branding";
+import {
+  createBrandLogoAsset,
+  ensureCalendarWorkshopBranding,
+  BRAND_LOGO_ASSET_ID,
+} from "./branding";
 
 export const PAGE_FORMATS: Readonly<
   Record<PageFormatId, { label: string; width: number; height: number }>
@@ -176,7 +180,7 @@ function createDefaultTheme(): StyleTheme {
 }
 
 export function createBlankCalendarProject(year = 2027): CalendarProject {
-  return {
+  const project: CalendarProject = {
     schemaVersion: 1,
     layoutRevision: 6,
     id: "calendar-project",
@@ -203,4 +207,6 @@ export function createBlankCalendarProject(year = 2027): CalendarProject {
     foodMarkerAssets: {},
     document: createBlankA3Document(),
   };
+  ensureCalendarWorkshopBranding(project);
+  return project;
 }

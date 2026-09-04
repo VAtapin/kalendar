@@ -13,6 +13,7 @@ interface DisplayRow {
 const props = defineProps<{
   page: PageModel;
   selectedLayerIds: string[];
+  protectedLayerIds?: string[];
 }>();
 
 const emit = defineEmits<{
@@ -63,13 +64,20 @@ const displayRows = computed<DisplayRow[]>(() => {
 const primarySelectionId = computed(
   () => props.selectedLayerIds[props.selectedLayerIds.length - 1],
 );
+const protectedLayerIdSet = computed(() => new Set(props.protectedLayerIds ?? []));
+const protectedSelection = computed(() =>
+  props.selectedLayerIds.some((id) => protectedLayerIdSet.value.has(id)),
+);
+const primarySelectionProtected = computed(() =>
+  Boolean(primarySelectionId.value && protectedLayerIdSet.value.has(primarySelectionId.value)),
+);
 
 function objectCount(node: PageLayerNode): number {
   return node.kind === "group" ? countObjectLayers(node.children) : node.elementId ? 1 : 0;
 }
 
 function beginRename(nodeId: string | undefined): void {
-  if (!nodeId) return;
+  if (!nodeId || protectedLayerIdSet.value.has(nodeId)) return;
   const node = displayRows.value.find((row) => row.node.id === nodeId)?.node;
   if (!node) return;
   editingNodeId.value = nodeId;
@@ -91,7 +99,12 @@ function cancelRename(): void {
 function dropOn(target: PageLayerNode, event: DragEvent): void {
   const sourceId = draggedNodeId.value;
   draggedNodeId.value = undefined;
-  if (!sourceId || sourceId === target.id) return;
+  if (
+    !sourceId ||
+    sourceId === target.id ||
+    protectedLayerIdSet.value.has(sourceId) ||
+    protectedLayerIdSet.value.has(target.id)
+  ) return;
   const bounds = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect();
   const after = bounds ? event.clientY > bounds.top + bounds.height / 2 : false;
   const placement = target.kind === "group" && !event.shiftKey
@@ -103,6 +116,7 @@ function dropOn(target: PageLayerNode, event: DragEvent): void {
 }
 
 function beginDrag(nodeId: string, event: DragEvent): void {
+  if (protectedLayerIdSet.value.has(nodeId)) return;
   draggedNodeId.value = nodeId;
   event.dataTransfer?.setData("text/plain", nodeId);
   if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
@@ -117,15 +131,15 @@ function beginDrag(nodeId: string, event: DragEvent): void {
       <button
         type="button"
         title="Объединить выбранные слои в папку"
-        :disabled="selectedLayerIds.length < 2"
+        :disabled="selectedLayerIds.length < 2 || protectedSelection"
         @click="emit('groupSelected')"
       >
         ⊞
       </button>
-      <button type="button" title="Переименовать" @click="beginRename(primarySelectionId)">✎</button>
-      <button type="button" title="На самый верх" :disabled="!primarySelectionId" @click="emit('bringFront')">⇈</button>
-      <button type="button" title="На самый низ" :disabled="!primarySelectionId" @click="emit('sendBack')">⇊</button>
-      <button type="button" title="Удалить выбранное (Delete)" :disabled="selectedLayerIds.length === 0" @click="emit('deleteSelected')">⌫</button>
+      <button type="button" title="Переименовать" :disabled="!primarySelectionId || primarySelectionProtected" @click="beginRename(primarySelectionId)">✎</button>
+      <button type="button" title="На самый верх" :disabled="!primarySelectionId || primarySelectionProtected" @click="emit('bringFront')">⇈</button>
+      <button type="button" title="На самый низ" :disabled="!primarySelectionId || primarySelectionProtected" @click="emit('sendBack')">⇊</button>
+      <button type="button" title="Удалить выбранное (Delete)" :disabled="selectedLayerIds.length === 0 || protectedSelection" @click="emit('deleteSelected')">⌫</button>
     </div>
 
     <div class="layer-list" role="tree" aria-label="Слои страницы">
@@ -147,7 +161,7 @@ function beginDrag(nodeId: string, event: DragEvent): void {
           'layer-row--inherited-hidden': row.inheritedHidden,
         }"
         :style="{ '--layer-depth': row.depth }"
-        :draggable="!row.inheritedLocked && !row.node.locked"
+        :draggable="!row.inheritedLocked && !row.node.locked && !protectedLayerIdSet.has(row.node.id)"
         role="treeitem"
         :aria-level="row.depth + 1"
         :aria-expanded="row.node.kind === 'group' ? row.node.expanded : undefined"
@@ -171,7 +185,8 @@ function beginDrag(nodeId: string, event: DragEvent): void {
         <button
           class="layer-row__icon"
           type="button"
-          :title="row.node.visible ? 'Скрыть' : 'Показать'"
+          :title="protectedLayerIdSet.has(row.node.id) ? 'Обязательный фирменный знак всегда виден' : row.node.visible ? 'Скрыть' : 'Показать'"
+          :disabled="protectedLayerIdSet.has(row.node.id)"
           @click.stop="emit('toggleVisible', row.node.id)"
         >
           {{ row.node.visible ? "◉" : "○" }}
@@ -179,7 +194,8 @@ function beginDrag(nodeId: string, event: DragEvent): void {
         <button
           class="layer-row__icon"
           type="button"
-          :title="row.node.locked ? 'Разблокировать' : 'Заблокировать'"
+          :title="protectedLayerIdSet.has(row.node.id) ? 'Обязательный фирменный знак всегда заблокирован' : row.node.locked ? 'Разблокировать' : 'Заблокировать'"
+          :disabled="protectedLayerIdSet.has(row.node.id)"
           @click.stop="emit('toggleLocked', row.node.id)"
         >
           {{ row.node.locked || row.inheritedLocked ? "◆" : "◇" }}

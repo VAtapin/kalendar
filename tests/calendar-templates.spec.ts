@@ -6,7 +6,8 @@ import {
   requiredMonthWeekRows,
 } from "../src/templates/calendar-templates";
 import { flattenObjectLayers } from "../src/document/layer-operations";
-import { BRAND_LOGO_ASSET_ID } from "../src/document/branding";
+import { BRAND_LOGO_ASSET_ID, BRAND_LOGO_LAYER_NAME } from "../src/document/branding";
+import { createElementOnOwnLayer } from "../src/editor/element-creation";
 
 describe("calendar templates", () => {
   it("creates a cover and twelve independent month pages", () => {
@@ -19,11 +20,22 @@ describe("calendar templates", () => {
 
   it("locks the monastery wordmark onto every generated calendar cover", () => {
     const cover = createFullCalendarTemplate("A3", "portrait", 2027, "Издатель")[0];
+    if (!cover) throw new Error("Expected cover");
     const wordmark = cover?.elements.find(
       (element) => element.type === "image" && element.assetId === BRAND_LOGO_ASSET_ID,
     );
     expect(wordmark).toMatchObject({ type: "image", locked: true, visible: true });
-    expect(cover?.layers.find((layer) => layer.id === wordmark?.layerId)).toMatchObject({ locked: true, visible: true });
+    expect(cover.layers.find((layer) => layer.id === wordmark?.layerId)).toMatchObject({
+      name: BRAND_LOGO_LAYER_NAME,
+      locked: true,
+      visible: true,
+      protected: true,
+      pinnedToFront: true,
+    });
+    expect(flattenObjectLayers(cover.layers).at(-1)?.layer.id).toBe(wordmark?.layerId);
+
+    createElementOnOwnLayer(cover, "rectangle", { x: 10, y: 10, width: 30, height: 30 });
+    expect(flattenObjectLayers(cover.layers).at(-1)?.layer.id).toBe(wordmark?.layerId);
   });
 
   it("keeps every template object on its own layer", () => {

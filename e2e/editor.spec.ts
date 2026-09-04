@@ -38,6 +38,32 @@ test("inserts a print-ready transparent gold ornament from the objects library",
   await expect(page.locator(".status-bar__notice")).toContainText("300 dpi");
 });
 
+test("keeps the compulsory workshop logo immutable on the top layer", async ({ page }) => {
+  await openEditor(page);
+  const logo = page.locator('g.page-element[data-element-type="image"]').filter({
+    has: page.locator('image[href="/brand/logo-kalendar.png"]'),
+  });
+  await expect(logo).toHaveCount(1);
+  await page.getByRole("tab", { name: "Слои" }).click();
+  const brandRow = page.locator(".layer-row").filter({ hasText: "Фирменный знак Календарной мастерской" });
+  await expect(brandRow).toHaveCount(1);
+  await brandRow.click();
+  await expect(brandRow.locator("button").nth(0)).toBeDisabled();
+  await expect(brandRow.locator("button").nth(1)).toBeDisabled();
+  await expect(page.locator('.layers-toolbar button[title="Удалить выбранное (Delete)"]')).toBeDisabled();
+
+  await page.getByRole("tab", { name: "Свойства" }).click();
+  await expect(page.getByTestId("protected-brand-notice")).toContainText("самом верхнем слое");
+  await expect(page.getByTestId("object-opacity")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Заменить файл…" })).toHaveCount(0);
+  await expect(page.locator(".property-list--object input")).toHaveCount(5);
+  await expect(page.locator(".property-list--object input:enabled")).toHaveCount(0);
+
+  await page.getByRole("tab", { name: "Слои" }).click();
+  await page.locator('.layers-toolbar button[title="Новый пустой слой"]').click();
+  await expect(page.locator(".layer-row").first()).toContainText("Фирменный знак Календарной мастерской");
+});
+
 test("separates gold and SVG object collections", async ({ page }) => {
   await openEditor(page);
   await page.getByRole("tab", { name: "Элементы" }).click();

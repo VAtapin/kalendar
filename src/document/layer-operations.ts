@@ -30,10 +30,19 @@ function highestOrder(nodes: PageLayerNode[]): number {
   return Math.max(-1, ...nodes.map((node) => node.order));
 }
 
+function topToBottom(nodes: PageLayerNode[]): PageLayerNode[] {
+  return [...nodes].sort((left, right) => {
+    if (Boolean(left.pinnedToFront) !== Boolean(right.pinnedToFront)) {
+      return left.pinnedToFront ? -1 : 1;
+    }
+    return right.order - left.order;
+  });
+}
+
 function normalizeOrdersTopToBottom(nodes: PageLayerNode[]): void {
-  const topToBottom = [...nodes].sort((left, right) => right.order - left.order);
-  const total = topToBottom.length;
-  topToBottom.forEach((node, index) => {
+  const ordered = topToBottom(nodes);
+  const total = ordered.length;
+  ordered.forEach((node, index) => {
     node.order = total - index - 1;
   });
 }
@@ -90,6 +99,7 @@ export function createEmptyLayer(
     color: "#9868a8",
   };
   siblings.push(layer);
+  normalizeOrdersTopToBottom(siblings);
   return layer;
 }
 
@@ -119,6 +129,7 @@ export function createLayerGroup(
     children: [],
   };
   siblings.push(group);
+  normalizeOrdersTopToBottom(siblings);
   return group;
 }
 
@@ -176,10 +187,10 @@ export function moveLayerNode(
   const source = findLayerLocation(page, sourceId);
   const target = findLayerLocation(page, targetId);
   if (!source || !target || sourceId === targetId) return;
-  if (source.node.locked || source.ancestors.some((group) => group.locked)) {
+  if (source.node.protected || source.node.pinnedToFront || source.node.locked || source.ancestors.some((group) => group.locked || group.protected)) {
     throw new LayerOperationError(`Слой ${source.node.name} заблокирован`);
   }
-  if (target.node.locked || target.ancestors.some((group) => group.locked)) {
+  if (target.node.protected || target.node.pinnedToFront || target.node.locked || target.ancestors.some((group) => group.locked || group.protected)) {
     throw new LayerOperationError(`Целевая папка или слой заблокированы`);
   }
   if (source.node.kind === "group" && containsNode(source.node, targetId)) {
@@ -202,11 +213,12 @@ export function moveLayerNode(
 
   const refreshedTarget = findLayerLocation(page, targetId);
   if (!refreshedTarget) return;
-  const topToBottom = [...refreshedTarget.siblings].sort((a, b) => b.order - a.order);
-  const targetIndex = topToBottom.findIndex((node) => node.id === targetId);
-  topToBottom.splice(placement === "after" ? targetIndex + 1 : targetIndex, 0, source.node);
-  refreshedTarget.siblings.splice(0, refreshedTarget.siblings.length, ...topToBottom);
+  const ordered = topToBottom(refreshedTarget.siblings);
+  const targetIndex = ordered.findIndex((node) => node.id === targetId);
+  ordered.splice(placement === "after" ? targetIndex + 1 : targetIndex, 0, source.node);
+  refreshedTarget.siblings.splice(0, refreshedTarget.siblings.length, ...ordered);
   assignOrdersFromTopToBottom(refreshedTarget.siblings);
+  normalizeOrdersTopToBottom(refreshedTarget.siblings);
 }
 
 export function moveLayerNodeToEdge(
@@ -216,7 +228,7 @@ export function moveLayerNodeToEdge(
 ): void {
   const location = findLayerLocation(page, nodeId);
   if (!location) return;
-  if (location.node.locked || location.ancestors.some((group) => group.locked)) {
+  if (location.node.protected || location.node.pinnedToFront || location.node.locked || location.ancestors.some((group) => group.locked || group.protected)) {
     throw new LayerOperationError(`Слой ${location.node.name} заблокирован`);
   }
   location.node.order =
@@ -230,8 +242,10 @@ export function removeLayerNode(page: PageModel, nodeId: string): string[] {
   const location = findLayerLocation(page, nodeId);
   if (!location) return [];
   if (
+    location.node.protected ||
+    location.node.pinnedToFront ||
     location.node.locked ||
-    location.ancestors.some((group) => group.locked) ||
+    location.ancestors.some((group) => group.locked || group.protected) ||
     containsLockedNode(location.node)
   ) {
     throw new LayerOperationError(`Слой или папка ${location.node.name} заблокированы`);
@@ -266,6 +280,9 @@ export function groupLayerNodes(
     throw new LayerOperationError("Один из выбранных слоёв не найден");
   }
   const resolved = locations as LayerLocation[];
+  if (resolved.some((location) => location.node.protected || location.node.pinnedToFront || location.node.locked || location.ancestors.some((group) => group.locked || group.protected))) {
+    throw new LayerOperationError("Защищённый слой нельзя объединить в папку");
+  }
   const siblings = resolved[0]!.siblings;
   if (!resolved.every((location) => location.siblings === siblings)) {
     throw new LayerOperationError("Объединять можно слои одного уровня");
