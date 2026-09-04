@@ -31,6 +31,8 @@ import type {
   CalendarGridElement,
   CalendarProject,
   CommemorationRankFilterId,
+  ElementMaskStroke,
+  ElementMaskStrokeMode,
   ImageElement,
   MonasteryEvent,
   PageFormatId,
@@ -132,6 +134,8 @@ const project = ref(createBlankCalendarProject());
 const zoomPercent = ref(55);
 const showGuides = ref(true);
 const activeTool = ref<EditorTool>("selection");
+const maskBrushMode = ref<ElementMaskStrokeMode>("hide");
+const maskBrushSizeMm = ref(12);
 const selectedLayerIds = ref(["layer-1"]);
 const selectedPageId = ref(project.value.document.pages[0]?.id ?? "");
 const selectedElementId = ref<string>();
@@ -1750,6 +1754,75 @@ function updateElementGeometry(elementId: string, frame: ElementFrame): void {
   }
 }
 
+function imageCropPositionPercent(element: ImageElement, axis: "x" | "y"): number {
+  const normalized = element.crop?.[axis] ?? 0.5;
+  return Math.round((Math.max(0, Math.min(1, normalized)) - 0.5) * 200);
+}
+
+function updateImageCropPosition(element: ImageElement, axis: "x" | "y", event: Event): void {
+  if (selectedElementIsProtectedBrand.value) {
+    rejectProtectedBrandChange();
+    return;
+  }
+  const value = Number((event.target as HTMLInputElement).value);
+  if (!Number.isFinite(value)) return;
+  element.crop ??= { x: 0.5, y: 0.5, width: 1, height: 1 };
+  element.crop[axis] = Math.max(0, Math.min(1, value / 200 + 0.5));
+}
+
+function resetImageCropPosition(element: ImageElement): void {
+  if (selectedElementIsProtectedBrand.value) {
+    rejectProtectedBrandChange();
+    return;
+  }
+  mutateProject("Центрирование кадра", () => {
+    element.crop = { x: 0.5, y: 0.5, width: 1, height: 1 };
+  });
+  operationNotice.value = "Кадр снова расположен по центру";
+}
+
+function updateSelectedCornerRadius(event: Event): void {
+  const element = selectedElement.value;
+  const value = Number((event.target as HTMLInputElement).value);
+  if (!element || selectedElementIsProtectedBrand.value || !Number.isFinite(value)) return;
+  element.cornerRadiusMm = Math.max(0, Math.min(value, element.width / 2, element.height / 2));
+}
+
+function applyElementMaskStroke(elementId: string, stroke: ElementMaskStroke): void {
+  const element = selectedPage.value.elements.find((item) => item.id === elementId);
+  if (!element) return;
+  if (isCalendarWorkshopBrandElement(selectedPage.value, element)) {
+    rejectProtectedBrandChange();
+    return;
+  }
+  mutateProject(stroke.mode === "hide" ? "Скрытие маской" : "Восстановление маской", () => {
+    element.mask ??= { enabled: true, strokes: [] };
+    element.mask.enabled = true;
+    element.mask.strokes.push(stroke);
+  });
+  selectedElementId.value = elementId;
+  selectedLayerIds.value = [element.layerId];
+  activeDockPanel.value = "properties";
+  operationNotice.value = stroke.mode === "hide" ? "Область скрыта маской" : "Область восстановлена маской";
+}
+
+function clearSelectedElementMask(): void {
+  const element = selectedElement.value;
+  if (!element || selectedElementIsProtectedBrand.value || !element.mask?.strokes.length) return;
+  mutateProject("Очистка маски", () => {
+    element.mask = undefined;
+  });
+  operationNotice.value = "Маска очищена";
+}
+
+function setSelectedElementMaskEnabled(enabled: boolean): void {
+  const element = selectedElement.value;
+  if (!element || selectedElementIsProtectedBrand.value || !element.mask) return;
+  mutateProject(enabled ? "Включение маски" : "Отключение маски", () => {
+    element.mask!.enabled = enabled;
+  });
+}
+
 function updateWeekdayLabel(element: CalendarGridElement, index: number, value: string): void {
   const defaults = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
   const labels = Array.from(
@@ -2532,9 +2605,11 @@ function selectTool(tool: EditorTool): void {
     line: "Линия",
     svg: "SVG и декор",
     "calendar-grid": "Календарная сетка",
+    mask: "Маска объекта",
     hand: "Рука",
     zoom: "Масштаб",
   };
+  if (tool === "mask") activeDockPanel.value = "properties";
   operationNotice.value = `Инструмент: ${labels[tool]}`;
 }
 
@@ -2732,6 +2807,7 @@ function handleKeydown(event: KeyboardEvent): void {
     m: "rectangle",
     l: "ellipse",
     "\\": "line",
+    q: "mask",
     h: "hand",
     z: "zoom",
   };
@@ -2905,11 +2981,14 @@ onBeforeUnmount(() => {
         :show-guides="showGuides"
         :active-tool="activeTool"
         :selected-element-id="selectedElementId"
+        :mask-brush-mode="maskBrushMode"
+        :mask-brush-size-mm="maskBrushSizeMm"
         @create="createElement"
         @select="selectElement"
         @update-geometry="updateElementGeometry"
         @geometry-start="beginContinuousEdit"
         @geometry-end="endContinuousEdit"
+        @mask-stroke="applyElementMaskStroke"
       />
 
       <div
@@ -2978,6 +3057,39 @@ onBeforeUnmount(() => {
                   />
                 </div>
 
+                <div v-if="!selectedElementIsProtectedBrand" class="mask-controls" data-testid="mask-controls">
+                  <label class="field-control">
+                    <span>Скругление, мм</span>
+                    <input
+                      data-testid="corner-radius"
+                      :value="selectedElement.cornerRadiusMm ?? 0"
+                      type="number"
+                      min="0"
+                      :max="Math.min(selectedElement.width, selectedElement.height) / 2"
+                      step="0.5"
+                      @input="updateSelectedCornerRadius"
+                    />
+                  </label>
+                  <div class="mask-controls__heading">
+                    <strong>Маска объекта</strong>
+                    <span>Рисуйте прямо по объекту</span>
+                  </div>
+                  <div class="button-pair">
+                    <button type="button" :class="{ active: maskBrushMode === 'hide' }" @click="maskBrushMode = 'hide'; selectTool('mask')">Скрыть</button>
+                    <button type="button" :class="{ active: maskBrushMode === 'reveal' }" @click="maskBrushMode = 'reveal'; selectTool('mask')">Вернуть</button>
+                  </div>
+                  <label class="field-control">
+                    <span>Кисть, мм</span>
+                    <input v-model.number="maskBrushSizeMm" data-testid="mask-brush-size" type="number" min="0.5" max="100" step="0.5" />
+                  </label>
+                  <label v-if="selectedElement.mask?.strokes.length" class="checkbox-field">
+                    <input :checked="selectedElement.mask.enabled !== false" type="checkbox" @change="setSelectedElementMaskEnabled(($event.target as HTMLInputElement).checked)" />
+                    <span>Показывать маску (штрихов: {{ selectedElement.mask.strokes.length }})</span>
+                  </label>
+                  <button v-if="selectedElement.mask?.strokes.length" type="button" @click="clearSelectedElementMask">Очистить маску</button>
+                  <p class="property-help">Чёрная кисть скрывает, белая возвращает. Исходный объект не изменяется.</p>
+                </div>
+
                 <div v-if="selectedElement.type === 'text' || selectedElement.type === 'month-text'" class="object-properties">
                   <label class="field-stack"><span>Текст</span><textarea v-model="selectedElement.content.title" rows="3"></textarea></label>
                   <label v-if="selectedElement.type === 'month-text'" class="field-stack"><span>Автор / источник</span><input v-model="selectedElement.attribution" type="text" /></label>
@@ -3010,6 +3122,18 @@ onBeforeUnmount(() => {
                       {{ selectedElement.assetId ? "Заменить файл…" : "Выбрать файл…" }}
                     </button>
                     <label v-if="selectedElement.type === 'image'" class="field-control"><span>Заполнение</span><select v-model="selectedElement.fit"><option value="crop">С обрезкой</option><option value="fit">Вписать</option><option value="fill">Растянуть</option></select></label>
+                    <div v-if="selectedElement.type === 'image' && selectedElement.fit === 'crop'" class="crop-position-controls" data-testid="crop-position-controls">
+                      <strong>Положение кадра</strong>
+                      <label class="field-control">
+                        <span>По горизонтали: {{ imageCropPositionPercent(selectedElement, 'x') }}%</span>
+                        <input :value="imageCropPositionPercent(selectedElement, 'x')" data-testid="crop-position-x" type="range" min="-100" max="100" step="1" @input="updateImageCropPosition(selectedElement, 'x', $event)" />
+                      </label>
+                      <label class="field-control">
+                        <span>По вертикали: {{ imageCropPositionPercent(selectedElement, 'y') }}%</span>
+                        <input :value="imageCropPositionPercent(selectedElement, 'y')" data-testid="crop-position-y" type="range" min="-100" max="100" step="1" @input="updateImageCropPosition(selectedElement, 'y', $event)" />
+                      </label>
+                      <button type="button" @click="resetImageCropPosition(selectedElement)">По центру</button>
+                    </div>
                     <label v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="field-control">
                       <span>Цвет SVG</span>
                       <input :value="selectedElement.decorColor ?? '#17201d'" type="color" @change="updateSelectedDecorColor" />

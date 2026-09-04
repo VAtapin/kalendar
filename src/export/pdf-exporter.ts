@@ -8,6 +8,8 @@ import {
   PDFOperatorNames,
   PDFString,
   TextRenderingMode,
+  LineCapStyle,
+  LineJoinStyle,
   type PDFFont,
   type PDFImage,
   type PDFPage,
@@ -18,6 +20,8 @@ import {
   concatTransformationMatrix,
   endText,
   endPath,
+  fill,
+  lineTo,
   moveTo,
   popGraphicsState,
   pushGraphicsState,
@@ -26,9 +30,15 @@ import {
   setCharacterSpacing,
   setFontAndSize,
   setGraphicsState,
+  setFillingGrayscaleColor,
+  setLineCap,
+  setLineJoin,
+  setLineWidth,
+  setStrokingGrayscaleColor,
   setTextMatrix,
   setTextRenderingMode,
   showText,
+  stroke,
 } from "pdf-lib";
 import type { OrthodoxCalendarYear } from "../calendar";
 import {
@@ -84,6 +94,7 @@ import {
   type BundledFontFamily,
 } from "../typography/font-catalog";
 import { buildCropMarkSegments } from "./print-marks";
+import { calculateImagePlacement } from "../document/image-placement";
 
 export const MM_TO_PT = 72 / 25.4;
 
@@ -207,18 +218,16 @@ function chooseFont(fonts: EmbeddedFonts, typography: TextTypography): PDFFont {
   return fonts.regular;
 }
 
-function withElementRotation(
+function beginElementRotation(
   context: PageContext,
   element: LayoutElementNode,
-  draw: () => void,
-): void {
-  if (!element.rotation) {
-    draw();
-    return;
-  }
+): boolean {
+  if (!element.rotation) return false;
   const centerX = xPt(context, element.x + element.width / 2);
   const centerY = bottomPt(context, element.y + element.height / 2);
-  const radians = (element.rotation * Math.PI) / 180;
+  // SVG/canvas use a top-left coordinate system, while PDF uses bottom-left.
+  // Negating the angle keeps clockwise editor rotation identical in print.
+  const radians = (-element.rotation * Math.PI) / 180;
   const cos = Math.cos(radians);
   const sin = Math.sin(radians);
   context.pdfPage.pushOperators(
@@ -232,8 +241,108 @@ function withElementRotation(
       centerY - sin * centerX - cos * centerY,
     ),
   );
-  draw();
-  context.pdfPage.pushOperators(popGraphicsState());
+  return true;
+}
+
+function roundedRectanglePath(x: number, y: number, width: number, height: number, radius: number): PDFOperator[] {
+  const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+  if (r <= 0) return [rectangle(x, y, width, height)];
+  const k = 0.5522847498;
+  return [
+    moveTo(x + r, y),
+    lineTo(x + width - r, y),
+    appendBezierCurve(x + width - r + k * r, y, x + width, y + r - k * r, x + width, y + r),
+    lineTo(x + width, y + height - r),
+    appendBezierCurve(x + width, y + height - r + k * r, x + width - r + k * r, y + height, x + width - r, y + height),
+    lineTo(x + r, y + height),
+    appendBezierCurve(x + r - k * r, y + height, x, y + height - r + k * r, x, y + height - r),
+    lineTo(x, y + r),
+    appendBezierCurve(x, y + r - k * r, x + r - k * r, y, x + r, y),
+    closePath(),
+  ];
+}
+
+function circlePath(x: number, y: number, radius: number): PDFOperator[] {
+  const k = 0.5522847498;
+  return [
+    moveTo(x + radius, y),
+    appendBezierCurve(x + radius, y + k * radius, x + k * radius, y + radius, x, y + radius),
+    appendBezierCurve(x - k * radius, y + radius, x - radius, y + k * radius, x - radius, y),
+    appendBezierCurve(x - radius, y - k * radius, x - k * radius, y - radius, x, y - radius),
+    appendBezierCurve(x + k * radius, y - radius, x + radius, y - k * radius, x + radius, y),
+    closePath(),
+  ];
+}
+
+function beginElementMask(context: PageContext, element: LayoutElementNode): boolean {
+  const radius = Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
+  const strokes = element.mask?.enabled === false ? [] : element.mask?.strokes ?? [];
+  if (radius <= 0 && strokes.length === 0) return false;
+
+  const frameX = xPt(context, element.x);
+  const frameY = bottomPt(context, element.y, element.height);
+  const frameWidth = mm(element.width);
+  const frameHeight = mm(element.height);
+  const operators: PDFOperator[] = [
+    pushGraphicsState(),
+    ...roundedRectanglePath(frameX, frameY, frameWidth, frameHeight, mm(radius)),
+    clip(),
+    endPath(),
+    setFillingGrayscaleColor(1),
+    rectangle(frameX, frameY, frameWidth, frameHeight),
+    fill(),
+  ];
+  for (const item of strokes) {
+    const points = item.points.filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+    if (!points.length) continue;
+    const gray = item.mode === "hide" ? 0 : 1;
+    const pointX = (point: { x: number }) => frameX + Math.max(0, Math.min(1, point.x)) * frameWidth;
+    const pointY = (point: { y: number }) => frameY + (1 - Math.max(0, Math.min(1, point.y))) * frameHeight;
+    if (points.length === 1) {
+      operators.push(
+        setFillingGrayscaleColor(gray),
+        ...circlePath(pointX(points[0]!), pointY(points[0]!), mm(Math.max(0.5, item.sizeMm)) / 2),
+        fill(),
+      );
+      continue;
+    }
+    operators.push(
+      setStrokingGrayscaleColor(gray),
+      setLineWidth(mm(Math.max(0.5, item.sizeMm))),
+      setLineCap(LineCapStyle.Round),
+      setLineJoin(LineJoinStyle.Round),
+      moveTo(pointX(points[0]!), pointY(points[0]!)),
+      ...points.slice(1).map((point) => lineTo(pointX(point), pointY(point))),
+      stroke(),
+    );
+  }
+  operators.push(popGraphicsState());
+
+  const pdfContext = context.pdfDocument.context;
+  const group = pdfContext.formXObject(operators, {
+    BBox: [0, 0, context.pdfPage.getWidth(), context.pdfPage.getHeight()],
+    Group: {
+      Type: "Group",
+      S: "Transparency",
+      CS: "DeviceGray",
+      I: true,
+      K: false,
+    },
+    Resources: {},
+  });
+  const groupReference = pdfContext.register(group);
+  const graphicsState = pdfContext.obj({
+    Type: "ExtGState",
+    SMask: {
+      Type: "Mask",
+      S: "Luminosity",
+      G: groupReference,
+      BC: [0],
+    },
+  });
+  const key = context.pdfPage.node.newExtGState("ObjectMask", graphicsState);
+  context.pdfPage.pushOperators(pushGraphicsState(), setGraphicsState(key));
+  return true;
 }
 
 function alignedX(
@@ -650,24 +759,21 @@ async function drawImageElement(
     return;
   }
 
+  const placement = calculateImagePlacement(
+    { x: element.x, y: element.y, width: element.width, height: element.height },
+    embedded.width,
+    embedded.height,
+    element.type === "image" ? element.fit : "fit",
+    element.type === "image" ? element.crop : undefined,
+  );
   const frameX = xPt(context, element.x);
   const frameY = bottomPt(context, element.y, element.height);
   const frameWidth = mm(element.width);
   const frameHeight = mm(element.height);
-  const ratio = embedded.width / embedded.height;
-  let drawWidth = frameWidth;
-  let drawHeight = frameHeight;
-  if (element.type === "svg" || element.fit !== "fill") {
-    const useCrop = element.type === "image" && element.fit === "crop";
-    const scale = useCrop
-      ? Math.max(frameWidth / embedded.width, frameHeight / embedded.height)
-      : Math.min(frameWidth / embedded.width, frameHeight / embedded.height);
-    drawWidth = embedded.width * scale;
-    drawHeight = embedded.height * scale;
-  }
-  if (!Number.isFinite(ratio)) return;
-  const drawX = frameX + (frameWidth - drawWidth) / 2;
-  const drawY = frameY + (frameHeight - drawHeight) / 2;
+  const drawX = xPt(context, placement.x);
+  const drawY = bottomPt(context, placement.y, placement.height);
+  const drawWidth = mm(placement.width);
+  const drawHeight = mm(placement.height);
   const clipped = element.type === "image" && element.fit === "crop";
   if (clipped) {
     context.pdfPage.pushOperators(
@@ -1122,24 +1228,23 @@ function drawShape(context: PageContext, element: ShapeElement): void {
 }
 
 async function drawElement(context: PageContext, element: LayoutElementNode): Promise<void> {
-  await new Promise<void>((resolve) => {
-    withElementRotation(context, element, () => {
-      if (element.type === "text" || element.type === "month-text") {
-        drawTextFrame(context, element);
-      } else if (element.type === "shape") {
-        drawShape(context, element);
-      } else if (element.type === "calendar-grid") {
-        drawCalendarGrid(context, element);
-      } else if (element.type === "legend") {
-        drawLegend(context, element);
-      }
-      resolve();
-    });
-  });
-  if (element.type === "image" || element.type === "svg") {
-    // Image embedding is asynchronous, so it is drawn outside the synchronous
-    // rotation wrapper. Standard image frames are normally unrotated.
-    await drawImageElement(context, element);
+  const rotated = beginElementRotation(context, element);
+  const masked = beginElementMask(context, element);
+  try {
+    if (element.type === "text" || element.type === "month-text") {
+      drawTextFrame(context, element);
+    } else if (element.type === "shape") {
+      drawShape(context, element);
+    } else if (element.type === "calendar-grid") {
+      drawCalendarGrid(context, element);
+    } else if (element.type === "legend") {
+      drawLegend(context, element);
+    } else if (element.type === "image" || element.type === "svg") {
+      await drawImageElement(context, element);
+    }
+  } finally {
+    if (masked) context.pdfPage.pushOperators(popGraphicsState());
+    if (rotated) context.pdfPage.pushOperators(popGraphicsState());
   }
 }
 

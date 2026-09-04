@@ -155,6 +155,9 @@ function restoreBrandElement(page: PageModel, element: ImageElement): void {
     assetId: BRAND_LOGO_ASSET_ID,
     fit: "fit" as const,
   });
+  element.crop = undefined;
+  element.cornerRadiusMm = undefined;
+  element.mask = undefined;
   Object.assign(brandLayer, {
     name: BRAND_LOGO_LAYER_NAME,
     visible: true,

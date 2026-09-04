@@ -5,6 +5,9 @@ import TypikonRankMarker from "./TypikonRankMarker.vue";
 import type {
   CalendarGridElement,
   DocumentAsset,
+  ElementMaskStroke,
+  ElementMaskStrokeMode,
+  ImageElement,
   LargeTextEffects,
   LayoutElementNode,
   MonthTextElement,
@@ -12,6 +15,7 @@ import type {
   ShapeElement,
   TextElement,
 } from "../document/types";
+import { calculateImagePlacement } from "../document/image-placement";
 import { normalizedOpacity } from "../document/paint";
 import {
   normalizedTextShadow,
@@ -72,6 +76,11 @@ type GeometryInteraction =
       original: ElementFrame;
     };
 
+interface MaskInteraction {
+  elementId: string;
+  stroke: ElementMaskStroke;
+}
+
 const props = defineProps<{
   page: PageModel;
   assets: DocumentAsset[];
@@ -83,6 +92,8 @@ const props = defineProps<{
   showGuides: boolean;
   activeTool: EditorTool;
   selectedElementId?: string;
+  maskBrushMode: ElementMaskStrokeMode;
+  maskBrushSizeMm: number;
 }>();
 
 const emit = defineEmits<{
@@ -91,12 +102,14 @@ const emit = defineEmits<{
   geometryStart: [];
   updateGeometry: [elementId: string, frame: ElementFrame];
   geometryEnd: [];
+  maskStroke: [elementId: string, stroke: ElementMaskStroke];
 }>();
 
 const svg = ref<SVGSVGElement>();
 const dragStart = ref<Point>();
 const dragEnd = ref<Point>();
 const geometryInteraction = ref<GeometryInteraction>();
+const maskInteraction = ref<MaskInteraction>();
 const scene = computed(() => buildPageScene(props.page));
 const assetById = computed(() => new Map(props.assets.map((asset) => [asset.id, asset])));
 const calendarLayouts = computed(() => {
@@ -222,6 +235,18 @@ function beginCreation(event: PointerEvent): void {
 }
 
 function updateCreation(event: PointerEvent): void {
+  if (maskInteraction.value) {
+    const element = scene.value.elements.find((item) => item.id === maskInteraction.value?.elementId);
+    const point = toDocumentPoint(event, false);
+    if (!element || !point) return;
+    const normalized = maskPointForElement(element, point);
+    const points = maskInteraction.value.stroke.points;
+    const previous = points.at(-1);
+    if (!previous || Math.hypot(normalized.x - previous.x, normalized.y - previous.y) >= 0.002) {
+      points.push(normalized);
+    }
+    return;
+  }
   if (geometryInteraction.value) {
     updateGeometryInteraction(event);
     return;
@@ -232,6 +257,13 @@ function updateCreation(event: PointerEvent): void {
 }
 
 function finishCreation(event: PointerEvent): void {
+  if (maskInteraction.value) {
+    const interaction = maskInteraction.value;
+    maskInteraction.value = undefined;
+    emit("maskStroke", interaction.elementId, interaction.stroke);
+    svg.value?.releasePointerCapture(event.pointerId);
+    return;
+  }
   if (geometryInteraction.value) {
     geometryInteraction.value = undefined;
     emit("geometryEnd");
@@ -253,6 +285,24 @@ function finishCreation(event: PointerEvent): void {
 }
 
 function beginElementInteraction(event: PointerEvent, element: LayoutElementNode): void {
+  if (props.activeTool === "mask") {
+    event.stopPropagation();
+    emit("select", element.id);
+    if (element.locked || effectivelyLockedElementIds.value.has(element.id)) return;
+    const point = toDocumentPoint(event, false);
+    if (!point) return;
+    maskInteraction.value = {
+      elementId: element.id,
+      stroke: {
+        id: `mask-${crypto.randomUUID()}`,
+        mode: props.maskBrushMode,
+        sizeMm: Math.max(0.5, props.maskBrushSizeMm),
+        points: [maskPointForElement(element, point)],
+      },
+    };
+    svg.value?.setPointerCapture(event.pointerId);
+    return;
+  }
   if (props.activeTool !== "selection") return;
   event.stopPropagation();
   emit("select", element.id);
@@ -275,6 +325,20 @@ function beginElementInteraction(event: PointerEvent, element: LayoutElementNode
   };
   emit("geometryStart");
   svg.value?.setPointerCapture(event.pointerId);
+}
+
+function maskPointForElement(element: LayoutElementNode, point: Point): { x: number; y: number } {
+  const centerX = element.x + element.width / 2;
+  const centerY = element.y + element.height / 2;
+  const radians = -(element.rotation * Math.PI) / 180;
+  const dx = point.x - centerX;
+  const dy = point.y - centerY;
+  const localX = centerX + dx * Math.cos(radians) - dy * Math.sin(radians);
+  const localY = centerY + dx * Math.sin(radians) + dy * Math.cos(radians);
+  return {
+    x: Math.max(0, Math.min(1, (localX - element.x) / Math.max(0.0001, element.width))),
+    y: Math.max(0, Math.min(1, (localY - element.y) / Math.max(0.0001, element.height))),
+  };
 }
 
 function beginResize(
@@ -381,6 +445,52 @@ function snapMovedFrame(elementId: string, x: number, y: number, width: number, 
 
 function assetSource(assetId: string): string | undefined {
   return assetById.value.get(assetId)?.source;
+}
+
+function imagePlacement(element: ImageElement) {
+  const asset = assetById.value.get(element.assetId);
+  return calculateImagePlacement(
+    { x: element.x, y: element.y, width: element.width, height: element.height },
+    asset?.widthPx ?? element.width,
+    asset?.heightPx ?? element.height,
+    element.fit,
+    element.crop,
+  );
+}
+
+function elementMaskId(elementId: string): string {
+  return `object-mask-${elementId}`;
+}
+
+function elementMaskClipId(elementId: string): string {
+  return `object-mask-frame-${elementId}`;
+}
+
+function elementCornerRadius(element: LayoutElementNode): number {
+  return Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
+}
+
+function visibleMaskStrokes(element: LayoutElementNode): ElementMaskStroke[] {
+  const strokes = element.mask?.enabled === false ? [] : element.mask?.strokes ?? [];
+  const draft = maskInteraction.value?.elementId === element.id ? maskInteraction.value.stroke : undefined;
+  return draft ? [...strokes, draft] : strokes;
+}
+
+function elementNeedsMask(element: LayoutElementNode): boolean {
+  return elementCornerRadius(element) > 0 ||
+    (element.type === "image" && element.fit === "crop") ||
+    visibleMaskStrokes(element).length > 0;
+}
+
+function maskStrokePoints(element: LayoutElementNode, stroke: ElementMaskStroke): string {
+  return stroke.points
+    .map((point) => `${element.x + point.x * element.width},${element.y + point.y * element.height}`)
+    .join(" ");
+}
+
+function maskStrokeFirstPoint(element: LayoutElementNode, stroke: ElementMaskStroke): Point {
+  const point = stroke.points[0] ?? { x: 0.5, y: 0.5 };
+  return { x: element.x + point.x * element.width, y: element.y + point.y * element.height };
 }
 
 function foodMarkerSource(rule: FoodRuleId): string | undefined {
@@ -565,6 +675,56 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         :transform="rotationTransform(element.x, element.y, element.width, element.height, element.rotation)"
         @pointerdown="beginElementInteraction($event, element)"
       >
+        <defs v-if="elementNeedsMask(element)">
+          <clipPath :id="elementMaskClipId(element.id)" clipPathUnits="userSpaceOnUse">
+            <rect
+              :x="element.x"
+              :y="element.y"
+              :width="element.width"
+              :height="element.height"
+              :rx="elementCornerRadius(element)"
+            />
+          </clipPath>
+          <mask
+            :id="elementMaskId(element.id)"
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse"
+            :x="element.x"
+            :y="element.y"
+            :width="element.width"
+            :height="element.height"
+            style="mask-type: luminance"
+          >
+            <g :clip-path="`url(#${elementMaskClipId(element.id)})`">
+              <rect
+                :x="element.x"
+                :y="element.y"
+                :width="element.width"
+                :height="element.height"
+                fill="#fff"
+              />
+              <template v-for="stroke in visibleMaskStrokes(element)" :key="stroke.id">
+                <polyline
+                  v-if="stroke.points.length > 1"
+                  :points="maskStrokePoints(element, stroke)"
+                  fill="none"
+                  :stroke="stroke.mode === 'hide' ? '#000' : '#fff'"
+                  :stroke-width="stroke.sizeMm"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle
+                  v-else
+                  :cx="maskStrokeFirstPoint(element, stroke).x"
+                  :cy="maskStrokeFirstPoint(element, stroke).y"
+                  :r="stroke.sizeMm / 2"
+                  :fill="stroke.mode === 'hide' ? '#000' : '#fff'"
+                />
+              </template>
+            </g>
+          </mask>
+        </defs>
+        <g :mask="elementNeedsMask(element) ? `url(#${elementMaskId(element.id)})` : undefined">
         <template v-if="element.type === 'text' || element.type === 'month-text'">
           <defs v-if="element.type === 'text' && (element.textEffects?.gradient || element.textEffects?.shadow)">
             <linearGradient
@@ -662,12 +822,12 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
           <image
             v-if="assetSource(element.assetId)"
             :href="assetSource(element.assetId)"
-            :x="element.x"
-            :y="element.y"
-            :width="element.width"
-            :height="element.height"
+            :x="imagePlacement(element).x"
+            :y="imagePlacement(element).y"
+            :width="imagePlacement(element).width"
+            :height="imagePlacement(element).height"
             :opacity="element.opacity"
-            :preserveAspectRatio="element.fit === 'fill' ? 'none' : element.fit === 'fit' ? 'xMidYMid meet' : 'xMidYMid slice'"
+            preserveAspectRatio="none"
           />
           <g v-else class="page-element__placeholder">
             <rect :x="element.x" :y="element.y" :width="element.width" :height="element.height" />
@@ -697,6 +857,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :y="element.y"
             :width="element.width"
             :height="element.height"
+            :rx="elementCornerRadius(element)"
             class="page-element__shape"
             :stroke-width="element.strokeWidthMm"
             :fill="shapeFill(element)"
@@ -1015,6 +1176,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             >{{ item.label }}</text>
           </g>
         </template>
+        </g>
 
         <rect
           v-if="selectedElementId === element.id"

@@ -232,6 +232,42 @@ test("edits object opacity and a printable gold gradient", async ({ page }) => {
   await expect(stops.nth(2)).toHaveAttribute("stop-color", "#b7791f");
 });
 
+test("positions a cropped image manually and paints a non-destructive mask", async ({ page }) => {
+  await openEditor(page);
+  await page.getByTitle("Изображение (F)").click();
+  const scene = page.locator(".page-scene");
+  const sceneBox = await scene.boundingBox();
+  if (!sceneBox) throw new Error("Page scene is not visible");
+  await page.mouse.move(sceneBox.x + 180, sceneBox.y + 170);
+  await page.mouse.down();
+  await page.mouse.move(sceneBox.x + 350, sceneBox.y + 290);
+  await page.mouse.up();
+  await page.locator('input[type="file"][accept="image/*,.svg"]').setInputFiles("public/brand/share-card.png");
+
+  await page.getByRole("tab", { name: "Свойства" }).click();
+  await page.getByText("Заполнение", { exact: true }).locator("..").getByRole("combobox").selectOption("crop");
+  await expect(page.getByTestId("crop-position-controls")).toBeVisible();
+  const image = page.locator('.page-element--selected image[href^="data:image/png"]');
+  const centredX = Number(await image.getAttribute("x"));
+  await page.getByTestId("crop-position-x").evaluate((input: HTMLInputElement) => {
+    input.value = "100";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await expect.poll(async () => Number(await image.getAttribute("x"))).toBeLessThan(centredX);
+
+  await page.getByTestId("corner-radius").fill("8");
+  await expect(page.locator('.page-element--selected clipPath[id^="object-mask-frame-"] > rect')).toHaveAttribute("rx", "8");
+  await page.getByRole("button", { name: "Скрыть", exact: true }).click();
+  const elementBox = await page.locator(".page-element--selected").boundingBox();
+  if (!elementBox) throw new Error("Selected image is not visible");
+  await page.mouse.move(elementBox.x + elementBox.width * 0.3, elementBox.y + elementBox.height * 0.3);
+  await page.mouse.down();
+  await page.mouse.move(elementBox.x + elementBox.width * 0.7, elementBox.y + elementBox.height * 0.7, { steps: 5 });
+  await page.mouse.up();
+  await expect(page.locator('.page-element--selected mask polyline')).toHaveCount(1);
+  await expect(page.getByText(/Показывать маску \(штрихов: 1\)/)).toBeVisible();
+});
+
 test("resizes the right inspector with the mouse and restores its width", async ({ page }) => {
   await openEditor(page);
   const inspector = page.locator(".inspector-panel");

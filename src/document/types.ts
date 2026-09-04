@@ -35,6 +35,31 @@ export interface LayoutElement<TType extends LayoutElementType = LayoutElementTy
   styleToken?: string;
   /** Object opacity: 0 is fully transparent, 1 is fully opaque. */
   opacity?: number;
+  /** Non-destructive clipping radius for the printable object frame. */
+  cornerRadiusMm?: number;
+  /** Optional Photoshop-style non-destructive paint mask. */
+  mask?: ElementMask;
+}
+
+export type ElementMaskStrokeMode = "hide" | "reveal";
+
+export interface ElementMaskPoint {
+  /** Horizontal position inside the object frame, normalized to 0..1. */
+  x: number;
+  /** Vertical position inside the object frame, normalized to 0..1. */
+  y: number;
+}
+
+export interface ElementMaskStroke {
+  id: string;
+  mode: ElementMaskStrokeMode;
+  sizeMm: number;
+  points: ElementMaskPoint[];
+}
+
+export interface ElementMask {
+  enabled: boolean;
+  strokes: ElementMaskStroke[];
 }
 
 export interface TextVariants {
@@ -64,9 +89,13 @@ export interface TextElement extends LayoutElement<"text"> {
 }
 
 export interface ImageCrop {
+  /** Horizontal crop focus, normalized to 0..1 (0 = left, 0.5 = centre, 1 = right). */
   x: number;
+  /** Vertical crop focus, normalized to 0..1 (0 = top, 0.5 = centre, 1 = bottom). */
   y: number;
+  /** Reserved for a future crop-window width; currently kept at 1. */
   width: number;
+  /** Reserved for a future crop-window height; currently kept at 1. */
   height: number;
 }
 

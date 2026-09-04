@@ -7,6 +7,7 @@ import type {
   PageModel,
   SvgElement,
 } from "../document/types";
+import { calculateImagePlacement } from "../document/image-placement";
 
 const props = defineProps<{
   page: PageModel;
@@ -64,25 +65,98 @@ function drawBitmapInFrame(
   const y = element.y * scaleY;
   const width = Math.max(1, element.width * scaleX);
   const height = Math.max(1, element.height * scaleY);
-  const fillFrame = element.type === "image" && (element.fit === "crop" || element.fit === "fill");
-  if (element.type === "image" && element.fit === "fill") {
-    context.drawImage(bitmap, x, y, width, height);
-    return;
-  }
-  const imageRatio = bitmap.width / bitmap.height;
-  const frameRatio = width / height;
-  const drawnWidth = fillFrame
-    ? (imageRatio > frameRatio ? height * imageRatio : width)
-    : (imageRatio > frameRatio ? width : height * imageRatio);
-  const drawnHeight = fillFrame
-    ? (imageRatio > frameRatio ? height : width / imageRatio)
-    : (imageRatio > frameRatio ? width / imageRatio : height);
+  const placement = calculateImagePlacement(
+    { x, y, width, height },
+    bitmap.width,
+    bitmap.height,
+    element.type === "image" ? element.fit : "fit",
+    element.type === "image" ? element.crop : undefined,
+  );
+  context.drawImage(bitmap, placement.x, placement.y, placement.width, placement.height);
+}
+
+function applyElementRotation(
+  context: CanvasRenderingContext2D,
+  element: LayoutElementNode,
+  scaleX: number,
+  scaleY: number,
+): void {
+  if (!element.rotation) return;
+  const centerX = (element.x + element.width / 2) * scaleX;
+  const centerY = (element.y + element.height / 2) * scaleY;
+  context.translate(centerX, centerY);
+  context.rotate((element.rotation * Math.PI) / 180);
+  context.translate(-centerX, -centerY);
+}
+
+function elementNeedsMask(element: LayoutElementNode): boolean {
+  return (element.cornerRadiusMm ?? 0) > 0 ||
+    (element.type === "image" && element.fit === "crop") ||
+    (element.mask?.enabled !== false && Boolean(element.mask?.strokes.length));
+}
+
+function drawElementMask(
+  context: CanvasRenderingContext2D,
+  element: LayoutElementNode,
+  scaleX: number,
+  scaleY: number,
+): void {
+  const x = element.x * scaleX;
+  const y = element.y * scaleY;
+  const width = element.width * scaleX;
+  const height = element.height * scaleY;
+  const radius = Math.max(0, Math.min(
+    (element.cornerRadiusMm ?? 0) * (scaleX + scaleY) / 2,
+    width / 2,
+    height / 2,
+  ));
   context.save();
+  applyElementRotation(context, element, scaleX, scaleY);
   context.beginPath();
-  context.rect(x, y, width, height);
+  context.roundRect(x, y, width, height, radius);
   context.clip();
-  context.drawImage(bitmap, x + (width - drawnWidth) / 2, y + (height - drawnHeight) / 2, drawnWidth, drawnHeight);
+  context.fillStyle = "#fff";
+  context.fillRect(x, y, width, height);
+  for (const stroke of element.mask?.enabled === false ? [] : element.mask?.strokes ?? []) {
+    if (!stroke.points.length) continue;
+    context.globalCompositeOperation = stroke.mode === "hide" ? "destination-out" : "source-over";
+    context.strokeStyle = "#fff";
+    context.fillStyle = "#fff";
+    context.lineWidth = Math.max(0.5, stroke.sizeMm * (scaleX + scaleY) / 2);
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.beginPath();
+    const first = stroke.points[0]!;
+    context.moveTo(x + first.x * width, y + first.y * height);
+    for (const point of stroke.points.slice(1)) {
+      context.lineTo(x + point.x * width, y + point.y * height);
+    }
+    if (stroke.points.length === 1) {
+      context.arc(x + first.x * width, y + first.y * height, context.lineWidth / 2, 0, Math.PI * 2);
+      context.fill();
+    } else {
+      context.stroke();
+    }
+  }
   context.restore();
+}
+
+function drawElementContent(
+  context: CanvasRenderingContext2D,
+  element: LayoutElementNode,
+  bitmap: ImageBitmap | undefined,
+  scaleX: number,
+  scaleY: number,
+): void {
+  if (element.type === "image" || element.type === "svg") {
+    if (bitmap) drawBitmapInFrame(context, bitmap, element, scaleX, scaleY);
+  } else if (element.type === "text" || element.type === "month-text") drawText(context, element, scaleX, scaleY);
+  else if (element.type === "calendar-grid") drawCalendarGrid(context, element, scaleX, scaleY);
+  else if (element.type === "shape") drawShape(context, element, scaleX, scaleY);
+  else if (element.type === "legend") {
+    context.strokeStyle = "#ad9b6b";
+    context.strokeRect(element.x * scaleX, element.y * scaleY, element.width * scaleX, element.height * scaleY);
+  }
 }
 
 function drawText(context: CanvasRenderingContext2D, element: Extract<LayoutElementNode, { type: "text" | "month-text" }>, scaleX: number, scaleY: number): void {
@@ -197,20 +271,29 @@ async function renderThumbnail(): Promise<void> {
   drawPlaceholder(context, target.width, target.height);
   const scaleX = target.width / props.page.width;
   const scaleY = target.height / props.page.height;
+  const elementCanvas = document.createElement("canvas");
+  const maskCanvas = document.createElement("canvas");
+  elementCanvas.width = maskCanvas.width = target.width;
+  elementCanvas.height = maskCanvas.height = target.height;
+  const elementContext = elementCanvas.getContext("2d");
+  const maskContext = maskCanvas.getContext("2d");
+  if (!elementContext || !maskContext) return;
   for (const element of [...props.page.elements].filter((item) => item.visible).sort((left, right) => left.zIndex - right.zIndex)) {
-    context.save();
-    context.globalAlpha = Math.max(0, Math.min(1, element.opacity ?? 1));
-    if (element.type === "image" || element.type === "svg") {
-      const bitmap = bitmaps.get(element.id);
-      if (bitmap) drawBitmapInFrame(context, bitmap, element, scaleX, scaleY);
-    } else if (element.type === "text" || element.type === "month-text") drawText(context, element, scaleX, scaleY);
-    else if (element.type === "calendar-grid") drawCalendarGrid(context, element, scaleX, scaleY);
-    else if (element.type === "shape") drawShape(context, element, scaleX, scaleY);
-    else if (element.type === "legend") {
-      context.strokeStyle = "#ad9b6b";
-      context.strokeRect(element.x * scaleX, element.y * scaleY, element.width * scaleX, element.height * scaleY);
+    elementContext.clearRect(0, 0, target.width, target.height);
+    maskContext.clearRect(0, 0, target.width, target.height);
+    elementContext.save();
+    elementContext.globalAlpha = Math.max(0, Math.min(1, element.opacity ?? 1));
+    applyElementRotation(elementContext, element, scaleX, scaleY);
+    drawElementContent(elementContext, element, bitmaps.get(element.id), scaleX, scaleY);
+    elementContext.restore();
+    if (elementNeedsMask(element)) {
+      drawElementMask(maskContext, element, scaleX, scaleY);
+      elementContext.save();
+      elementContext.globalCompositeOperation = "destination-in";
+      elementContext.drawImage(maskCanvas, 0, 0);
+      elementContext.restore();
     }
-    context.restore();
+    context.drawImage(elementCanvas, 0, 0);
   }
 }
 

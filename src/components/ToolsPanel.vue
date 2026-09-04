@@ -43,6 +43,7 @@ const tools: ToolDefinition[] = [
   { id: "line", label: "Линия", shortcut: "\\", icon: "╱", group: "create" },
   { id: "svg", label: "SVG и декор", icon: "✦", group: "create" },
   { id: "calendar-grid", label: "Календарная сетка", icon: "▦", group: "create" },
+  { id: "mask", label: "Маска объекта", shortcut: "Q", icon: "◩", group: "edit" },
   { id: "hand", label: "Рука", shortcut: "H", icon: "✋", group: "view" },
   { id: "zoom", label: "Масштаб", shortcut: "Z", icon: "⌕", group: "view" },
 ];
