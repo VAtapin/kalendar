@@ -109,7 +109,8 @@ WordPress-плагин:
 (`type=10`) и сплошных седмиц (`type=100`), но не содержат отдельного поля для
 масла, сухоядения или рыбы. Поэтому степень трапезы рассчитывает независимый
 модуль `src/calendar/fasting/fasting-api.ts`. Текущий именованный профиль
-`typikon-strict` и отдельный `parish` сопоставлены с опубликованными таблицами:
+`typikon-strict` сверяется с опубликованными монастырскими правилами, а
+`parish` является отдельным смягчённым информационным профилем:
 
 - https://otrada-i-uteshenie.ru/kalendar/
 - https://azbyka.ru/days/p-kalendar-postov-i-trapez
@@ -142,6 +143,8 @@ const fasting = api.getFasting({ year: 2027, month: 3, day: 17 });
 Версионированный JSON-контракт и локальный HTTP-сервис описаны в
 [docs/CALENDAR_API.md](./docs/CALENDAR_API.md). Сервис запускается командой
 `npm run api` и отдаёт день, полный год и дату Пасхи через `/v1`.
+Оценка достоверности, выполненные проверки и известные расхождения перечислены в
+[docs/CALENDAR_ACCURACY_AUDIT.md](./docs/CALENDAR_ACCURACY_AUDIT.md).
 
 ## Основные архитектурные правила
 
