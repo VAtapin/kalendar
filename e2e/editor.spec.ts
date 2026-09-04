@@ -257,17 +257,17 @@ test("saves repeatedly to the chosen project file and provides complete help dia
   await expect(page.getByRole("dialog", { name: "Восстановление проекта" })).toContainText("Восстановить");
   await page.keyboard.press("Escape");
 
-  await page.getByRole("button", { name: "Справка", exact: true }).click();
+  await page.getByRole("button", { name: "Помощь", exact: true }).click();
   await page.getByTestId("menu-command-help-guide").click();
-  await expect(page.getByRole("dialog", { name: "Справка по работе" })).toContainText("Сохранить как…");
+  await expect(page.getByRole("dialog", { name: "Помощь" })).toContainText("Сохранить как…");
   await page.locator(".application-dialog__footer").getByRole("button", { name: "Закрыть" }).click();
 
-  await page.getByRole("button", { name: "Справка", exact: true }).click();
+  await page.getByRole("button", { name: "Помощь", exact: true }).click();
   await page.getByTestId("menu-command-shortcuts").click();
   await expect(page.getByRole("dialog", { name: "Горячие клавиши" })).toContainText("Ctrl");
   await page.keyboard.press("Escape");
 
-  await page.getByRole("button", { name: "Справка", exact: true }).click();
+  await page.getByRole("button", { name: "Помощь", exact: true }).click();
   await page.getByTestId("menu-command-about").click();
   const about = page.getByRole("dialog", { name: "О программе" });
   await expect(about).toContainText("Свято‑Георгиевский мужской монастырь");

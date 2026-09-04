@@ -4,6 +4,7 @@ import type {
   CommemorationRankFilter,
   CommemorationRankFilterId,
 } from "../../document/types";
+import { LITURGICAL_STYLE } from "../engine/liturgical-cycle";
 
 export type CalendarContentCategory =
   | "commemoration"
@@ -63,8 +64,28 @@ function commemorationRank(event: ResolvedCalendarEvent): CommemorationRankFilte
   return undefined;
 }
 
-function isLiturgicalCycleLabel(event: ResolvedCalendarEvent): boolean {
-  return /^(?:седмица|неделя\s+\d+-?я\s+по\s+пятидесятнице)/i.test(event.title.trim());
+function isGeneratedLiturgicalEvent(event: ResolvedCalendarEvent): boolean {
+  return Object.values(LITURGICAL_STYLE).includes(
+    event.styleToken as (typeof LITURGICAL_STYLE)[keyof typeof LITURGICAL_STYLE],
+  );
+}
+
+function isLegacyLiturgicalCycleLabel(event: ResolvedCalendarEvent): boolean {
+  return /^(?:седмица|неделя\b)/iu.test(event.title.trim());
+}
+
+function isAfterfeastOrLeaveTaking(event: ResolvedCalendarEvent): boolean {
+  return event.styleToken === LITURGICAL_STYLE.afterfeast ||
+    event.styleToken === LITURGICAL_STYLE.leaveTaking ||
+    /^(?:попразднство|отдание праздника|предпразднство)/iu.test(event.title.trim());
+}
+
+function isPascha(event: ResolvedCalendarEvent): boolean {
+  return event.typeCode === 0 || /(?:светлое христово воскресение|\bпасха\b)/iu.test(event.title);
+}
+
+function isTwelveGreatFeast(event: ResolvedCalendarEvent): boolean {
+  return event.typeCode === 1;
 }
 
 export function calendarContentCategory(event: ResolvedCalendarEvent): CalendarContentCategory {
@@ -88,11 +109,13 @@ export function isRequiredCalendarEvent(event: ResolvedCalendarEvent): boolean {
 }
 
 function eventPrintRank(event: ResolvedCalendarEvent): number {
-  if (event.typeCode < 0) return 0;
-  if (event.typeCode <= 1) return 1;
-  if (event.typeCode === 2) return 2;
-  if (event.typeCode >= 3 && event.typeCode <= 5) return 3;
-  if (event.typeCode === 9) return 4;
+  if (isPascha(event)) return 0;
+  if (isTwelveGreatFeast(event)) return 1;
+  if (isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event)) return 2;
+  if (event.typeCode < 0) return 3;
+  if (event.typeCode === 2) return 4;
+  if (event.typeCode >= 3 && event.typeCode <= 5) return 5;
+  if (event.typeCode === 9) return 6;
   return 10;
 }
 
@@ -111,8 +134,9 @@ export function isCalendarCellEvent(
   if (category === "fasting-rule" || category === "fast-free-rule") {
     return element.showFastingText === true;
   }
+  if (isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event)) return true;
   if (event.typeCode < 0) return true;
-  if (isLiturgicalCycleLabel(event)) return false;
+  if (isLegacyLiturgicalCycleLabel(event)) return false;
   const filter = commemorationFilterForElement(element);
   const rank = commemorationRank(event);
   return rank ? filter[rank] : false;
@@ -127,21 +151,34 @@ export function selectCalendarCellEvents(
   element: CalendarGridElement,
   events: readonly ResolvedCalendarEvent[],
 ): ResolvedCalendarEvent[] {
-  const hasPrimaryCommemoration = events.some((event) =>
+  const paschaEvents = events.filter(isPascha);
+  if (paschaEvents.length > 0) {
+    return paschaEvents
+      .sort((left, right) => right.priority - left.priority || left.sourceIndex - right.sourceIndex)
+      .slice(0, 1);
+  }
+
+  const hasTwelveGreatFeast = events.some(isTwelveGreatFeast);
+  const precedenceFiltered = hasTwelveGreatFeast
+    ? events.filter((event) =>
+        isTwelveGreatFeast(event) || isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event),
+      )
+    : [...events];
+  const hasPrimaryCommemoration = precedenceFiltered.some((event) =>
     ((event.typeCode >= 0 && event.typeCode <= 5) || event.typeCode === 9) &&
-    !isLiturgicalCycleLabel(event),
-  );
+    !isLegacyLiturgicalCycleLabel(event),
+  ) || precedenceFiltered.some(isGeneratedLiturgicalEvent) || precedenceFiltered.some(isAfterfeastOrLeaveTaking);
   const minorLimit = Math.max(0, element.minorCommemorationFallback ?? 2);
   const selectedMinorIds = new Set(
     hasPrimaryCommemoration
       ? []
-      : events
-          .filter((event) => isMinorCommemorationEvent(event) && !isLiturgicalCycleLabel(event))
+      : precedenceFiltered
+          .filter((event) => isMinorCommemorationEvent(event) && !isLegacyLiturgicalCycleLabel(event))
           .slice(0, minorLimit)
           .map((event) => event.id),
   );
 
-  return events
+  const sorted = precedenceFiltered
     .map((event, index) => ({ event, index }))
     .filter(({ event }) => isCalendarCellEvent(element, event) || selectedMinorIds.has(event.id))
     .sort((left, right) =>
@@ -150,4 +187,12 @@ export function selectCalendarCellEvents(
       left.index - right.index,
     )
     .map(({ event }) => event);
+
+  const titles = new Set<string>();
+  return sorted.filter((event) => {
+    const key = event.title.toLocaleLowerCase("ru").replace(/[ё]/gu, "е").replace(/[^а-яa-z0-9]+/giu, " ").trim();
+    if (titles.has(key)) return false;
+    titles.add(key);
+    return true;
+  });
 }

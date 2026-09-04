@@ -7,7 +7,12 @@ import {
   selectCalendarCellEvents,
 } from "../src/calendar/presentation/calendar-content-policy";
 
-function event(typeCode: number, title = "Запись", id = String(typeCode)): ResolvedCalendarEvent {
+function event(
+  typeCode: number,
+  title = "Запись",
+  id = String(typeCode),
+  styleToken?: string,
+): ResolvedCalendarEvent {
   const date = { year: 2027, month: 1, day: 1 };
   return {
     id,
@@ -21,6 +26,7 @@ function event(typeCode: number, title = "Запись", id = String(typeCode)):
     dayIndexInSpan: 0,
     ruleKind: "fixed-julian",
     priority: 1,
+    ...(styleToken ? { styleToken } : {}),
   };
 }
 
@@ -69,12 +75,41 @@ describe("calendar cell content policy", () => {
     expect(selectCalendarCellEvents(grid, [event(9), minor]).map((item) => item.id)).toEqual(["9"]);
   });
 
-  it("sorts mandatory feasts ahead of lesser fallback records", () => {
+  it("keeps a Twelve Great Feast alone instead of adding lower-rank memories", () => {
     const selected = selectCalendarCellEvents(grid, [
       event(18, "Малая", "minor"),
       event(4, "Средняя", "medium"),
       event(1, "Двунадесятая", "twelve"),
     ]);
-    expect(selected.map((item) => item.id)).toEqual(["twelve", "medium"]);
+    expect(selected.map((item) => item.id)).toEqual(["twelve"]);
+  });
+
+  it("prints Pascha alone and does not add another saint to its cell", () => {
+    const selected = selectCalendarCellEvents(grid, [
+      event(0, "Светлое Христово Воскресение. Пасха", "pascha"),
+      event(4, "Блж. Матроны Московской", "matrona"),
+      event(18, "Малая память", "minor"),
+    ]);
+    expect(selected.map((item) => item.id)).toEqual(["pascha"]);
+  });
+
+  it("places Sundays and afterfeasts ahead of ordinary commemorations", () => {
+    const sunday = event(-20, "Неделя 3-я по Пятидесятнице", "sunday", "liturgical-sunday");
+    const afterfeast = event(-20, "Попразднство Вознесения Господня", "afterfeast", "liturgical-afterfeast");
+
+    expect(selectCalendarCellEvents(grid, [event(4, "Святитель", "saint"), sunday]).map((item) => item.id))
+      .toEqual(["sunday", "saint"]);
+    expect(selectCalendarCellEvents(grid, [event(18, "Малая память", "minor"), afterfeast]).map((item) => item.id))
+      .toEqual(["afterfeast"]);
+  });
+
+  it("keeps a Twelve Great Feast clean while preserving its Sunday heading", () => {
+    const sunday = event(-20, "Неделя 6-я по Пятидесятнице", "sunday", "liturgical-sunday");
+    const selected = selectCalendarCellEvents(grid, [
+      event(1, "Преображение Господне", "feast"),
+      event(4, "Святитель", "saint"),
+      sunday,
+    ]);
+    expect(selected.map((item) => item.id)).toEqual(["feast", "sunday"]);
   });
 });

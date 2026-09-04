@@ -133,7 +133,7 @@ describe("calendar grid layout", () => {
   });
 
   it("never drops required feasts because of the optional event limit", () => {
-    const importantEvents = [1, 2, 3, 4].map((typeCode, index) => ({
+    const importantEvents = [2, 3, 4, 5].map((typeCode, index) => ({
       id: `important-${index}`,
       sourceId: "source",
       sourceIndex: index,

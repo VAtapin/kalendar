@@ -67,5 +67,45 @@ describe("calendar year engine", () => {
       ),
     ).toBe(true);
   });
-});
 
+  it("calculates the named Sunday cycle and Holy Week for every selected year", () => {
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(sourceXml));
+    const titles = (isoDate: string) => calendar.daysByIsoDate[isoDate]?.events.map((event) => event.title) ?? [];
+
+    expect(titles("2027-02-21")).toContain("Неделя о мытаре и фарисее");
+    expect(titles("2027-03-21")).toContain("Неделя 1-я Великого поста. Торжество Православия");
+    expect(titles("2027-04-26")).toContain("Великий Понедельник");
+    expect(titles("2027-05-09")).toContain("Неделя 2-я по Пасхе, апостола Фомы. Антипасха");
+    expect(titles("2027-07-11")).toContain("Неделя 3-я по Пятидесятнице");
+  });
+
+  it("fills afterfeasts and leave-takings instead of marking only their first day", () => {
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(sourceXml));
+    const titles = (isoDate: string) => calendar.daysByIsoDate[isoDate]?.events.map((event) => event.title) ?? [];
+
+    expect(titles("2027-01-12")).toContain("Попразднство Рождества Христова");
+    expect(titles("2027-01-13")).toContain("Отдание праздника Рождества Христова");
+    expect(titles("2027-06-16")).toContain("Попразднство Вознесения Господня");
+    expect(titles("2027-06-18")).toContain("Отдание праздника Вознесения Господня");
+    expect(titles("2027-06-26")).toContain("Отдание праздника Пятидесятницы");
+  });
+
+  it("shortens the afterfeast of the Meeting when the preparatory weeks require it", () => {
+    const calendar2026 = buildOrthodoxCalendarYear(2026, parseMemoryDaysXml(sourceXml));
+    const titles = (isoDate: string) => calendar2026.daysByIsoDate[isoDate]?.events.map((event) => event.title) ?? [];
+
+    expect(titles("2026-02-18")).toContain("Попразднство Сретения Господня");
+    expect(titles("2026-02-19")).toContain("Отдание праздника Сретения Господня");
+    expect(titles("2026-02-22")).not.toContain("Отдание праздника Сретения Господня");
+  });
+
+  it("transfers the Meeting to Cheesefare Sunday when its fixed date reaches Clean Monday", () => {
+    const calendar2010 = buildOrthodoxCalendarYear(2010, parseMemoryDaysXml(sourceXml));
+    const hasMeeting = (isoDate: string) => calendar2010.daysByIsoDate[isoDate]?.events.some((event) =>
+      event.title.startsWith("Сретение Господа"),
+    ) ?? false;
+
+    expect(hasMeeting("2010-02-14")).toBe(true);
+    expect(hasMeeting("2010-02-15")).toBe(false);
+  });
+});

@@ -5,6 +5,8 @@ import type {
   ResolvedCalendarEvent,
 } from "../types";
 import {
+  addDays,
+  compareDates,
   dayOfWeek,
   enumerateDates,
   gregorianToJulian,
@@ -14,6 +16,7 @@ import {
 } from "../date/calendar-date";
 import { calculateOrthodoxPascha } from "../pascha/orthodox-pascha";
 import { resolveMemoryDayRecord } from "./resolve-record";
+import { buildGeneratedLiturgicalEvents } from "./liturgical-cycle";
 import {
   createShortCalendarTitle,
   createVeryShortCalendarTitle,
@@ -33,6 +36,16 @@ function eventDedupeKey(event: ResolvedCalendarEvent): string {
   return `${event.typeCode}:${event.title.toLocaleLowerCase("ru").replace(/[\s.,;:()]+/gu, " ").trim()}`;
 }
 
+function isSupersededLiturgicalRangeRecord(title: string): boolean {
+  return /^(?:попразднство|отдание праздника)/iu.test(title.trim());
+}
+
+function adjustedFixedFeastDate(title: string, date: OrthodoxCalendarDay["date"]): OrthodoxCalendarDay["date"] {
+  if (!/^сретение господ/iu.test(title.trim())) return date;
+  const cheesefareSunday = addDays(calculateOrthodoxPascha(date.year), -49);
+  return compareDates(date, cheesefareSunday) > 0 ? cheesefareSunday : date;
+}
+
 export function buildOrthodoxCalendarYear(
   year: number,
   dataset: MemoryDaysDataset,
@@ -49,10 +62,12 @@ export function buildOrthodoxCalendarYear(
   const dayMap = new Map(days.map((day) => [day.isoDate, day]));
 
   for (const record of dataset.records) {
+    if (isSupersededLiturgicalRangeRecord(record.title)) continue;
     for (const span of resolveMemoryDayRecord(record, year)) {
       const spanDates = enumerateDates(span.start, span.finish);
       spanDates.forEach((date, dayIndexInSpan) => {
-        const isoDate = toIsoDate(date);
+        const occurrenceDate = adjustedFixedFeastDate(record.title, date);
+        const isoDate = toIsoDate(occurrenceDate);
         const day = dayMap.get(isoDate);
         if (!day) return;
 
@@ -65,9 +80,9 @@ export function buildOrthodoxCalendarYear(
           veryShortTitle: record.veryShortTitle ?? createVeryShortCalendarTitle(record.title),
           typeCode: record.typeCode,
           ...(record.description ? { description: record.description } : {}),
-          occurrenceDate: date,
-          spanStart: span.start,
-          spanFinish: span.finish,
+          occurrenceDate,
+          spanStart: occurrenceDate,
+          spanFinish: occurrenceDate,
           dayIndexInSpan,
           ruleKind: span.ruleKind,
           priority: typePriority(record.typeCode),
@@ -75,6 +90,10 @@ export function buildOrthodoxCalendarYear(
         day.events.push(event);
       });
     }
+  }
+
+  for (const event of buildGeneratedLiturgicalEvents(year)) {
+    dayMap.get(toIsoDate(event.occurrenceDate))?.events.push(event);
   }
 
   for (const day of days) {

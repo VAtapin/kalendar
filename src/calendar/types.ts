@@ -67,6 +67,7 @@ export type CalendarRuleKind =
   | "weekday-relative"
   | "weekday-conditional"
   | "nearest-sunday"
+  | "generated-liturgical"
   | "project-event";
 
 export interface ResolvedEventSpan {

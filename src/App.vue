@@ -561,9 +561,9 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
     },
     {
       id: "help",
-      label: "Справка",
+      label: "Помощь",
       items: [
-        { command: "help-guide", label: "Справка по работе" },
+        { command: "help-guide", label: "Как пользоваться?" },
         { command: "shortcuts", label: "Горячие клавиши…" },
         { separator: true },
         { command: "about", label: "О программе" },

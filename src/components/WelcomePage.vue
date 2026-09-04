@@ -25,11 +25,11 @@ const emit = defineEmits<{
       <div>
         <span class="welcome-hero__eyebrow">Издательский онлайн‑инструмент монастыря</span>
         <h1>Создайте православный календарь, готовый к печати</h1>
-        <p>Обложка, двенадцать месяцев, церковный календарь, посты, собственные фотографии и профессиональный PDF — в одном редакторе.</p>
+        <p>Создайте обложку и страницы на каждый месяц, добавьте праздники, посты, фотографии и оформление — и получите готовый PDF для печати.</p>
         <div class="welcome-hero__actions">
           <button type="button" class="welcome-primary" data-testid="welcome-create" @click="emit('create')">Создать календарь</button>
-          <button v-if="currentProjectName" type="button" @click="emit('continue')">Продолжить работу</button>
-          <button type="button" @click="emit('open')">Открыть файл…</button>
+          <button v-if="currentProjectName" type="button" @click="emit('continue')">Продолжить последний</button>
+          <button type="button" @click="emit('open')">Открыть календарь…</button>
         </div>
       </div>
       <img class="welcome-hero__art" src="/brand/share-card.png" alt="Календарная мастерская Свято-Георгиевского монастыря" />
@@ -38,31 +38,31 @@ const emit = defineEmits<{
     <section class="welcome-features" aria-label="Возможности">
       <article><strong>Точный календарь</strong><span>Даты, праздники, посты и монастырские события.</span></article>
       <article><strong>Свободная вёрстка</strong><span>Страницы, слои, фотографии, текст и золотой декор.</span></article>
-      <article><strong>Совместная работа</strong><span>Отправьте ссылку: один редактирует, остальные ждут или делают копию.</span></article>
-      <article><strong>Печатный PDF</strong><span>Файл сохраняется на сервере и скачивается по устойчивой ссылке.</span></article>
+      <article><strong>Совместная работа</strong><span>Передайте ссылку другому человеку, чтобы вместе подготовить календарь.</span></article>
+      <article><strong>Готово к печати</strong><span>Скачайте готовый PDF и передайте его в типографию.</span></article>
     </section>
 
-    <section v-if="currentProjectName || recentProjectNames.length || sharedProjects.length" class="welcome-projects">
+    <section class="welcome-projects">
       <div class="welcome-section-title">
-        <div><span>Ваше рабочее место</span><h2>Мои календари</h2></div>
-        <button type="button" @click="emit('help')">Где что находится?</button>
+        <div><h2>Мои календари</h2></div>
+        <button type="button" @click="emit('help')">Помощь</button>
       </div>
       <div class="welcome-projects__grid">
         <button v-if="currentProjectName" type="button" @click="emit('continue')">
-          <strong>{{ currentProjectName }}</strong><span>Последнее локальное автосохранение</span>
+          <strong>{{ currentProjectName }}</strong><span>Последняя работа · сохранена на этом компьютере</span>
         </button>
         <button v-for="item in sharedProjects" :key="item.id" type="button" @click="emit('openShared', item.id)">
-          <strong>{{ item.name }}</strong><span>Общий календарь на сервере</span>
+          <strong>{{ item.name }}</strong><span>Совместная версия · доступна по ссылке</span>
         </button>
-        <button v-for="name in recentProjectNames" :key="name" type="button" @click="emit('open')">
-          <strong>{{ name }}</strong><span>Недавний локальный файл — выбрать на компьютере</span>
+        <button type="button" @click="emit('open')">
+          <strong>Открыть календарь с компьютера</strong><span>Выберите ранее сохранённый файл календаря</span>
         </button>
       </div>
     </section>
 
     <footer class="welcome-page__footer">
       <span>Проект Свято‑Георгиевского мужского монастыря</span>
-      <button type="button" @click="emit('help')">Справка</button>
+      <button type="button" @click="emit('help')">Помощь</button>
       <a href="https://atapin.de/" target="_blank" rel="noreferrer">Разработка ATAPIN.DE</a>
     </footer>
   </main>
