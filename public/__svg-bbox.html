@@ -1,0 +1,68 @@
+<!doctype html>
+<html><meta charset="utf-8"><body><div id="host"></div><pre id="result">loading</pre><script type="module">
+const query = new URLSearchParams(location.search);
+const ids = (query.get("ids") ?? query.get("id") ?? "").split(",").filter(Boolean);
+const host = document.querySelector("#host");
+
+function transformedBox(node, svg) {
+  const box = node.getBBox();
+  const nodeMatrix = node.getScreenCTM();
+  const rootMatrix = svg.getScreenCTM().inverse();
+  const points = [
+    new DOMPoint(box.x, box.y),
+    new DOMPoint(box.x + box.width, box.y),
+    new DOMPoint(box.x, box.y + box.height),
+    new DOMPoint(box.x + box.width, box.y + box.height),
+  ].map((point) => point.matrixTransform(nodeMatrix).matrixTransform(rootMatrix));
+  const x = Math.min(...points.map((point) => point.x));
+  const y = Math.min(...points.map((point) => point.y));
+  const right = Math.max(...points.map((point) => point.x));
+  const bottom = Math.max(...points.map((point) => point.y));
+  return { x, y, width: right - x, height: bottom - y };
+}
+
+function clusterBoxes(boxes, threshold) {
+  const parent = boxes.map((_, index) => index);
+  const find = (value) => parent[value] === value ? value : (parent[value] = find(parent[value]));
+  const join = (left, right) => { left = find(left); right = find(right); if (left !== right) parent[right] = left; };
+  for (let left = 0; left < boxes.length; left += 1) {
+    for (let right = left + 1; right < boxes.length; right += 1) {
+      const a = boxes[left];
+      const b = boxes[right];
+      const gapX = Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.width, b.x + b.width));
+      const gapY = Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.height, b.y + b.height));
+      if (Math.hypot(gapX, gapY) <= threshold) join(left, right);
+    }
+  }
+  const groups = new Map();
+  boxes.forEach((box, index) => {
+    const root = find(index);
+    if (!groups.has(root)) groups.set(root, []);
+    groups.get(root).push(box);
+  });
+  return [...groups.values()].map((group) => {
+    const x = Math.min(...group.map((box) => box.x));
+    const y = Math.min(...group.map((box) => box.y));
+    const right = Math.max(...group.map((box) => box.x + box.width));
+    const bottom = Math.max(...group.map((box) => box.y + box.height));
+    return { x: +x.toFixed(1), y: +y.toFixed(1), width: +(right - x).toFixed(1), height: +(bottom - y).toFixed(1), shapes: group.length };
+  }).sort((a, b) => a.y - b.y || a.x - b.x);
+}
+
+const results = [];
+for (const id of ids) {
+  const text = await fetch(`/assets/decor/source/${id}.svg`).then((response) => response.text());
+  host.innerHTML = text;
+  const svg = host.querySelector("svg");
+  svg.style.width = "1280px";
+  svg.style.height = "1280px";
+  const viewBox = svg.viewBox.baseVal;
+  const nodes = [...svg.querySelectorAll("path,rect,circle,ellipse,polygon,polyline,line")]
+    .filter((node) => !node.closest("defs,clipPath,mask,pattern"));
+  const boxes = nodes.map((node) => transformedBox(node, svg));
+  const clusters = clusterBoxes(boxes, Math.max(viewBox.width, viewBox.height) * 0.022);
+  results.push({ id, viewBox: [viewBox.x, viewBox.y, viewBox.width, viewBox.height], shapes: boxes.length, clusters });
+}
+host.remove();
+document.querySelector("#result").textContent = JSON.stringify(results);
+</script></body></html>

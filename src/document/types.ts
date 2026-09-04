@@ -1,0 +1,284 @@
+export type DocumentUnit = "mm";
+export type OverflowState = "none" | "warning" | "error";
+
+export type PageKind = "cover" | "month" | "information";
+export type PageFormatId = "A3" | "A4" | "A5" | "A6";
+export type PageOrientation = "portrait" | "landscape";
+export type LayoutElementType =
+  | "text"
+  | "image"
+  | "shape"
+  | "svg"
+  | "calendar-grid"
+  | "month-text"
+  | "legend";
+
+/**
+ * Base type for every printable element.
+ * All geometry is expressed in millimetres in the trim-box coordinate system.
+ */
+export interface LayoutElement<TType extends LayoutElementType = LayoutElementType> {
+  id: string;
+  type: TType;
+  layerId: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  zIndex: number;
+  locked: boolean;
+  visible: boolean;
+  overflow: OverflowState;
+  styleToken?: string;
+}
+
+export interface TextVariants {
+  title: string;
+  shortTitle?: string;
+  veryShortTitle?: string;
+}
+
+export interface TextTypography {
+  fontFamily: string;
+  fontSizePt: number;
+  lineHeight: number;
+  letterSpacingPt: number;
+  color?: string;
+  fontWeight?: number;
+  fontStyle?: "normal" | "italic";
+  align: "left" | "center" | "right" | "justify";
+  verticalAlign: "top" | "middle" | "bottom";
+  paddingMm: number;
+}
+
+export interface TextElement extends LayoutElement<"text"> {
+  content: TextVariants;
+  typography: TextTypography;
+}
+
+export interface ImageCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface ImageElement extends LayoutElement<"image"> {
+  assetId: string;
+  fit: "fill" | "fit" | "crop";
+  crop?: ImageCrop;
+  opacity: number;
+}
+
+export interface ShapeElement extends LayoutElement<"shape"> {
+  shape: "rectangle" | "ellipse" | "line";
+  fillToken?: string;
+  strokeToken?: string;
+  strokeWidthMm: number;
+  fillColor?: string;
+  strokeColor?: string;
+  lineDirection?: "down" | "up";
+}
+
+export interface SvgElement extends LayoutElement<"svg"> {
+  assetId: string;
+  preserveAspectRatio: boolean;
+  /** Present for SVGs inserted from the built-in decorative library. */
+  libraryItemId?: string;
+  decorColor?: string;
+}
+
+export type CommemorationRankFilterId =
+  | "pascha-and-twelve"
+  | "great"
+  | "medium"
+  | "memorial";
+
+export type CommemorationRankFilter = Record<CommemorationRankFilterId, boolean>;
+
+export interface CalendarGridElement extends LayoutElement<"calendar-grid"> {
+  month: number;
+  columns: 7;
+  weekRows: 4 | 5 | 6;
+  showOverflowWarnings: boolean;
+  showWeekdayHeader: boolean;
+  weekdayLabelMode: "full" | "short" | "custom";
+  customWeekdayLabels?: [string, string, string, string, string, string, string];
+  showOldStyleDate: boolean;
+  maxVisibleEvents: number;
+  showFoodIcons: boolean;
+  showFeastColors: boolean;
+  showTypikonIcons?: boolean;
+  showFastingText?: boolean;
+  showMarriageRules?: boolean;
+  showScriptureReadings?: boolean;
+  commemorationDetail?: "main" | "standard" | "full" | "custom";
+  commemorationFilter?: CommemorationRankFilter;
+  minorCommemorationFallback?: number;
+  dayNumberFontFamily?: string;
+  eventFontFamily?: string;
+  dayNumberFontSizePt?: number;
+  eventFontSizePt?: number;
+  autoFitText?: boolean;
+  minimumEventFontSizePt?: number;
+  eventLineHeight?: number;
+  cellPaddingMm?: number;
+  gridStyle?: "editorial" | "boxed" | "minimal";
+  weekdayFontFamily?: string;
+  weekdayFontSizePt?: number;
+}
+
+export interface MonthTextElement extends LayoutElement<"month-text"> {
+  content: TextVariants;
+  attribution?: string;
+  placement: "fixed-frame" | "trailing-free-cells" | "calendar-free-cells";
+  typography: TextTypography;
+}
+
+export interface LegendElement extends LayoutElement<"legend"> {
+  generatedFromVisibleMarkers: true;
+  columns: number;
+}
+
+export type LayoutElementNode =
+  | TextElement
+  | ImageElement
+  | ShapeElement
+  | SvgElement
+  | CalendarGridElement
+  | MonthTextElement
+  | LegendElement;
+
+export interface PageInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+export interface PageModel {
+  id: string;
+  name: string;
+  kind: PageKind;
+  formatId: PageFormatId;
+  orientation: PageOrientation;
+  width: number;
+  height: number;
+  bleed: PageInsets;
+  safeArea: PageInsets;
+  backgroundToken: string;
+  layers: PageLayerNode[];
+  elements: LayoutElementNode[];
+}
+
+export interface PageLayerBase {
+  id: string;
+  name: string;
+  order: number;
+  visible: boolean;
+  locked: boolean;
+  color: string;
+}
+
+/** A leaf in the page layer tree. It may contain zero or one printable object. */
+export interface PageObjectLayer extends PageLayerBase {
+  kind: "layer";
+  elementId?: string;
+}
+
+/** A non-printing folder used to organise layers and nested folders. */
+export interface PageLayerGroup extends PageLayerBase {
+  kind: "group";
+  expanded: boolean;
+  children: PageLayerNode[];
+}
+
+export type PageLayerNode = PageObjectLayer | PageLayerGroup;
+
+export interface DocumentModel {
+  schemaVersion: 1;
+  unit: DocumentUnit;
+  title: string;
+  pages: PageModel[];
+}
+
+export interface DocumentAsset {
+  id: string;
+  name: string;
+  mimeType: string;
+  source: string;
+  kind: "image" | "svg";
+  widthPx?: number;
+  heightPx?: number;
+}
+
+export interface PublisherProfile {
+  name: string;
+  logoAssetId?: string;
+  contactText?: string;
+}
+
+export interface PrintSettings {
+  includeCropMarks: boolean;
+  cropMarkLengthMm: number;
+  cropMarkOffsetMm: number;
+}
+
+export interface MonasteryEvent {
+  id: string;
+  title: string;
+  shortTitle?: string;
+  veryShortTitle?: string;
+  dateRule:
+    | { type: "annual"; month: number; day: number }
+    | { type: "once"; date: string };
+  priority: number;
+  styleToken?: string;
+  iconAssetId?: string;
+  notes?: string;
+}
+
+export interface ThemeStyleToken {
+  id: string;
+  label: string;
+  numberColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  fontWeight?: number;
+}
+
+export interface StyleTheme {
+  id: string;
+  name: string;
+  tokens: Record<string, ThemeStyleToken>;
+}
+
+export interface CalendarProject {
+  schemaVersion: 1;
+  /** Additive layout defaults migration, independent from the file schema. */
+  layoutRevision?: number;
+  id: string;
+  name: string;
+  publisherProfile: PublisherProfile;
+  year: number;
+  calendarData: unknown;
+  monasteryEvents: MonasteryEvent[];
+  styleTheme: StyleTheme;
+  assets: DocumentAsset[];
+  printSettings?: PrintSettings;
+  foodMarkerPackId?: "ornamental" | "dark";
+  foodMarkerAssets?: Partial<Record<
+    | "no-fast"
+    | "fast"
+    | "fish"
+    | "oil"
+    | "boiled-no-oil"
+    | "dry-eating"
+    | "strict-fast"
+    | "dairy-eggs"
+    | "memorial",
+    string
+  >>;
+  document: DocumentModel;
+}

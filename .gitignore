@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.vite/
+coverage/
+*.local
+output/
+
+# Local inspection artifacts
+tmp/
