@@ -31,6 +31,8 @@ export interface LayoutElement<TType extends LayoutElementType = LayoutElementTy
   visible: boolean;
   overflow: OverflowState;
   styleToken?: string;
+  /** Object opacity: 0 is fully transparent, 1 is fully opaque. */
+  opacity?: number;
 }
 
 export interface TextVariants {
@@ -78,7 +80,16 @@ export interface ShapeElement extends LayoutElement<"shape"> {
   strokeWidthMm: number;
   fillColor?: string;
   strokeColor?: string;
+  fillGradient?: LinearGradientFill;
   lineDirection?: "down" | "up";
+}
+
+export interface LinearGradientFill {
+  kind: "linear-gradient";
+  direction: "horizontal" | "vertical";
+  startColor: string;
+  centerColor: string;
+  endColor: string;
 }
 
 export interface SvgElement extends LayoutElement<"svg"> {

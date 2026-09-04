@@ -27,6 +27,12 @@ import type {
   PageOrientation,
   SvgElement,
 } from "./document/types";
+import {
+  PRINT_GOLD_COLOR,
+  createGoldGradient,
+  createLinearGradient,
+  normalizedOpacity,
+} from "./document/paint";
 import { createElementOnOwnLayer, duplicateElementOnOwnLayer } from "./editor/element-creation";
 import type { ElementFrame } from "./editor/element-creation";
 import { alignElements, distributeElements, type AlignMode, type DistributeMode } from "./editor/alignment";
@@ -1575,8 +1581,7 @@ async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
   }
 }
 
-async function updateSelectedDecorColor(event: Event): Promise<void> {
-  const color = (event.target as HTMLInputElement).value;
+async function setSelectedDecorColor(color: string): Promise<void> {
   const element = selectedElement.value;
   if (!element || element.type !== "svg" || !element.libraryItemId) return;
   const item = decorLibraryItems.find((candidate) => candidate.id === element.libraryItemId);
@@ -1599,6 +1604,10 @@ async function updateSelectedDecorColor(event: Event): Promise<void> {
   } catch (error) {
     operationNotice.value = error instanceof Error ? error.message : "Не удалось изменить цвет";
   }
+}
+
+async function updateSelectedDecorColor(event: Event): Promise<void> {
+  await setSelectedDecorColor((event.target as HTMLInputElement).value);
 }
 
 async function importSelectedAsset(event: Event): Promise<void> {
@@ -1857,8 +1866,62 @@ function updateFillColor(color: string): void {
       element.typography.color = color;
     } else if (element.type === "shape" && element.shape !== "line") {
       element.fillColor = color;
+      element.fillGradient = undefined;
     }
   });
+}
+
+function supportsElementOpacity(element: typeof selectedElement.value): boolean {
+  return element?.type === "text" || element?.type === "month-text" ||
+    element?.type === "image" || element?.type === "svg" || element?.type === "shape";
+}
+
+function elementOpacityPercent(element: typeof selectedElement.value): number {
+  return Math.round(normalizedOpacity(element?.opacity) * 100);
+}
+
+function updateSelectedOpacity(event: Event): void {
+  const element = selectedElement.value;
+  const value = Number((event.target as HTMLInputElement).value);
+  if (!element || !supportsElementOpacity(element) || !Number.isFinite(value)) return;
+  element.opacity = Math.max(0, Math.min(100, value)) / 100;
+}
+
+function updateSelectedShapeFillMode(event: Event): void {
+  const element = selectedElement.value;
+  if (!element || element.type !== "shape" || element.shape === "line") return;
+  const mode = (event.target as HTMLSelectElement).value;
+  element.fillGradient = mode === "gradient"
+    ? createLinearGradient(element.fillColor ?? currentFillColor.value)
+    : undefined;
+}
+
+async function applyGoldPaint(): Promise<void> {
+  currentFillColor.value = PRINT_GOLD_COLOR;
+  const element = selectedElement.value;
+  if (!element) {
+    operationNotice.value = "Золотой цвет выбран для новых объектов";
+    return;
+  }
+  if (element.type === "svg" && element.libraryItemId) {
+    await setSelectedDecorColor(PRINT_GOLD_COLOR);
+    return;
+  }
+  mutateProject("Золотой цвет", () => {
+    if (element.type === "text" || element.type === "month-text") {
+      element.typography.color = PRINT_GOLD_COLOR;
+    } else if (element.type === "shape") {
+      if (element.shape === "line") {
+        element.strokeColor = PRINT_GOLD_COLOR;
+      } else {
+        element.fillColor = PRINT_GOLD_COLOR;
+        element.fillGradient = createGoldGradient();
+      }
+    }
+  });
+  operationNotice.value = element.type === "shape" && element.shape !== "line"
+    ? "Применён золотой металлический градиент"
+    : "Применён золотой цвет";
 }
 
 function updateStrokeColor(color: string): void {
@@ -2080,6 +2143,7 @@ onBeforeUnmount(() => {
         @select="selectTool"
         @update-fill="updateFillColor"
         @update-stroke="updateStrokeColor"
+        @apply-gold="applyGoldPaint"
       />
 
       <DocumentWorkspace
@@ -2130,6 +2194,23 @@ onBeforeUnmount(() => {
                   <label><span>Поворот</span><input :value="selectedElement.rotation" type="number" step="1" @change="updateElementNumber('rotation', $event)" /></label>
                 </dl>
 
+                <div v-if="supportsElementOpacity(selectedElement)" class="opacity-controls">
+                  <label class="field-control">
+                    <span>Непрозрачность, %</span>
+                    <input data-testid="object-opacity" :value="elementOpacityPercent(selectedElement)" type="number" min="0" max="100" step="1" @input="updateSelectedOpacity" />
+                  </label>
+                  <input
+                    class="opacity-controls__range"
+                    aria-label="Непрозрачность объекта"
+                    :value="elementOpacityPercent(selectedElement)"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    @input="updateSelectedOpacity"
+                  />
+                </div>
+
                 <div v-if="selectedElement.type === 'text' || selectedElement.type === 'month-text'" class="object-properties">
                   <label class="field-stack"><span>Текст</span><textarea v-model="selectedElement.content.title" rows="3"></textarea></label>
                   <label v-if="selectedElement.type === 'month-text'" class="field-stack"><span>Автор / источник</span><input v-model="selectedElement.attribution" type="text" /></label>
@@ -2141,6 +2222,7 @@ onBeforeUnmount(() => {
                   <label class="field-control"><span>Трекинг, pt</span><input v-model.number="selectedElement.typography.letterSpacingPt" type="number" min="-5" max="30" step="0.1" /></label>
                   <label class="field-control"><span>Отступ, мм</span><input v-model.number="selectedElement.typography.paddingMm" type="number" min="0" max="30" step="0.1" /></label>
                   <label class="field-control"><span>Цвет</span><input v-model="selectedElement.typography.color" type="color" /></label>
+                  <button type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой цвет</button>
                   <label class="field-control"><span>Выравнивание</span><select v-model="selectedElement.typography.align"><option value="left">Слева</option><option value="center">По центру</option><option value="right">Справа</option><option value="justify">По ширине</option></select></label>
                   <label class="field-control"><span>По вертикали</span><select v-model="selectedElement.typography.verticalAlign"><option value="top">Сверху</option><option value="middle">По центру</option><option value="bottom">Снизу</option></select></label>
                 </div>
@@ -2154,6 +2236,7 @@ onBeforeUnmount(() => {
                     <span>Цвет SVG</span>
                     <input :value="selectedElement.decorColor ?? '#17201d'" type="color" @change="updateSelectedDecorColor" />
                   </label>
+                  <button v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой цвет SVG</button>
                   <p v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="property-help">Векторный элемент из библиотеки: цвет меняется без потери качества.</p>
                   <p v-if="selectedAssetInfo()" class="property-help">{{ selectedAssetInfo() }}</p>
                 </div>
@@ -2265,7 +2348,15 @@ onBeforeUnmount(() => {
                 </div>
 
                 <div v-else-if="selectedElement.type === 'shape'" class="object-properties">
-                  <label v-if="selectedElement.shape !== 'line'" class="field-control"><span>Заливка</span><input v-model="selectedElement.fillColor" type="color" /></label>
+                  <label v-if="selectedElement.shape !== 'line'" class="field-control"><span>Тип заливки</span><select data-testid="shape-fill-mode" :value="selectedElement.fillGradient ? 'gradient' : 'solid'" @change="updateSelectedShapeFillMode"><option value="solid">Сплошной цвет</option><option value="gradient">Линейный градиент</option></select></label>
+                  <label v-if="selectedElement.shape !== 'line' && !selectedElement.fillGradient" class="field-control"><span>Заливка</span><input v-model="selectedElement.fillColor" type="color" /></label>
+                  <div v-if="selectedElement.shape !== 'line' && selectedElement.fillGradient" class="gradient-controls">
+                    <label class="field-control"><span>Начало</span><input v-model="selectedElement.fillGradient.startColor" type="color" /></label>
+                    <label class="field-control"><span>Блик</span><input v-model="selectedElement.fillGradient.centerColor" type="color" /></label>
+                    <label class="field-control"><span>Конец</span><input v-model="selectedElement.fillGradient.endColor" type="color" /></label>
+                    <label class="field-control"><span>Направление</span><select v-model="selectedElement.fillGradient.direction"><option value="horizontal">Слева направо</option><option value="vertical">Сверху вниз</option></select></label>
+                  </div>
+                  <button v-if="selectedElement.shape !== 'line'" type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой металлический градиент</button>
                   <label class="field-control"><span>Обводка</span><input v-model="selectedElement.strokeColor" type="color" /></label>
                   <label class="field-control"><span>Толщина, мм</span><input v-model.number="selectedElement.strokeWidthMm" type="number" min="0" max="20" step="0.05" /></label>
                 </div>

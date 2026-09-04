@@ -8,6 +8,7 @@ import type {
   LayoutElementNode,
   MonthTextElement,
   PageModel,
+  ShapeElement,
   TextElement,
 } from "../document/types";
 import type { EditorTool } from "../editor/types";
@@ -390,6 +391,12 @@ function fontSizeMm(fontSizePt: number): number {
   return fontSizePt * (25.4 / 72);
 }
 
+function shapeFill(element: ShapeElement): string {
+  return element.fillGradient
+    ? `url(#shape-gradient-${element.id})`
+    : element.fillColor ?? "#f4f1e8";
+}
+
 function textPositionX(element: TextElement | MonthTextElement): number {
   const padding = element.typography.paddingMm;
   if (element.typography.align === "center") return element.x + element.width / 2;
@@ -552,6 +559,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :font-family="element.typography.fontFamily"
             :font-size="fontSizeMm(element.typography.fontSizePt)"
             :fill="element.typography.color ?? '#17201d'"
+            :opacity="element.opacity ?? 1"
             :font-weight="element.typography.fontWeight ?? 400"
             :font-style="element.typography.fontStyle ?? 'normal'"
             :letter-spacing="fontSizeMm(element.typography.letterSpacingPt)"
@@ -567,6 +575,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :font-family="element.typography.fontFamily"
             :font-size="fontSizeMm(element.typography.fontSizePt * 0.72)"
             :fill="element.typography.color ?? '#17201d'"
+            :opacity="element.opacity ?? 1"
             :text-anchor="textAnchor(element)"
             class="page-element__text page-element__attribution"
           >
@@ -594,6 +603,19 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         </template>
 
         <template v-else-if="element.type === 'shape'">
+          <defs v-if="element.fillGradient && element.shape !== 'line'">
+            <linearGradient
+              :id="`shape-gradient-${element.id}`"
+              :x1="'0%'"
+              :y1="'0%'"
+              :x2="element.fillGradient.direction === 'horizontal' ? '100%' : '0%'"
+              :y2="element.fillGradient.direction === 'vertical' ? '100%' : '0%'"
+            >
+              <stop offset="0%" :stop-color="element.fillGradient.startColor" />
+              <stop offset="50%" :stop-color="element.fillGradient.centerColor" />
+              <stop offset="100%" :stop-color="element.fillGradient.endColor" />
+            </linearGradient>
+          </defs>
           <rect
             v-if="element.shape === 'rectangle'"
             :x="element.x"
@@ -602,8 +624,9 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :height="element.height"
             class="page-element__shape"
             :stroke-width="element.strokeWidthMm"
-            :fill="element.fillColor ?? '#f4f1e8'"
+            :fill="shapeFill(element)"
             :stroke="element.strokeColor ?? '#17201d'"
+            :opacity="element.opacity ?? 1"
           />
           <ellipse
             v-else-if="element.shape === 'ellipse'"
@@ -613,8 +636,9 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :ry="element.height / 2"
             class="page-element__shape"
             :stroke-width="element.strokeWidthMm"
-            :fill="element.fillColor ?? '#f4f1e8'"
+            :fill="shapeFill(element)"
             :stroke="element.strokeColor ?? '#17201d'"
+            :opacity="element.opacity ?? 1"
           />
           <line
             v-else
@@ -626,6 +650,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :stroke-width="element.strokeWidthMm"
             fill="none"
             :stroke="element.strokeColor ?? '#17201d'"
+            :opacity="element.opacity ?? 1"
           />
         </template>
 
@@ -637,6 +662,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :y="element.y"
             :width="element.width"
             :height="element.height"
+            :opacity="element.opacity ?? 1"
             :preserveAspectRatio="element.preserveAspectRatio ? 'xMidYMid meet' : 'none'"
           />
           <g v-else class="page-element__placeholder">

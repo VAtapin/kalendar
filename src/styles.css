@@ -475,6 +475,19 @@ input {
   cursor: pointer;
 }
 
+.tools-panel__gold {
+  width: 30px;
+  height: 22px;
+  margin: 2px 0;
+  padding: 0;
+  border: 1px solid #f1cf72;
+  border-radius: 3px;
+  color: #2a1b05;
+  background: linear-gradient(90deg, #7a4a00, #ffe7a0 50%, #b7791f);
+  font: 700 10px Georgia, serif;
+  cursor: pointer;
+}
+
 .inspector-panel {
   min-height: 0;
   overflow: auto;
@@ -1674,6 +1687,32 @@ input {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid #38423e;
+}
+
+.opacity-controls,
+.gradient-controls {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 9px;
+  border: 1px solid #39433f;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 2%);
+}
+
+.opacity-controls__range {
+  width: 100%;
+  accent-color: #d4af37;
+}
+
+.gold-preset-button {
+  padding: 7px 9px;
+  border: 1px solid #d8b44b;
+  border-radius: 4px;
+  color: #2b1c05;
+  background: linear-gradient(90deg, #7a4a00, #ffe7a0 50%, #b7791f);
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .field-stack {

@@ -18,6 +18,7 @@ const emit = defineEmits<{
   select: [tool: EditorTool];
   updateFill: [color: string];
   updateStroke: [color: string];
+  applyGold: [];
 }>();
 
 function swapColors(): void {
@@ -67,6 +68,15 @@ const tools: ToolDefinition[] = [
       <button type="button" title="Поменять заливку и обводку местами" @click="swapColors">↔</button>
       <button type="button" title="Цвета по умолчанию" @click="resetColors">◩</button>
     </div>
+    <button
+      type="button"
+      class="tools-panel__gold"
+      title="Золотой цвет / золотой градиент"
+      aria-label="Золотой цвет / золотой градиент"
+      @click="emit('applyGold')"
+    >
+      Au
+    </button>
     <div class="tools-panel__colors">
       <label class="color-chip color-chip--fill" title="Цвет заливки" :style="{ backgroundColor: fillColor }">
         <input type="color" :value="fillColor" @input="emit('updateFill', ($event.target as HTMLInputElement).value)" />

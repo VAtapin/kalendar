@@ -87,3 +87,29 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   await page.getByTitle("Применить ко всем месяцам").click();
   await expect(page.locator(".status-bar__notice")).toContainText("применён к 12 месяцам");
 });
+
+test("edits object opacity and a printable gold gradient", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTitle("Прямоугольник (M)").click();
+  const scene = page.locator(".page-scene");
+  const sceneBox = await scene.boundingBox();
+  if (!sceneBox) throw new Error("Page scene is not visible");
+  await page.mouse.move(sceneBox.x + 140, sceneBox.y + 180);
+  await page.mouse.down();
+  await page.mouse.move(sceneBox.x + 310, sceneBox.y + 260);
+  await page.mouse.up();
+
+  await page.getByRole("tab", { name: "Свойства" }).click();
+  await page.getByTestId("object-opacity").fill("42");
+  const shape = page.locator(".page-element--selected .page-element__shape");
+  await expect(shape).toHaveAttribute("opacity", "0.42");
+
+  await page.getByTestId("shape-fill-mode").selectOption("gradient");
+  await expect(page.getByText("Начало", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Золотой металлический градиент" }).click();
+  const stops = page.locator(".page-element--selected linearGradient stop");
+  await expect(stops).toHaveCount(3);
+  await expect(stops.nth(0)).toHaveAttribute("stop-color", "#7a4a00");
+  await expect(stops.nth(1)).toHaveAttribute("stop-color", "#ffe7a0");
+  await expect(stops.nth(2)).toHaveAttribute("stop-color", "#b7791f");
+});

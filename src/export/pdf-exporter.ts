@@ -43,10 +43,12 @@ import type {
   LayoutElementNode,
   MonthTextElement,
   PageModel,
+  ShapeElement,
   SvgElement,
   TextElement,
   TextTypography,
 } from "../document/types";
+import { gradientColorAt, normalizedOpacity } from "../document/paint";
 import {
   buildCalendarGridLayout,
   calendarFoodMarkerGeometry,
@@ -238,14 +240,15 @@ function drawTrackedText(
   font: PDFFont,
   fill: ReturnType<typeof color>,
   spacing: number,
+  opacity = 1,
 ): void {
   if (!spacing) {
-    page.drawText(text, { x, y, size, font, color: fill });
+    page.drawText(text, { x, y, size, font, color: fill, opacity });
     return;
   }
   let cursor = x;
   for (const character of text) {
-    page.drawText(character, { x: cursor, y, size, font, color: fill });
+    page.drawText(character, { x: cursor, y, size, font, color: fill, opacity });
     cursor += font.widthOfTextAtSize(character, size) + spacing;
   }
 }
@@ -307,6 +310,7 @@ function drawTextFrame(
       font,
       color(typography.color),
       letterSpacing,
+      normalizedOpacity(element.opacity),
     );
   });
 
@@ -326,6 +330,7 @@ function drawTextFrame(
       attributionFont,
       color(typography.color),
       letterSpacing,
+      normalizedOpacity(element.opacity),
     );
   }
 }
@@ -494,7 +499,7 @@ async function drawImageElement(
     y: drawY,
     width: drawWidth,
     height: drawHeight,
-    opacity: element.type === "image" ? element.opacity : 1,
+    opacity: normalizedOpacity(element.opacity),
   });
   if (clipped) context.pdfPage.pushOperators(popGraphicsState());
 }
@@ -819,18 +824,67 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
   });
 }
 
-function drawShape(context: PageContext, element: Extract<LayoutElementNode, { type: "shape" }>): void {
+function drawGradientShape(context: PageContext, element: ShapeElement, opacity: number): void {
+  const gradient = element.fillGradient;
+  if (!gradient || element.shape === "line") return;
+  const x = xPt(context, element.x);
+  const y = bottomPt(context, element.y, element.height);
+  const width = mm(element.width);
+  const height = mm(element.height);
+  const horizontal = gradient.direction === "horizontal";
+  const steps = 96;
+
+  for (let index = 0; index < steps; index += 1) {
+    const position = (index + 0.5) / steps;
+    const channels = gradientColorAt(gradient, position);
+    const fill = rgb(channels.red, channels.green, channels.blue);
+    if (horizontal) {
+      const stripWidth = width / steps;
+      const ellipseHeight = element.shape === "ellipse"
+        ? height * Math.sqrt(Math.max(0, 1 - (position * 2 - 1) ** 2))
+        : height;
+      context.pdfPage.drawRectangle({
+        x: x + index * stripWidth - 0.05,
+        y: y + (height - ellipseHeight) / 2,
+        width: stripWidth + 0.1,
+        height: ellipseHeight,
+        color: fill,
+        opacity,
+      });
+    } else {
+      const stripHeight = height / steps;
+      const ellipseWidth = element.shape === "ellipse"
+        ? width * Math.sqrt(Math.max(0, 1 - (position * 2 - 1) ** 2))
+        : width;
+      context.pdfPage.drawRectangle({
+        x: x + (width - ellipseWidth) / 2,
+        y: y + height - (index + 1) * stripHeight - 0.05,
+        width: ellipseWidth,
+        height: stripHeight + 0.1,
+        color: fill,
+        opacity,
+      });
+    }
+  }
+}
+
+function drawShape(context: PageContext, element: ShapeElement): void {
   const strokeColor = color(element.strokeColor, "#17201d");
   const fillColor = color(element.fillColor, "#f4f1e8");
+  const opacity = normalizedOpacity(element.opacity);
+  const usesGradient = Boolean(element.fillGradient && element.shape !== "line");
+  if (usesGradient) drawGradientShape(context, element, opacity);
   if (element.shape === "rectangle") {
     context.pdfPage.drawRectangle({
       x: xPt(context, element.x),
       y: bottomPt(context, element.y, element.height),
       width: mm(element.width),
       height: mm(element.height),
-      color: fillColor,
+      color: usesGradient ? undefined : fillColor,
       borderColor: strokeColor,
       borderWidth: mm(element.strokeWidthMm),
+      opacity,
+      borderOpacity: opacity,
     });
   } else if (element.shape === "ellipse") {
     context.pdfPage.drawEllipse({
@@ -838,9 +892,11 @@ function drawShape(context: PageContext, element: Extract<LayoutElementNode, { t
       y: bottomPt(context, element.y + element.height / 2),
       xScale: mm(element.width / 2),
       yScale: mm(element.height / 2),
-      color: fillColor,
+      color: usesGradient ? undefined : fillColor,
       borderColor: strokeColor,
       borderWidth: mm(element.strokeWidthMm),
+      opacity,
+      borderOpacity: opacity,
     });
   } else {
     const upward = element.lineDirection === "up";
@@ -855,6 +911,7 @@ function drawShape(context: PageContext, element: Extract<LayoutElementNode, { t
       },
       thickness: mm(element.strokeWidthMm),
       color: strokeColor,
+      opacity,
     });
   }
 }

@@ -14,6 +14,8 @@ describe("editor element creation", () => {
     expect(text.layer.elementId).toBe(text.element.id);
     expect(image.layer.elementId).toBe(image.element.id);
     expect(text.layer.id).not.toBe(image.layer.id);
+    expect(text.element.opacity).toBe(1);
+    expect(image.element.opacity).toBe(1);
     expect(page.elements).toHaveLength(2);
   });
 

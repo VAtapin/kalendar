@@ -5,6 +5,7 @@ import {
   requiredMonthWeekRows,
 } from "../templates/calendar-templates";
 import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-defaults";
+import { normalizedOpacity } from "../document/paint";
 
 const DATABASE_NAME = "orthodox-calendar-layout";
 const DATABASE_VERSION = 3;
@@ -220,6 +221,7 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
   }
   for (const page of project.document.pages) {
     for (const element of page.elements) {
+      element.opacity = normalizedOpacity(element.opacity);
       if (element.type !== "calendar-grid") continue;
       if (!element.commemorationFilter) {
         const detail = element.commemorationDetail === "main" || element.commemorationDetail === "full"
@@ -263,7 +265,7 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
     normalizeLegacyTypography(page, project);
     normalizeLegacyMonthLayout(page, project.year);
   }
-  project.layoutRevision = 5;
+  project.layoutRevision = 6;
   return project;
 }
 

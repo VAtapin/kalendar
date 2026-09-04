@@ -76,6 +76,7 @@ export function createElementOnOwnLayer(
     locked: false,
     visible: true,
     overflow: "none" as const,
+    opacity: 1,
   };
 
   let element: LayoutElementNode;

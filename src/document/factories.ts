@@ -177,7 +177,7 @@ function createDefaultTheme(): StyleTheme {
 export function createBlankCalendarProject(year = 2027): CalendarProject {
   return {
     schemaVersion: 1,
-    layoutRevision: 5,
+    layoutRevision: 6,
     id: "calendar-project",
     name: `Православный календарь ${year}`,
     publisherProfile: { name: "Издатель" },

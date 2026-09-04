@@ -119,7 +119,7 @@ describe("project storage migration", () => {
     expect(grid.eventFontSizePt).toBe(10);
     expect(grid.minimumEventFontSizePt).toBe(9);
     expect(grid.showTypikonIcons).toBe(false);
-    expect(project.layoutRevision).toBe(5);
+    expect(project.layoutRevision).toBe(6);
 
     grid.dayNumberFontSizePt = 24;
     grid.eventFontSizePt = 8;

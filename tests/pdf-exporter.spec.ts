@@ -4,6 +4,8 @@ import { PDFDocument, PDFName } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { buildOrthodoxCalendarYear, parseMemoryDaysXml } from "../src/calendar";
 import { createBlankCalendarProject } from "../src/document/factories";
+import { createGoldGradient } from "../src/document/paint";
+import { createElementOnOwnLayer } from "../src/editor/element-creation";
 import { MM_TO_PT, exportCalendarProjectPdf } from "../src/export/pdf-exporter";
 import { createMonthTemplatePage } from "../src/templates/calendar-templates";
 
@@ -20,6 +22,14 @@ describe("PDF exporter", () => {
     const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
     const project = createBlankCalendarProject(2027);
     project.document.pages = [createMonthTemplatePage("A6", "portrait", 1, 2027)];
+    const goldShape = createElementOnOwnLayer(
+      project.document.pages[0]!,
+      "rectangle",
+      { x: 8, y: 8, width: 32, height: 12 },
+    ).element;
+    if (goldShape.type !== "shape") throw new Error("Expected shape");
+    goldShape.opacity = 0.45;
+    goldShape.fillGradient = createGoldGradient();
     for (const element of project.document.pages[0]!.elements) {
       if (element.type === "calendar-grid") element.showFoodIcons = false;
     }
