@@ -31,6 +31,7 @@ import type {
   CalendarGridElement,
   CalendarProject,
   CommemorationRankFilterId,
+  CornerRadiiMm,
   DocumentAsset,
   ImageElement,
   MonasteryEvent,
@@ -1853,6 +1854,32 @@ function updateSelectedCornerRadius(event: Event): void {
   element.cornerRadiusMm = Math.max(0, Math.min(value, element.width / 2, element.height / 2));
 }
 
+function toggleSelectedCornerRadii(): void {
+  const element = selectedElement.value;
+  if (!element || selectedElementIsProtectedBrand.value) return;
+  mutateProject(element.cornerRadiiMm ? "Связать скругления углов" : "Разделить скругления углов", () => {
+    if (element.cornerRadiiMm) {
+      element.cornerRadiusMm = element.cornerRadiiMm.topLeft;
+      element.cornerRadiiMm = undefined;
+      return;
+    }
+    const radius = Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
+    element.cornerRadiiMm = {
+      topLeft: radius,
+      topRight: radius,
+      bottomRight: radius,
+      bottomLeft: radius,
+    };
+  });
+}
+
+function updateSelectedIndividualCorner(corner: keyof CornerRadiiMm, event: Event): void {
+  const element = selectedElement.value;
+  const value = Number((event.target as HTMLInputElement).value);
+  if (!element?.cornerRadiiMm || selectedElementIsProtectedBrand.value || !Number.isFinite(value)) return;
+  element.cornerRadiiMm[corner] = Math.max(0, Math.min(value, element.width / 2, element.height / 2));
+}
+
 function editableLayerMaskTarget(page: PageModel, layerId: string): PageObjectLayer | undefined {
   const location = findLayerLocation(page, layerId);
   if (
@@ -3229,49 +3256,80 @@ onBeforeUnmount(() => {
             <section class="inspector-section">
               <h2>{{ selectedElement ? "Объект" : "Страница" }}</h2>
               <template v-if="selectedElement">
-                <dl class="property-list property-list--object">
-                  <div><dt>Тип</dt><dd>{{ selectedElement.type }}</dd></div>
-                  <label><span>X</span><input :value="selectedElement.x" :disabled="selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('x', $event)" /></label>
-                  <label><span>Y</span><input :value="selectedElement.y" :disabled="selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('y', $event)" /></label>
-                  <label><span>Ширина</span><input :value="selectedElement.width" :disabled="selectedElementIsProtectedBrand" type="number" min="0.2" step="0.1" @change="updateElementNumber('width', $event)" /></label>
-                  <label><span>Высота</span><input :value="selectedElement.height" :disabled="selectedElementIsProtectedBrand" type="number" min="0.2" step="0.1" @change="updateElementNumber('height', $event)" /></label>
-                  <label><span>Поворот</span><input :value="selectedElement.rotation" :disabled="selectedElementIsProtectedBrand" type="number" step="1" @change="updateElementNumber('rotation', $event)" /></label>
-                </dl>
+                <details class="inspector-subgroup" data-testid="geometry-section" open>
+                  <summary>Геометрия</summary>
+                  <div class="inspector-subgroup__body">
+                    <div class="geometry-controls">
+                      <div class="geometry-controls__type"><span>Тип</span><strong>{{ selectedElement.type }}</strong></div>
+                      <label><span>Поворот</span><input :value="selectedElement.rotation" :disabled="selectedElementIsProtectedBrand" type="number" step="1" @change="updateElementNumber('rotation', $event)" /></label>
+                      <label><span>X</span><input :value="selectedElement.x" :disabled="selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('x', $event)" /></label>
+                      <label><span>Y</span><input :value="selectedElement.y" :disabled="selectedElementIsProtectedBrand" type="number" step="0.1" @change="updateElementNumber('y', $event)" /></label>
+                      <label><span>Ширина</span><input :value="selectedElement.width" :disabled="selectedElementIsProtectedBrand" type="number" min="0.2" step="0.1" @change="updateElementNumber('width', $event)" /></label>
+                      <label><span>Высота</span><input :value="selectedElement.height" :disabled="selectedElementIsProtectedBrand" type="number" min="0.2" step="0.1" @change="updateElementNumber('height', $event)" /></label>
+                    </div>
+                  </div>
+                </details>
 
-                <div v-if="supportsElementOpacity(selectedElement)" class="opacity-controls">
-                  <label class="field-control">
-                    <span>Непрозрачность, %</span>
-                    <input data-testid="object-opacity" :value="elementOpacityPercent(selectedElement)" type="number" min="0" max="100" step="1" @input="updateSelectedOpacity" />
-                  </label>
-                  <input
-                    class="opacity-controls__range"
-                    aria-label="Непрозрачность объекта"
-                    :value="elementOpacityPercent(selectedElement)"
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    @input="updateSelectedOpacity"
-                  />
-                </div>
+                <details class="inspector-subgroup" data-testid="appearance-section" open>
+                  <summary>Внешний вид</summary>
+                  <div class="inspector-subgroup__body">
+                    <div v-if="supportsElementOpacity(selectedElement)" class="opacity-controls">
+                      <label class="field-control">
+                        <span>Непрозрачность, %</span>
+                        <input data-testid="object-opacity" :value="elementOpacityPercent(selectedElement)" type="number" min="0" max="100" step="1" @input="updateSelectedOpacity" />
+                      </label>
+                      <input
+                        class="opacity-controls__range"
+                        aria-label="Непрозрачность объекта"
+                        :value="elementOpacityPercent(selectedElement)"
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        @input="updateSelectedOpacity"
+                      />
+                    </div>
 
-                <div v-if="!selectedElementIsProtectedBrand" class="mask-controls" data-testid="mask-controls">
-                  <label class="field-control">
-                    <span>Скругление, мм</span>
-                    <input
-                      data-testid="corner-radius"
-                      :value="selectedElement.cornerRadiusMm ?? 0"
-                      type="number"
-                      min="0"
-                      :max="Math.min(selectedElement.width, selectedElement.height) / 2"
-                      step="0.5"
-                      @input="updateSelectedCornerRadius"
-                    />
-                  </label>
-                  <p class="property-help">Маска теперь применяется к слою во вкладке «Слои».</p>
-                </div>
+                    <div v-if="!selectedElementIsProtectedBrand" class="corner-radius-control" data-testid="corner-radius-controls">
+                      <div class="corner-radius-control__main">
+                        <span>Скругление, мм</span>
+                        <div>
+                          <input
+                            v-if="!selectedElement.cornerRadiiMm"
+                            data-testid="corner-radius"
+                            :value="selectedElement.cornerRadiusMm ?? 0"
+                            type="number"
+                            min="0"
+                            :max="Math.min(selectedElement.width, selectedElement.height) / 2"
+                            step="0.5"
+                            @input="updateSelectedCornerRadius"
+                          />
+                          <span v-else class="corner-radius-control__separate">4 угла</span>
+                          <button
+                            data-testid="corner-radius-link"
+                            type="button"
+                            :title="selectedElement.cornerRadiiMm ? 'Связать углы: использовать значение верхнего левого угла' : 'Настроить каждый угол отдельно'"
+                            :aria-label="selectedElement.cornerRadiiMm ? 'Связать скругления углов' : 'Разделить скругления углов'"
+                            :class="{ active: !selectedElement.cornerRadiiMm }"
+                            @click="toggleSelectedCornerRadii"
+                          >
+                            {{ selectedElement.cornerRadiiMm ? "⛓" : "🔗" }}
+                          </button>
+                        </div>
+                      </div>
+                      <div v-if="selectedElement.cornerRadiiMm" class="corner-radius-grid">
+                        <label title="Верхний левый"><span>↖</span><input data-testid="corner-radius-top-left" :value="selectedElement.cornerRadiiMm.topLeft" type="number" min="0" step="0.5" @input="updateSelectedIndividualCorner('topLeft', $event)" /></label>
+                        <label title="Верхний правый"><span>↗</span><input data-testid="corner-radius-top-right" :value="selectedElement.cornerRadiiMm.topRight" type="number" min="0" step="0.5" @input="updateSelectedIndividualCorner('topRight', $event)" /></label>
+                        <label title="Нижний левый"><span>↙</span><input data-testid="corner-radius-bottom-left" :value="selectedElement.cornerRadiiMm.bottomLeft" type="number" min="0" step="0.5" @input="updateSelectedIndividualCorner('bottomLeft', $event)" /></label>
+                        <label title="Нижний правый"><span>↘</span><input data-testid="corner-radius-bottom-right" :value="selectedElement.cornerRadiiMm.bottomRight" type="number" min="0" step="0.5" @input="updateSelectedIndividualCorner('bottomRight', $event)" /></label>
+                      </div>
+                    </div>
+                  </div>
+                </details>
 
-                <div v-if="selectedElement.type === 'text' || selectedElement.type === 'month-text'" class="object-properties">
+                <details v-if="selectedElement.type === 'text' || selectedElement.type === 'month-text'" class="inspector-subgroup object-properties" open>
+                  <summary>{{ selectedElement.type === "text" ? "Текст" : "Текст месяца" }}</summary>
+                  <div class="inspector-subgroup__body">
                   <label class="field-stack"><span>Текст</span><textarea v-model="selectedElement.content.title" rows="3"></textarea></label>
                   <label v-if="selectedElement.type === 'month-text'" class="field-stack"><span>Автор / источник</span><input v-model="selectedElement.attribution" type="text" /></label>
                   <label class="field-control"><span>Шрифт</span><select v-model="selectedElement.typography.fontFamily" :style="{ fontFamily: selectedElement.typography.fontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
@@ -3290,10 +3348,13 @@ onBeforeUnmount(() => {
                     test-id-prefix="title"
                   />
                   <label class="field-control"><span>Выравнивание</span><select v-model="selectedElement.typography.align"><option value="left">Слева</option><option value="center">По центру</option><option value="right">Справа</option><option value="justify">По ширине</option></select></label>
-                  <label class="field-control"><span>По вертикали</span><select v-model="selectedElement.typography.verticalAlign"><option value="top">Сверху</option><option value="middle">По центру</option><option value="bottom">Снизу</option></select></label>
-                </div>
+                    <label class="field-control"><span>По вертикали</span><select v-model="selectedElement.typography.verticalAlign"><option value="top">Сверху</option><option value="middle">По центру</option><option value="bottom">Снизу</option></select></label>
+                  </div>
+                </details>
 
-                <div v-else-if="selectedElement.type === 'image' || selectedElement.type === 'svg'" class="object-properties">
+                <details v-else-if="selectedElement.type === 'image' || selectedElement.type === 'svg'" class="inspector-subgroup object-properties" open>
+                  <summary>{{ selectedElement.type === "image" ? "Изображение" : "SVG и декор" }}</summary>
+                  <div class="inspector-subgroup__body">
                   <div v-if="selectedElementIsProtectedBrand" class="protected-brand-notice" data-testid="protected-brand-notice">
                     <strong>Обязательный фирменный знак</strong>
                     <span>Всегда виден и находится на самом верхнем слое.</span>
@@ -3322,10 +3383,13 @@ onBeforeUnmount(() => {
                     <button v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой цвет SVG</button>
                     <p v-if="selectedElement.type === 'svg' && selectedElement.libraryItemId" class="property-help">Векторный элемент из библиотеки: цвет меняется без потери качества.</p>
                   </template>
-                  <p v-if="selectedAssetInfo()" class="property-help">{{ selectedAssetInfo() }}</p>
-                </div>
+                    <p v-if="selectedAssetInfo()" class="property-help">{{ selectedAssetInfo() }}</p>
+                  </div>
+                </details>
 
-                <div v-else-if="selectedElement.type === 'calendar-grid'" class="object-properties">
+                <details v-else-if="selectedElement.type === 'calendar-grid'" class="inspector-subgroup object-properties" open>
+                  <summary>Календарная сетка</summary>
+                  <div class="inspector-subgroup__body">
                   <label class="field-control"><span>Месяц</span><select v-model.number="selectedElement.month"><option v-for="(month, index) in monthNames" :key="month" :value="index + 1">{{ month }}</option></select></label>
                   <label class="field-control"><span>Недель</span><select v-model.number="selectedElement.weekRows"><option :value="4">4</option><option :value="5">5</option><option :value="6">6</option></select></label>
                   <label class="checkbox-field"><input v-model="selectedElement.showWeekdayHeader" type="checkbox" /><span>Заголовки дней недели</span></label>
@@ -3425,10 +3489,13 @@ onBeforeUnmount(() => {
                       </div>
                     </div>
                   </div>
-                  <p class="property-help">Данные дней и праздников берутся из рассчитанного календаря {{ project.year }} года.</p>
-                </div>
+                    <p class="property-help">Данные дней и праздников берутся из рассчитанного календаря {{ project.year }} года.</p>
+                  </div>
+                </details>
 
-                <div v-else-if="selectedElement.type === 'shape'" class="object-properties">
+                <details v-else-if="selectedElement.type === 'shape'" class="inspector-subgroup object-properties" open>
+                  <summary>Фигура</summary>
+                  <div class="inspector-subgroup__body">
                   <label v-if="selectedElement.shape !== 'line'" class="field-control"><span>Тип заливки</span><select data-testid="shape-fill-mode" :value="selectedElement.fillGradient ? 'gradient' : 'solid'" @change="updateSelectedShapeFillMode"><option value="solid">Сплошной цвет</option><option value="gradient">Линейный градиент</option></select></label>
                   <label v-if="selectedElement.shape !== 'line' && !selectedElement.fillGradient" class="field-control"><span>Заливка</span><input v-model="selectedElement.fillColor" type="color" /></label>
                   <div v-if="selectedElement.shape !== 'line' && selectedElement.fillGradient" class="gradient-controls">
@@ -3439,16 +3506,20 @@ onBeforeUnmount(() => {
                   </div>
                   <button v-if="selectedElement.shape !== 'line'" type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой металлический градиент</button>
                   <label class="field-control"><span>Обводка</span><input v-model="selectedElement.strokeColor" type="color" /></label>
-                  <label class="field-control"><span>Толщина, мм</span><input v-model.number="selectedElement.strokeWidthMm" type="number" min="0" max="20" step="0.05" /></label>
-                </div>
+                    <label class="field-control"><span>Толщина, мм</span><input v-model.number="selectedElement.strokeWidthMm" type="number" min="0" max="20" step="0.05" /></label>
+                  </div>
+                </details>
 
-                <div v-else-if="selectedElement.type === 'legend'" class="object-properties">
+                <details v-else-if="selectedElement.type === 'legend'" class="inspector-subgroup object-properties" open>
+                  <summary>Легенда</summary>
+                  <div class="inspector-subgroup__body">
                   <div class="button-pair">
                     <button type="button" @click="placeSelectedLegend('top')">Сверху</button>
                     <button type="button" @click="placeSelectedLegend('bottom')">Снизу</button>
                   </div>
-                  <p class="property-help">Легенда располагает только применённые в этом месяце знаки в одну строку и собирает их у правого края. Свободное место остаётся слева; саму легенду можно двигать мышью.</p>
-                </div>
+                    <p class="property-help">Легенда располагает только применённые в этом месяце знаки в одну строку и собирает их у правого края. Свободное место остаётся слева; саму легенду можно двигать мышью.</p>
+                  </div>
+                </details>
 
                 <div class="overflow-indicator" :class="`overflow-indicator--${selectedElementOverflowState}`">
                   Переполнение: {{ selectedElementOverflowState === "none" ? "нет" : selectedElementOverflowState === "error" ? "ошибка" : "требует внимания" }}

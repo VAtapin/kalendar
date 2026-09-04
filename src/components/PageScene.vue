@@ -15,6 +15,7 @@ import type {
   TextElement,
 } from "../document/types";
 import { calculateImagePlacement } from "../document/image-placement";
+import { hasRoundedCorners, resolvedCornerRadii } from "../document/corner-radii";
 import { normalizedOpacity } from "../document/paint";
 import {
   normalizedTextShadow,
@@ -419,6 +420,26 @@ function elementCornerRadius(element: LayoutElementNode): number {
   return Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
 }
 
+function individualCornerPath(element: LayoutElementNode): string {
+  const { topLeft, topRight, bottomRight, bottomLeft } = resolvedCornerRadii(element);
+  const left = element.x;
+  const top = element.y;
+  const right = element.x + element.width;
+  const bottom = element.y + element.height;
+  return [
+    `M ${left + topLeft} ${top}`,
+    `H ${right - topRight}`,
+    `Q ${right} ${top} ${right} ${top + topRight}`,
+    `V ${bottom - bottomRight}`,
+    `Q ${right} ${bottom} ${right - bottomRight} ${bottom}`,
+    `H ${left + bottomLeft}`,
+    `Q ${left} ${bottom} ${left} ${bottom - bottomLeft}`,
+    `V ${top + topLeft}`,
+    `Q ${left} ${top} ${left + topLeft} ${top}`,
+    "Z",
+  ].join(" ");
+}
+
 function elementLayerMask(element: LayoutElementNode): LayerMask | undefined {
   return layerMaskByElementId.value.get(element.id);
 }
@@ -429,7 +450,7 @@ function elementLayerMaskSource(element: LayoutElementNode): string | undefined 
 }
 
 function elementNeedsMask(element: LayoutElementNode): boolean {
-  return elementCornerRadius(element) > 0 ||
+  return hasRoundedCorners(element) ||
     (element.type === "image" && element.fit === "crop") ||
     Boolean(elementLayerMaskSource(element));
 }
@@ -619,12 +640,14 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         <defs v-if="elementNeedsMask(element)">
           <clipPath :id="elementMaskClipId(element.id)" clipPathUnits="userSpaceOnUse">
             <rect
+              v-if="!element.cornerRadiiMm"
               :x="element.x"
               :y="element.y"
               :width="element.width"
               :height="element.height"
               :rx="elementCornerRadius(element)"
             />
+            <path v-else :d="individualCornerPath(element)" />
           </clipPath>
           <mask
             :id="elementMaskId(element.id)"
@@ -783,8 +806,17 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
               <stop offset="100%" :stop-color="element.fillGradient.endColor" />
             </linearGradient>
           </defs>
+          <path
+            v-if="element.shape === 'rectangle' && element.cornerRadiiMm"
+            :d="individualCornerPath(element)"
+            class="page-element__shape"
+            :stroke-width="element.strokeWidthMm"
+            :fill="shapeFill(element)"
+            :stroke="element.strokeColor ?? '#17201d'"
+            :opacity="element.opacity ?? 1"
+          />
           <rect
-            v-if="element.shape === 'rectangle'"
+            v-else-if="element.shape === 'rectangle'"
             :x="element.x"
             :y="element.y"
             :width="element.width"

@@ -15,6 +15,13 @@ export type LayoutElementType =
   | "month-text"
   | "legend";
 
+export interface CornerRadiiMm {
+  topLeft: number;
+  topRight: number;
+  bottomRight: number;
+  bottomLeft: number;
+}
+
 /**
  * Base type for every printable element.
  * All geometry is expressed in millimetres in the trim-box coordinate system.
@@ -37,6 +44,8 @@ export interface LayoutElement<TType extends LayoutElementType = LayoutElementTy
   opacity?: number;
   /** Non-destructive clipping radius for the printable object frame. */
   cornerRadiusMm?: number;
+  /** Optional independent radii used when the four corners are unlinked. */
+  cornerRadiiMm?: CornerRadiiMm;
 }
 
 /** A non-destructive luminosity mask attached to an object layer. */

@@ -67,8 +67,8 @@ test("keeps the compulsory workshop logo immutable on the top layer", async ({ p
   await expect(page.getByTestId("protected-brand-notice")).toContainText("самом верхнем слое");
   await expect(page.getByTestId("object-opacity")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Заменить файл…" })).toHaveCount(0);
-  await expect(page.locator(".property-list--object input")).toHaveCount(5);
-  await expect(page.locator(".property-list--object input:enabled")).toHaveCount(0);
+  await expect(page.locator(".geometry-controls input")).toHaveCount(5);
+  await expect(page.locator(".geometry-controls input:enabled")).toHaveCount(0);
 
   await page.getByRole("tab", { name: "Слои" }).click();
   await page.locator('.layers-toolbar button[title="Новый пустой слой"]').click();
@@ -258,6 +258,11 @@ test("edits object opacity and a printable gold gradient", async ({ page }) => {
   await page.mouse.up();
 
   await page.getByRole("tab", { name: "Свойства" }).click();
+  const geometrySection = page.getByTestId("geometry-section");
+  await geometrySection.locator("summary").click();
+  await expect(geometrySection).not.toHaveAttribute("open", "");
+  await geometrySection.locator("summary").click();
+  await expect(geometrySection).toHaveAttribute("open", "");
   await page.getByTestId("object-opacity").fill("42");
   const shape = page.locator(".page-element--selected .page-element__shape");
   await expect(shape).toHaveAttribute("opacity", "0.42");
@@ -297,17 +302,34 @@ test("positions a cropped image manually and applies a layer mask from an elemen
 
   await page.getByTestId("corner-radius").fill("8");
   await expect(page.locator('.page-element--selected clipPath[id^="object-mask-frame-"] > rect')).toHaveAttribute("rx", "8");
+  await page.getByTestId("corner-radius-link").click();
+  await expect(page.getByTestId("corner-radius-top-left")).toBeVisible();
+  await page.getByTestId("corner-radius-top-left").fill("12");
+  await page.getByTestId("corner-radius-top-right").fill("2");
+  await page.getByTestId("corner-radius-bottom-left").fill("4");
+  await page.getByTestId("corner-radius-bottom-right").fill("6");
+  await expect(page.locator('.page-element--selected clipPath[id^="object-mask-frame-"] > path')).toHaveAttribute("d", /Q/);
+  await page.getByTestId("corner-radius-link").click();
+  await expect(page.locator('.page-element--selected clipPath[id^="object-mask-frame-"] > rect')).toHaveAttribute("rx", "12");
   const targetElementId = await page.locator(".page-element--selected").getAttribute("data-element-id");
   if (!targetElementId) throw new Error("Target image id is missing");
 
   await page.getByRole("tab", { name: "Элементы" }).click();
+  const existingElementIds = new Set(await page.locator(".page-element").evaluateAll((elements) => elements.map((element) => element.getAttribute("data-element-id"))));
   await page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" }).click();
-  await page.locator(`.page-element[data-element-id="${targetElementId}"]`).click();
+  await expect(page.locator(".page-element")).toHaveCount(existingElementIds.size + 1);
+  const sourceElementId = (await page.locator(".page-element").evaluateAll((elements) => elements.map((element) => element.getAttribute("data-element-id"))))
+    .find((elementId) => elementId && !existingElementIds.has(elementId));
+  if (!sourceElementId) throw new Error("Mask source element is missing");
+  await page.locator(`.page-element[data-element-id="${targetElementId}"]`).dispatchEvent("pointerdown", {
+    button: 0,
+    pointerId: 1,
+    pointerType: "mouse",
+  });
+  await expect(page.locator(".page-element--selected")).toHaveAttribute("data-element-id", targetElementId);
   await page.getByRole("tab", { name: "Слои" }).click();
   await expect(page.getByTestId("layer-mask-panel")).toBeVisible();
-  const sourceOption = page.getByTestId("layer-mask-source").locator("option").filter({ hasText: "Золотой православный крест" });
-  const sourceElementId = await sourceOption.getAttribute("value");
-  if (!sourceElementId) throw new Error("Mask source element is missing");
+  await expect(page.getByTestId("layer-mask-source").locator(`option[value="${sourceElementId}"]`)).toContainText("Золотой православный крест");
   await page.getByTestId("layer-mask-source").selectOption(sourceElementId);
   await page.getByRole("button", { name: "Применить элемент как маску" }).click();
 

@@ -92,6 +92,7 @@ import {
 import { buildCropMarkSegments } from "./print-marks";
 import { calculateImagePlacement } from "../document/image-placement";
 import { findLayerLocation } from "../document/layer-operations";
+import { hasRoundedCorners, resolvedCornerRadii } from "../document/corner-radii";
 
 export const MM_TO_PT = 72 / 25.4;
 
@@ -241,26 +242,37 @@ function beginElementRotation(
   return true;
 }
 
-function roundedRectanglePath(x: number, y: number, width: number, height: number, radius: number): PDFOperator[] {
-  const r = Math.max(0, Math.min(radius, width / 2, height / 2));
-  if (r <= 0) return [rectangle(x, y, width, height)];
+function roundedRectanglePath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radii: { topLeft: number; topRight: number; bottomRight: number; bottomLeft: number },
+): PDFOperator[] {
+  const topLeft = Math.max(0, Math.min(radii.topLeft, width / 2, height / 2));
+  const topRight = Math.max(0, Math.min(radii.topRight, width / 2, height / 2));
+  const bottomRight = Math.max(0, Math.min(radii.bottomRight, width / 2, height / 2));
+  const bottomLeft = Math.max(0, Math.min(radii.bottomLeft, width / 2, height / 2));
+  if (topLeft <= 0 && topRight <= 0 && bottomRight <= 0 && bottomLeft <= 0) {
+    return [rectangle(x, y, width, height)];
+  }
   const k = 0.5522847498;
   return [
-    moveTo(x + r, y),
-    lineTo(x + width - r, y),
-    appendBezierCurve(x + width - r + k * r, y, x + width, y + r - k * r, x + width, y + r),
-    lineTo(x + width, y + height - r),
-    appendBezierCurve(x + width, y + height - r + k * r, x + width - r + k * r, y + height, x + width - r, y + height),
-    lineTo(x + r, y + height),
-    appendBezierCurve(x + r - k * r, y + height, x, y + height - r + k * r, x, y + height - r),
-    lineTo(x, y + r),
-    appendBezierCurve(x, y + r - k * r, x + r - k * r, y, x + r, y),
+    moveTo(x + bottomLeft, y),
+    lineTo(x + width - bottomRight, y),
+    appendBezierCurve(x + width - bottomRight + k * bottomRight, y, x + width, y + bottomRight - k * bottomRight, x + width, y + bottomRight),
+    lineTo(x + width, y + height - topRight),
+    appendBezierCurve(x + width, y + height - topRight + k * topRight, x + width - topRight + k * topRight, y + height, x + width - topRight, y + height),
+    lineTo(x + topLeft, y + height),
+    appendBezierCurve(x + topLeft - k * topLeft, y + height, x, y + height - topLeft + k * topLeft, x, y + height - topLeft),
+    lineTo(x, y + bottomLeft),
+    appendBezierCurve(x, y + bottomLeft - k * bottomLeft, x + bottomLeft - k * bottomLeft, y, x + bottomLeft, y),
     closePath(),
   ];
 }
 
 async function beginElementMask(context: PageContext, element: LayoutElementNode): Promise<boolean> {
-  const radius = Math.max(0, Math.min(element.cornerRadiusMm ?? 0, element.width / 2, element.height / 2));
+  const radiiMm = resolvedCornerRadii(element);
   const layer = findLayerLocation(context.page, element.layerId)?.node;
   const layerMask = layer?.kind === "layer" && layer.mask?.enabled !== false ? layer.mask : undefined;
   const maskAsset = layerMask ? context.assets.get(layerMask.assetId) : undefined;
@@ -277,7 +289,7 @@ async function beginElementMask(context: PageContext, element: LayoutElementNode
         : "Файл маски слоя не найден.",
     });
   }
-  if (radius <= 0 && !maskImage) return false;
+  if (!hasRoundedCorners(element) && !maskImage) return false;
 
   const frameX = xPt(context, element.x);
   const frameY = bottomPt(context, element.y, element.height);
@@ -285,7 +297,12 @@ async function beginElementMask(context: PageContext, element: LayoutElementNode
   const frameHeight = mm(element.height);
   const operators: PDFOperator[] = [
     pushGraphicsState(),
-    ...roundedRectanglePath(frameX, frameY, frameWidth, frameHeight, mm(radius)),
+    ...roundedRectanglePath(frameX, frameY, frameWidth, frameHeight, {
+      topLeft: mm(radiiMm.topLeft),
+      topRight: mm(radiiMm.topRight),
+      bottomRight: mm(radiiMm.bottomRight),
+      bottomLeft: mm(radiiMm.bottomLeft),
+    }),
     clip(),
     endPath(),
     setFillingGrayscaleColor(maskImage ? 0 : 1),

@@ -23,6 +23,11 @@ const emit = defineEmits<{
 }>();
 
 const effects = computed(() => props.modelValue ?? {});
+const enabledEffectCount = computed(() => [
+  effects.value.gradient,
+  effects.value.extrusion,
+  effects.value.shadow,
+].filter(Boolean).length);
 
 function update(next: Partial<LargeTextEffects>): void {
   emit("update:modelValue", { ...effects.value, ...next });
@@ -61,8 +66,12 @@ function numberValue(event: Event): number {
 </script>
 
 <template>
-  <section class="text-effects-editor">
-    <strong class="text-effects-editor__title">{{ title }}</strong>
+  <details class="text-effects-editor" open>
+    <summary class="text-effects-editor__title">
+      <span>{{ title }}</span>
+      <small>{{ enabledEffectCount ? `включено: ${enabledEffectCount}` : "выключены" }}</small>
+    </summary>
+    <div class="text-effects-editor__body">
 
     <label class="checkbox-field">
       <input
@@ -113,5 +122,6 @@ function numberValue(event: Event): number {
       <label class="field-control"><span>Размытие, мм</span><input :value="effects.shadow.blurMm" type="number" min="0" step="0.1" @input="updateShadow('blurMm', numberValue($event))" /></label>
       <label class="field-control"><span>Непрозрачность, %</span><input :value="Math.round(effects.shadow.opacity * 100)" type="number" min="0" max="100" step="1" @input="updateShadow('opacity', numberValue($event) / 100)" /></label>
     </div>
-  </section>
+    </div>
+  </details>
 </template>

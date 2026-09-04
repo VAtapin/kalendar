@@ -9,6 +9,7 @@ import type {
   SvgElement,
 } from "../document/types";
 import { calculateImagePlacement } from "../document/image-placement";
+import { hasRoundedCorners, resolvedCornerRadii } from "../document/corner-radii";
 import { flattenObjectLayers } from "../document/layer-operations";
 
 const props = defineProps<{
@@ -92,7 +93,7 @@ function applyElementRotation(
 }
 
 function elementNeedsMask(element: LayoutElementNode, layerMask: LayerMask | undefined): boolean {
-  return (element.cornerRadiusMm ?? 0) > 0 ||
+  return hasRoundedCorners(element) ||
     (element.type === "image" && element.fit === "crop") ||
     Boolean(layerMask?.enabled !== false && layerMask?.assetId);
 }
@@ -108,15 +109,18 @@ function drawElementMask(
   const y = element.y * scaleY;
   const width = element.width * scaleX;
   const height = element.height * scaleY;
-  const radius = Math.max(0, Math.min(
-    (element.cornerRadiusMm ?? 0) * (scaleX + scaleY) / 2,
-    width / 2,
-    height / 2,
-  ));
+  const sourceRadii = resolvedCornerRadii(element);
+  const radiusScale = (scaleX + scaleY) / 2;
+  const radii = [
+    sourceRadii.topLeft * radiusScale,
+    sourceRadii.topRight * radiusScale,
+    sourceRadii.bottomRight * radiusScale,
+    sourceRadii.bottomLeft * radiusScale,
+  ];
   context.save();
   applyElementRotation(context, element, scaleX, scaleY);
   context.beginPath();
-  context.roundRect(x, y, width, height, radius);
+  context.roundRect(x, y, width, height, radii);
   context.clip();
   context.fillStyle = maskBitmap ? "#000" : "#fff";
   context.fillRect(x, y, width, height);
