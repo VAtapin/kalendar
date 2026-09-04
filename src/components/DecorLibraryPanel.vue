@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   DECOR_CATEGORY_LABELS,
   type DecorCategory,
@@ -10,19 +10,47 @@ const props = defineProps<{ items: readonly DecorLibraryItem[] }>();
 const emit = defineEmits<{ insert: [item: DecorLibraryItem] }>();
 
 const search = ref("");
+const collection = ref<"gold" | "svg">("gold");
 const category = ref<"all" | DecorCategory>("all");
 const categories = Object.entries(DECOR_CATEGORY_LABELS) as Array<[DecorCategory, string]>;
+const collectionItems = computed(() => props.items.filter((item) =>
+  collection.value === "gold" ? item.kind === "image" : item.kind !== "image",
+));
 const visibleItems = computed(() => {
   const query = search.value.trim().toLocaleLowerCase("ru");
-  return props.items.filter((item) =>
+  return collectionItems.value.filter((item) =>
     (category.value === "all" || item.category === category.value) &&
     (!query || `${item.label} ${item.sourceId}`.toLocaleLowerCase("ru").includes(query)),
   );
+});
+
+watch(collection, () => {
+  category.value = "all";
 });
 </script>
 
 <template>
   <div class="decor-library">
+    <div class="decor-library__collections" role="group" aria-label="Коллекция элементов">
+      <button
+        type="button"
+        :class="['decor-library__collection', { 'is-active': collection === 'gold' }]"
+        :aria-pressed="collection === 'gold'"
+        data-testid="decor-collection-gold"
+        @click="collection = 'gold'"
+      >
+        Золотые
+      </button>
+      <button
+        type="button"
+        :class="['decor-library__collection', { 'is-active': collection === 'svg' }]"
+        :aria-pressed="collection === 'svg'"
+        data-testid="decor-collection-svg"
+        @click="collection = 'svg'"
+      >
+        SVG
+      </button>
+    </div>
     <div class="decor-library__controls">
       <label class="field-stack">
         <span>Поиск</span>
@@ -36,7 +64,9 @@ const visibleItems = computed(() => {
         </select>
       </label>
     </div>
-    <p class="decor-library__summary">{{ visibleItems.length }} из {{ items.length }} · щелчок вставляет на новый верхний слой</p>
+    <p class="decor-library__summary">
+      {{ visibleItems.length }} из {{ collectionItems.length }} · щелчок вставляет на новый верхний слой
+    </p>
     <div class="decor-library__grid">
       <button
         v-for="item in visibleItems"

@@ -32,11 +32,38 @@ function hasTransparentPixel(data: Buffer): boolean {
   return false;
 }
 
+function transparentPixelRatio(data: Buffer): number {
+  let transparent = 0;
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] === 0) transparent += 1;
+  }
+  return transparent / (data.length / 4);
+}
+
+function averageGold(data: Buffer): [number, number, number] {
+  let count = 0;
+  const sum: [number, number, number] = [0, 0, 0];
+  for (let index = 0; index < data.length; index += 4) {
+    const red = data[index] ?? 0;
+    const green = data[index + 1] ?? 0;
+    const blue = data[index + 2] ?? 0;
+    const alpha = data[index + 3] ?? 0;
+    if (alpha > 128 && red > green && green > blue && red - blue > 45) {
+      sum[0] += red;
+      sum[1] += green;
+      sum[2] += blue;
+      count += 1;
+    }
+  }
+  expect(count).toBeGreaterThan(0);
+  return sum.map((channel) => channel / count) as [number, number, number];
+}
+
 describe("библиотека декоративных элементов", () => {
   it("содержит только уникальные самостоятельные элементы", () => {
-    expect(DECOR_LIBRARY_ITEMS).toHaveLength(145);
-    expect(new Set(DECOR_LIBRARY_ITEMS.map((item) => item.id)).size).toBe(145);
-    expect(new Set(DECOR_LIBRARY_ITEMS.map((item) => item.source)).size).toBe(145);
+    expect(DECOR_LIBRARY_ITEMS).toHaveLength(149);
+    expect(new Set(DECOR_LIBRARY_ITEMS.map((item) => item.id)).size).toBe(149);
+    expect(new Set(DECOR_LIBRARY_ITEMS.map((item) => item.source)).size).toBe(149);
     expect(DECOR_LIBRARY_ITEMS.some((item) => item.sourceId === "47040")).toBe(false);
     expect(DECOR_LIBRARY_ITEMS.some((item) => item.sourceId === "2031234 (1)")).toBe(false);
   });
@@ -62,8 +89,8 @@ describe("библиотека декоративных элементов", () 
     }
   });
 
-  it("содержит 18 прозрачных золотых PNG с реальными 300 dpi", async () => {
-    expect(imageItems).toHaveLength(18);
+  it("содержит 22 прозрачных золотых PNG с реальными 300 dpi", async () => {
+    expect(imageItems).toHaveLength(22);
     const pixelsPerMetreAt300Dpi = Math.round(300 / 0.0254);
     const contentHashes = new Set<string>();
     for (const item of imageItems) {
@@ -76,6 +103,7 @@ describe("библиотека декоративных элементов", () 
       expect(png.width).toBe(item.widthPx);
       expect(png.height).toBe(item.heightPx);
       expect(hasTransparentPixel(png.data)).toBe(true);
+      expect(transparentPixelRatio(png.data)).toBeGreaterThan(0.25);
       expect(pngDensity(source)).toEqual({
         x: pixelsPerMetreAt300Dpi,
         y: pixelsPerMetreAt300Dpi,
@@ -83,5 +111,26 @@ describe("библиотека декоративных элементов", () 
       });
     }
     expect(contentHashes.size).toBe(imageItems.length);
+  });
+
+  it("держит новые золотые объекты в палитре исходной коллекции", async () => {
+    const palettes = await Promise.all(imageItems.map(async (item) => {
+      const absolute = path.join(process.cwd(), "public", item.source.replace(/^\//, ""));
+      return averageGold(PNG.sync.read(await readFile(absolute)).data);
+    }));
+    const reference: [number, number, number] = [
+      palettes.slice(0, 18).reduce((sum, color) => sum + color[0], 0) / 18,
+      palettes.slice(0, 18).reduce((sum, color) => sum + color[1], 0) / 18,
+      palettes.slice(0, 18).reduce((sum, color) => sum + color[2], 0) / 18,
+    ];
+
+    for (const color of palettes.slice(18)) {
+      const distance = Math.hypot(
+        color[0] - reference[0],
+        color[1] - reference[1],
+        color[2] - reference[2],
+      );
+      expect(distance).toBeLessThan(24);
+    }
   });
 });

@@ -609,6 +609,42 @@ input {
   padding-bottom: 14px;
 }
 
+.decor-library__collections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  margin: 0 10px 10px;
+  padding: 3px;
+  border: 1px solid #3f4a45;
+  border-radius: 6px;
+  background: #111815;
+}
+
+.decor-library__collection {
+  min-width: 0;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 4px;
+  color: #9eaaa5;
+  background: transparent;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.decor-library__collection:hover,
+.decor-library__collection:focus-visible {
+  color: #f0e5c4;
+  outline: 1px solid #7e704c;
+}
+
+.decor-library__collection.is-active {
+  color: #fff0bc;
+  background: #5c4b27;
+  box-shadow: inset 0 0 0 1px #a58a4d;
+}
+
 .decor-library__controls {
   display: grid;
   gap: 8px;

@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test";
 test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("tab", { name: "Элементы" }).click();
+  await expect(page.getByTestId("decor-collection-gold")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".decor-library__summary")).toContainText("22 из 22");
   const ornament = page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" });
   await expect(ornament).toContainText("PNG · 300 dpi");
   await ornament.click();
@@ -11,6 +13,21 @@ test("inserts a print-ready transparent gold ornament from the objects library",
   await expect(inserted).toHaveCount(1);
   await expect(page.locator(".status-bar__notice")).toContainText("Золотой православный крест");
   await expect(page.locator(".status-bar__notice")).toContainText("300 dpi");
+});
+
+test("separates gold and SVG object collections", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("tab", { name: "Элементы" }).click();
+
+  await expect(page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" })).toBeVisible();
+  await expect(page.locator(".decor-library__item-meta").first()).toContainText("PNG · 300 dpi");
+
+  await page.getByTestId("decor-collection-svg").click();
+  await expect(page.getByTestId("decor-collection-svg")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".decor-library__summary")).toContainText("127 из 127");
+  await expect(page.locator(".decor-library__item").filter({ hasText: "Золотой православный крест" })).toHaveCount(0);
+  await expect(page.locator(".decor-library__item").first()).toBeVisible();
+  await expect(page.locator(".decor-library__item-meta")).toHaveCount(0);
 });
 
 test("creates a full calendar safely and keeps cell geometry independent", async ({ page }) => {
