@@ -84,6 +84,31 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   await expect(typikonMarker).toHaveAttribute("width", "8");
   expect(await typikonMarker.getAttribute("y")).not.toBe(typikonYBefore);
 
+  const calendarGrid = page.locator('.page-element[data-element-type="calendar-grid"]');
+  await page.getByTestId("weekday-gradient-enabled").check();
+  await page.getByTestId("weekday-extrusion-enabled").check();
+  await page.getByTestId("weekday-shadow-enabled").check();
+  await expect(calendarGrid.locator('linearGradient[id*="-weekday"]')).toHaveCount(1);
+  await expect(calendarGrid.locator('filter[id*="-weekday"]')).toHaveCount(1);
+  await expect(calendarGrid.locator(".page-element__calendar-weekday.large-text-extrusion").first()).toBeVisible();
+
+  await page.getByTestId("day-number-gradient-enabled").check();
+  await page.getByTestId("day-number-extrusion-enabled").check();
+  await page.getByTestId("day-number-shadow-enabled").check();
+  await expect(calendarGrid.locator('linearGradient[id*="-day-number"]')).toHaveCount(1);
+  await expect(calendarGrid.locator('filter[id*="-day-number"]')).toHaveCount(1);
+  await expect(calendarGrid.locator(".calendar-cell__number.large-text-extrusion").first()).toBeVisible();
+
+  const monthTitle = page.locator('.page-element[data-element-type="text"]').first();
+  await monthTitle.click({ force: true });
+  await page.getByTestId("title-gradient-enabled").check();
+  await page.getByTestId("title-extrusion-enabled").check();
+  await page.getByTestId("title-shadow-enabled").check();
+  await expect(monthTitle.locator('linearGradient[id^="text-gradient-"]')).toHaveCount(1);
+  await expect(monthTitle.locator('filter[id^="text-shadow-"]')).toHaveCount(1);
+  await expect(monthTitle.locator(".large-text-extrusion").first()).toBeVisible();
+
+  await calendarGrid.click({ force: true });
   await page.getByRole("tab", { name: "Страницы" }).click();
   page.once("dialog", async (dialog) => dialog.accept("Крупная сетка"));
   await page.getByRole("button", { name: "Сохранить выбранную сетку…" }).click();

@@ -59,6 +59,8 @@ export interface TextTypography {
 export interface TextElement extends LayoutElement<"text"> {
   content: TextVariants;
   typography: TextTypography;
+  /** Optional print-safe effects intended for display-size headings. */
+  textEffects?: LargeTextEffects;
 }
 
 export interface ImageCrop {
@@ -92,6 +94,27 @@ export interface LinearGradientFill {
   startColor: string;
   centerColor: string;
   endColor: string;
+}
+
+export interface TextShadowEffect {
+  color: string;
+  offsetXMm: number;
+  offsetYMm: number;
+  blurMm: number;
+  opacity: number;
+}
+
+export interface TextExtrusionEffect {
+  color: string;
+  depthMm: number;
+  angleDeg: number;
+  opacity: number;
+}
+
+export interface LargeTextEffects {
+  gradient?: LinearGradientFill;
+  extrusion?: TextExtrusionEffect;
+  shadow?: TextShadowEffect;
 }
 
 export interface SvgElement extends LayoutElement<"svg"> {
@@ -162,6 +185,8 @@ export interface CalendarGridElement extends LayoutElement<"calendar-grid"> {
   gridStyle?: "editorial" | "boxed" | "minimal";
   weekdayFontFamily?: string;
   weekdayFontSizePt?: number;
+  weekdayTextEffects?: LargeTextEffects;
+  dayNumberTextEffects?: LargeTextEffects;
 }
 
 export interface MonthTextElement extends LayoutElement<"month-text"> {

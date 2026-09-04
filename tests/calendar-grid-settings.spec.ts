@@ -40,6 +40,18 @@ describe("calendar grid presentation", () => {
     source.eventLineSpacingPt = 0.75;
     source.eventGapPt = 1.25;
     source.showTypikonIcons = true;
+    source.weekdayTextEffects = {
+      gradient: {
+        kind: "linear-gradient",
+        direction: "vertical",
+        startColor: "#111111",
+        centerColor: "#777777",
+        endColor: "#eeeeee",
+      },
+    };
+    source.dayNumberTextEffects = {
+      extrusion: { color: "#654321", depthMm: 2, angleDeg: 45, opacity: 0.9 },
+    };
     source.customWeekdayLabels = ["1", "2", "3", "4", "5", "6", "7"];
     const target = grid("target", 9);
     target.x = 30;
@@ -57,6 +69,9 @@ describe("calendar grid presentation", () => {
     expect(target.eventGapPt).toBe(1.25);
     expect(target.gridStyle).toBe("editorial");
     expect(target.showTypikonIcons).toBe(true);
+    expect(target.weekdayTextEffects).toEqual(source.weekdayTextEffects);
+    expect(target.weekdayTextEffects).not.toBe(source.weekdayTextEffects);
+    expect(target.dayNumberTextEffects).toEqual(source.dayNumberTextEffects);
     expect(target.customWeekdayLabels).not.toBe(source.customWeekdayLabels);
   });
 });

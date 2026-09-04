@@ -5,16 +5,24 @@ import {
   PDFName,
   PDFNumber,
   PDFString,
+  TextRenderingMode,
   type PDFFont,
   type PDFImage,
   type PDFPage,
   clip,
+  beginText,
   concatTransformationMatrix,
+  endText,
   endPath,
   popGraphicsState,
   pushGraphicsState,
   rectangle,
   rgb,
+  setCharacterSpacing,
+  setFontAndSize,
+  setTextMatrix,
+  setTextRenderingMode,
+  showText,
 } from "pdf-lib";
 import type { OrthodoxCalendarYear } from "../calendar";
 import {
@@ -40,6 +48,7 @@ import type {
   CalendarProject,
   DocumentAsset,
   ImageElement,
+  LargeTextEffects,
   LayoutElementNode,
   MonthTextElement,
   PageModel,
@@ -49,6 +58,10 @@ import type {
   TextTypography,
 } from "../document/types";
 import { gradientColorAt, normalizedOpacity } from "../document/paint";
+import {
+  normalizedTextShadow,
+  textExtrusionOffsets,
+} from "../document/text-effects";
 import {
   buildCalendarGridLayout,
   calendarFoodMarkerGeometry,
@@ -253,6 +266,134 @@ function drawTrackedText(
   }
 }
 
+interface PdfPageFontState {
+  setOrEmbedFont(font: PDFFont): {
+    newFont: PDFFont;
+    newFontKey: PDFName;
+  };
+}
+
+function drawGradientTrackedText(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  font: PDFFont,
+  spacing: number,
+  effects: LargeTextEffects,
+  opacity: number,
+): void {
+  const gradient = effects.gradient;
+  if (!gradient) return;
+  const width = trackedTextWidth(font, text, size, spacing);
+  if (!text || width <= 0 || size <= 0) return;
+  const { newFont, newFontKey } = (page as unknown as PdfPageFontState).setOrEmbedFont(font);
+  const operators = [
+    pushGraphicsState(),
+    beginText(),
+    setFontAndSize(newFontKey, size),
+    setTextRenderingMode(TextRenderingMode.Clip),
+    setTextMatrix(1, 0, 0, 1, x, y),
+  ];
+  if (spacing) operators.push(setCharacterSpacing(spacing));
+  operators.push(showText(newFont.encodeText(text)), endText());
+  page.pushOperators(...operators);
+
+  const stripeCount = Math.max(24, Math.min(96, Math.ceil((gradient.direction === "horizontal" ? width : size) / 3)));
+  const bottom = y - size * 0.28;
+  const height = size * 1.35;
+  for (let index = 0; index < stripeCount; index += 1) {
+    const position = (index + 0.5) / stripeCount;
+    const channels = gradientColorAt(
+      gradient,
+      gradient.direction === "vertical" ? 1 - position : position,
+    );
+    if (gradient.direction === "horizontal") {
+      const stripeWidth = width / stripeCount;
+      page.drawRectangle({
+        x: x + stripeWidth * index,
+        y: bottom,
+        width: stripeWidth + 0.15,
+        height,
+        color: rgb(channels.red, channels.green, channels.blue),
+        opacity,
+      });
+    } else {
+      const stripeHeight = height / stripeCount;
+      page.drawRectangle({
+        x,
+        y: bottom + stripeHeight * index,
+        width: width + 0.15,
+        height: stripeHeight + 0.15,
+        color: rgb(channels.red, channels.green, channels.blue),
+        opacity,
+      });
+    }
+  }
+  page.pushOperators(popGraphicsState());
+}
+
+function drawLargeTrackedText(
+  page: PDFPage,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  font: PDFFont,
+  fill: ReturnType<typeof color>,
+  spacing: number,
+  effects: LargeTextEffects | undefined,
+  opacity = 1,
+): void {
+  const objectOpacity = normalizedOpacity(opacity);
+  const shadow = normalizedTextShadow(effects?.shadow);
+  if (shadow) {
+    const blur = mm(shadow.blurMm);
+    const samples = blur > 0
+      ? [
+          [0, 0], [-0.7, 0], [0.7, 0], [0, -0.7], [0, 0.7],
+          [-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5],
+        ] as const
+      : [[0, 0]] as const;
+    for (const [sampleX, sampleY] of samples) {
+      drawTrackedText(
+        page,
+        text,
+        x + mm(shadow.offsetXMm) + sampleX * blur,
+        y - mm(shadow.offsetYMm) + sampleY * blur,
+        size,
+        font,
+        color(shadow.color),
+        spacing,
+        objectOpacity * shadow.opacity / Math.sqrt(samples.length),
+      );
+    }
+  }
+
+  if (effects?.extrusion) {
+    for (const offset of textExtrusionOffsets(effects.extrusion)) {
+      drawTrackedText(
+        page,
+        text,
+        x + mm(offset.xMm),
+        y - mm(offset.yMm),
+        size,
+        font,
+        color(effects.extrusion.color),
+        spacing,
+        objectOpacity * offset.opacity,
+      );
+    }
+  }
+
+  if (effects?.gradient) {
+    drawGradientTrackedText(page, text, x, y, size, font, spacing, effects, objectOpacity);
+  } else {
+    drawTrackedText(page, text, x, y, size, font, fill, spacing, objectOpacity);
+  }
+}
+
 function drawTextFrame(
   context: PageContext,
   element: TextElement | MonthTextElement,
@@ -301,7 +442,7 @@ function drawTextFrame(
 
   layout.lines.forEach((line, index) => {
     const baseline = top - fontSize - index * lineHeight;
-    drawTrackedText(
+    drawLargeTrackedText(
       context.pdfPage,
       line.text,
       alignedX(typography.align, left, width, line.width),
@@ -310,6 +451,7 @@ function drawTextFrame(
       font,
       color(typography.color),
       letterSpacing,
+      element.type === "text" ? element.textEffects : undefined,
       normalizedOpacity(element.opacity),
     );
   });
@@ -579,13 +721,17 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
         });
       }
       const labelWidth = headingFont.widthOfTextAtSize(label, fittedHeadingSize);
-      context.pdfPage.drawText(label, {
-        x: xPt(context, cellX) + (mm(layout.columnWidth) - labelWidth) / 2,
-        y: bottomPt(context, element.y, layout.headerHeight * 0.64) - fittedHeadingSize * 0.35,
-        size: fittedHeadingSize,
-        font: headingFont,
-        color: color(column === 6 ? "#9d2929" : "#26322d"),
-      });
+      drawLargeTrackedText(
+        context.pdfPage,
+        label,
+        xPt(context, cellX) + (mm(layout.columnWidth) - labelWidth) / 2,
+        bottomPt(context, element.y, layout.headerHeight * 0.64) - fittedHeadingSize * 0.35,
+        fittedHeadingSize,
+        headingFont,
+        color(column === 6 ? "#9d2929" : "#26322d"),
+        0,
+        element.weekdayTextEffects,
+      );
     }
   });
   if (gridStyle === "editorial" && layout.headerHeight > 0) {
@@ -638,13 +784,17 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
       verticalAlign: "top",
       paddingMm: 0,
     });
-    context.pdfPage.drawText(String(cell.day.date.day), {
-      x: cellX + mm(typography.dayNumberXOffsetMm),
-      y: bottomPt(context, cell.y + typography.dayNumberYOffsetMm + typography.dayNumberFontSizeMm) - numberSize * 0.12,
-      size: numberSize,
-      font: numberFont,
-      color: color(element.showFeastColors === false ? "#17201d" : numberStyle.color),
-    });
+    drawLargeTrackedText(
+      context.pdfPage,
+      String(cell.day.date.day),
+      cellX + mm(typography.dayNumberXOffsetMm),
+      bottomPt(context, cell.y + typography.dayNumberYOffsetMm + typography.dayNumberFontSizeMm) - numberSize * 0.12,
+      numberSize,
+      numberFont,
+      color(element.showFeastColors === false ? "#17201d" : numberStyle.color),
+      0,
+      element.dayNumberTextEffects,
+    );
     if (element.showOldStyleDate) {
       const oldStyle = `ст. ст. ${cell.day.oldStyleDate.day}.${cell.day.oldStyleDate.month}`;
       const oldStyleSize = mm(typography.oldStyleFontSizeMm);

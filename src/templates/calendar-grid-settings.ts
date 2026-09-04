@@ -45,6 +45,8 @@ const PRESENTATION_KEYS = [
   "gridStyle",
   "weekdayFontFamily",
   "weekdayFontSizePt",
+  "weekdayTextEffects",
+  "dayNumberTextEffects",
 ] as const satisfies ReadonlyArray<keyof CalendarGridElement>;
 
 /** Copies visual/calendar-cell settings while preserving each page's month and geometry. */

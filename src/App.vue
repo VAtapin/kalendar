@@ -4,6 +4,7 @@ import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import DecorLibraryPanel from "./components/DecorLibraryPanel.vue";
 import LayersPanel from "./components/LayersPanel.vue";
 import ToolsPanel from "./components/ToolsPanel.vue";
+import TextEffectsEditor from "./components/TextEffectsEditor.vue";
 import {
   changePageFormat,
   createBlankCalendarProject,
@@ -2334,6 +2335,12 @@ onBeforeUnmount(() => {
                   <label class="field-control"><span>Отступ, мм</span><input v-model.number="selectedElement.typography.paddingMm" type="number" min="0" max="30" step="0.1" /></label>
                   <label class="field-control"><span>Цвет</span><input v-model="selectedElement.typography.color" type="color" /></label>
                   <button type="button" class="gold-preset-button" @click="applyGoldPaint">Золотой цвет</button>
+                  <TextEffectsEditor
+                    v-if="selectedElement.type === 'text'"
+                    v-model="selectedElement.textEffects"
+                    title="Эффекты крупного заголовка"
+                    test-id-prefix="title"
+                  />
                   <label class="field-control"><span>Выравнивание</span><select v-model="selectedElement.typography.align"><option value="left">Слева</option><option value="center">По центру</option><option value="right">Справа</option><option value="justify">По ширине</option></select></label>
                   <label class="field-control"><span>По вертикали</span><select v-model="selectedElement.typography.verticalAlign"><option value="top">Сверху</option><option value="middle">По центру</option><option value="bottom">Снизу</option></select></label>
                 </div>
@@ -2360,6 +2367,11 @@ onBeforeUnmount(() => {
                   <label class="field-control"><span>Стиль сетки</span><select v-model="selectedElement.gridStyle"><option value="editorial">Издательская</option><option value="boxed">Табличная</option><option value="minimal">Без линий</option></select></label>
                   <label class="field-control"><span>Шрифт заголовков</span><select v-model="selectedElement.weekdayFontFamily" :style="{ fontFamily: selectedElement.weekdayFontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
                   <label class="field-control"><span>Заголовки, pt</span><input v-model.number="selectedElement.weekdayFontSizePt" type="number" step="0.5" /></label>
+                  <TextEffectsEditor
+                    v-model="selectedElement.weekdayTextEffects"
+                    title="Эффекты названий дней недели"
+                    test-id-prefix="weekday"
+                  />
                   <div v-if="selectedElement.weekdayLabelMode === 'custom'" class="weekday-label-editor">
                     <input
                       v-for="(_, index) in 7"
@@ -2385,6 +2397,11 @@ onBeforeUnmount(() => {
                     <label class="field-control"><span>X, мм</span><input v-model.number="selectedElement.dayNumberXOffsetMm" type="number" step="0.1" /></label>
                     <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.dayNumberYOffsetMm" type="number" step="0.1" /></label>
                   </div>
+                  <TextEffectsEditor
+                    v-model="selectedElement.dayNumberTextEffects"
+                    title="Эффекты числа дня"
+                    test-id-prefix="day-number"
+                  />
                   <label class="field-control"><span>Шрифт событий</span><select v-model="selectedElement.eventFontFamily" :style="{ fontFamily: selectedElement.eventFontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
                   <label class="field-control"><span>Текст событий, pt</span><input v-model.number="selectedElement.eventFontSizePt" data-testid="event-font-size" type="number" step="0.25" /></label>
                   <label class="checkbox-field"><input :checked="selectedElement.autoFitText !== false" type="checkbox" @change="selectedElement.autoFitText = ($event.target as HTMLInputElement).checked" /><span>Автоподбор кегля</span></label>

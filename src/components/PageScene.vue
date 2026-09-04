@@ -5,12 +5,18 @@ import TypikonRankMarker from "./TypikonRankMarker.vue";
 import type {
   CalendarGridElement,
   DocumentAsset,
+  LargeTextEffects,
   LayoutElementNode,
   MonthTextElement,
   PageModel,
   ShapeElement,
   TextElement,
 } from "../document/types";
+import { normalizedOpacity } from "../document/paint";
+import {
+  normalizedTextShadow,
+  textExtrusionOffsets,
+} from "../document/text-effects";
 import type { EditorTool } from "../editor/types";
 import type { ElementFrame } from "../editor/element-creation";
 import { flattenObjectLayers } from "../document/layer-operations";
@@ -397,6 +403,22 @@ function shapeFill(element: ShapeElement): string {
     : element.fillColor ?? "#f4f1e8";
 }
 
+function textEffectId(scope: string, kind: "gradient" | "shadow"): string {
+  return `text-${kind}-${scope}`;
+}
+
+function largeTextFill(effects: LargeTextEffects | undefined, scope: string, fallback: string): string {
+  return effects?.gradient ? `url(#${textEffectId(scope, "gradient")})` : fallback;
+}
+
+function largeTextFilter(effects: LargeTextEffects | undefined, scope: string): string | undefined {
+  return effects?.shadow ? `url(#${textEffectId(scope, "shadow")})` : undefined;
+}
+
+function textShadow(effects: LargeTextEffects | undefined) {
+  return normalizedTextShadow(effects?.shadow);
+}
+
 function textPositionX(element: TextElement | MonthTextElement): number {
   const padding = element.typography.paddingMm;
   if (element.typography.align === "center") return element.x + element.width / 2;
@@ -544,6 +566,37 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         @pointerdown="beginElementInteraction($event, element)"
       >
         <template v-if="element.type === 'text' || element.type === 'month-text'">
+          <defs v-if="element.type === 'text' && (element.textEffects?.gradient || element.textEffects?.shadow)">
+            <linearGradient
+              v-if="element.textEffects?.gradient"
+              :id="textEffectId(element.id, 'gradient')"
+              :x1="'0%'"
+              :y1="'0%'"
+              :x2="element.textEffects.gradient.direction === 'horizontal' ? '100%' : '0%'"
+              :y2="element.textEffects.gradient.direction === 'vertical' ? '100%' : '0%'"
+            >
+              <stop offset="0%" :stop-color="element.textEffects.gradient.startColor" />
+              <stop offset="50%" :stop-color="element.textEffects.gradient.centerColor" />
+              <stop offset="100%" :stop-color="element.textEffects.gradient.endColor" />
+            </linearGradient>
+            <filter
+              v-if="textShadow(element.textEffects)"
+              :id="textEffectId(element.id, 'shadow')"
+              x="-200%"
+              y="-200%"
+              width="500%"
+              height="500%"
+              color-interpolation-filters="sRGB"
+            >
+              <feDropShadow
+                :dx="textShadow(element.textEffects)!.offsetXMm"
+                :dy="textShadow(element.textEffects)!.offsetYMm"
+                :stdDeviation="textShadow(element.textEffects)!.blurMm / 2"
+                :flood-color="textShadow(element.textEffects)!.color"
+                :flood-opacity="textShadow(element.textEffects)!.opacity"
+              />
+            </filter>
+          </defs>
           <rect
             :x="element.x"
             :y="element.y"
@@ -551,6 +604,27 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :height="element.height"
             class="page-element__frame"
           />
+          <template v-if="element.type === 'text' && element.textEffects?.extrusion">
+            <template v-for="(line, lineIndex) in textFrameLayout(element).lines" :key="`${element.id}-extrusion-line-${lineIndex}`">
+              <text
+                v-for="(offset, effectIndex) in textExtrusionOffsets(element.textEffects.extrusion)"
+                :key="`${element.id}-extrusion-${lineIndex}-${effectIndex}`"
+                :x="textPositionX(element) + offset.xMm"
+                :y="textFirstBaseline(element) + lineIndex * fontSizeMm(element.typography.fontSizePt) * element.typography.lineHeight + offset.yMm"
+                :font-family="element.typography.fontFamily"
+                :font-size="fontSizeMm(element.typography.fontSizePt)"
+                :fill="element.textEffects.extrusion.color"
+                :opacity="normalizedOpacity(element.opacity) * offset.opacity"
+                :font-weight="element.typography.fontWeight ?? 400"
+                :font-style="element.typography.fontStyle ?? 'normal'"
+                :letter-spacing="fontSizeMm(element.typography.letterSpacingPt)"
+                :text-anchor="textAnchor(element)"
+                class="page-element__text large-text-extrusion"
+              >
+                {{ line.text }}
+              </text>
+            </template>
+          </template>
           <text
             v-for="(line, lineIndex) in textFrameLayout(element).lines"
             :key="`${element.id}-line-${lineIndex}`"
@@ -558,7 +632,8 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :y="textFirstBaseline(element) + lineIndex * fontSizeMm(element.typography.fontSizePt) * element.typography.lineHeight"
             :font-family="element.typography.fontFamily"
             :font-size="fontSizeMm(element.typography.fontSizePt)"
-            :fill="element.typography.color ?? '#17201d'"
+            :fill="element.type === 'text' ? largeTextFill(element.textEffects, element.id, element.typography.color ?? '#17201d') : element.typography.color ?? '#17201d'"
+            :filter="element.type === 'text' ? largeTextFilter(element.textEffects, element.id) : undefined"
             :opacity="element.opacity ?? 1"
             :font-weight="element.typography.fontWeight ?? 400"
             :font-style="element.typography.fontStyle ?? 'normal'"
@@ -674,6 +749,64 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         <template v-else-if="element.type === 'calendar-grid'">
           <template v-if="calendarYear && calendarLayout(element)">
             <defs>
+              <linearGradient
+                v-if="element.weekdayTextEffects?.gradient"
+                :id="textEffectId(`${element.id}-weekday`, 'gradient')"
+                :x1="'0%'"
+                :y1="'0%'"
+                :x2="element.weekdayTextEffects.gradient.direction === 'horizontal' ? '100%' : '0%'"
+                :y2="element.weekdayTextEffects.gradient.direction === 'vertical' ? '100%' : '0%'"
+              >
+                <stop offset="0%" :stop-color="element.weekdayTextEffects.gradient.startColor" />
+                <stop offset="50%" :stop-color="element.weekdayTextEffects.gradient.centerColor" />
+                <stop offset="100%" :stop-color="element.weekdayTextEffects.gradient.endColor" />
+              </linearGradient>
+              <filter
+                v-if="textShadow(element.weekdayTextEffects)"
+                :id="textEffectId(`${element.id}-weekday`, 'shadow')"
+                x="-200%"
+                y="-200%"
+                width="500%"
+                height="500%"
+                color-interpolation-filters="sRGB"
+              >
+                <feDropShadow
+                  :dx="textShadow(element.weekdayTextEffects)!.offsetXMm"
+                  :dy="textShadow(element.weekdayTextEffects)!.offsetYMm"
+                  :stdDeviation="textShadow(element.weekdayTextEffects)!.blurMm / 2"
+                  :flood-color="textShadow(element.weekdayTextEffects)!.color"
+                  :flood-opacity="textShadow(element.weekdayTextEffects)!.opacity"
+                />
+              </filter>
+              <linearGradient
+                v-if="element.dayNumberTextEffects?.gradient"
+                :id="textEffectId(`${element.id}-day-number`, 'gradient')"
+                :x1="'0%'"
+                :y1="'0%'"
+                :x2="element.dayNumberTextEffects.gradient.direction === 'horizontal' ? '100%' : '0%'"
+                :y2="element.dayNumberTextEffects.gradient.direction === 'vertical' ? '100%' : '0%'"
+              >
+                <stop offset="0%" :stop-color="element.dayNumberTextEffects.gradient.startColor" />
+                <stop offset="50%" :stop-color="element.dayNumberTextEffects.gradient.centerColor" />
+                <stop offset="100%" :stop-color="element.dayNumberTextEffects.gradient.endColor" />
+              </linearGradient>
+              <filter
+                v-if="textShadow(element.dayNumberTextEffects)"
+                :id="textEffectId(`${element.id}-day-number`, 'shadow')"
+                x="-200%"
+                y="-200%"
+                width="500%"
+                height="500%"
+                color-interpolation-filters="sRGB"
+              >
+                <feDropShadow
+                  :dx="textShadow(element.dayNumberTextEffects)!.offsetXMm"
+                  :dy="textShadow(element.dayNumberTextEffects)!.offsetYMm"
+                  :stdDeviation="textShadow(element.dayNumberTextEffects)!.blurMm / 2"
+                  :flood-color="textShadow(element.dayNumberTextEffects)!.color"
+                  :flood-opacity="textShadow(element.dayNumberTextEffects)!.opacity"
+                />
+              </filter>
               <clipPath
                 v-for="cell in calendarLayout(element)!.cells"
                 :id="calendarCellClipId(element.id, cell.key)"
@@ -695,6 +828,26 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
               :class="{ 'page-element__calendar-heading--sunday': column === 6 }"
               :data-grid-style="element.gridStyle ?? 'editorial'"
             />
+            <template v-if="element.weekdayTextEffects?.extrusion">
+              <template v-for="(label, column) in weekdayLabels(element)" :key="`weekday-extrusion-group-${column}`">
+                <text
+                  v-for="(offset, effectIndex) in textExtrusionOffsets(element.weekdayTextEffects.extrusion)"
+                  v-show="calendarLayout(element)!.headerHeight > 0"
+                  :key="`weekday-extrusion-${column}-${effectIndex}`"
+                  :x="element.x + calendarLayout(element)!.columnWidth * (column + 0.5) + offset.xMm"
+                  :y="element.y + calendarLayout(element)!.headerHeight * 0.66 + offset.yMm"
+                  class="page-element__calendar-weekday large-text-extrusion"
+                  :style="{
+                    fill: element.weekdayTextEffects.extrusion.color,
+                    fontFamily: element.weekdayFontFamily ?? 'Ruslan Display',
+                    fontSize: `${weekdayFontSizeMm(element)}px`,
+                  }"
+                  :opacity="offset.opacity"
+                >
+                  {{ label }}
+                </text>
+              </template>
+            </template>
             <text
               v-for="(label, column) in weekdayLabels(element)"
               v-show="calendarLayout(element)!.headerHeight > 0"
@@ -704,9 +857,11 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
               class="page-element__calendar-weekday"
               :class="{ 'page-element__calendar-weekday--sunday': column === 6 }"
               :style="{
+                fill: largeTextFill(element.weekdayTextEffects, `${element.id}-weekday`, column === 6 ? '#9d2929' : '#26322d'),
                 fontFamily: element.weekdayFontFamily ?? 'Ruslan Display',
                 fontSize: `${weekdayFontSizeMm(element)}px`,
               }"
+              :filter="largeTextFilter(element.weekdayTextEffects, `${element.id}-weekday`)"
             >
               {{ label }}
             </text>
@@ -740,14 +895,35 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                 :clip-path="`url(#${calendarCellClipId(element.id, cell.key)})`"
               >
                 <text
+                  v-for="(offset, effectIndex) in textExtrusionOffsets(element.dayNumberTextEffects?.extrusion)"
+                  :key="`${cell.key}-day-number-extrusion-${effectIndex}`"
+                  :x="cell.x + calendarCellTypography(element).dayNumberXOffsetMm + offset.xMm"
+                  :y="cell.y + calendarCellTypography(element).dayNumberYOffsetMm + calendarCellTypography(element).dayNumberFontSizeMm + offset.yMm"
+                  :font-size="calendarCellTypography(element).dayNumberFontSizeMm"
+                  :style="{
+                    fill: element.dayNumberTextEffects?.extrusion?.color ?? '#70430f',
+                    fontWeight: dayNumberTypikonStyle(cell.day).fontWeight,
+                    fontFamily: element.dayNumberFontFamily ?? 'Yeseva One',
+                  }"
+                  :opacity="offset.opacity"
+                  class="calendar-cell__number large-text-extrusion"
+                >
+                  {{ cell.day.date.day }}
+                </text>
+                <text
                   :x="cell.x + calendarCellTypography(element).dayNumberXOffsetMm"
                   :y="cell.y + calendarCellTypography(element).dayNumberYOffsetMm + calendarCellTypography(element).dayNumberFontSizeMm"
                   :font-size="calendarCellTypography(element).dayNumberFontSizeMm"
                   :style="{
-                    fill: element.showFeastColors === false ? '#17201d' : dayNumberTypikonStyle(cell.day).color,
+                    fill: largeTextFill(
+                      element.dayNumberTextEffects,
+                      `${element.id}-day-number`,
+                      element.showFeastColors === false ? '#17201d' : dayNumberTypikonStyle(cell.day).color,
+                    ),
                     fontWeight: dayNumberTypikonStyle(cell.day).fontWeight,
                     fontFamily: element.dayNumberFontFamily ?? 'Yeseva One',
                   }"
+                  :filter="largeTextFilter(element.dayNumberTextEffects, `${element.id}-day-number`)"
                   class="calendar-cell__number"
                   :data-calendar-date="cell.day.isoDate"
                 >

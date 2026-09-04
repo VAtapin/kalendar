@@ -1228,6 +1228,10 @@ input {
   fill: #8a641b;
 }
 
+.large-text-extrusion {
+  pointer-events: none;
+}
+
 .calendar-cell__old-style {
   fill: #76817c;
   font-family: Arial, sans-serif;
@@ -1710,6 +1714,29 @@ input {
   border: 1px solid #39433f;
   border-radius: 4px;
   background: rgb(255 255 255 / 2%);
+}
+
+.text-effects-editor {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #62583d;
+  border-radius: 5px;
+  background: linear-gradient(145deg, rgb(183 155 95 / 10%), rgb(255 255 255 / 2%));
+}
+
+.text-effects-editor__title {
+  color: #e2cf98;
+  font-size: 11px;
+}
+
+.text-effect-controls {
+  display: grid;
+  gap: 7px;
+  margin: -2px 0 3px 18px;
+  padding: 8px;
+  border-left: 2px solid #806f44;
+  background: rgb(0 0 0 / 10%);
 }
 
 .opacity-controls__range {

@@ -31,7 +31,24 @@ describe("PDF exporter", () => {
     goldShape.opacity = 0.45;
     goldShape.fillGradient = createGoldGradient();
     for (const element of project.document.pages[0]!.elements) {
-      if (element.type === "calendar-grid") element.showFoodIcons = false;
+      if (element.type === "text") {
+        element.textEffects = {
+          gradient: createGoldGradient(),
+          extrusion: { color: "#70430f", depthMm: 1.2, angleDeg: 45, opacity: 0.9 },
+          shadow: { color: "#000000", offsetXMm: 1, offsetYMm: 1, blurMm: 0.8, opacity: 0.4 },
+        };
+      }
+      if (element.type === "calendar-grid") {
+        element.showFoodIcons = false;
+        element.weekdayTextEffects = {
+          gradient: createGoldGradient(),
+          shadow: { color: "#000000", offsetXMm: 0.5, offsetYMm: 0.5, blurMm: 0.4, opacity: 0.35 },
+        };
+        element.dayNumberTextEffects = {
+          gradient: createGoldGradient(),
+          extrusion: { color: "#70430f", depthMm: 0.7, angleDeg: 45, opacity: 0.9 },
+        };
+      }
     }
     const result = await exportCalendarProjectPdf(project, calendar, {
       regular,
