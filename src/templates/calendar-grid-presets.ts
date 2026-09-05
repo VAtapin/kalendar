@@ -215,3 +215,22 @@ export const DEFAULT_GLOBAL_CALENDAR_GRID_TEMPLATES: readonly GlobalCalendarGrid
 export function defaultGlobalCalendarGridTemplates(): GlobalCalendarGridTemplate[] {
   return JSON.parse(JSON.stringify(DEFAULT_GLOBAL_CALENDAR_GRID_TEMPLATES)) as GlobalCalendarGridTemplate[];
 }
+
+export function mergeGlobalCalendarGridTemplates(
+  storedTemplates: readonly GlobalCalendarGridTemplate[],
+): GlobalCalendarGridTemplate[] {
+  const defaults = defaultGlobalCalendarGridTemplates();
+  const defaultIds = new Set(defaults.map((template) => template.id));
+  const storedById = new Map(storedTemplates.map((template) => [template.id, template]));
+  return [
+    ...defaults.map((template) => {
+      const override = storedById.get(template.id);
+      return override
+        ? { ...(JSON.parse(JSON.stringify(override)) as GlobalCalendarGridTemplate), builtIn: true }
+        : template;
+    }),
+    ...storedTemplates
+      .filter((template) => !defaultIds.has(template.id))
+      .map((template) => JSON.parse(JSON.stringify(template)) as GlobalCalendarGridTemplate),
+  ];
+}

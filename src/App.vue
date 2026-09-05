@@ -107,6 +107,7 @@ import { checkCalendarProject, type PreflightIssue } from "./preflight/project-p
 import { copyCalendarGridPresentation } from "./templates/calendar-grid-settings";
 import {
   defaultGlobalCalendarGridTemplates,
+  mergeGlobalCalendarGridTemplates,
   type GlobalCalendarGridTemplate,
 } from "./templates/calendar-grid-presets";
 import {
@@ -370,6 +371,7 @@ const dockPanels: ReadonlyArray<{ id: DockPanelId; label: string }> = [
   { id: "properties", label: "Свойства" },
   { id: "library", label: "Элементы" },
   { id: "layers", label: "Слои" },
+  { id: "templates", label: "Шаблоны" },
   { id: "pages", label: "Страницы" },
   { id: "events", label: "События" },
   { id: "preflight", label: "Проверка" },
@@ -484,7 +486,7 @@ const showToolsPanel = computed(
   () => panelVisibility.value.tools && !chromePanelsHidden.value,
 );
 const showDock = computed(
-  () => (visibleDockPanels.value.length > 0 || panelVisibility.value.templates) && !chromePanelsHidden.value,
+  () => visibleDockPanels.value.length > 0 && !chromePanelsHidden.value,
 );
 const dockPanelMaximumWidthPx = computed(() => Math.max(
   DOCK_PANEL_MIN_WIDTH_PX,
@@ -796,7 +798,7 @@ async function refreshGlobalCalendarGridTemplates(): Promise<void> {
   globalGridTemplatesError.value = undefined;
   try {
     const result = await loadGlobalCalendarGridTemplates(verifiedAccessToken());
-    if (result.templates.length >= 5) globalCalendarGridTemplates.value = result.templates;
+    globalCalendarGridTemplates.value = mergeGlobalCalendarGridTemplates(result.templates);
     canManageGlobalGridTemplates.value = result.canManage;
   } catch (error) {
     // The five bundled layouts remain available even while the server is down.
@@ -1203,7 +1205,7 @@ async function initializeProject(): Promise<void> {
     if (selectedPageId.value && !openPageIds.value.includes(selectedPageId.value)) {
       openPageIds.value.push(selectedPageId.value);
     }
-    if (savedDockPanel && (savedDockPanel === "templates" || dockPanels.some((panel) => panel.id === savedDockPanel))) {
+    if (savedDockPanel && dockPanels.some((panel) => panel.id === savedDockPanel)) {
       activeDockPanel.value = savedDockPanel;
     }
     [userProjectTemplates.value, userCalendarGridTemplates.value, projectBackups.value] = await Promise.all([

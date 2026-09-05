@@ -87,6 +87,8 @@ test("changes printed calendar language independently from the interface", async
 test("offers five public calendar-grid layouts without owner controls", async ({ page }) => {
   await openEditor(page);
   await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await expect(page.getByRole("tab", { name: "Шаблоны" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Шаблоны" })).toHaveAttribute("aria-selected", "true");
   await expect.poll(() => page.locator(".grid-preset-card").count()).toBeGreaterThanOrEqual(5);
   await expect(page.getByText("Издательская классика", { exact: true })).toBeVisible();
   await expect(page.getByText("Монастырская книга", { exact: true })).toBeVisible();

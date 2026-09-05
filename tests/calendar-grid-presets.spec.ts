@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { copyCalendarGridPresentation } from "../src/templates/calendar-grid-settings";
-import { defaultGlobalCalendarGridTemplates } from "../src/templates/calendar-grid-presets";
+import {
+  defaultGlobalCalendarGridTemplates,
+  mergeGlobalCalendarGridTemplates,
+} from "../src/templates/calendar-grid-presets";
 
 describe("global calendar-grid layouts", () => {
   it("ships five visibly distinct editable layouts", () => {
@@ -30,5 +33,27 @@ describe("global calendar-grid layouts", () => {
     expect([target.x, target.y, target.width, target.height]).toEqual([17, 121, 201, 133]);
     expect(target.weekdayFontFamily).toBe(source!.grid.weekdayFontFamily);
     expect(target.gridStyle).toBe(source!.grid.gridStyle);
+  });
+
+  it("merges server overrides and custom layouts with the five bundled layouts", () => {
+    const defaults = defaultGlobalCalendarGridTemplates();
+    const changed = {
+      ...defaults[0]!,
+      name: "Обновлённый макет",
+      grid: { ...defaults[0]!.grid, eventFontSizePt: 11 },
+    };
+    const custom = {
+      ...defaults[1]!,
+      id: "custom-layout",
+      name: "Авторский",
+      builtIn: false,
+    };
+
+    const merged = mergeGlobalCalendarGridTemplates([changed, custom]);
+
+    expect(merged).toHaveLength(6);
+    expect(merged[0]?.name).toBe("Обновлённый макет");
+    expect(merged[0]?.grid.eventFontSizePt).toBe(11);
+    expect(merged.at(-1)?.id).toBe("custom-layout");
   });
 });
