@@ -156,9 +156,9 @@ function api_lease_response(array $stored, array $lease): array
 /** @return array{id: string, email: string}|null */
 function api_owner(CalendarStore $store): ?array
 {
-    $ownerEmail = strtolower(trim(calendar_config_value('CALENDAR_OWNER_EMAIL')));
-    $credential = $store->credentialFor(api_bearer_token());
-    return $ownerEmail !== '' && $credential !== null && strtolower($credential['email']) === $ownerEmail ? $credential : null;
+    if (!$store->adminAuthenticated(calendar_admin_cookie_token())) return null;
+    if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)) calendar_admin_check_origin();
+    return ['id' => 'administrator', 'email' => ''];
 }
 
 /** @param array<string, mixed> $upload */
@@ -284,6 +284,24 @@ try {
         exit;
     }
 
+    if ($path === '/v1/admin/login' && $method === 'POST') {
+        calendar_admin_check_origin();
+        $body = api_request_json(4096);
+        if (!is_string($body['login'] ?? null) || !is_string($body['password'] ?? null)
+            || strlen($body['login']) > 100 || strlen($body['password']) > 1024) api_response(400, ['error' => 'invalid_login']);
+        $token = $store->adminLogin($body['login'], $body['password'], api_client_address());
+        calendar_admin_cookie($token);
+        api_response(200, ['authenticated' => true]);
+    }
+    if ($path === '/v1/admin/session' && $method === 'GET') {
+        api_response(200, ['authenticated' => $store->adminAuthenticated(calendar_admin_cookie_token())]);
+    }
+    if ($path === '/v1/admin/logout' && $method === 'POST') {
+        calendar_admin_check_origin();
+        $store->adminLogout(calendar_admin_cookie_token());
+        calendar_admin_cookie('');
+        api_response(200, ['authenticated' => false]);
+    }
     if (str_starts_with($path, '/v1/admin/')) {
         if (api_owner($store) === null) api_response(403, ['error' => 'owner_required', 'message' => 'Этот раздел доступен только владельцу мастерской']);
         $offset = max(0, (int) ($_GET['offset'] ?? 0));
@@ -415,7 +433,7 @@ try {
     }
 
     if ($method === 'POST' && $path === '/v1/shared-projects') {
-        $credential = $store->credentialFor(api_bearer_token());
+        $credential = $store->credentialFor(api_bearer_token()) ?? api_owner($store);
         if ($credential === null) {
             api_response(401, ['error' => 'email_required', 'message' => 'Сначала подтвердите e-mail']);
         }
@@ -494,7 +512,7 @@ try {
     }
 
     if ($method === 'POST' && $path === '/v1/pdf-exports') {
-        $credential = $store->credentialFor(api_bearer_token());
+        $credential = $store->credentialFor(api_bearer_token()) ?? api_owner($store);
         if ($credential === null) {
             api_response(401, ['error' => 'email_required', 'message' => 'Сначала подтвердите e-mail']);
         }

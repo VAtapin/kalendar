@@ -11,6 +11,7 @@ import PageThumbnail from "./components/PageThumbnail.vue";
 import RecoveryDialog from "./components/RecoveryDialog.vue";
 import WelcomePage from "./components/WelcomePage.vue";
 import EmailVerificationDialog from "./components/EmailVerificationDialog.vue";
+import AdminLoginDialog from "./components/AdminLoginDialog.vue";
 import SharedProjectDialog from "./components/SharedProjectDialog.vue";
 import LinkResultDialog from "./components/LinkResultDialog.vue";
 import ProgramSettingsDialog from "./components/ProgramSettingsDialog.vue";
@@ -273,6 +274,8 @@ const recoveryDialogOpen = ref(false);
 const programSettingsOpen = ref(false);
 const AdminDialog = defineAsyncComponent(() => import("./components/AdminDialog.vue"));
 const adminOpen = ref(false);
+const adminLoginOpen = ref(false);
+const adminLoginTarget = ref<"administrator" | "templates">("administrator");
 const programSettingsBusy = ref(false);
 const programSettingsError = ref<string>();
 const welcomeVisible = ref(compactViewport.value || (!sharedProjectIdFromLocation() && !verificationTokenFromLocation()));
@@ -858,7 +861,7 @@ async function changeInterfaceLanguageFromWelcome(language: InterfaceLanguage): 
 }
 
 function requestVerifiedAction(action: PendingVerifiedAction): boolean {
-  if (verifiedAccessToken()) return true;
+  if (verifiedAccessToken() || canManageGlobalGridTemplates.value) return true;
   pendingVerifiedAction.value = action;
   localStorage.setItem(PENDING_VERIFIED_ACTION_KEY, action);
   emailVerificationSentTo.value = savedBrowserVerification()?.email;
@@ -1158,7 +1161,7 @@ async function shareCurrentProject(): Promise<void> {
   try {
     const result = await createSharedProject(
       createPersistentProjectSnapshot(project.value),
-      verifiedAccessToken()!,
+      verifiedAccessToken() ?? "",
       editorSessionId,
       editorLabel,
     );
@@ -1312,15 +1315,22 @@ async function runPendingVerifiedAction(action: PendingVerifiedAction | undefine
     await refreshGlobalCalendarGridTemplates();
     operationNotice.value = canManageGlobalGridTemplates.value
       ? "Управление общими макетами открыто"
-      : "Этот e-mail не является владельцем мастерской";
+      : "Для управления общими макетами войдите как администратор";
   }
 }
 
 async function openAdministrator(): Promise<void> {
-  if (!requestVerifiedAction("administrator")) return;
   await refreshGlobalCalendarGridTemplates();
   if (canManageGlobalGridTemplates.value) adminOpen.value = true;
-  else operationNotice.value = "Администрирование доступно только владельцу мастерской";
+  else { adminLoginTarget.value = "administrator"; adminLoginOpen.value = true; }
+}
+
+async function adminAuthenticated(): Promise<void> {
+  adminLoginOpen.value = false;
+  await refreshGlobalCalendarGridTemplates();
+  if (!canManageGlobalGridTemplates.value) { operationNotice.value = "Сессия администратора не сохранилась. Проверьте, разрешены ли cookie сайта."; return; }
+  if (adminLoginTarget.value === "templates") activateDockPanel("templates");
+  else adminOpen.value = true;
 }
 
 function handleIdentityStorage(event: StorageEvent): void {
@@ -1539,7 +1549,7 @@ async function exportPrintPdf(): Promise<void> {
     const ready: PdfExportReady = await uploadPdfExport(
       pdfBlob,
       fileName,
-      verifiedAccessToken()!,
+      verifiedAccessToken() ?? "",
       (percent) => { operationNotice.value = `PDF сформирован; передаём на сервер: ${percent}%`; },
     );
     pdfExportState.value = "ready";
@@ -2425,12 +2435,8 @@ function requestGlobalGridTemplateManagement(): void {
     operationNotice.value = "Управление общими макетами уже открыто";
     return;
   }
-  pendingVerifiedAction.value = "global-grid-templates";
-  localStorage.setItem(PENDING_VERIFIED_ACTION_KEY, "global-grid-templates");
-  emailVerificationSentTo.value = undefined;
-  emailVerificationError.value = undefined;
-  developmentVerificationUrl.value = undefined;
-  emailVerificationOpen.value = true;
+  adminLoginTarget.value = "templates";
+  adminLoginOpen.value = true;
 }
 
 function selectedCalendarGrid(): CalendarGridElement | undefined {
@@ -2444,7 +2450,7 @@ async function saveSelectedGridForEveryone(): Promise<void> {
     return;
   }
   const accessToken = verifiedAccessToken();
-  if (!canManageGlobalGridTemplates.value || !accessToken) {
+  if (!canManageGlobalGridTemplates.value) {
     requestGlobalGridTemplateManagement();
     return;
   }
@@ -2453,7 +2459,7 @@ async function saveSelectedGridForEveryone(): Promise<void> {
   const description = promptInterface("Кратко опишите отличие макета", "Авторский макет календарной сетки") ?? "";
   globalGridTemplatesBusy.value = true;
   try {
-    const saved = await createGlobalCalendarGridTemplate(accessToken, {
+    const saved = await createGlobalCalendarGridTemplate(accessToken ?? "", {
       name: name.trim(),
       description: description.trim(),
       grid,
@@ -2474,11 +2480,11 @@ async function overwriteGlobalCalendarGridTemplate(template: GlobalCalendarGridT
     operationNotice.value = "Сначала примените макет, измените выбранную сетку и снова нажмите «Обновить»";
     return;
   }
-  if (!canManageGlobalGridTemplates.value || !accessToken) return requestGlobalGridTemplateManagement();
+  if (!canManageGlobalGridTemplates.value) return requestGlobalGridTemplateManagement();
   if (!confirmInterface(`Заменить общий макет «${template.name}» оформлением выбранной сетки? Изменение увидят все пользователи.`)) return;
   globalGridTemplatesBusy.value = true;
   try {
-    const saved = await updateGlobalCalendarGridTemplate(accessToken, template.id, {
+    const saved = await updateGlobalCalendarGridTemplate(accessToken ?? "", template.id, {
       name: template.name,
       description: template.description,
       grid,
@@ -2494,11 +2500,11 @@ async function overwriteGlobalCalendarGridTemplate(template: GlobalCalendarGridT
 
 async function removeGlobalCalendarGridTemplate(template: GlobalCalendarGridTemplate): Promise<void> {
   const accessToken = verifiedAccessToken();
-  if (template.builtIn || !canManageGlobalGridTemplates.value || !accessToken) return;
+  if (template.builtIn || !canManageGlobalGridTemplates.value) return;
   if (!confirmInterface(`Удалить общий макет «${template.name}»? Он исчезнет у всех пользователей.`)) return;
   globalGridTemplatesBusy.value = true;
   try {
-    await deleteGlobalCalendarGridTemplate(accessToken, template.id);
+    await deleteGlobalCalendarGridTemplate(accessToken ?? "", template.id);
     globalCalendarGridTemplates.value = globalCalendarGridTemplates.value.filter((item) => item.id !== template.id);
     operationNotice.value = `Общий макет «${template.name}» удалён`;
   } catch (error) {
@@ -3343,7 +3349,7 @@ function handlePageHide(): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (verificationLanding.value || adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
+  if (adminLoginOpen.value || verificationLanding.value || adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
       helpDialogPage.value = undefined;
       recoveryDialogOpen.value = false;
@@ -3537,6 +3543,7 @@ onBeforeUnmount(() => {
       @open="openLocalProjectFromWelcome"
       @open-shared="openSharedProjectById"
       @help="helpDialogPage = 'guide'"
+      @admin="openAdministrator"
       @language-change="changeInterfaceLanguageFromWelcome"
     />
     <header class="application-header">
@@ -4281,7 +4288,8 @@ onBeforeUnmount(() => {
         <div class="application-dialog__content"><p>{{ verificationLanding }}</p><a href="https://georg-kloster.ru/">Сайт монастыря</a></div>
       </section>
     </div>
-    <AdminDialog v-if="adminOpen" :access-token="verifiedAccessToken() ?? ''" @close="adminOpen = false" />
+    <AdminLoginDialog v-if="adminLoginOpen" @authenticated="adminAuthenticated" @close="adminLoginOpen = false" />
+    <AdminDialog v-if="adminOpen" :access-token="''" @close="adminOpen = false" @logout="adminOpen = false; canManageGlobalGridTemplates = false" />
     <EmailVerificationDialog
       v-if="emailVerificationOpen"
       :busy="emailVerificationBusy"

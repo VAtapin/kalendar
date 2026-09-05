@@ -19,6 +19,7 @@ const emit = defineEmits<{
   open: [];
   openShared: [id: string];
   help: [];
+  admin: [];
   languageChange: [language: InterfaceLanguage];
 }>();
 
@@ -68,6 +69,7 @@ function changeInterfaceLanguage(event: Event): void {
           </select>
         </label>
         <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
+        <button type="button" @click="emit('admin')">Администратор</button>
       </div>
     </header>
 

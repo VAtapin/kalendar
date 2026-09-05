@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/email-template.php';
 require_once __DIR__ . '/admin-store.php';
+require_once __DIR__ . '/admin-auth.php';
 
 final class ApiFailure extends RuntimeException
 {
@@ -66,6 +67,8 @@ function calendar_config(): array
         'MAX_SHARED_PROJECT_BYTES' => '',
         'MAX_PDF_EXPORT_BYTES' => '',
         'CALENDAR_OWNER_EMAIL' => '',
+        'ADMIN_LOGIN' => '',
+        'ADMIN_PASSWORD_HASH' => '',
         'MAIL_TRANSPORT' => '',
         'MAIL_FROM_ADDRESS' => '',
         'MAIL_FROM_NAME' => '',
@@ -195,6 +198,7 @@ function calendar_with_lock(string $locksDirectory, string $name, callable $call
 final class CalendarStore
 {
     use CalendarAdminStore;
+    use CalendarAdminAuth;
     private const BUILT_IN_TEMPLATE_IDS = [
         'editorial-classic',
         'monastic-book',

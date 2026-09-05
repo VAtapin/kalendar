@@ -7,7 +7,11 @@ import type { OrthodoxCalendarYear } from "../calendar/types";
 import { mergeMonasteryEvents } from "../calendar/engine/merge-monastery-events";
 
 const props = defineProps<{ accessToken: string }>();
-const emit = defineEmits<{ close: [] }>();
+const emit = defineEmits<{ close: []; logout: [] }>();
+async function logout() {
+  try { await adminRequest("", "logout", {}); emit("logout"); }
+  catch (e) { error.value = String(e); }
+}
 type Row = { id?: string; name?: string; year?: number; ownerEmail?: string; pages?: number; bytes?: number;
   email?: string; status?: string; at?: string; kind?: string; confirmedAt?: string; consentVersion?: string; consentText?: string };
 const tab = ref("calendars");
@@ -77,7 +81,7 @@ onMounted(() => void load());
 <template>
   <div class="application-dialog-backdrop">
     <section class="application-dialog admin-dialog" role="dialog" aria-modal="true" aria-label="Администратор">
-      <header class="application-dialog__header"><h2>Администратор</h2><button type="button" :disabled="sending" @click="emit('close')">Закрыть</button></header>
+      <header class="application-dialog__header"><h2>Администратор</h2><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="emit('close')">Закрыть</button></div></header>
       <div class="application-dialog__content">
         <nav class="admin-nav">
           <button v-for="entry in [['calendars','Календари'],['subscribers','Пользователи и подписки'],['mail-log','Журнал писем'],['campaigns','Рассылка']]" :key="entry[0]" :disabled="busy || sending" :aria-pressed="tab === entry[0]" @click="load(entry[0])">{{ entry[1] }}</button>
