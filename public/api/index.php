@@ -267,6 +267,49 @@ try {
         api_response(200, ['templates' => $store->listGlobalTemplates(), 'canManage' => api_owner($store) !== null]);
     }
 
+    if ($path === '/v1/unsubscribe' && in_array($method, ['GET', 'POST'], true)) {
+        $token = is_string($_GET['token'] ?? null) ? $_GET['token'] : '';
+        if ($method === 'POST') {
+            $store->unsubscribe($token);
+        }
+        header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: no-store');
+        header('Referrer-Policy: no-referrer');
+        header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'");
+        $action = htmlspecialchars('/api/v1/unsubscribe?token=' . rawurlencode($token), ENT_QUOTES, 'UTF-8');
+        echo '<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Подписка — Календарная мастерская</title><body style="font-family:Arial;padding:32px;max-width:600px;margin:auto;background:#fffdf8;color:#28483b;"><h1>Календарная мастерская</h1>';
+        echo $method === 'POST' ? '<p>Вы отписались от рассылки. Доступ к календарям сохранён.</p>'
+            : '<p>Отписаться от новостей и напоминаний? Доступ к календарям сохранится.</p><form method="post" action="' . $action . '"><button style="padding:16px;">Отписаться</button></form>';
+        echo '</body></html>';
+        exit;
+    }
+
+    if (str_starts_with($path, '/v1/admin/')) {
+        if (api_owner($store) === null) api_response(403, ['error' => 'owner_required', 'message' => 'Этот раздел доступен только владельцу мастерской']);
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
+        if ($method === 'GET' && $path === '/v1/admin/calendars') api_response(200, $store->adminProjectPage($offset));
+        if ($method === 'GET' && $path === '/v1/admin/subscribers') api_response(200, $store->subscriberPage($offset));
+        if ($method === 'GET' && $path === '/v1/admin/mail-log') api_response(200, $store->mailLogPage($offset));
+        if ($method === 'GET' && preg_match('#^/v1/admin/calendars/([0-9a-f-]{36})$#i', $path, $match)) {
+            $stored = $store->readProject($match[1]);
+            if ($stored === null) api_response(404, ['error' => 'project_not_found']);
+            api_response(200, ['project' => $stored['project']]);
+        }
+        if ($method === 'POST' && $path === '/v1/admin/campaigns') {
+            $body = api_request_json(32 * 1024);
+            if (!is_string($body['subject'] ?? null) || !is_string($body['text'] ?? null)
+                || trim($body['subject']) === '' || trim($body['text']) === ''
+                || strlen($body['subject']) > 200 || strlen($body['text']) > 20000 || preg_match('/[\r\n]/', $body['subject'])) {
+                api_response(400, ['error' => 'invalid_campaign', 'message' => 'Укажите тему до 200 байт и текст до 20 КБ']);
+            }
+            api_response(201, $store->createCampaign(trim($body['subject']), trim($body['text'])));
+        }
+        if ($method === 'POST' && preg_match('#^/v1/admin/campaigns/([0-9a-f-]{36})/send$#i', $path, $match)) {
+            api_response(200, $store->dispatchCampaign($match[1]));
+        }
+        api_response(404, ['error' => 'not_found']);
+    }
+
     if ($method === 'GET' && $path === '/v1/user-settings') {
         $settings = $store->programSettingsFor(api_bearer_token());
         $settings !== null
@@ -280,22 +323,35 @@ try {
             api_response(400, ['error' => 'invalid_email', 'message' => 'Введите действующий e-mail']);
         }
         $email = strtolower(trim((string) $body['email']));
+        if (isset($body['subscribe']) && !is_bool($body['subscribe'])) api_response(400, ['error' => 'invalid_consent']);
         if (!$store->consumeVerificationRateLimit($email, api_client_address())) {
-            api_response(429, ['error' => 'rate_limited', 'message' => 'Слишком много писем. Повторите позднее.']);
+            $retry = $store->verificationRetrySeconds($email, api_client_address());
+            header('Retry-After: ' . $retry);
+            api_response(429, ['error' => 'rate_limited', 'retryAfterSeconds' => $retry,
+                'message' => 'Повторная отправка будет доступна через ' . $retry . ' сек. Если письмо уже пришло, используйте ссылку в нём.']);
         }
-        $verification = $store->createEmailVerification($email);
-        $link = api_public_url() . '/?verify=' . rawurlencode($verification['token']);
+        if (isset($body['subscribe']) && !is_bool($body['subscribe'])) api_response(400, ['error' => 'invalid_consent']);
+        $subscribe = ($body['subscribe'] ?? false) === true;
         $development = !str_starts_with(strtolower(calendar_config_value('APP_PUBLIC_URL')), 'https://');
+        $accepted = false;
+        $sendError = null;
         try {
-            calendar_send_verification_email($email, $link);
+            $verification = $store->createEmailVerification($email, $subscribe);
+            $link = api_public_url() . '/?verify=' . rawurlencode($verification['token']);
+            calendar_send_verification_email($email, $link, $subscribe);
+            $accepted = true;
         } catch (RuntimeException $error) {
-            if (!$development) {
-                error_log('Calendar mail delivery: ' . $error->getMessage());
+            $sendError = $error;
+        } finally {
+            $store->finishVerificationSend($email, api_client_address(), $accepted);
+        }
+        $store->logMail($email, 'verification', $accepted ? 'accepted' : 'failed');
+        if ($sendError !== null && (!$development || !isset($verification))) {
+                error_log('Calendar mail delivery: ' . $sendError->getMessage());
                 api_response(502, [
                     'error' => 'mail_delivery_failed',
                     'message' => 'Не удалось отправить письмо. Проверьте настройки почты сервера.',
                 ]);
-            }
         }
         $response = ['sent' => true, 'expiresAt' => $verification['expiresAt']];
         if ($development) {

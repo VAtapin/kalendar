@@ -74,11 +74,16 @@ export function verificationTokenFromLocation(location = window.location): strin
   return new URL(location.href).searchParams.get("verify") ?? undefined;
 }
 
-export async function requestEmailVerification(email: string): Promise<EmailVerificationRequested> {
+export async function requestEmailVerification(email: string, subscribe = false): Promise<EmailVerificationRequested> {
   return request("/v1/email-verifications", {
     method: "POST",
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, subscribe }),
   });
+}
+
+export async function adminRequest<T>(accessToken: string, path: string, body?: unknown): Promise<T> {
+  return request(`/v1/admin/${path}`, { headers: bearer(accessToken),
+    ...(body !== undefined ? { method: "POST", body: JSON.stringify(body) } : {}) });
 }
 
 export async function confirmEmailVerification(token: string): Promise<EmailVerificationConfirmed> {

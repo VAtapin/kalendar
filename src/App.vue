@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import DecorLibraryPanel from "./components/DecorLibraryPanel.vue";
 import LayersPanel from "./components/LayersPanel.vue";
@@ -213,6 +213,7 @@ const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
 type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
 type MenuCommandId =
+  | "administrator"
   | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "share-project" | "export-pdf" | "program-settings"
   | "save-user-template" | "clone-year"
   | "undo" | "redo" | "duplicate" | "delete"
@@ -269,6 +270,8 @@ const activeMenu = ref<ApplicationMenuId>();
 const helpDialogPage = ref<HelpDialogPage>();
 const recoveryDialogOpen = ref(false);
 const programSettingsOpen = ref(false);
+const AdminDialog = defineAsyncComponent(() => import("./components/AdminDialog.vue"));
+const adminOpen = ref(false);
 const programSettingsBusy = ref(false);
 const programSettingsError = ref<string>();
 const welcomeVisible = ref(compactViewport.value || (!sharedProjectIdFromLocation() && !verificationTokenFromLocation()));
@@ -278,7 +281,7 @@ const emailVerificationBusy = ref(false);
 const emailVerificationSentTo = ref<string>();
 const emailVerificationError = ref<string>();
 const developmentVerificationUrl = ref<string>();
-type PendingVerifiedAction = "new" | "share" | "export" | "global-grid-templates";
+type PendingVerifiedAction = "new" | "share" | "export" | "global-grid-templates" | "administrator";
 const pendingVerifiedAction = ref<PendingVerifiedAction>();
 const EMAIL_ACCESS_TOKEN_KEY = "orthodox-calendar-layout:verified-email-token";
 const VERIFIED_EMAIL_KEY = "orthodox-calendar-layout:verified-email";
@@ -552,6 +555,7 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "download-project", label: "Скачать резервную копию…" },
         { command: "recovery", label: "Восстановление…", disabled: projectBackups.value.length === 0 },
         { command: "program-settings", label: "Настройки программы…" },
+        { command: "administrator", label: "Администратор…" },
         { separator: true },
         { command: "share-project", label: sharedLease.value ? "Ссылка для совместной работы…" : "Поделиться для совместной работы…" },
         { separator: true },
@@ -856,11 +860,11 @@ function requestVerifiedAction(action: PendingVerifiedAction): boolean {
   return false;
 }
 
-async function submitEmailVerification(email: string): Promise<void> {
+async function submitEmailVerification(email: string, subscribe = false): Promise<void> {
   emailVerificationBusy.value = true;
   emailVerificationError.value = undefined;
   try {
-    const result = await requestEmailVerification(email);
+    const result = await requestEmailVerification(email, subscribe);
     emailVerificationSentTo.value = email;
     developmentVerificationUrl.value = result.developmentVerificationUrl;
   } catch (error) {
@@ -1238,6 +1242,7 @@ async function runPendingVerifiedAction(action: PendingVerifiedAction | undefine
   if (action === "new") await createNewProject();
   else if (action === "share") await shareCurrentProject();
   else if (action === "export") await exportPrintPdf();
+  else if (action === "administrator") await openAdministrator();
   else {
     activeDockPanel.value = "templates";
     await refreshGlobalCalendarGridTemplates();
@@ -1245,6 +1250,23 @@ async function runPendingVerifiedAction(action: PendingVerifiedAction | undefine
       ? "Управление общими макетами открыто"
       : "Этот e-mail не является владельцем мастерской";
   }
+}
+
+async function openAdministrator(): Promise<void> {
+  if (!requestVerifiedAction("administrator")) return;
+  await refreshGlobalCalendarGridTemplates();
+  if (canManageGlobalGridTemplates.value) adminOpen.value = true;
+  else operationNotice.value = "Администрирование доступно только владельцу мастерской";
+}
+
+function handleIdentityStorage(event: StorageEvent): void {
+  if (event.key !== EMAIL_ACCESS_TOKEN_KEY || !event.newValue) return;
+  // The email link commonly opens a second tab. Recognize it without resending.
+  emailVerificationOpen.value = false;
+  emailVerificationError.value = undefined;
+  emailVerificationSentTo.value = undefined;
+  operationNotice.value = "E-mail подтверждён в этом браузере. Можно создавать календари.";
+  void refreshGlobalCalendarGridTemplates();
 }
 
 async function initializeApplication(): Promise<void> {
@@ -3069,6 +3091,9 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "save-as-project": void saveProjectAs(); break;
     case "download-project": downloadProjectFile(); break;
     case "recovery": recoveryDialogOpen.value = true; break;
+    case "administrator":
+      void openAdministrator();
+      break;
     case "program-settings":
       programSettingsError.value = undefined;
       programSettingsOpen.value = true;
@@ -3238,7 +3263,7 @@ function handlePageHide(): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
+  if (adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
       helpDialogPage.value = undefined;
       recoveryDialogOpen.value = false;
@@ -3343,6 +3368,7 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 onMounted(() => {
+  window.addEventListener("storage", handleIdentityStorage);
   window.addEventListener("keydown", handleKeydown);
   window.addEventListener("beforeunload", handleBeforeUnload);
   window.addEventListener("pagehide", handlePageHide);
@@ -3394,6 +3420,7 @@ watch(
   { deep: true },
 );
 onBeforeUnmount(() => {
+  window.removeEventListener("storage", handleIdentityStorage);
   window.removeEventListener("keydown", handleKeydown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
   window.removeEventListener("pagehide", handlePageHide);
@@ -4164,6 +4191,7 @@ onBeforeUnmount(() => {
       @close="programSettingsOpen = false"
       @save="saveProgramSettingsFromDialog"
     />
+    <AdminDialog v-if="adminOpen" :access-token="verifiedAccessToken() ?? ''" @close="adminOpen = false" />
     <EmailVerificationDialog
       v-if="emailVerificationOpen"
       :busy="emailVerificationBusy"

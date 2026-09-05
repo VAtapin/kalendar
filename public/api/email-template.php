@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 /** HTML uses tables and inline styles for email clients; no scripts or tracking. */
-function calendar_verification_html(string $recipient, string $verificationUrl): string
+function calendar_verification_html(string $recipient, string $verificationUrl, bool $subscribe = false): string
 {
     $safeUrl = htmlspecialchars($verificationUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $safeRecipient = htmlspecialchars($recipient, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $consent = $subscribe ? '<p style="padding:16px;background:#edf0e9;font-size:14px;line-height:1.6;">Вы отметили согласие: «Хочу получать по электронной почте новости Календарной мастерской и напоминания о создании календарей. Отписаться можно в любой момент». Нажимая кнопку, вы подтверждаете адрес и эту подписку. В каждой рассылке будет ссылка отписки.</p>' : '';
+    $button = $subscribe ? 'Подтвердить адрес и подписку' : 'Подтвердить e-mail';
     return <<<HTML
 <!doctype html>
 <html lang="ru">
@@ -24,7 +26,8 @@ function calendar_verification_html(string $recipient, string $verificationUrl):
 <h1 style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;font-weight:normal;color:#253a32;">Подтвердите ваш e-mail</h1>
 <p style="margin:0 0 14px;font-size:16px;line-height:1.65;">Здравствуйте!</p>
 <p style="margin:0 0 24px;font-size:16px;line-height:1.65;">Адрес <strong style="overflow-wrap:anywhere;word-break:break-word;">{$safeRecipient}</strong> был указан для работы в Календарной мастерской. Подтвердите его, чтобы продолжить создание календаря.</p>
-<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td bgcolor="#28483b" style="border-radius:4px;mso-padding-alt:16px 26px;"><a href="{$safeUrl}" style="display:inline-block;padding:16px 26px;border:1px solid #28483b;border-radius:4px;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;">Подтвердить e-mail&nbsp; →</a></td></tr></table>
+{$consent}
+<table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td bgcolor="#28483b" style="border-radius:4px;mso-padding-alt:16px 26px;"><a href="{$safeUrl}" style="display:inline-block;padding:16px 26px;border:1px solid #28483b;border-radius:4px;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;">{$button}&nbsp; →</a></td></tr></table>
 <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#6b7068;">Ссылка действует <strong>30 минут</strong>. Если вы не запрашивали подтверждение, просто удалите это письмо.</p>
 <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#6b7068;">Если кнопка не работает, скопируйте ссылку в браузер:<br><a href="{$safeUrl}" style="color:#476854;overflow-wrap:anywhere;word-break:break-all;">{$safeUrl}</a></p>
 </td></tr>

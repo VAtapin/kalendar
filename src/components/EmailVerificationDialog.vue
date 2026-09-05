@@ -9,11 +9,12 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  submit: [email: string];
+  submit: [email: string, subscribe: boolean];
   close: [];
 }>();
 
 const email = ref("");
+const subscribe = ref(false);
 </script>
 
 <template>
@@ -29,9 +30,14 @@ const email = ref("");
           <p class="application-dialog__note">Ссылка действует 30 минут. Эту вкладку можно закрыть.</p>
           <a v-if="developmentVerificationUrl" class="development-verification-link" :href="developmentVerificationUrl">Открыть тестовую ссылку подтверждения</a>
         </template>
-        <form v-else @submit.prevent="emit('submit', email)">
-          <p>Мы запрашиваем адрес один раз. Он нужен только для подтверждения, что календарь создаёт человек, и для серверного экспорта PDF.</p>
+        <form v-else @submit.prevent="emit('submit', email, subscribe)">
+          <p>Подтвердите адрес для входа и серверных функций календаря. Подписка на новости необязательна.</p>
           <label class="field-stack"><span>E-mail</span><input v-model.trim="email" type="email" autocomplete="email" required autofocus placeholder="name@example.com" /></label>
+          <label style="display:flex;gap:10px;margin:18px 0;align-items:flex-start;line-height:1.5;">
+            <input v-model="subscribe" type="checkbox" style="width:auto;flex:none;margin-top:4px;" />
+            <span>Хочу получать по электронной почте новости Календарной мастерской и напоминания о создании календарей. Отписаться можно в любой момент.</span>
+          </label>
+          <p class="application-dialog__note">Если галочка отмечена, одна ссылка в письме подтвердит и адрес, и подписку. Без галочки рассылок не будет. Серверные календари доступны владельцу мастерской для просмотра и поддержки.</p>
           <p v-if="error" class="online-dialog__error">{{ error }}</p>
           <button class="primary-action online-dialog__submit" type="submit" :disabled="busy || !email">{{ busy ? 'Отправляем…' : 'Получить ссылку' }}</button>
         </form>

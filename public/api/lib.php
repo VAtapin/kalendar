@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/email-template.php';
+require_once __DIR__ . '/admin-store.php';
 
 final class ApiFailure extends RuntimeException
 {
@@ -193,6 +194,7 @@ function calendar_with_lock(string $locksDirectory, string $name, callable $call
 
 final class CalendarStore
 {
+    use CalendarAdminStore;
     private const BUILT_IN_TEMPLATE_IDS = [
         'editorial-classic',
         'monastic-book',
@@ -219,7 +221,7 @@ final class CalendarStore
         $this->locksDirectory = $dataDirectory . DIRECTORY_SEPARATOR . '.locks';
         $this->identitiesFile = $dataDirectory . DIRECTORY_SEPARATOR . 'email-identities.json';
         $this->templatesFile = $dataDirectory . DIRECTORY_SEPARATOR . 'calendar-grid-templates.json';
-        $this->rateLimitsFile = $dataDirectory . DIRECTORY_SEPARATOR . 'email-rate-limits.json';
+        $this->rateLimitsFile = $dataDirectory . DIRECTORY_SEPARATOR . 'email-rate-limits-v2.json';
         foreach ([$dataDirectory, $this->projectsDirectory, $this->leasesDirectory, $this->pdfDirectory, $this->locksDirectory] as $directory) {
             if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
                 throw new RuntimeException('storage_create_failed');
@@ -236,24 +238,27 @@ final class CalendarStore
             'pending' => is_array($value['pending'] ?? null) ? array_values($value['pending']) : [],
             'credentials' => is_array($value['credentials'] ?? null) ? array_values($value['credentials']) : [],
             'settingsByEmail' => is_array($value['settingsByEmail'] ?? null) ? $value['settingsByEmail'] : [],
+            'subscriptions' => is_array($value['subscriptions'] ?? null) ? $value['subscriptions'] : [],
         ];
     }
 
     /** @return array{token: string, expiresAt: string} */
-    public function createEmailVerification(string $email): array
+    public function createEmailVerification(string $email, bool $subscribe = false): array
     {
-        return calendar_with_lock($this->locksDirectory, 'identities', function () use ($email): array {
+        return calendar_with_lock($this->locksDirectory, 'identities', function () use ($email, $subscribe): array {
             $state = $this->identities();
             $now = time();
             $normalized = strtolower(trim($email));
             $state['pending'] = array_values(array_filter(
                 $state['pending'],
-                static fn (array $entry): bool => calendar_timestamp((string) ($entry['expiresAt'] ?? '')) > $now
-                    && ($entry['email'] ?? '') !== $normalized,
+                static fn (array $entry): bool => calendar_timestamp((string) ($entry['expiresAt'] ?? '')) > $now,
             ));
             $token = calendar_token();
             $expiresAt = gmdate('Y-m-d\TH:i:s.000\Z', $now + 1800);
-            $state['pending'][] = ['tokenHash' => calendar_hash($token), 'email' => $normalized, 'expiresAt' => $expiresAt];
+            $state['pending'][] = ['tokenHash' => calendar_hash($token), 'email' => $normalized, 'expiresAt' => $expiresAt,
+                'subscribe' => $subscribe, 'requestedAt' => calendar_now(), 'consentVersion' => CALENDAR_CONSENT_VERSION,
+                'consentText' => CALENDAR_CONSENT_TEXT,
+                'unsubscribeEpoch' => $state['subscriptions'][$normalized]['unsubscribeRevision'] ?? null];
             calendar_atomic_json_write($this->identitiesFile, $state);
             return ['token' => $token, 'expiresAt' => $expiresAt];
         });
@@ -282,8 +287,21 @@ final class CalendarStore
                 calendar_fail('verification_invalid_or_expired', 400, 'Ссылка подтверждения недействительна или устарела');
             }
             $email = (string) $pending['email'];
+            $subscription = $state['subscriptions'][$email] ?? [];
+            if (($pending['subscribe'] ?? false) === true
+                && ($pending['unsubscribeEpoch'] ?? null) === ($subscription['unsubscribeRevision'] ?? null)) {
+                $subscription = array_merge($subscription, ['status' => 'subscribed',
+                    'requestedAt' => $pending['requestedAt'], 'confirmedAt' => calendar_now(),
+                    'consentVersion' => $pending['consentVersion'], 'consentText' => $pending['consentText'],
+                    'unsubscribeToken' => $subscription['unsubscribeToken'] ?? calendar_token()]);
+                $subscription['history'][] = ['action' => 'confirmed', 'at' => calendar_now(),
+                    'requestedAt' => $pending['requestedAt'], 'version' => $pending['consentVersion'], 'text' => $pending['consentText']];
+                $state['subscriptions'][$email] = $subscription;
+            }
             $sameEmail = array_values(array_filter($state['credentials'], static fn (array $entry): bool => ($entry['email'] ?? '') === $email));
-            $retained = array_slice($sameEmail, -4);
+            // A browser credential remains valid until explicitly revoked; signing in
+            // on another device must not silently evict an existing browser.
+            $retained = $sameEmail;
             $other = array_values(array_filter($state['credentials'], static fn (array $entry): bool => ($entry['email'] ?? '') !== $email));
             $accessToken = calendar_token();
             $state['pending'] = $remaining;
@@ -411,6 +429,10 @@ final class CalendarStore
     public function createProject(mixed $project, string $ownerCredentialId): array
     {
         $now = calendar_now();
+        $ownerEmail = null;
+        foreach ($this->identities()['credentials'] as $credential) {
+            if ($credential['id'] === $ownerCredentialId) $ownerEmail = $credential['email'];
+        }
         $stored = [
             'id' => calendar_uuid(),
             'project' => $project,
@@ -418,6 +440,7 @@ final class CalendarStore
             'createdAt' => $now,
             'updatedAt' => $now,
             'ownerCredentialId' => $ownerCredentialId,
+            'ownerEmail' => $ownerEmail,
         ];
         calendar_atomic_json_write($this->projectFile((string) $stored['id']), $stored);
         return $stored;
@@ -663,9 +686,11 @@ final class CalendarStore
             $limits = calendar_read_json_file($this->rateLimitsFile, []);
             $limits = is_array($limits) ? $limits : [];
             $cutoff = time() - 3600;
-            $keys = ['email:' . strtolower($email) => 5, 'ip:' . $address => 20];
+            $keys = ['sent-email:' . strtolower($email) => 1, 'sent-ip:' . $address => 100,
+                'sending-email:' . strtolower($email) => 1, 'sending-ip:' . $address => 1];
             foreach ($limits as $key => $entries) {
-                $limits[$key] = array_values(array_filter(is_array($entries) ? $entries : [], static fn (mixed $stamp): bool => is_int($stamp) && $stamp >= $cutoff));
+                $cutoff = time() - (str_starts_with($key, 'sending-') ? 180 : (str_starts_with($key, 'sent-email:') ? 60 : 3600));
+                $limits[$key] = array_values(array_filter(is_array($entries) ? $entries : [], static fn (mixed $stamp): bool => is_int($stamp) && $stamp > $cutoff));
                 if ($limits[$key] === []) {
                     unset($limits[$key]);
                 }
@@ -676,11 +701,23 @@ final class CalendarStore
                     return false;
                 }
             }
-            foreach ($keys as $key => $_maximum) {
-                $limits[$key][] = time();
-            }
+            $limits['sending-email:' . strtolower($email)] = [time()];
+            $limits['sending-ip:' . $address] = [time()];
             calendar_atomic_json_write($this->rateLimitsFile, $limits);
             return true;
+        });
+    }
+
+    public function finishVerificationSend(string $email, string $address, bool $accepted): void
+    {
+        calendar_with_lock($this->locksDirectory, 'rate-limits', function () use ($email, $address, $accepted): void {
+            $limits = calendar_read_json_file($this->rateLimitsFile, []);
+            unset($limits['sending-email:' . strtolower($email)], $limits['sending-ip:' . $address]);
+            if ($accepted) {
+                $limits['sent-email:' . strtolower($email)] = [time()];
+                $limits['sent-ip:' . $address][] = time();
+            }
+            calendar_atomic_json_write($this->rateLimitsFile, $limits);
         });
     }
 
@@ -751,7 +788,7 @@ function calendar_smtp_command($socket, string $command, array $expectedCodes): 
 }
 
 /** @return array{subject: string, headers: array<int, string>, body: string} */
-function calendar_verification_message(string $recipient, string $verificationUrl, string $senderAddress, string $senderName): array
+function calendar_verification_message(string $recipient, string $verificationUrl, string $senderAddress, string $senderName, bool $subscribe = false, ?array $content = null): array
 {
     $subject = 'Ссылка подтверждения — Календарная мастерская';
     $boundary = '=_CalendarWorkshop_' . bin2hex(random_bytes(12));
@@ -767,7 +804,13 @@ function calendar_verification_message(string $recipient, string $verificationUr
         . "Разработка и техническая поддержка: https://atapin.de/\n"
         . "+49 171 351 72 74\natapin@gmail.com\n\n"
         . "Пожалуйста, не пересылайте ссылку подтверждения другим людям.\n";
-    $html = calendar_verification_html($recipient, $verificationUrl);
+    if ($subscribe) $text .= "\nВы отметили согласие: " . CALENDAR_CONSENT_TEXT . "\nПереход по ссылке подтверждает адрес и подписку.\n";
+    $html = calendar_verification_html($recipient, $verificationUrl, $subscribe);
+    if ($content !== null) {
+        $subject = $content['subject'];
+        $text = $content['text'];
+        $html = $content['html'];
+    }
     $encodedName = '=?UTF-8?B?' . base64_encode($senderName) . '?=';
     $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
     $headers = [
@@ -820,11 +863,9 @@ function calendar_mail_sender_name(): string
     return trim(calendar_config_value('MAIL_FROM_NAME', $name));
 }
 
-function calendar_send_sendmail_verification_email(string $recipient, string $verificationUrl): void
+function calendar_send_sendmail_verification_email(string $recipient, array $message): void
 {
     $senderAddress = calendar_mail_sender_address();
-    $senderName = calendar_mail_sender_name();
-    $message = calendar_verification_message($recipient, $verificationUrl, $senderAddress, $senderName);
     if (!function_exists('mail') || !mail(
         $recipient,
         $message['subject'],
@@ -836,7 +877,7 @@ function calendar_send_sendmail_verification_email(string $recipient, string $ve
     }
 }
 
-function calendar_send_smtp_verification_email(string $recipient, string $verificationUrl): void
+function calendar_send_smtp_verification_email(string $recipient, array $message): void
 {
     $host = calendar_config_value('SMTP_HOST');
     $port = calendar_config_int('SMTP_PORT', 465);
@@ -877,9 +918,6 @@ function calendar_send_smtp_verification_email(string $recipient, string $verifi
         calendar_smtp_command($socket, 'RCPT TO:<' . $recipient . '>', [250, 251]);
         calendar_smtp_command($socket, 'DATA', [354]);
 
-        $senderAddress = calendar_mail_sender_address();
-        $senderName = calendar_mail_sender_name();
-        $message = calendar_verification_message($recipient, $verificationUrl, $senderAddress, $senderName);
         $headers = [
             ...$message['headers'],
             'To: ' . $recipient,
@@ -897,15 +935,38 @@ function calendar_send_smtp_verification_email(string $recipient, string $verifi
     }
 }
 
-function calendar_send_verification_email(string $recipient, string $verificationUrl): void
+function calendar_send_verification_email(string $recipient, string $verificationUrl, bool $subscribe = false): void
+{
+    calendar_send_message($recipient, calendar_verification_message($recipient, $verificationUrl,
+        calendar_mail_sender_address(), calendar_mail_sender_name(), $subscribe));
+}
+
+function calendar_send_newsletter(string $recipient, string $subject, string $text, string $unsubscribeUrl): void
+{
+    $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $html = '<!doctype html><html lang="ru"><body style="background:#f2efe8;font-family:Arial,sans-serif;padding:20px;">'
+        . '<table role="presentation" style="max-width:600px;width:100%;margin:auto;background:#fffdf8;border-top:4px solid #b3924d;padding:24px;"><tr><td>'
+        . '<img width="280" style="width:100%;max-width:280px;height:auto;" src="https://kalender.georg-kloster.ru/brand/logo-kalendar.png" alt="Календарная мастерская">'
+        . '<h1 style="font-family:Georgia,serif;color:#28483b;">' . $escape($subject) . '</h1>'
+        . '<p style="line-height:1.7;">' . nl2br($escape($text)) . '</p><hr>'
+        . '<p><a href="https://kalender.georg-kloster.ru/">Календарная мастерская</a> · <a href="https://georg-kloster.ru/">Монастырь</a></p>'
+        . '<p>Вы подтвердили подписку на новости мастерской и напоминания о календарях.</p>'
+        . '<p><a href="' . $escape($unsubscribeUrl) . '">Отписаться от рассылки</a></p></td></tr></table></body></html>';
+    $message = calendar_verification_message($recipient, '', calendar_mail_sender_address(), calendar_mail_sender_name(), false,
+        ['subject' => $subject, 'text' => $text . "\n\nОтписаться: " . $unsubscribeUrl, 'html' => $html]);
+    $message['headers'][] = 'List-Unsubscribe: <' . $unsubscribeUrl . '>';
+    calendar_send_message($recipient, $message);
+}
+
+function calendar_send_message(string $recipient, array $message): void
 {
     $transport = strtolower(trim(calendar_config_value('MAIL_TRANSPORT', 'smtp')));
     if ($transport === 'sendmail' || $transport === 'mail') {
-        calendar_send_sendmail_verification_email($recipient, $verificationUrl);
+        calendar_send_sendmail_verification_email($recipient, $message);
         return;
     }
     if ($transport === 'smtp') {
-        calendar_send_smtp_verification_email($recipient, $verificationUrl);
+        calendar_send_smtp_verification_email($recipient, $message);
         return;
     }
     throw new RuntimeException('mail_transport_invalid');
