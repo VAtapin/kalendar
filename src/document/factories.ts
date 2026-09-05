@@ -79,7 +79,9 @@ export function changePageFormat(
   const dimensions = getPageDimensions(formatId, orientation);
   const scaleX = dimensions.width / page.width;
   const scaleY = dimensions.height / page.height;
-  const scale = Math.min(scaleX, scaleY);
+  // Compare short edges, not axis ratios: rotating a page must not shrink
+  // typography in both directions. This ratio is also reversible on resize.
+  const scale = Math.min(dimensions.width, dimensions.height) / Math.min(page.width, page.height);
   for (const element of page.elements) {
     element.x *= scaleX;
     element.y *= scaleY;
