@@ -55,3 +55,16 @@ $message = calendar_verification_html($email, 'https://example.org/?token=x', tr
 check(str_contains($message, 'Подтвердить адрес и подписку'), 'Combined confirmation clearly labelled');
 check(!str_contains(calendar_verification_html($email, 'https://example.org'), 'Вы отметили согласие'), 'No fabricated consent');
 echo "All checks passed; isolated test data: {$directory}\n";
+
+$paired = $store->createEmailVerification('desktop@example.org', true, true);
+check($store->emailVerificationStatus($paired['requestToken'])['status'] === 'pending', 'Desktop request awaits phone confirmation');
+check($store->credentialFor($paired['requestToken']) === null, 'Pending browser secret is not yet a credential');
+$phone = $store->confirmEmailVerification($paired['token']);
+check(!isset($phone['accessToken']) && $phone['returnToRequestingBrowser'], 'Phone receives no access token');
+check($store->emailVerificationStatus($paired['requestToken'])['status'] === 'confirmed', 'Desktop can receive confirmation from another device');
+check($store->credentialFor($paired['requestToken'])['email'] === 'desktop@example.org', 'Only requesting browser secret authorizes access');
+check($store->emailVerificationStatus($paired['token'])['status'] === 'expired', 'Emailed token cannot claim desktop session');
+check($store->emailVerificationStatus(str_repeat('x', 40))['status'] === 'expired', 'Unknown browser cannot query identity');
+check(!isset($store->confirmEmailVerification($paired['token'])['accessToken']), 'Reopening phone link is idempotent without granting access');
+$reopened = new CalendarStore($directory);
+check($reopened->emailVerificationStatus($paired['requestToken'])['status'] === 'confirmed', 'Confirmation survives closing browser and server restart');

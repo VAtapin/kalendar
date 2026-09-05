@@ -26,8 +26,9 @@ const subscribe = ref(false);
       </header>
       <div class="application-dialog__content">
         <template v-if="sentTo">
-          <p>Письмо отправлено на <strong>{{ sentTo }}</strong>. Откройте ссылку из письма — пароль и регистрация не нужны.</p>
-          <p class="application-dialog__note">Ссылка действует 30 минут. Эту вкладку можно закрыть.</p>
+          <p>Письмо отправлено на <strong>{{ sentTo }}</strong>. Нажмите ссылку в письме — можно на телефоне или другом устройстве.</p>
+          <p class="application-dialog__note">Этот браузер получит подтверждение автоматически. Ссылка действует 30 минут. Если закроете вкладку, откройте мастерскую в этом же браузере — запрос сохранён.</p>
+          <p v-if="error" class="online-dialog__error" role="status">{{ error }}</p>
           <a v-if="developmentVerificationUrl" class="development-verification-link" :href="developmentVerificationUrl">Открыть тестовую ссылку подтверждения</a>
         </template>
         <form v-else @submit.prevent="emit('submit', email, subscribe)">

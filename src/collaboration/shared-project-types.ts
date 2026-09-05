@@ -36,12 +36,14 @@ export interface SharedProjectCreated extends SharedProjectLeaseGranted {
 export interface EmailVerificationRequested {
   sent: true;
   expiresAt: string;
+  requestToken?: string;
   developmentVerificationUrl?: string;
 }
 
 export interface EmailVerificationConfirmed {
-  accessToken: string;
+  accessToken?: string;
   email: string;
+  returnToRequestingBrowser?: boolean;
 }
 
 export type UserProgramSettings = ProgramSettings;

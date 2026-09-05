@@ -336,9 +336,9 @@ try {
         $accepted = false;
         $sendError = null;
         try {
-            $verification = $store->createEmailVerification($email, $subscribe);
+            $verification = $store->createEmailVerification($email, $subscribe, ($body['browserFlow'] ?? false) === true);
             $link = api_public_url() . '/?verify=' . rawurlencode($verification['token']);
-            calendar_send_verification_email($email, $link, $subscribe);
+            calendar_send_verification_email($email, $link, $subscribe, ($body['browserFlow'] ?? false) === true);
             $accepted = true;
         } catch (RuntimeException $error) {
             $sendError = $error;
@@ -354,6 +354,7 @@ try {
                 ]);
         }
         $response = ['sent' => true, 'expiresAt' => $verification['expiresAt']];
+        if (isset($verification['requestToken'])) $response['requestToken'] = $verification['requestToken'];
         if ($development) {
             $response['developmentVerificationUrl'] = $link;
         }
@@ -366,6 +367,13 @@ try {
             api_response(400, ['error' => 'invalid_token']);
         }
         api_response(200, $store->confirmEmailVerification($body['token']));
+    }
+
+    if ($method === 'POST' && $path === '/v1/email-verifications/status') {
+        // Secret is in the body, not a URL that could enter access logs or referrers.
+        $body = api_request_json(1024);
+        if (!is_string($body['requestToken'] ?? null)) api_response(400, ['error' => 'invalid_request']);
+        api_response(200, $store->emailVerificationStatus($body['requestToken']));
     }
 
     if ($method === 'PUT' && $path === '/v1/user-settings') {

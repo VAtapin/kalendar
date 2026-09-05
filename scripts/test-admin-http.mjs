@@ -34,6 +34,17 @@ try {
   }
   assert.ok(ready, 'PHP server starts');
   const regular = await login('regular@example.org');
+  const paired = await call('email-verifications', {email:'paired@example.org', browserFlow:true});
+  const browserSecret = paired.data.requestToken;
+  const mailToken = new URL(paired.data.developmentVerificationUrl).searchParams.get('verify');
+  assert.equal((await call('email-verifications/status', {requestToken:browserSecret})).data.status, 'pending');
+  assert.equal((await call('user-settings', undefined, browserSecret)).status, 401);
+  const phone = await call('email-verifications/confirm', {token:mailToken});
+  assert.equal(phone.data.returnToRequestingBrowser, true);
+  assert.equal(phone.data.accessToken, undefined);
+  assert.equal((await call('email-verifications/status', {requestToken:browserSecret})).data.email, 'paired@example.org');
+  assert.equal((await call('user-settings', undefined, browserSecret)).status, 200);
+  assert.equal((await call('user-settings', undefined, mailToken)).status, 401);
   const owner = await login('owner@example.org');
   for (const endpoint of ['calendars', 'subscribers', 'mail-log']) {
     assert.equal((await call(`admin/${endpoint}`)).status, 403);

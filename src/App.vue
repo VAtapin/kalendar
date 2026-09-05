@@ -120,6 +120,7 @@ import { ProjectHistoryCodec } from "./persistence/project-history";
 import {
   SharedProjectApiError,
   confirmEmailVerification,
+  pollEmailVerification,
   copySharedProject,
   createGlobalCalendarGridTemplate,
   createSharedProject,
@@ -281,6 +282,13 @@ const emailVerificationBusy = ref(false);
 const emailVerificationSentTo = ref<string>();
 const emailVerificationError = ref<string>();
 const developmentVerificationUrl = ref<string>();
+const verificationLanding = ref<string>();
+const BROWSER_VERIFICATION_KEY = "orthodox-calendar-layout:browser-verification";
+let verificationPollTimer: number | undefined;
+let verificationPollBusy = false;
+let verificationDisposed = false;
+let verificationReady = false;
+type BrowserVerification = { requestToken: string; email: string; expiresAt: string };
 type PendingVerifiedAction = "new" | "share" | "export" | "global-grid-templates" | "administrator";
 const pendingVerifiedAction = ref<PendingVerifiedAction>();
 const EMAIL_ACCESS_TOKEN_KEY = "orthodox-calendar-layout:verified-email-token";
@@ -853,10 +861,11 @@ function requestVerifiedAction(action: PendingVerifiedAction): boolean {
   if (verifiedAccessToken()) return true;
   pendingVerifiedAction.value = action;
   localStorage.setItem(PENDING_VERIFIED_ACTION_KEY, action);
-  emailVerificationSentTo.value = undefined;
+  emailVerificationSentTo.value = savedBrowserVerification()?.email;
   emailVerificationError.value = undefined;
   developmentVerificationUrl.value = undefined;
   emailVerificationOpen.value = true;
+  startBrowserVerificationPolling();
   return false;
 }
 
@@ -865,6 +874,10 @@ async function submitEmailVerification(email: string, subscribe = false): Promis
   emailVerificationError.value = undefined;
   try {
     const result = await requestEmailVerification(email, subscribe);
+    if (result.requestToken) {
+      localStorage.setItem(BROWSER_VERIFICATION_KEY, JSON.stringify({requestToken: result.requestToken, email, expiresAt: result.expiresAt}));
+      startBrowserVerificationPolling();
+    }
     emailVerificationSentTo.value = email;
     developmentVerificationUrl.value = result.developmentVerificationUrl;
   } catch (error) {
@@ -877,6 +890,57 @@ async function submitEmailVerification(email: string, subscribe = false): Promis
 function closeEmailVerification(): void {
   if (emailVerificationBusy.value) return;
   emailVerificationOpen.value = false;
+}
+
+function savedBrowserVerification(): BrowserVerification | undefined {
+  try {
+    const value = JSON.parse(localStorage.getItem(BROWSER_VERIFICATION_KEY) ?? "null") as BrowserVerification | null;
+    return value && typeof value.requestToken === "string" && typeof value.email === "string" ? value : undefined;
+  } catch { return undefined; }
+}
+
+function startBrowserVerificationPolling(): void {
+  if (verificationPollTimer !== undefined) window.clearTimeout(verificationPollTimer);
+  verificationPollTimer = undefined;
+  if (verificationReady && !verificationDisposed && savedBrowserVerification()) void checkBrowserVerification();
+}
+
+async function checkBrowserVerification(): Promise<void> {
+  if (verificationPollBusy || verificationDisposed || !verificationReady) return;
+  const pending = savedBrowserVerification();
+  if (!pending) return;
+  verificationPollBusy = true;
+  let nextDelay = 3000;
+  try {
+    const result = await pollEmailVerification(pending.requestToken);
+    if (verificationDisposed || savedBrowserVerification()?.requestToken !== pending.requestToken) return;
+    emailVerificationError.value = undefined;
+    if (result.status === "confirmed" && result.email) {
+      // Only this browser received the request secret. The emailed link never carries it.
+      localStorage.setItem(VERIFIED_EMAIL_KEY, result.email);
+      localStorage.setItem(EMAIL_ACCESS_TOKEN_KEY, pending.requestToken);
+      localStorage.removeItem(BROWSER_VERIFICATION_KEY);
+      emailVerificationOpen.value = false;
+      emailVerificationSentTo.value = undefined;
+      emailVerificationError.value = undefined;
+      operationNotice.value = `E-mail ${result.email} подтверждён. Этот браузер запомнен.`;
+      await loadVerifiedProgramSettings();
+      await refreshGlobalCalendarGridTemplates();
+      const action = localStorage.getItem(PENDING_VERIFIED_ACTION_KEY) as PendingVerifiedAction | null;
+      if (!compactViewport.value) await runPendingVerifiedAction(action ?? undefined);
+    } else if (result.status === "expired") {
+      localStorage.removeItem(BROWSER_VERIFICATION_KEY);
+      emailVerificationSentTo.value = undefined;
+      emailVerificationError.value = "Срок ссылки истёк. Запросите новое письмо.";
+    }
+  } catch {
+    nextDelay = 10000;
+    // A temporary network error must not erase an already confirmed request.
+    emailVerificationError.value = "Нет связи с сервером. Проверим подтверждение автоматически после восстановления связи.";
+  } finally {
+    verificationPollBusy = false;
+    if (!verificationDisposed && savedBrowserVerification()) verificationPollTimer = window.setTimeout(() => void checkBrowserVerification(), nextDelay);
+  }
 }
 
 function rememberSharedProject(projectId: string, name: string): void {
@@ -1272,10 +1336,21 @@ function handleIdentityStorage(event: StorageEvent): void {
 async function initializeApplication(): Promise<void> {
   loadSharedProjectHistory();
   await initializeProject();
+  verificationReady = true;
   const verificationToken = verificationTokenFromLocation();
   if (verificationToken) {
     try {
       const confirmed = await confirmEmailVerification(verificationToken);
+      if (confirmed.returnToRequestingBrowser) {
+        replaceSharedProjectInLocation(sharedProjectIdFromLocation());
+        if (savedBrowserVerification()) {
+          await checkBrowserVerification();
+        } else {
+          verificationLanding.value = "E-mail подтверждён. Вернитесь к компьютеру или браузеру, где вы запросили письмо: он получит подтверждение автоматически. Эту вкладку можно закрыть.";
+        }
+        return;
+      }
+      if (!confirmed.accessToken) throw new Error("Сервер не вернул подтверждение входа");
       localStorage.setItem(EMAIL_ACCESS_TOKEN_KEY, confirmed.accessToken);
       localStorage.setItem(VERIFIED_EMAIL_KEY, confirmed.email);
       try {
@@ -1302,6 +1377,11 @@ async function initializeApplication(): Promise<void> {
     }
   } else {
     await loadVerifiedProgramSettings();
+    if (savedBrowserVerification()) {
+      emailVerificationSentTo.value = savedBrowserVerification()?.email;
+      emailVerificationOpen.value = !verifiedAccessToken();
+      startBrowserVerificationPolling();
+    }
   }
   await refreshGlobalCalendarGridTemplates();
   const projectId = sharedProjectIdFromLocation();
@@ -3263,7 +3343,7 @@ function handlePageHide(): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
+  if (verificationLanding.value || adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
       helpDialogPage.value = undefined;
       recoveryDialogOpen.value = false;
@@ -3368,6 +3448,7 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 onMounted(() => {
+  window.addEventListener("focus", startBrowserVerificationPolling);
   window.addEventListener("storage", handleIdentityStorage);
   window.addEventListener("keydown", handleKeydown);
   window.addEventListener("beforeunload", handleBeforeUnload);
@@ -3420,6 +3501,9 @@ watch(
   { deep: true },
 );
 onBeforeUnmount(() => {
+  verificationDisposed = true;
+  if (verificationPollTimer !== undefined) window.clearTimeout(verificationPollTimer);
+  window.removeEventListener("focus", startBrowserVerificationPolling);
   window.removeEventListener("storage", handleIdentityStorage);
   window.removeEventListener("keydown", handleKeydown);
   window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -4191,6 +4275,12 @@ onBeforeUnmount(() => {
       @close="programSettingsOpen = false"
       @save="saveProgramSettingsFromDialog"
     />
+    <div v-if="verificationLanding" class="application-dialog-backdrop">
+      <section class="application-dialog online-dialog" role="dialog" aria-modal="true" aria-label="E-mail подтверждён">
+        <header class="application-dialog__header"><h2>E-mail подтверждён</h2></header>
+        <div class="application-dialog__content"><p>{{ verificationLanding }}</p><a href="https://georg-kloster.ru/">Сайт монастыря</a></div>
+      </section>
+    </div>
     <AdminDialog v-if="adminOpen" :access-token="verifiedAccessToken() ?? ''" @close="adminOpen = false" />
     <EmailVerificationDialog
       v-if="emailVerificationOpen"

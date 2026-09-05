@@ -77,7 +77,7 @@ export function verificationTokenFromLocation(location = window.location): strin
 export async function requestEmailVerification(email: string, subscribe = false): Promise<EmailVerificationRequested> {
   return request("/v1/email-verifications", {
     method: "POST",
-    body: JSON.stringify({ email, subscribe }),
+    body: JSON.stringify({ email, subscribe, browserFlow: true }),
   });
 }
 
@@ -91,6 +91,10 @@ export async function confirmEmailVerification(token: string): Promise<EmailVeri
     method: "POST",
     body: JSON.stringify({ token }),
   });
+}
+
+export async function pollEmailVerification(requestToken: string): Promise<{status: "pending" | "confirmed" | "expired"; email?: string}> {
+  return request("/v1/email-verifications/status", {method: "POST", body: JSON.stringify({requestToken})});
 }
 
 export async function loadUserProgramSettings(accessToken: string): Promise<UserProgramSettings> {

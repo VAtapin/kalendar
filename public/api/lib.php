@@ -242,10 +242,10 @@ final class CalendarStore
         ];
     }
 
-    /** @return array{token: string, expiresAt: string} */
-    public function createEmailVerification(string $email, bool $subscribe = false): array
+    /** @return array{token: string, expiresAt: string, requestToken?: string} */
+    public function createEmailVerification(string $email, bool $subscribe = false, bool $browserFlow = false): array
     {
-        return calendar_with_lock($this->locksDirectory, 'identities', function () use ($email, $subscribe): array {
+        return calendar_with_lock($this->locksDirectory, 'identities', function () use ($email, $subscribe, $browserFlow): array {
             $state = $this->identities();
             $now = time();
             $normalized = strtolower(trim($email));
@@ -254,17 +254,19 @@ final class CalendarStore
                 static fn (array $entry): bool => calendar_timestamp((string) ($entry['expiresAt'] ?? '')) > $now,
             ));
             $token = calendar_token();
+            $requestToken = $browserFlow ? calendar_token() : null;
             $expiresAt = gmdate('Y-m-d\TH:i:s.000\Z', $now + 1800);
             $state['pending'][] = ['tokenHash' => calendar_hash($token), 'email' => $normalized, 'expiresAt' => $expiresAt,
                 'subscribe' => $subscribe, 'requestedAt' => calendar_now(), 'consentVersion' => CALENDAR_CONSENT_VERSION,
                 'consentText' => CALENDAR_CONSENT_TEXT,
+                'requestTokenHash' => $requestToken !== null ? calendar_hash($requestToken) : null,
                 'unsubscribeEpoch' => $state['subscriptions'][$normalized]['unsubscribeRevision'] ?? null];
             calendar_atomic_json_write($this->identitiesFile, $state);
-            return ['token' => $token, 'expiresAt' => $expiresAt];
+            return ['token' => $token, 'expiresAt' => $expiresAt, ...($requestToken !== null ? ['requestToken' => $requestToken] : [])];
         });
     }
 
-    /** @return array{accessToken: string, email: string} */
+    /** @return array{accessToken?: string, email: string, returnToRequestingBrowser?: bool} */
     public function confirmEmailVerification(string $token): array
     {
         return calendar_with_lock($this->locksDirectory, 'identities', function () use ($token): array {
@@ -284,6 +286,13 @@ final class CalendarStore
                 $remaining[] = $entry;
             }
             if (!is_array($pending)) {
+                // Reopening a cross-device link is harmless: never issue a browser credential here.
+                foreach ($state['credentials'] as $entry) {
+                    if (isset($entry['verificationTokenHash']) && hash_equals($entry['verificationTokenHash'], $tokenHash)
+                        && calendar_timestamp($entry['verificationExpiresAt'] ?? '') > $now) {
+                        return ['email' => $entry['email'], 'returnToRequestingBrowser' => true];
+                    }
+                }
                 calendar_fail('verification_invalid_or_expired', 400, 'Ссылка подтверждения недействительна или устарела');
             }
             $email = (string) $pending['email'];
@@ -304,16 +313,31 @@ final class CalendarStore
             $retained = $sameEmail;
             $other = array_values(array_filter($state['credentials'], static fn (array $entry): bool => ($entry['email'] ?? '') !== $email));
             $accessToken = calendar_token();
+            $browserFlow = is_string($pending['requestTokenHash'] ?? null);
             $state['pending'] = $remaining;
             $state['credentials'] = [...$other, ...$retained, [
                 'id' => calendar_uuid(),
-                'tokenHash' => calendar_hash($accessToken),
+                'tokenHash' => $browserFlow ? $pending['requestTokenHash'] : calendar_hash($accessToken),
                 'email' => $email,
                 'createdAt' => calendar_now(),
+                ...($browserFlow ? ['verificationTokenHash' => $tokenHash, 'verificationExpiresAt' => $pending['expiresAt']] : []),
             ]];
             calendar_atomic_json_write($this->identitiesFile, $state);
-            return ['accessToken' => $accessToken, 'email' => $email];
+            return $browserFlow ? ['email' => $email, 'returnToRequestingBrowser' => true] : ['accessToken' => $accessToken, 'email' => $email];
         });
+    }
+
+    public function emailVerificationStatus(string $requestToken): array
+    {
+        if (strlen($requestToken) < 32 || strlen($requestToken) > 200) return ['status' => 'expired'];
+        $credential = $this->credentialFor($requestToken);
+        if ($credential !== null) return ['status' => 'confirmed', 'email' => $credential['email']];
+        $hash = calendar_hash($requestToken);
+        foreach ($this->identities()['pending'] as $entry) {
+            if (is_string($entry['requestTokenHash'] ?? null) && hash_equals($entry['requestTokenHash'], $hash)
+                && calendar_timestamp($entry['expiresAt']) > time()) return ['status' => 'pending'];
+        }
+        return ['status' => 'expired'];
     }
 
     /** @return array{id: string, email: string}|null */
@@ -788,13 +812,14 @@ function calendar_smtp_command($socket, string $command, array $expectedCodes): 
 }
 
 /** @return array{subject: string, headers: array<int, string>, body: string} */
-function calendar_verification_message(string $recipient, string $verificationUrl, string $senderAddress, string $senderName, bool $subscribe = false, ?array $content = null): array
+function calendar_verification_message(string $recipient, string $verificationUrl, string $senderAddress, string $senderName, bool $subscribe = false, ?array $content = null, bool $browserFlow = false): array
 {
     $subject = 'Ссылка подтверждения — Календарная мастерская';
     $boundary = '=_CalendarWorkshop_' . bin2hex(random_bytes(12));
     $text = "Здравствуйте!\n\n"
         . "Адрес {$recipient} был указан для входа в Календарную мастерскую Свято-Георгиевского монастыря.\n\n"
         . "Подтвердить адрес:\n{$verificationUrl}\n\n"
+        . ($browserFlow ? "Ссылку можно открыть на телефоне: подтверждение получит браузер, где вы запросили вход. Подтверждайте только свой запрос.\n\n" : '')
         . "Ссылка действует 30 минут. Если вы не запрашивали её, просто удалите это письмо.\n\n"
         . "Календарная мастерская\nhttps://kalender.georg-kloster.ru/\n\n"
         . "Свято-Георгиевский мужской монастырь\n"
@@ -805,7 +830,7 @@ function calendar_verification_message(string $recipient, string $verificationUr
         . "+49 171 351 72 74\natapin@gmail.com\n\n"
         . "Пожалуйста, не пересылайте ссылку подтверждения другим людям.\n";
     if ($subscribe) $text .= "\nВы отметили согласие: " . CALENDAR_CONSENT_TEXT . "\nПереход по ссылке подтверждает адрес и подписку.\n";
-    $html = calendar_verification_html($recipient, $verificationUrl, $subscribe);
+    $html = calendar_verification_html($recipient, $verificationUrl, $subscribe, $browserFlow);
     if ($content !== null) {
         $subject = $content['subject'];
         $text = $content['text'];
@@ -935,10 +960,10 @@ function calendar_send_smtp_verification_email(string $recipient, array $message
     }
 }
 
-function calendar_send_verification_email(string $recipient, string $verificationUrl, bool $subscribe = false): void
+function calendar_send_verification_email(string $recipient, string $verificationUrl, bool $subscribe = false, bool $browserFlow = false): void
 {
     calendar_send_message($recipient, calendar_verification_message($recipient, $verificationUrl,
-        calendar_mail_sender_address(), calendar_mail_sender_name(), $subscribe));
+        calendar_mail_sender_address(), calendar_mail_sender_name(), $subscribe, null, $browserFlow));
 }
 
 function calendar_send_newsletter(string $recipient, string $subject, string $text, string $unsubscribeUrl): void
