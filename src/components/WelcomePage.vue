@@ -47,7 +47,7 @@ async function requestOpenShared(id: string): Promise<void> {
 <template>
   <main class="welcome-page">
     <header class="welcome-page__header">
-      <img src="/brand/logo-kalendar.png" alt="Календарная мастерская при Свято-Георгиевском монастыре" />
+      <img src="/brand/logo-kalendar-preview.webp" alt="Календарная мастерская при Свято-Георгиевском монастыре" />
       <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
     </header>
 
@@ -62,7 +62,7 @@ async function requestOpenShared(id: string): Promise<void> {
           <button type="button" @click="requestOpen">Открыть календарь…</button>
         </div>
       </div>
-      <img class="welcome-hero__art" src="/brand/share-card.png" alt="Календарная мастерская Свято-Георгиевского монастыря" />
+      <img class="welcome-hero__art" src="/brand/share-card-preview.webp" alt="Календарная мастерская Свято-Георгиевского монастыря" />
     </section>
 
     <section class="welcome-features" aria-label="Возможности">

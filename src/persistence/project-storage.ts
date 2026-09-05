@@ -7,6 +7,7 @@ import {
 import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-defaults";
 import { normalizedOpacity } from "../document/paint";
 import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
+import { compactProjectAssets } from "../document/project-assets";
 
 const DATABASE_NAME = "orthodox-calendar-layout";
 const DATABASE_VERSION = 4;
@@ -324,6 +325,7 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
     normalizeLegacyMonthLayout(page, project.year);
   }
   project.layoutRevision = 6;
+  compactProjectAssets(project);
   return project;
 }
 

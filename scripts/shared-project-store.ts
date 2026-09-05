@@ -119,6 +119,13 @@ export class SharedProjectStore {
     if (!pending) throw new Error("verification_invalid_or_expired");
     this.identityState.pending = this.identityState.pending.filter((entry) => entry !== pending);
     const accessToken = randomBytes(32).toString("base64url");
+    // Keep a small number of active devices per address instead of growing the
+    // credentials file without a bound after every confirmation.
+    const sameEmail = this.identityState.credentials.filter((entry) => entry.email === pending.email);
+    const retainedIds = new Set(sameEmail.slice(-4).map((entry) => entry.id));
+    this.identityState.credentials = this.identityState.credentials.filter(
+      (entry) => entry.email !== pending.email || retainedIds.has(entry.id),
+    );
     this.identityState.credentials.push({
       id: randomUUID(),
       tokenHash: this.hash(accessToken),

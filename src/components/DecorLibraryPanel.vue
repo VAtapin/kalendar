@@ -27,6 +27,12 @@ const visibleItems = computed(() => {
 watch(collection, () => {
   category.value = "all";
 });
+
+function previewSource(item: DecorLibraryItem): string {
+  return item.kind === "image"
+    ? item.source.replace("/assets/decor/gold-print/", "/assets/decor/gold-print-previews/")
+    : item.source;
+}
 </script>
 
 <template>
@@ -76,7 +82,7 @@ watch(collection, () => {
         :title="`${item.label} · ${item.kind === 'image' ? `PNG, ${item.nominalDpi ?? 300} dpi` : `исходник ${item.sourceId}`}`"
         @click="emit('insert', item)"
       >
-        <span class="decor-library__preview"><img :src="item.source" alt="" loading="lazy" /></span>
+        <span class="decor-library__preview"><img :src="previewSource(item)" alt="" loading="lazy" decoding="async" /></span>
         <span class="decor-library__item-label">{{ item.label }}</span>
         <small v-if="item.kind === 'image'" class="decor-library__item-meta">PNG · {{ item.nominalDpi ?? 300 }} dpi</small>
       </button>

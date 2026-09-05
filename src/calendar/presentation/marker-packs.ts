@@ -168,3 +168,11 @@ export function foodMarkerPackSource(
 ): string {
   return getFoodMarkerPack(packId).sources[rule];
 }
+
+/** Lightweight UI thumbnail; the full 300 dpi source remains reserved for print. */
+export function foodMarkerPackPreviewSource(
+  packId: FoodMarkerPackId | undefined,
+  rule: FoodRuleId,
+): string {
+  return foodMarkerPackSource(packId, rule).replace("/assets/markers/", "/assets/marker-previews/");
+}

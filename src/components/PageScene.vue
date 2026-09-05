@@ -40,7 +40,7 @@ import {
   type FoodRuleId,
 } from "../calendar/presentation/fasting";
 import {
-  foodMarkerPackSource,
+  foodMarkerPackPreviewSource,
   type FoodMarkerPackId,
 } from "../calendar/presentation/marker-packs";
 import {
@@ -458,7 +458,7 @@ function elementNeedsMask(element: LayoutElementNode): boolean {
 function foodMarkerSource(rule: FoodRuleId): string | undefined {
   const assetId = props.foodMarkerAssets?.[rule];
   const customSource = assetId ? assetSource(assetId) : undefined;
-  return customSource ?? foodMarkerPackSource(props.foodMarkerPackId, rule);
+  return customSource ?? foodMarkerPackPreviewSource(props.foodMarkerPackId, rule);
 }
 
 function rotationTransform(x: number, y: number, width: number, height: number, rotation: number): string {

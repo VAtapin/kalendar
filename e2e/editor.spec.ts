@@ -172,7 +172,7 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   await expect(markerPackList.getByRole("option").first().locator("img")).toHaveCount(3);
   await page.getByTestId("food-marker-pack-option-gold-photo").click();
   await expect(page.getByTestId("food-marker-pack")).toHaveAttribute("data-value", "gold-photo");
-  await expect(marker.locator("image")).toHaveAttribute("href", /\/assets\/markers\/gold-photo\//);
+  await expect(marker.locator("image")).toHaveAttribute("href", /\/assets\/marker-previews\/gold-photo\//);
 
   await page.getByTestId("day-number-size").fill("6");
   await expect.poll(actualNumberSize).toBeCloseTo(6 * 25.4 / 72, 2);
@@ -287,12 +287,12 @@ test("positions a cropped image manually and applies a layer mask from an elemen
   await page.mouse.down();
   await page.mouse.move(sceneBox.x + 350, sceneBox.y + 290);
   await page.mouse.up();
-  await page.locator('input[type="file"][accept="image/*,.svg"]').setInputFiles("public/brand/share-card.png");
+  await page.locator('input[type="file"][accept="image/*,.svg"]').setInputFiles("public/brand/share-card-preview.webp");
 
   await page.getByRole("tab", { name: "Свойства" }).click();
   await page.getByText("Заполнение", { exact: true }).locator("..").getByRole("combobox").selectOption("crop");
   await expect(page.getByTestId("crop-position-controls")).toBeVisible();
-  const image = page.locator('.page-element--selected image[href^="data:image/png"]');
+  const image = page.locator('.page-element--selected image[href^="data:image/"]');
   const centredX = Number(await image.getAttribute("x"));
   await page.getByTestId("crop-position-x").evaluate((input: HTMLInputElement) => {
     input.value = "100";

@@ -2,6 +2,7 @@ import { createReadStream } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { resolve } from "node:path";
+import { pipeline } from "node:stream/promises";
 import nodemailer from "nodemailer";
 import {
   createCalendarPublicApi,
@@ -11,6 +12,7 @@ import {
   type FastingProfileId,
 } from "../src/calendar";
 import { SharedProjectStore } from "./shared-project-store";
+import { parseHttpByteRange } from "./http-byte-range";
 
 const workspace = resolve(import.meta.dirname, "..");
 const xml = await readFile(resolve(workspace, "public/data/MemoryDays.xml"), "utf8");
@@ -32,7 +34,7 @@ function corsHeaders(request: IncomingMessage): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": selected,
     "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Project-Lease, X-Upload-Token",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, HEAD, POST, PUT, DELETE, OPTIONS",
     Vary: "Origin",
   };
 }
@@ -47,6 +49,10 @@ function respond(request: IncomingMessage, response: ServerResponse, status: num
 }
 
 async function readBody(request: IncomingMessage, maximumBytes: number): Promise<Buffer> {
+  const declaredLength = Number(request.headers["content-length"]);
+  if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
+    throw new Error("payload_too_large");
+  }
   const chunks: Buffer[] = [];
   let size = 0;
   for await (const part of request) {
@@ -98,14 +104,33 @@ function validEmail(value: unknown): value is string {
   return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function verificationRateAllowed(request: IncomingMessage, email: string): boolean {
-  const key = `${request.socket.remoteAddress ?? "unknown"}:${email.toLowerCase()}`;
-  const cutoff = Date.now() - 60 * 60_000;
+function clientAddress(request: IncomingMessage): string {
+  const socketAddress = request.socket.remoteAddress ?? "unknown";
+  const fromLoopback = socketAddress === "127.0.0.1" || socketAddress === "::1" || socketAddress === "::ffff:127.0.0.1";
+  const forwarded = request.headers["x-forwarded-for"];
+  if (!fromLoopback || typeof forwarded !== "string") return socketAddress;
+  return forwarded.split(",", 1)[0]!.trim().slice(0, 80) || socketAddress;
+}
+
+function consumeVerificationRateLimit(key: string, maximum: number, cutoff: number): boolean {
   const recent = (verificationRequests.get(key) ?? []).filter((time) => time >= cutoff);
-  if (recent.length >= 5) return false;
+  if (recent.length >= maximum) {
+    verificationRequests.set(key, recent);
+    return false;
+  }
   recent.push(Date.now());
   verificationRequests.set(key, recent);
   return true;
+}
+
+function verificationRateAllowed(request: IncomingMessage, email: string): boolean {
+  const cutoff = Date.now() - 60 * 60_000;
+  for (const [key, entries] of verificationRequests) {
+    if (!entries.some((time) => time >= cutoff)) verificationRequests.delete(key);
+  }
+  const emailAllowed = consumeVerificationRateLimit(`email:${email.toLowerCase()}`, 5, cutoff);
+  const addressAllowed = consumeVerificationRateLimit(`ip:${clientAddress(request)}`, 20, cutoff);
+  return emailAllowed && addressAllowed;
 }
 
 async function sendVerificationEmail(email: string, verificationUrl: string): Promise<boolean> {
@@ -134,8 +159,13 @@ async function sendVerificationEmail(email: string, verificationUrl: string): Pr
 
 function validProject(value: unknown): value is { document: { pages: unknown[] } } {
   if (!value || typeof value !== "object") return false;
-  const document = (value as { document?: unknown }).document;
-  return Boolean(document && typeof document === "object" && Array.isArray((document as { pages?: unknown }).pages));
+  const candidate = value as { schemaVersion?: unknown; name?: unknown; document?: unknown };
+  const pages = candidate.document && typeof candidate.document === "object"
+    ? (candidate.document as { pages?: unknown }).pages
+    : undefined;
+  return candidate.schemaVersion === 1 &&
+    typeof candidate.name === "string" && candidate.name.length <= 200 &&
+    Array.isArray(pages) && pages.length > 0 && pages.length <= 100;
 }
 
 function editorBody(value: unknown): { editorId: string; editorLabel: string } | undefined {
@@ -183,21 +213,15 @@ async function servePdfDownload(request: IncomingMessage, response: ServerRespon
   if (!upload?.completedAt) return respond(request, response, 404, { error: "export_not_found", message: "PDF не найден" });
   const file = store.pdfExportFile(upload);
   const fileStat = await stat(file);
-  const range = /^bytes=(\d*)-(\d*)$/i.exec(request.headers.range ?? "");
-  let start = 0;
-  let end = fileStat.size - 1;
-  let status = 200;
-  if (range) {
-    start = range[1] ? Number(range[1]) : 0;
-    end = range[2] ? Number(range[2]) : end;
-    if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end < start || start >= fileStat.size) {
-      response.writeHead(416, { ...corsHeaders(request), "Content-Range": `bytes */${fileStat.size}` });
-      response.end();
-      return;
-    }
-    end = Math.min(end, fileStat.size - 1);
-    status = 206;
+  const range = parseHttpByteRange(request.headers.range, fileStat.size);
+  if (range === null) {
+    response.writeHead(416, { ...corsHeaders(request), "Content-Range": `bytes */${fileStat.size}` });
+    response.end();
+    return;
   }
+  const start = range?.start ?? 0;
+  const end = range?.end ?? fileStat.size - 1;
+  const status = range ? 206 : 200;
   response.writeHead(status, {
     ...corsHeaders(request),
     "Content-Type": "application/pdf",
@@ -207,13 +231,27 @@ async function servePdfDownload(request: IncomingMessage, response: ServerRespon
     ...(status === 206 ? { "Content-Range": `bytes ${start}-${end}/${fileStat.size}` } : {}),
     "Cache-Control": "private, max-age=86400",
   });
-  createReadStream(file, { start, end }).pipe(response);
+  if (request.method === "HEAD") {
+    response.end();
+    return;
+  }
+  try {
+    await pipeline(createReadStream(file, { start, end }), response);
+  } catch (error) {
+    if (request.destroyed || response.destroyed) return;
+    throw error;
+  }
 }
 
 async function handleRequest(request: IncomingMessage, response: ServerResponse): Promise<void> {
   if (!request.url) return respond(request, response, 400, { error: "missing_url" });
   const url = new URL(request.url, `http://${request.headers.host ?? "localhost"}`);
   if (request.method === "OPTIONS") return respond(request, response, 204, null);
+
+  if (request.method === "GET" || request.method === "HEAD") {
+    const downloadMatch = /^\/v1\/pdf-exports\/([0-9a-f-]{36})\/download\//i.exec(url.pathname);
+    if (downloadMatch) return servePdfDownload(request, response, downloadMatch[1]!);
+  }
 
   if (request.method === "GET") {
     const api = apiFor(profileFrom(url));
@@ -235,8 +273,6 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
       const year = Number(paschaMatch[1]);
       return year >= 1900 && year <= 2200 ? respond(request, response, 200, api.getPascha(year), true) : respond(request, response, 400, { error: "invalid_year" });
     }
-    const downloadMatch = /^\/v1\/pdf-exports\/([0-9a-f-]{36})\/download\//i.exec(url.pathname);
-    if (downloadMatch) return servePdfDownload(request, response, downloadMatch[1]!);
   }
 
   if (request.method === "POST" && url.pathname === "/v1/email-verifications") {

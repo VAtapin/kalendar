@@ -54,7 +54,7 @@ import { alignElements, distributeElements, type AlignMode, type DistributeMode 
 import type { DockPanelId, EditorTool } from "./editor/types";
 import { FOOD_RULES, type FoodRuleId } from "./calendar/presentation/fasting";
 import {
-  foodMarkerPackSource,
+  foodMarkerPackPreviewSource,
   getFoodMarkerPack,
   isFoodMarkerPackId,
 } from "./calendar/presentation/marker-packs";
@@ -67,7 +67,6 @@ import {
   commemorationFilterForElement,
 } from "./calendar/presentation/calendar-content-policy";
 import {
-  createProjectArchive,
   createPersistentProjectSnapshot,
   listProjectBackups,
   listUserCalendarGridTemplates,
@@ -102,6 +101,8 @@ import {
   ensureCalendarWorkshopBranding,
   isCalendarWorkshopBrandElement,
 } from "./document/branding";
+import { compactProjectAssets } from "./document/project-assets";
+import { ProjectHistoryCodec } from "./persistence/project-history";
 import {
   SharedProjectApiError,
   confirmEmailVerification,
@@ -151,6 +152,13 @@ const foodMarkerFileInput = ref<HTMLInputElement>();
 const fontFileInput = ref<HTMLInputElement>();
 const iccProfileFileInput = ref<HTMLInputElement>();
 const pendingFoodMarkerRule = ref<FoodRuleId>();
+const MEBIBYTE = 1024 * 1024;
+const MAX_PROJECT_FILE_BYTES = 100 * MEBIBYTE;
+const MAX_IMAGE_FILE_BYTES = 50 * MEBIBYTE;
+const MAX_SVG_FILE_BYTES = 10 * MEBIBYTE;
+const MAX_FONT_FILE_BYTES = 20 * MEBIBYTE;
+const MAX_ICC_FILE_BYTES = 20 * MEBIBYTE;
+const MAX_RASTER_PIXELS = 80_000_000;
 const activeDockPanel = ref<DockPanelId>("properties");
 const DOCK_PANEL_DEFAULT_WIDTH_PX = 284;
 const DOCK_PANEL_MIN_WIDTH_PX = 180;
@@ -293,13 +301,16 @@ const fontOptionGroups = computed(() => [
 ].filter((group) => group.options.length > 0));
 const undoStack = ref<HistoryEntry[]>([]);
 const redoStack = ref<HistoryEntry[]>([]);
+const historyCodec = new ProjectHistoryCodec();
 let continuousEditSnapshot: string | undefined;
 let continuousEditPageId: string | undefined;
 let autosaveTimer: number | undefined;
 let sharedSaveTimer: number | undefined;
 let sharedHeartbeatTimer: number | undefined;
 let sharedWaitTimer: number | undefined;
-let sharedSaveQueue: Promise<void> = Promise.resolve();
+let sharedSaveInFlight: Promise<void> | undefined;
+let sharedSaveRequested = false;
+let sharedSaveShowNotice = false;
 let sharedLastSavedSnapshot: string | undefined;
 let persistenceReady = false;
 let calendarDatasetPromise: Promise<MemoryDaysDataset> | undefined;
@@ -621,23 +632,39 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
 });
 
 function serializeEditableProject(): string {
-  return JSON.stringify(createPersistentProjectSnapshot(project.value));
+  return historyCodec.serialize(project.value);
+}
+
+function clearProjectHistory(): void {
+  undoStack.value = [];
+  redoStack.value = [];
+  historyCodec.clear();
+}
+
+function pruneProjectHistoryAssets(): void {
+  historyCodec.prune([
+    ...undoStack.value.map((entry) => entry.snapshot),
+    ...redoStack.value.map((entry) => entry.snapshot),
+    ...(continuousEditSnapshot ? [continuousEditSnapshot] : []),
+  ], project.value);
 }
 
 function mutateProject<T>(label: string, mutation: () => T): T {
   const before = serializeEditableProject();
   const result = mutation();
+  compactProjectAssets(project.value);
   const after = serializeEditableProject();
   if (before !== after) {
     undoStack.value.push({ snapshot: before, label, pageId: selectedPageId.value });
     if (undoStack.value.length > 40) undoStack.value.shift();
     redoStack.value = [];
+    pruneProjectHistoryAssets();
   }
   return result;
 }
 
 function restoreProjectSnapshot(snapshot: string, pageId?: string): void {
-  const restored = normalizeCalendarProject(JSON.parse(snapshot) as CalendarProject);
+  const restored = normalizeCalendarProject(historyCodec.deserialize(snapshot));
   ensureCalendarWorkshopBranding(restored);
   project.value = restored;
   selectedPageId.value =
@@ -653,6 +680,7 @@ function undo(): void {
   if (!entry) return;
   redoStack.value.push({ snapshot: serializeEditableProject(), label: entry.label, pageId: selectedPageId.value });
   restoreProjectSnapshot(entry.snapshot, entry.pageId);
+  pruneProjectHistoryAssets();
   operationNotice.value = `Отменено: ${entry.label}`;
 }
 
@@ -661,6 +689,7 @@ function redo(): void {
   if (!entry) return;
   undoStack.value.push({ snapshot: serializeEditableProject(), label: entry.label, pageId: selectedPageId.value });
   restoreProjectSnapshot(entry.snapshot, entry.pageId);
+  pruneProjectHistoryAssets();
   operationNotice.value = `Повторено: ${entry.label}`;
 }
 
@@ -678,6 +707,7 @@ function endContinuousEdit(label = "Изменение геометрии"): voi
   undoStack.value.push({ snapshot: before, label, pageId });
   if (undoStack.value.length > 40) undoStack.value.shift();
   redoStack.value = [];
+  pruneProjectHistoryAssets();
 }
 
 async function saveAutosaveNow(showNotice = false): Promise<void> {
@@ -774,8 +804,7 @@ async function loadProjectForSharedEditing(sharedProject: CalendarProject): Prom
   resetPageTabs();
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
-  undoStack.value = [];
-  redoStack.value = [];
+  clearProjectHistory();
   await loadCalendarData();
   await saveAutosaveNow();
 }
@@ -800,29 +829,41 @@ function establishSharedLease(result: SharedProjectLeaseGranted): void {
 
 async function saveSharedProjectNow(showNotice = false): Promise<void> {
   if (!sharedLease.value || sharedAccessMode.value !== "editing") return;
-  const snapshot = serializeEditableProject();
-  if (snapshot === sharedLastSavedSnapshot) return;
-  const leaseAtStart = sharedLease.value;
-  const projectAtStart = createPersistentProjectSnapshot(project.value);
-  sharedSaveQueue = sharedSaveQueue.then(async () => {
-    if (sharedLease.value?.projectId !== leaseAtStart.projectId || sharedAccessMode.value !== "editing") return;
-    try {
-      const saved = await saveSharedProject(sharedLease.value, projectAtStart);
-      if (!sharedLease.value) return;
-      sharedLease.value.revision = saved.revision;
-      sharedLastSavedSnapshot = snapshot;
-      if (showNotice) operationNotice.value = "Изменения сохранены в общем календаре";
-    } catch (error) {
-      operationNotice.value = `Общий календарь не сохранён: ${error instanceof Error ? error.message : String(error)}`;
-      if (error instanceof SharedProjectApiError && [403, 409].includes(error.status)) {
-        stopSharedTimers();
-        sharedLease.value = undefined;
-        sharedAccessMode.value = "error";
-        sharedAccessError.value = "Право редактирования потеряно. Проверьте доступ к календарю ещё раз.";
+  sharedSaveRequested = true;
+  sharedSaveShowNotice ||= showNotice;
+  if (!sharedSaveInFlight) {
+    sharedSaveInFlight = (async () => {
+      // At most one large immutable project copy is kept while a save is in
+      // flight. Further edits coalesce into one latest follow-up save.
+      while (sharedSaveRequested) {
+        sharedSaveRequested = false;
+        const shouldShowNotice = sharedSaveShowNotice;
+        sharedSaveShowNotice = false;
+        if (!sharedLease.value || sharedAccessMode.value !== "editing") return;
+        const snapshot = serializeEditableProject();
+        if (snapshot === sharedLastSavedSnapshot) continue;
+        const leaseAtStart = sharedLease.value;
+        const projectAtStart = createPersistentProjectSnapshot(project.value);
+        try {
+          const saved = await saveSharedProject(leaseAtStart, projectAtStart);
+          if (sharedLease.value?.projectId !== leaseAtStart.projectId) return;
+          sharedLease.value.revision = saved.revision;
+          sharedLastSavedSnapshot = snapshot;
+          if (shouldShowNotice) operationNotice.value = "Изменения сохранены в общем календаре";
+        } catch (error) {
+          operationNotice.value = `Общий календарь не сохранён: ${error instanceof Error ? error.message : String(error)}`;
+          if (error instanceof SharedProjectApiError && [403, 409].includes(error.status)) {
+            stopSharedTimers();
+            sharedLease.value = undefined;
+            sharedAccessMode.value = "error";
+            sharedAccessError.value = "Право редактирования потеряно. Проверьте доступ к календарю ещё раз.";
+          }
+          return;
+        }
       }
-    }
-  });
-  await sharedSaveQueue;
+    })().finally(() => { sharedSaveInFlight = undefined; });
+  }
+  await sharedSaveInFlight;
 }
 
 function scheduleSharedSave(): void {
@@ -861,7 +902,8 @@ async function leaveSharedProject(removeFromAddress = true): Promise<void> {
   sharedLockEditor.value = undefined;
   sharedAccessError.value = undefined;
   sharedLastSavedSnapshot = undefined;
-  sharedSaveQueue = Promise.resolve();
+  sharedSaveRequested = false;
+  sharedSaveShowNotice = false;
   if (removeFromAddress) replaceSharedProjectInLocation();
 }
 
@@ -1112,7 +1154,17 @@ async function initializeApplication(): Promise<void> {
 
 function projectFileBlob(): Blob {
   ensureCalendarWorkshopBranding(project.value);
-  return new Blob([JSON.stringify(createProjectArchive(project.value), null, 2)], {
+  const persistentProject = { ...project.value, calendarData: null } as CalendarProject;
+  return new Blob([JSON.stringify({
+    format: "orthodox-calendar-project",
+    archiveVersion: 1,
+    savedAt: new Date().toISOString(),
+    project: persistentProject,
+    manifest: {
+      embeddedAssetCount: project.value.assets.filter((asset) => asset.source.startsWith("data:")).length,
+      embeddedFontCount: project.value.customFonts?.length ?? 0,
+    },
+  }, null, 2)], {
     type: "application/vnd.orthodox-calendar-project+json",
   });
 }
@@ -1241,9 +1293,10 @@ async function exportPrintPdf(): Promise<void> {
       fonts,
     );
     const safeName = project.value.name.replace(/[^\p{L}\p{N}._-]+/gu, "-");
-    const pdfBytes = Uint8Array.from(result.bytes);
     const fileName = `${safeName}-${project.value.year}-print.pdf`;
-    const pdfBlob = new Blob([pdfBytes.buffer], { type: "application/pdf" });
+    // Blob accepts the exporter buffer directly. Uint8Array.from used to make
+    // another full in-memory copy, which was particularly costly for 100+ MB PDFs.
+    const pdfBlob = new Blob([result.bytes as BlobPart], { type: "application/pdf" });
     operationNotice.value = `PDF сформирован; передаём на сервер: 0%`;
     const ready: PdfExportReady = await uploadPdfExport(
       pdfBlob,
@@ -1275,6 +1328,7 @@ function selectPreflightIssue(item: PreflightIssue): void {
 }
 
 async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Promise<void> {
+  assertFileSize(file, MAX_PROJECT_FILE_BYTES, "Файл календаря");
   await leaveSharedProject();
   await createRecoveryPoint(`Перед открытием ${file.name}`);
   const candidate: unknown = JSON.parse(await file.text());
@@ -1286,8 +1340,7 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   resetPageTabs();
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
-  undoStack.value = [];
-  redoStack.value = [];
+  clearProjectHistory();
   activeProjectFileHandle = handle;
   projectFileName.value = file.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
@@ -1370,8 +1423,7 @@ async function createNewProject(): Promise<void> {
   resetPageTabs();
   selectedElementId.value = undefined;
   selectedLayerIds.value = ["layer-1"];
-  undoStack.value = [];
-  redoStack.value = [];
+  clearProjectHistory();
   hasAutosavedProject.value = true;
   welcomeVisible.value = false;
   void loadCalendarData();
@@ -1960,9 +2012,11 @@ async function importLayerMaskFile(event: Event): Promise<void> {
       operationNotice.value = "Слой для маски больше недоступен";
       return;
     }
-    const source = await readFileAsDataUrl(file);
     const svg = /svg/iu.test(file.type) || /\.svg$/iu.test(file.name);
+    assertFileSize(file, svg ? MAX_SVG_FILE_BYTES : MAX_IMAGE_FILE_BYTES, "Файл маски");
+    const source = await readFileAsDataUrl(file);
     const dimensions = svg ? undefined : await readRasterDimensions(source);
+    if (!svg) assertRasterDimensions(dimensions, file.name);
     const asset: DocumentAsset = {
       id: `asset-layer-mask-${crypto.randomUUID()}`,
       name: `Маска — ${file.name}`,
@@ -2177,8 +2231,7 @@ function cloneCurrentProjectToYear(): void {
   project.value = normalizeCalendarProject(cloneProjectForYear(project.value, year));
   ensureCalendarWorkshopBranding(project.value);
   detachActiveProjectFile();
-  undoStack.value = [];
-  redoStack.value = [];
+  clearProjectHistory();
   resetPageTabs();
   void registerProjectFonts(project.value);
   void loadCalendarData();
@@ -2241,6 +2294,25 @@ async function readFileAsDataUrl(file: File): Promise<string> {
   });
 }
 
+function formatFileSize(bytes: number): string {
+  return `${Math.ceil(bytes / MEBIBYTE)} МБ`;
+}
+
+function assertFileSize(file: File, maximumBytes: number, label: string): void {
+  if (file.size <= maximumBytes) return;
+  throw new Error(`${label} слишком большой: ${formatFileSize(file.size)}. Допустимо не более ${formatFileSize(maximumBytes)}.`);
+}
+
+function assertRasterDimensions(
+  dimensions: { widthPx: number; heightPx: number } | undefined,
+  label: string,
+): void {
+  if (!dimensions) throw new Error(`${label}: браузер не смог прочитать изображение`);
+  if (dimensions.widthPx * dimensions.heightPx > MAX_RASTER_PIXELS) {
+    throw new Error(`${label} слишком большое по разрешению: ${dimensions.widthPx} × ${dimensions.heightPx} px`);
+  }
+}
+
 async function registerProjectFonts(targetProject: CalendarProject = project.value): Promise<void> {
   if (!("fonts" in document) || typeof FontFace === "undefined") return;
   for (const face of targetProject.customFonts ?? []) {
@@ -2264,6 +2336,7 @@ async function importCustomFont(event: Event): Promise<void> {
   const file = input.files?.[0];
   if (!file) return;
   try {
+    assertFileSize(file, MAX_FONT_FILE_BYTES, "Файл шрифта");
     const suggested = file.name.replace(/\.(?:ttf|otf|woff2?)$/iu, "").replace(/[-_]+/gu, " ").trim();
     const family = window.prompt("Название семейства шрифта", suggested);
     if (!family?.trim()) return;
@@ -2287,6 +2360,8 @@ async function importCustomFont(event: Event): Promise<void> {
     });
     await registerProjectFonts();
     operationNotice.value = `Шрифт «${family.trim()}» встроен в проект`;
+  } catch (error) {
+    operationNotice.value = error instanceof Error ? error.message : "Не удалось добавить шрифт";
   } finally {
     input.value = "";
   }
@@ -2297,6 +2372,7 @@ async function importIccProfile(event: Event): Promise<void> {
   const file = input.files?.[0];
   if (!file) return;
   try {
+    assertFileSize(file, MAX_ICC_FILE_BYTES, "ICC-профиль");
     const source = await readFileAsDataUrl(file);
     const assetId = `asset-icc-${crypto.randomUUID()}`;
     mutateProject("Профиль типографии", () => {
@@ -2314,6 +2390,8 @@ async function importIccProfile(event: Event): Promise<void> {
       project.value.printSettings.outputConditionName = file.name.replace(/\.(?:icc|icm)$/iu, "");
     });
     operationNotice.value = `ICC-профиль «${file.name}» встроен; включён PDF/X-4`;
+  } catch (error) {
+    operationNotice.value = error instanceof Error ? error.message : "Не удалось добавить ICC-профиль";
   } finally {
     input.value = "";
   }
@@ -2371,17 +2449,21 @@ async function loadDecorImage(item: DecorLibraryItem): Promise<string> {
 async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
   try {
     if (item.kind === "image") {
-      const asset = {
-        id: `asset-decor-${crypto.randomUUID()}`,
-        name: `${item.label}.png`,
-        mimeType: "image/png",
-        source: await loadDecorImage(item),
-        kind: "image" as const,
-        widthPx: item.widthPx,
-        heightPx: item.heightPx,
-      };
+      const reusableAsset = project.value.assets.find(
+        (asset) => asset.kind === "image" && asset.libraryItemId === item.id,
+      );
+      const asset = reusableAsset ?? {
+          id: `asset-decor-${crypto.randomUUID()}`,
+          name: `${item.label}.png`,
+          mimeType: "image/png",
+          source: await loadDecorImage(item),
+          kind: "image" as const,
+          widthPx: item.widthPx,
+          heightPx: item.heightPx,
+          libraryItemId: item.id,
+        };
       const created = mutateProject("Вставка печатного декора из библиотеки", () => {
-        project.value.assets.push(asset);
+        if (!reusableAsset) project.value.assets.push(asset);
         const result = createElementOnOwnLayer(selectedPage.value, "image", frameForDecor(item));
         result.layer.name = item.label;
         const element = result.element as ImageElement;
@@ -2464,28 +2546,36 @@ async function importSelectedAsset(event: Event): Promise<void> {
     rejectProtectedBrandChange();
     return;
   }
-  const source = await readFileAsDataUrl(file);
-  const dimensions = element.type === "image" && !/svg/i.test(file.type)
-    ? await readRasterDimensions(source)
-    : undefined;
-  const asset = {
-    id: `asset-${crypto.randomUUID()}`,
-    name: file.name,
-    mimeType: file.type || "application/octet-stream",
-    source,
-    kind: element.type === "svg" ? ("svg" as const) : ("image" as const),
-    ...dimensions,
-  };
-  mutateProject("Помещение файла", () => {
-    project.value.assets.push(asset);
-    element.assetId = asset.id;
-    if (element.type === "svg") {
-      element.libraryItemId = undefined;
-      element.decorColor = undefined;
-    }
-  });
-  operationNotice.value = `Помещён файл: ${file.name}`;
-  input.value = "";
+  try {
+    const svgFile = /svg/iu.test(file.type) || /\.svg$/iu.test(file.name);
+    assertFileSize(file, svgFile ? MAX_SVG_FILE_BYTES : MAX_IMAGE_FILE_BYTES, "Изображение");
+    const source = await readFileAsDataUrl(file);
+    const dimensions = element.type === "image" && !svgFile
+      ? await readRasterDimensions(source)
+      : undefined;
+    if (element.type === "image" && !svgFile) assertRasterDimensions(dimensions, file.name);
+    const asset = {
+      id: `asset-${crypto.randomUUID()}`,
+      name: file.name,
+      mimeType: file.type || "application/octet-stream",
+      source,
+      kind: element.type === "svg" ? ("svg" as const) : ("image" as const),
+      ...dimensions,
+    };
+    mutateProject("Помещение файла", () => {
+      project.value.assets.push(asset);
+      element.assetId = asset.id;
+      if (element.type === "svg") {
+        element.libraryItemId = undefined;
+        element.decorColor = undefined;
+      }
+    });
+    operationNotice.value = `Помещён файл: ${file.name}`;
+  } catch (error) {
+    operationNotice.value = error instanceof Error ? error.message : "Не удалось поместить файл";
+  } finally {
+    input.value = "";
+  }
 }
 
 function readRasterDimensions(source: string): Promise<{ widthPx: number; heightPx: number } | undefined> {
@@ -2521,6 +2611,7 @@ async function importFoodMarkerAsset(event: Event): Promise<void> {
   const rule = pendingFoodMarkerRule.value;
   if (!file || !rule) return;
   try {
+    assertFileSize(file, MAX_IMAGE_FILE_BYTES, "Изображение знака пищи");
     const source = await readFileAsDataUrl(file);
     const asset = {
       id: `asset-food-${crypto.randomUUID()}`,
@@ -2553,7 +2644,7 @@ function foodMarkerAssetName(rule: FoodRuleId): string {
 function foodMarkerPreviewSource(rule: FoodRuleId): string {
   const assetId = project.value.foodMarkerAssets?.[rule];
   const customAsset = project.value.assets.find((asset) => asset.id === assetId);
-  return customAsset?.source ?? foodMarkerPackSource(project.value.foodMarkerPackId, rule);
+  return customAsset?.source ?? foodMarkerPackPreviewSource(project.value.foodMarkerPackId, rule);
 }
 
 function hasCustomFoodMarker(rule: FoodRuleId): boolean {
@@ -3109,7 +3200,7 @@ onBeforeUnmount(() => {
       <div class="control-bar">
         <div class="brand">
           <button class="brand__home" type="button" title="На стартовую страницу" @click="showWelcomePage">
-            <img class="brand__logo" src="/brand/logo-symbol.png" alt="Календарная мастерская" />
+            <img class="brand__logo" src="/brand/logo-symbol-256.webp" alt="Календарная мастерская" />
           </button>
           <div>
             <strong>Календарная мастерская</strong>

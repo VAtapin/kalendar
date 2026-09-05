@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { FOOD_RULES, type FoodRuleId } from "../src/calendar/presentation/fasting";
 import {
   FOOD_MARKER_PACKS,
+  foodMarkerPackPreviewSource,
   foodMarkerPackSource,
 } from "../src/calendar/presentation/marker-packs";
 
@@ -24,6 +25,17 @@ describe("built-in food marker packs", () => {
         const source = foodMarkerPackSource(pack.id, rule);
         expect(source).toMatch(/^\/assets\/markers\/.+\.png$/);
         if (rule !== "no-fast") expect(source).toContain(`/markers/${pack.id}/`);
+      }
+    }
+  });
+
+  it("uses separate lightweight files for the pack chooser", async () => {
+    for (const pack of FOOD_MARKER_PACKS) {
+      for (const rule of Object.keys(FOOD_RULES) as FoodRuleId[]) {
+        const preview = foodMarkerPackPreviewSource(pack.id, rule);
+        expect(preview).toMatch(/^\/assets\/marker-previews\/.+\.png$/);
+        const bytes = await readFile(resolve(process.cwd(), "public", preview.replace(/^\//, "")));
+        expect(bytes.length).toBeLessThan(100_000);
       }
     }
   });

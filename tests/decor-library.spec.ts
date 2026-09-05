@@ -113,6 +113,20 @@ describe("библиотека декоративных элементов", () 
     expect(contentHashes.size).toBe(imageItems.length);
   });
 
+  it("имеет отдельные лёгкие эскизы золотых элементов для интерфейса", async () => {
+    for (const item of imageItems) {
+      const previewPath = path.join(
+        process.cwd(),
+        "public",
+        item.source.replace(/^\//, "").replace("/gold-print/", "/gold-print-previews/"),
+      );
+      const preview = await readFile(previewPath);
+      const png = PNG.sync.read(preview);
+      expect(Math.max(png.width, png.height)).toBeLessThanOrEqual(320);
+      expect(preview.length).toBeLessThan(100_000);
+    }
+  });
+
   it("держит новые золотые объекты в палитре исходной коллекции", async () => {
     const palettes = await Promise.all(imageItems.map(async (item) => {
       const absolute = path.join(process.cwd(), "public", item.source.replace(/^\//, ""));

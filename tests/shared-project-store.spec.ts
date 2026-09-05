@@ -29,6 +29,18 @@ describe("shared project store", () => {
     await expect(store.confirmEmailVerification(pending.token)).rejects.toThrow("verification_invalid_or_expired");
   });
 
+  it("bounds the number of active credentials kept for one e-mail", async () => {
+    const store = await createStore();
+    const accessTokens: string[] = [];
+    for (let index = 0; index < 7; index += 1) {
+      const pending = await store.createEmailVerification("user@example.com");
+      accessTokens.push((await store.confirmEmailVerification(pending.token)).accessToken);
+    }
+
+    expect(await store.credentialFor(accessTokens[0]!)).toBeUndefined();
+    expect(await store.credentialFor(accessTokens.at(-1)!)).toMatchObject({ email: "user@example.com" });
+  });
+
   it("allows one editor, expires a lost lease and protects revisions", async () => {
     let clock = Date.parse("2026-09-04T10:00:00Z");
     const store = await createStore(() => clock);

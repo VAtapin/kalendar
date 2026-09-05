@@ -9,11 +9,15 @@ User=GEORG_SYSTEM_USER
 Group=psacln
 WorkingDirectory=/var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru
 EnvironmentFile=/var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru/.env
-ExecStart=/usr/bin/npm run api
+ExecStart=/usr/bin/node /var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru/server-dist/calendar-api-server.mjs
 Restart=on-failure
 RestartSec=3
 PrivateTmp=true
 NoNewPrivileges=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru/storage
 
 [Install]
 WantedBy=multi-user.target

@@ -298,6 +298,8 @@ export interface DocumentAsset {
   kind: "image" | "svg" | "font" | "icc-profile";
   widthPx?: number;
   heightPx?: number;
+  /** Stable id for reusable raster assets inserted from the built-in library. */
+  libraryItemId?: string;
 }
 
 export interface ProjectFontFace {

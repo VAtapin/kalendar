@@ -113,7 +113,7 @@ onMounted(async () => {
       </div>
 
       <div v-else class="application-dialog__content about-program">
-        <img class="about-program__mark" src="/brand/logo-symbol.png" alt="" />
+        <img class="about-program__mark" src="/brand/logo-symbol-256.webp" alt="" />
         <div>
           <h3>Календарная мастерская</h3>
           <p class="about-program__version">Версия 0.1.0</p>

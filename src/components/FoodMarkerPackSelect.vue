@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from "vue"
 import type { FoodRuleId } from "../calendar/presentation/fasting";
 import {
   FOOD_MARKER_PACKS,
-  foodMarkerPackSource,
+  foodMarkerPackPreviewSource,
   getFoodMarkerPack,
   type FoodMarkerPackId,
 } from "../calendar/presentation/marker-packs";
@@ -105,8 +105,10 @@ onBeforeUnmount(() => document.removeEventListener("pointerdown", handleDocument
         <img
           v-for="rule in previewRules"
           :key="rule"
-          :src="foodMarkerPackSource(selectedPack.id, rule)"
+          :src="foodMarkerPackPreviewSource(selectedPack.id, rule)"
           alt=""
+          loading="lazy"
+          decoding="async"
         />
       </span>
       <span class="food-marker-pack-option__copy">
@@ -140,8 +142,10 @@ onBeforeUnmount(() => document.removeEventListener("pointerdown", handleDocument
           <img
             v-for="rule in previewRules"
             :key="rule"
-            :src="foodMarkerPackSource(pack.id, rule)"
+            :src="foodMarkerPackPreviewSource(pack.id, rule)"
             alt=""
+            loading="lazy"
+            decoding="async"
           />
         </span>
         <span class="food-marker-pack-option__copy">

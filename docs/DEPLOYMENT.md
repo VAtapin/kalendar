@@ -8,15 +8,18 @@
 
 ## Установка
 
+Требуется Node.js 20.19 или новее.
+
 ```bash
 cd /var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru
 npm ci
 npm run build
+npm prune --omit=dev
 mkdir -p storage
 chmod 700 storage
 ```
 
-Скопируйте `deploy/kalender-api.env.example` в `.env`, задайте настоящий SMTP‑пароль и оставьте файл доступным только системному пользователю сайта (`chmod 600 .env`). Каталог `storage` содержит общие проекты, подтверждённые e-mail и готовые PDF; он не должен быть доступен напрямую из веб‑корня.
+Сборка создаёт статическое приложение в `dist` и готовый серверный файл `server-dist/calendar-api-server.mjs`. После `npm prune --omit=dev` на сервере остаются только зависимости, необходимые для работы. Скопируйте `deploy/kalender-api.env.example` в `.env`, задайте настоящий SMTP‑пароль и оставьте файл доступным только системному пользователю сайта (`chmod 600 .env`). Каталог `storage` содержит общие проекты, подтверждённые e-mail и готовые PDF; он не должен быть доступен напрямую из веб‑корня.
 
 ## Plesk и nginx
 

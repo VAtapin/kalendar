@@ -25,7 +25,9 @@ interface PieceMeta extends SourceMeta {
 interface ViewBox extends Bounds {}
 
 const root = process.cwd();
-const sourceDirectory = path.join(root, "public", "assets", "decor", "source");
+// Authoring sheets are kept outside public so Vite does not publish another
+// copy alongside the generated, cropped runtime elements.
+const sourceDirectory = path.join(root, "assets-source", "decor");
 const itemDirectory = path.join(root, "public", "assets", "decor", "items");
 const catalogPath = path.join(root, "src", "decor", "decor-library.generated.ts");
 
