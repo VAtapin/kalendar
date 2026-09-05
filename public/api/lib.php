@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/email-template.php';
+
 final class ApiFailure extends RuntimeException
 {
     public function __construct(
@@ -63,6 +65,9 @@ function calendar_config(): array
         'MAX_SHARED_PROJECT_BYTES' => '',
         'MAX_PDF_EXPORT_BYTES' => '',
         'CALENDAR_OWNER_EMAIL' => '',
+        'MAIL_TRANSPORT' => '',
+        'MAIL_FROM_ADDRESS' => '',
+        'MAIL_FROM_NAME' => '',
         'SMTP_HOST' => '',
         'SMTP_PORT' => '',
         'SMTP_SECURE' => '',
@@ -745,7 +750,93 @@ function calendar_smtp_command($socket, string $command, array $expectedCodes): 
     }
 }
 
-function calendar_send_verification_email(string $recipient, string $verificationUrl): void
+/** @return array{subject: string, headers: array<int, string>, body: string} */
+function calendar_verification_message(string $recipient, string $verificationUrl, string $senderAddress, string $senderName): array
+{
+    $subject = 'Ссылка подтверждения — Календарная мастерская';
+    $boundary = '=_CalendarWorkshop_' . bin2hex(random_bytes(12));
+    $text = "Здравствуйте!\n\n"
+        . "Адрес {$recipient} был указан для входа в Календарную мастерскую Свято-Георгиевского монастыря.\n\n"
+        . "Подтвердить адрес:\n{$verificationUrl}\n\n"
+        . "Ссылка действует 30 минут. Если вы не запрашивали её, просто удалите это письмо.\n\n"
+        . "Календарная мастерская\nhttps://kalender.georg-kloster.ru/\n\n"
+        . "Свято-Георгиевский мужской монастырь\n"
+        . "Православная обитель в Гётчендорфе, в Уккермарке, неподалёку от Берлина.\n"
+        . "Сайт монастыря: https://georg-kloster.ru/\n"
+        . "Богослужения и актуальное расписание: https://georg-kloster.ru/raspisanie-bogosluzheniy/\n\n"
+        . "Разработка и техническая поддержка: https://atapin.de/\n"
+        . "+49 171 351 72 74\natapin@gmail.com\n\n"
+        . "Пожалуйста, не пересылайте ссылку подтверждения другим людям.\n";
+    $html = calendar_verification_html($recipient, $verificationUrl);
+    $encodedName = '=?UTF-8?B?' . base64_encode($senderName) . '?=';
+    $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $headers = [
+        'Date: ' . date(DATE_RFC2822),
+        'Message-ID: <' . bin2hex(random_bytes(16)) . '@' . substr(strrchr($senderAddress, '@') ?: '@georg-kloster.ru', 1) . '>',
+        'From: ' . $encodedName . ' <' . $senderAddress . '>',
+        'Reply-To: ' . $senderAddress,
+        'MIME-Version: 1.0',
+        'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+    ];
+    $body = implode("\r\n", [
+        '--' . $boundary,
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: base64',
+        '',
+        rtrim(chunk_split(base64_encode($text), 76, "\r\n")),
+        '--' . $boundary,
+        'Content-Type: text/html; charset=UTF-8',
+        'Content-Transfer-Encoding: base64',
+        '',
+        rtrim(chunk_split(base64_encode($html), 76, "\r\n")),
+        '--' . $boundary . '--',
+        '',
+    ]);
+
+    return ['subject' => $encodedSubject, 'headers' => $headers, 'body' => $body];
+}
+
+function calendar_mail_sender_address(): string
+{
+    $legacy = trim(calendar_config_value('MAIL_FROM'));
+    $legacyAddress = $legacy;
+    if (preg_match('/<([^<>]+)>$/', $legacy, $matches) === 1) {
+        $legacyAddress = $matches[1];
+    }
+    $address = trim(calendar_config_value('MAIL_FROM_ADDRESS', $legacyAddress !== '' ? $legacyAddress : calendar_config_value('SMTP_USER')));
+    if (filter_var($address, FILTER_VALIDATE_EMAIL) === false || preg_match('/[\s\x00-\x20\x7f]/', $address) === 1) {
+        throw new RuntimeException('mail_sender_invalid');
+    }
+    return $address;
+}
+
+function calendar_mail_sender_name(): string
+{
+    $legacy = trim(calendar_config_value('MAIL_FROM'));
+    $name = 'Календарная мастерская';
+    if (preg_match('/^(.+?)\s*<[^<>]+>$/', $legacy, $matches) === 1) {
+        $name = trim($matches[1], " \t\"'");
+    }
+    return trim(calendar_config_value('MAIL_FROM_NAME', $name));
+}
+
+function calendar_send_sendmail_verification_email(string $recipient, string $verificationUrl): void
+{
+    $senderAddress = calendar_mail_sender_address();
+    $senderName = calendar_mail_sender_name();
+    $message = calendar_verification_message($recipient, $verificationUrl, $senderAddress, $senderName);
+    if (!function_exists('mail') || !mail(
+        $recipient,
+        $message['subject'],
+        $message['body'],
+        implode("\r\n", $message['headers']),
+        '-f' . escapeshellarg($senderAddress),
+    )) {
+        throw new RuntimeException('sendmail_failed');
+    }
+}
+
+function calendar_send_smtp_verification_email(string $recipient, string $verificationUrl): void
 {
     $host = calendar_config_value('SMTP_HOST');
     $port = calendar_config_int('SMTP_PORT', 465);
@@ -786,22 +877,15 @@ function calendar_send_verification_email(string $recipient, string $verificatio
         calendar_smtp_command($socket, 'RCPT TO:<' . $recipient . '>', [250, 251]);
         calendar_smtp_command($socket, 'DATA', [354]);
 
-        $from = calendar_config_value('MAIL_FROM', 'Календарная мастерская <' . $username . '>');
-        $subject = 'Подтверждение e-mail — Календарная мастерская';
-        $html = '<p>Подтвердите e-mail для работы в «Календарной мастерской».</p>'
-            . '<p><a href="' . htmlspecialchars($verificationUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">Подтвердить e-mail</a></p>'
-            . '<p>Ссылка действует 30 минут.</p>';
+        $senderAddress = calendar_mail_sender_address();
+        $senderName = calendar_mail_sender_name();
+        $message = calendar_verification_message($recipient, $verificationUrl, $senderAddress, $senderName);
         $headers = [
-            'Date: ' . date(DATE_RFC2822),
-            'Message-ID: <' . bin2hex(random_bytes(16)) . '@kalender.georg-kloster.ru>',
-            'From: ' . $from,
+            ...$message['headers'],
             'To: ' . $recipient,
-            'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
-            'MIME-Version: 1.0',
-            'Content-Type: text/html; charset=UTF-8',
-            'Content-Transfer-Encoding: base64',
+            'Subject: ' . $message['subject'],
             '',
-            rtrim(chunk_split(base64_encode($html), 76, "\r\n")),
+            $message['body'],
             '.',
         ];
         if (fwrite($socket, implode("\r\n", $headers) . "\r\n") === false || calendar_smtp_read($socket) !== 250) {
@@ -811,4 +895,18 @@ function calendar_send_verification_email(string $recipient, string $verificatio
     } finally {
         fclose($socket);
     }
+}
+
+function calendar_send_verification_email(string $recipient, string $verificationUrl): void
+{
+    $transport = strtolower(trim(calendar_config_value('MAIL_TRANSPORT', 'smtp')));
+    if ($transport === 'sendmail' || $transport === 'mail') {
+        calendar_send_sendmail_verification_email($recipient, $verificationUrl);
+        return;
+    }
+    if ($transport === 'smtp') {
+        calendar_send_smtp_verification_email($recipient, $verificationUrl);
+        return;
+    }
+    throw new RuntimeException('mail_transport_invalid');
 }

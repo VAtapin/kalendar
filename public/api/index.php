@@ -290,7 +290,11 @@ try {
             calendar_send_verification_email($email, $link);
         } catch (RuntimeException $error) {
             if (!$development) {
-                throw $error;
+                error_log('Calendar mail delivery: ' . $error->getMessage());
+                api_response(502, [
+                    'error' => 'mail_delivery_failed',
+                    'message' => 'Не удалось отправить письмо. Проверьте настройки почты сервера.',
+                ]);
             }
         }
         $response = ['sent' => true, 'expiresAt' => $verification['expiresAt']];
