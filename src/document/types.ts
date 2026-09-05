@@ -293,6 +293,8 @@ export interface DocumentModel {
 }
 
 export interface DocumentAsset {
+  /** Keep uploaded photos available even before placement on a page. */
+  photoLibrary?: boolean;
   id: string;
   name: string;
   mimeType: string;

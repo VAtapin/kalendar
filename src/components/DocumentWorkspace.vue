@@ -31,7 +31,24 @@ const emit = defineEmits<{
   geometryStart: [];
   updateGeometry: [elementId: string, frame: ElementFrame];
   geometryEnd: [];
+  photoDrop: [id: string, point: { x: number; y: number }];
 }>();
+
+function allowPhotoDrop(event: DragEvent): void {
+  if (event.dataTransfer?.types.includes('application/x-calendar-photo')) {
+    event.preventDefault(); event.dataTransfer.dropEffect = 'copy';
+  }
+}
+function dropPhoto(event: DragEvent): void {
+  const id = event.dataTransfer?.getData('application/x-calendar-photo');
+  if (!id) return;
+  event.preventDefault();
+  const svg = event.currentTarget as SVGSVGElement;
+  const transform = svg.getScreenCTM();
+  if (!transform) return;
+  const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
+  emit('photoDrop', id, { x: point.x, y: point.y });
+}
 
 function forwardCreate(tool: EditorTool, frame: ElementFrame): void {
   emit("create", tool, frame);
@@ -65,6 +82,8 @@ const mediaEndY = computed(() => props.page.height + props.page.bleed.bottom);
       />
       <PageScene
         class="workspace__page"
+        @dragover="allowPhotoDrop"
+        @drop="dropPhoto"
         :page="page"
         :assets="assets"
         :food-marker-pack-id="foodMarkerPackId"

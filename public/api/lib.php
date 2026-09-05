@@ -6,6 +6,8 @@ require_once __DIR__ . '/email-template.php';
 require_once __DIR__ . '/admin-store.php';
 require_once __DIR__ . '/admin-auth.php';
 require_once __DIR__ . '/newsletter.php';
+require_once __DIR__ . '/accounts.php';
+require_once __DIR__ . '/catalog.php';
 
 final class ApiFailure extends RuntimeException
 {
@@ -200,6 +202,8 @@ final class CalendarStore
 {
     use CalendarAdminStore;
     use CalendarAdminAuth;
+    use CalendarAccounts;
+    use CalendarCatalog;
     private const BUILT_IN_TEMPLATE_IDS = [
         'editorial-classic',
         'monastic-book',

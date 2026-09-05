@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from "vue";
 import type { FoodRuleId } from "../calendar/presentation/fasting";
+import { catalogEnabled, catalogItems } from "../collaboration/catalog-client";
 import {
   FOOD_MARKER_PACKS,
   foodMarkerPackPreviewSource,
@@ -23,6 +24,7 @@ const optionButtons = ref<HTMLButtonElement[]>([]);
 const isOpen = ref(false);
 const listboxId = useId();
 const selectedPack = computed(() => getFoodMarkerPack(props.modelValue));
+const availablePacks = computed(() => FOOD_MARKER_PACKS.filter(pack => catalogEnabled(`food-pack-${pack.id}`)).map(pack => ({...pack, label: catalogItems.value.find(item => item.id === `food-pack-${pack.id}`)?.name ?? pack.label})));
 
 function setOptionRef(element: unknown, index: number): void {
   if (element instanceof HTMLButtonElement) optionButtons.value[index] = element;
@@ -32,7 +34,7 @@ async function openMenu(focusSelected = false): Promise<void> {
   isOpen.value = true;
   if (!focusSelected) return;
   await nextTick();
-  const selectedIndex = FOOD_MARKER_PACKS.findIndex((pack) => pack.id === props.modelValue);
+  const selectedIndex = availablePacks.value.findIndex((pack) => pack.id === props.modelValue);
   optionButtons.value[Math.max(0, selectedIndex)]?.focus();
 }
 
@@ -47,7 +49,8 @@ function selectPack(packId: FoodMarkerPackId): void {
 }
 
 function focusOption(index: number): void {
-  const count = FOOD_MARKER_PACKS.length;
+  const count = availablePacks.value.length;
+  if (!count) return;
   optionButtons.value[(index + count) % count]?.focus();
 }
 
@@ -73,7 +76,7 @@ function handleListboxKeydown(event: KeyboardEvent): void {
     focusOption(0);
   } else if (event.key === "End") {
     event.preventDefault();
-    focusOption(FOOD_MARKER_PACKS.length - 1);
+    focusOption(availablePacks.value.length - 1);
   }
 }
 
@@ -127,7 +130,7 @@ onBeforeUnmount(() => document.removeEventListener("pointerdown", handleDocument
       @keydown="handleListboxKeydown"
     >
       <button
-        v-for="(pack, index) in FOOD_MARKER_PACKS"
+        v-for="(pack, index) in availablePacks"
         :key="pack.id"
         :ref="(element) => setOptionRef(element, index)"
         class="food-marker-pack-option"

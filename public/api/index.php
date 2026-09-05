@@ -244,6 +244,8 @@ try {
     $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $path = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
     $path = preg_replace('#^/api(?=/|$)#', '', $path) ?: '/';
+    calendar_account_routes($store, $method, $path);
+    calendar_catalog_routes($store, $method, $path);
 
     if ($method === 'OPTIONS') {
         header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Project-Lease, X-Upload-Token');
@@ -324,6 +326,9 @@ try {
             }
             api_response(201, $store->createCampaign(trim($body['subject']), trim($body['text']), $blocks));
         }
+        if ($path === '/v1/admin/newsletter-draft' && in_array($method, ['GET','POST'], true)) api_response(200, $store->newsletterDraft($method === 'POST' ? api_request_json(128 * 1024) : null));
+        if ($method === 'GET' && $path === '/v1/admin/campaigns') api_response(200, ['items' => $store->newsletterCampaigns()]);
+        if ($method === 'GET' && preg_match('#^/v1/admin/campaigns/([0-9a-f-]{36})$#i', $path, $match)) api_response(200, $store->newsletterCampaigns($match[1]));
         if ($method === 'POST' && preg_match('#^/v1/admin/campaigns/([0-9a-f-]{36})/send$#i', $path, $match)) {
             api_response(200, $store->dispatchCampaign($match[1]));
         }
@@ -514,7 +519,9 @@ try {
     }
 
     if ($method === 'POST' && $path === '/v1/pdf-exports') {
-        $credential = $store->credentialFor(api_bearer_token()) ?? api_owner($store);
+        $account = $store->accountUser(calendar_account_token());
+        if ($account !== null) calendar_admin_check_origin();
+        $credential = $account ?? $store->credentialFor(api_bearer_token()) ?? api_owner($store);
         if ($credential === null) {
             api_response(401, ['error' => 'email_required', 'message' => 'Сначала подтвердите e-mail']);
         }

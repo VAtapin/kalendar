@@ -62,6 +62,7 @@ function referencedProjectAssetIds(project: CalendarProject): Set<string> {
     if (assetId) result.add(assetId);
   };
   add(project.publisherProfile.logoAssetId);
+  for (const asset of project.assets) if (asset.photoLibrary) add(asset.id);
   for (const event of project.monasteryEvents) add(event.iconAssetId);
   for (const face of project.customFonts ?? []) add(face.assetId);
   add(project.printSettings?.iccProfileAssetId);
@@ -96,6 +97,7 @@ export function compactProjectAssets(project: CalendarProject): ProjectAssetComp
     const canonicalId = canonicalBySource.get(asset.source);
     if (canonicalId) {
       const canonicalAsset = assetsById.get(canonicalId);
+      if (canonicalAsset && asset.photoLibrary) canonicalAsset.photoLibrary = true;
       if (canonicalAsset && !canonicalAsset.libraryItemId && asset.libraryItemId) {
         canonicalAsset.libraryItemId = asset.libraryItemId;
       }

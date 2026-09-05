@@ -446,6 +446,19 @@ input {
   flex: 1;
 }
 
+.account-entry {
+  flex: 0 0 auto;
+  padding: 7px 18px;
+  border: 0;
+  border-bottom: 1px solid #475446;
+  background: #213329;
+  color: #dfc689;
+  text-align: right;
+  font: inherit;
+  cursor: pointer;
+}
+.account-entry:focus-visible { outline: 2px solid #c4a55f; outline-offset: -2px; }
+
 .app-shell--resizing-dock,
 .app-shell--resizing-dock * {
   cursor: col-resize !important;

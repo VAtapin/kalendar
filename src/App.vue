@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
+import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
+import AccountPanel from "./components/AccountPanel.vue";
+import { setStorageAccount } from "./persistence/project-storage";
+import ResourceBrowser from "./components/ResourceBrowser.vue";
+import { catalogItems, catalogEnabled, fontCatalogId, catalogContentUrl, refreshCatalog, type CatalogItem } from "./collaboration/catalog-client";
+import { accountRequest, type AccountUser } from "./collaboration/account-client";
 import DecorLibraryPanel from "./components/DecorLibraryPanel.vue";
 import LayersPanel from "./components/LayersPanel.vue";
 import ToolsPanel from "./components/ToolsPanel.vue";
@@ -248,7 +254,6 @@ interface ProjectPickerWindow extends Window {
   showOpenFilePicker?: (options: unknown) => Promise<ProjectFileHandle[]>;
 }
 
-let activeProjectFileHandle: ProjectFileHandle | undefined;
 let projectFileReferenceUpdate: Promise<void> = Promise.resolve();
 interface MenuItemDefinition {
   command?: MenuCommandId;
@@ -274,6 +279,94 @@ const recoveryDialogOpen = ref(false);
 const programSettingsOpen = ref(false);
 const AdminDialog = defineAsyncComponent(() => import("./components/AdminDialog.vue"));
 const adminOpen = ref(false);
+const accountOpen = ref(false);
+const accountError = ref('');
+const accountUser = ref<AccountUser | null>(null);
+const accountToken = ref(new URLSearchParams(location.search).get('account-token') ?? undefined);
+const serverCalendarId = ref<string>();
+let serverRevision = 0;
+let serverSaving: Promise<void> = Promise.resolve();
+let switchingCalendar = false;
+let savedServerAssets = new Map<string, string>();
+let accountLibraryRevision = 0;
+async function saveAccountLibrary(): Promise<void> {
+  const userId = accountUser.value?.id;
+  if (!userId) return;
+  try {
+    const result = await accountRequest<{revision: number}>('library', 'PUT', {revision: accountLibraryRevision, templates: userProjectTemplates.value, grids: userCalendarGridTemplates.value});
+    if (accountUser.value?.id !== userId) return;
+    accountLibraryRevision = result.revision; operationNotice.value = 'Личные шаблоны сохранены на сервере';
+  } catch (error) { if (accountUser.value?.id === userId) operationNotice.value = `Шаблоны не сохранены на сервере: ${String(error)}`; }
+}
+async function saveServerCalendar(): Promise<void> {
+  const user = accountUser.value;
+  if (!user || switchingCalendar) return;
+  const current = project.value;
+  const snapshot = createPersistentProjectSnapshot(current);
+  const operation = serverSaving.catch(() => {}).then(async () => {
+    if (project.value !== current || accountUser.value?.id !== user.id) return;
+    persistenceState.value = 'saving';
+    const id = serverCalendarId.value;
+    const reuseAssets: string[] = [];
+    const assetSources = new Map(snapshot.assets.map(asset => [asset.id, asset.source]));
+    if (id) for (const asset of snapshot.assets) {
+      if (savedServerAssets.get(asset.id) === asset.source) { reuseAssets.push(asset.id); asset.source = ''; }
+    }
+    try {
+      const result = await accountRequest<{id: string; revision: number}>(id ? `calendars/${id}` : 'calendars', id ? 'PUT' : 'POST', { project: snapshot, revision: serverRevision, reuseAssets });
+      if (project.value === current) { serverCalendarId.value = result.id; serverRevision = result.revision; savedServerAssets = assetSources; persistenceState.value = 'saved'; }
+    } catch (error) { persistenceState.value = 'error'; operationNotice.value = `Не сохранено на сервере: ${String(error)}. Можно скачать копию через меню «Файл».`; throw error; }
+  });
+  serverSaving = operation; return operation;
+}
+async function openAccountCabinet(): Promise<void> {
+  accountError.value = '';
+  if (serverCalendarId.value) {
+    try { await saveServerCalendar(); } catch { if (!confirmInterface('Изменения не сохранены на сервере. Открыть кабинет? Перед загрузкой другой версии скачайте копию через меню «Файл».')) return; }
+  }
+  accountOpen.value = true;
+}
+async function openAccountCalendar(id: string): Promise<void> {
+  try {
+    if (serverCalendarId.value && !accountOpen.value) await saveServerCalendar();
+    switchingCalendar = true;
+    const value = await accountRequest<{project: CalendarProject; revision: number}>(`calendars/${id}`);
+    project.value = normalizeCalendarProject(value.project);
+    serverCalendarId.value = id; serverRevision = value.revision;
+    savedServerAssets = new Map(project.value.assets.map(asset => [asset.id, asset.source]));
+    detachActiveProjectFile(); clearProjectHistory(); resetPageTabs();
+    selectedElementId.value = undefined; selectedLayerIds.value = [];
+    projectBackups.value = []; accountOpen.value = false; welcomeVisible.value = false;
+    await registerProjectFonts(project.value); await loadCalendarData();
+    operationNotice.value = 'Календарь открыт с сервера';
+  } catch (error) { operationNotice.value = String(error); accountError.value = String(error); } finally { switchingCalendar = false; }
+}
+function accountAuthenticated(user: AccountUser): void {
+  setStorageAccount(user.id); userProjectTemplates.value = []; userCalendarGridTemplates.value = [];
+  accountLibraryRevision = 0;
+  void accountRequest<{revision: number; templates: UserProjectTemplate[]; grids: UserCalendarGridTemplate[]}>('library').then(value => {
+    if (accountUser.value?.id === user.id) { userProjectTemplates.value = value.templates; userCalendarGridTemplates.value = value.grids; accountLibraryRevision = value.revision; }
+  }).catch(error => { operationNotice.value = `Не удалось загрузить личные шаблоны: ${String(error)}`; });
+  accountUser.value = user; serverCalendarId.value = undefined; serverRevision = 0;
+  savedServerAssets.clear();
+  project.value = createBlankCalendarProject(); clearProjectHistory(); resetPageTabs(); projectBackups.value = [];
+  accountToken.value = undefined; history.replaceState(null, '', location.pathname);
+}
+function accountLoggedOut(): void {
+  setStorageAccount(null); userProjectTemplates.value = []; userCalendarGridTemplates.value = [];
+  accountUser.value = null; serverCalendarId.value = undefined; serverRevision = 0;
+  savedServerAssets.clear();
+  project.value = createBlankCalendarProject(); clearProjectHistory(); resetPageTabs(); projectBackups.value = [];
+  welcomeVisible.value = true;
+}
+async function initializeAccount(): Promise<void> {
+  try {
+    const token = accountToken.value;
+    const result = await accountRequest<{user: AccountUser | null}>('session');
+    if (result.user && !token) { accountAuthenticated(result.user); accountOpen.value = true; }
+    if (token) accountOpen.value = true;
+  } catch (error) { operationNotice.value = `Личный кабинет недоступен: ${String(error)}`; }
+}
 const adminLoginOpen = ref(false);
 const adminLoginTarget = ref<"administrator" | "templates">("administrator");
 const programSettingsBusy = ref(false);
@@ -318,26 +411,28 @@ const persistenceState = ref<"loading" | "saved" | "saving" | "error">("loading"
 const pdfExportState = ref<"idle" | "exporting" | "ready" | "error">("idle");
 const currentFillColor = ref("#f4f1e8");
 const currentStrokeColor = ref("#17201d");
+const catalogBusy = ref(false);
+const enabledFontOptions = computed(() => FONT_OPTIONS.filter(font => catalogEnabled(fontCatalogId(font.family))).map(font => ({...font, label: catalogItems.value.find(item => item.id === fontCatalogId(font.family))?.name ?? font.label})));
 const fontOptionGroups = computed(() => [
   {
     label: "Декоративные кириллические",
-    options: FONT_OPTIONS.filter(
+    options: enabledFontOptions.value.filter(
       (option) => option.kind === "decorative" && (option.scriptSupport ?? "full-cyrillic") === "full-cyrillic",
     ),
   },
   {
     label: "Декоративные — неполная кириллица",
-    options: FONT_OPTIONS.filter(
+    options: enabledFontOptions.value.filter(
       (option) => option.kind === "decorative" && option.scriptSupport === "partial-cyrillic",
     ),
   },
   {
     label: "Декоративные — латиница",
-    options: FONT_OPTIONS.filter(
+    options: enabledFontOptions.value.filter(
       (option) => option.kind === "decorative" && option.scriptSupport === "latin",
     ),
   },
-  { label: "Книжные", options: FONT_OPTIONS.filter((option) => option.kind === "text") },
+  { label: "Книжные", options: enabledFontOptions.value.filter((option) => option.kind === "text") },
   {
     label: "Шрифты проекта",
     options: (project.value.customFonts ?? []).map((font) => ({
@@ -347,7 +442,7 @@ const fontOptionGroups = computed(() => [
       kind: "decorative" as const,
     })),
   },
-  { label: "Системные", options: FONT_OPTIONS.filter((option) => option.kind === "system") },
+  { label: "Системные", options: enabledFontOptions.value.filter((option) => option.kind === "system") },
 ].filter((group) => group.options.length > 0));
 const undoStack = ref<HistoryEntry[]>([]);
 const redoStack = ref<HistoryEntry[]>([]);
@@ -397,11 +492,18 @@ const monthNames = computed(() => Array.from({ length: 12 }, (_, month) => {
 }));
 const foodRuleOptions = Object.values(FOOD_RULES).filter((rule) => rule.id !== "no-fast");
 const activeFoodMarkerPack = computed(() => getFoodMarkerPack(project.value.foodMarkerPackId));
-const calendarTemplatePresets = CALENDAR_TEMPLATE_PRESETS;
+const calendarTemplatePresets = computed(() => CALENDAR_TEMPLATE_PRESETS.filter(item => catalogEnabled(`template-${item.id}`)).map(item => ({ ...item, name: catalogItems.value.find(resource => resource.id === `template-${item.id}`)?.name ?? item.name })));
 const commemorationFilterOptions = COMMEMORATION_FILTER_OPTIONS;
 const fastingProfileOptions = Object.values(FASTING_PROFILES);
 const calendarLanguageOptions = CALENDAR_LANGUAGE_OPTIONS;
-const decorLibraryItems = DECOR_LIBRARY_ITEMS;
+const decorLibraryItems = computed(() => [
+  ...DECOR_LIBRARY_ITEMS.filter(item => catalogEnabled(item.id)).map(item => ({...item, label: catalogItems.value.find(resource => resource.id === item.id)?.name ?? item.label})),
+  ...catalogItems.value.filter(item => item.uploaded && item.enabled && (item.kind === 'image' || item.kind === 'svg')).map(item => ({
+    id: item.id, sourceId: item.id, label: item.name, source: catalogContentUrl(item.id), kind: item.kind as 'image' | 'svg',
+    category: (['frames','corners','dividers','ornaments','religious','symbols'].includes(item.category) ? item.category : 'ornaments') as DecorLibraryItem['category'],
+    aspectRatio: (item.widthPx ?? 100) / (item.heightPx ?? 100), widthPx: item.widthPx, heightPx: item.heightPx,
+  })),
+]);
 
 const selectedPage = computed(() => {
   const page =
@@ -509,9 +611,13 @@ const dockPanelMaximumWidthPx = computed(() => Math.max(
     EDITOR_RESIZER_WIDTH_PX -
     EDITOR_MIN_WORKSPACE_WIDTH_PX,
 ));
+const photoPanelCollapsed = ref(false);
+const photoUploadBusy = ref(false);
+const projectPhotos = computed(() => project.value.assets.filter(asset => asset.photoLibrary && asset.kind === 'image'));
 const editorGridColumns = computed(() =>
   [
     showToolsPanel.value ? "44px" : null,
+    chromePanelsHidden.value ? null : photoPanelCollapsed.value ? "38px" : "220px",
     `minmax(${EDITOR_MIN_WORKSPACE_WIDTH_PX}px, 1fr)`,
     showDock.value ? `${EDITOR_RESIZER_WIDTH_PX}px` : null,
     showDock.value ? `${dockPanelWidthPx.value}px` : null,
@@ -560,15 +666,14 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
       label: "Файл",
       items: [
         { command: "new-project", label: "Новый проект", shortcut: "Ctrl+N" },
-        { command: "open-project", label: "Открыть проект…", shortcut: "Ctrl+O" },
-        { command: "save-project", label: "Сохранить", shortcut: "Ctrl+S" },
-        { command: "save-as-project", label: "Сохранить как…", shortcut: "Ctrl+Shift+S" },
+        { command: "open-project", label: "Импортировать файл календаря…", shortcut: "Ctrl+O" },
+        { command: "save-project", label: "Сохранить на сервере", shortcut: "Ctrl+S" },
+        { command: "save-as-project", label: "Скачать на компьютер как…", shortcut: "Ctrl+Shift+S" },
         { command: "download-project", label: "Скачать резервную копию…" },
-        { command: "recovery", label: "Восстановление…", disabled: projectBackups.value.length === 0 },
+        { command: "recovery", label: "Восстановление…", disabled: !accountUser.value && projectBackups.value.length === 0 },
         { command: "program-settings", label: "Настройки программы…" },
         { command: "administrator", label: "Администратор…" },
         { separator: true },
-        { command: "share-project", label: sharedLease.value ? "Ссылка для совместной работы…" : "Поделиться для совместной работы…" },
         { separator: true },
         { command: "save-user-template", label: "Сохранить дизайн как шаблон…" },
         { command: "clone-year", label: "Создать копию для другого года…" },
@@ -758,6 +863,10 @@ function endContinuousEdit(label = "Изменение геометрии"): voi
 }
 
 async function saveAutosaveNow(showNotice = false): Promise<void> {
+  if (accountUser.value) {
+    if (serverCalendarId.value && !switchingCalendar && !accountOpen.value) { try { await saveServerCalendar(); } catch { /* visible server error */ } }
+    return;
+  }
   persistenceState.value = "saving";
   try {
     await saveAutosavedProject(project.value);
@@ -860,15 +969,9 @@ async function changeInterfaceLanguageFromWelcome(language: InterfaceLanguage): 
   }
 }
 
-function requestVerifiedAction(action: PendingVerifiedAction): boolean {
-  if (verifiedAccessToken() || canManageGlobalGridTemplates.value) return true;
-  pendingVerifiedAction.value = action;
-  localStorage.setItem(PENDING_VERIFIED_ACTION_KEY, action);
-  emailVerificationSentTo.value = savedBrowserVerification()?.email;
-  emailVerificationError.value = undefined;
-  developmentVerificationUrl.value = undefined;
-  emailVerificationOpen.value = true;
-  startBrowserVerificationPolling();
+function requestVerifiedAction(_action: PendingVerifiedAction): boolean {
+  if (accountUser.value || canManageGlobalGridTemplates.value) return true;
+  accountOpen.value = true;
   return false;
 }
 
@@ -1255,7 +1358,6 @@ async function initializeProject(): Promise<void> {
       try {
         const storedFile = await loadActiveProjectFileReference<ProjectFileHandle>();
         if (storedFile?.handle) {
-          activeProjectFileHandle = storedFile.handle;
           projectFileName.value = storedFile.name;
           // The autosave may contain edits made after the last explicit file
           // save, so keep the restored document marked as changed.
@@ -1464,7 +1566,6 @@ async function rememberActiveProjectFile(handle: ProjectFileHandle): Promise<voi
 }
 
 function detachActiveProjectFile(): void {
-  activeProjectFileHandle = undefined;
   projectFileName.value = undefined;
   savedProjectFileSnapshot.value = undefined;
   projectFileReferenceUpdate = projectFileReferenceUpdate
@@ -1477,13 +1578,14 @@ async function writeProjectFile(handle: ProjectFileHandle): Promise<void> {
   const writable = await handle.createWritable();
   await writable.write(projectFileBlob());
   await writable.close();
-  activeProjectFileHandle = handle;
   projectFileName.value = handle.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
   rememberProjectName(handle.name);
   await rememberActiveProjectFile(handle);
-  await saveProjectBackup(project.value, `Сохранение ${handle.name}`);
-  projectBackups.value = await listProjectBackups();
+  if (!accountUser.value) {
+    await saveProjectBackup(project.value, `Сохранение ${handle.name}`);
+    projectBackups.value = await listProjectBackups();
+  }
   await saveAutosaveNow();
   operationNotice.value = `Проект сохранён в файл: ${handle.name}`;
 }
@@ -1511,15 +1613,8 @@ async function saveProjectAs(): Promise<void> {
 }
 
 async function saveProjectNow(): Promise<void> {
-  if (!activeProjectFileHandle) {
-    await saveProjectAs();
-    return;
-  }
-  try {
-    await writeProjectFile(activeProjectFileHandle);
-  } catch (error) {
-    operationNotice.value = `Не удалось сохранить файл: ${error instanceof Error ? error.message : String(error)}`;
-  }
+  if (!accountUser.value) { accountOpen.value = true; return; }
+  try { await saveServerCalendar(); } catch { /* visible server error */ }
 }
 
 async function exportPrintPdf(): Promise<void> {
@@ -1576,12 +1671,14 @@ function selectPreflightIssue(item: PreflightIssue): void {
 }
 
 async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Promise<void> {
+  if (serverCalendarId.value) await saveServerCalendar();
   assertFileSize(file, MAX_PROJECT_FILE_BYTES, "Файл календаря");
   await leaveSharedProject();
   await createRecoveryPoint(`Перед открытием ${file.name}`);
   const candidate: unknown = JSON.parse(await file.text());
   const loadedProject = parseProjectArchive(candidate);
   if (!loadedProject) throw new Error("Неподдерживаемый формат проекта");
+  serverCalendarId.value = undefined; serverRevision = 0; savedServerAssets.clear();
   project.value = loadedProject;
   applyProjectInterfaceLanguage(loadedProject);
   ensureCalendarWorkshopBranding(project.value);
@@ -1590,7 +1687,6 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   selectedElementId.value = undefined;
   selectedLayerIds.value = [];
   clearProjectHistory();
-  activeProjectFileHandle = handle;
   projectFileName.value = file.name;
   savedProjectFileSnapshot.value = serializeEditableProject();
   if (handle) await rememberActiveProjectFile(handle);
@@ -1605,6 +1701,7 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   hasAutosavedProject.value = true;
   welcomeVisible.value = false;
   operationNotice.value = `Открыт файл проекта: ${file.name}`;
+  if (accountUser.value) await saveServerCalendar();
 }
 
 async function requestProjectFile(): Promise<void> {
@@ -1648,6 +1745,7 @@ async function openProjectFile(event: Event): Promise<void> {
 }
 
 async function createRecoveryPoint(label: string): Promise<void> {
+  if (accountUser.value) return;
   try {
     await saveProjectBackup(project.value, label);
     projectBackups.value = await listProjectBackups();
@@ -1658,15 +1756,17 @@ async function createRecoveryPoint(label: string): Promise<void> {
 }
 
 async function createNewProject(): Promise<void> {
-  if (!requestVerifiedAction("new")) return;
+  if (!accountUser.value && !canManageGlobalGridTemplates.value) { accountOpen.value = true; return; }
+  if (serverCalendarId.value && !accountOpen.value) { try { await saveServerCalendar(); } catch { return; } }
   if (
     project.value.document.pages.some((page) =>
       page.elements.some((element) => !isCalendarWorkshopBrandElement(page, element)),
     ) &&
-    !confirmInterface("Создать новый проект? Текущий проект будет закрыт. Если он ещё не сохранён в файл, сначала нажмите «Сохранить как…».")
+    !confirmInterface("Создать новый календарь? Текущий календарь будет закрыт.")
   ) return;
   await leaveSharedProject();
   await createRecoveryPoint("Перед созданием нового проекта");
+  serverCalendarId.value = undefined; serverRevision = 0;
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
   project.value.programSettings = { interfaceLanguage: interfaceLanguage.value };
   detachActiveProjectFile();
@@ -1678,6 +1778,8 @@ async function createNewProject(): Promise<void> {
   welcomeVisible.value = false;
   void loadCalendarData();
   operationNotice.value = "Создан новый проект";
+  accountOpen.value = false;
+  if (accountUser.value) { try { await saveServerCalendar(); } catch { /* visible error */ } }
 }
 
 function resetPageTabs(pageId = project.value.document.pages[0]?.id ?? ""): void {
@@ -2402,6 +2504,7 @@ async function saveSelectedGridAsTemplate(): Promise<void> {
   const saved = await saveUserCalendarGridTemplate(name.trim(), grid);
   userCalendarGridTemplates.value = [saved, ...userCalendarGridTemplates.value];
   operationNotice.value = `Шаблон сетки «${saved.name}» сохранён`;
+  await saveAccountLibrary();
 }
 
 function applyCalendarGridTemplate(
@@ -2519,6 +2622,7 @@ async function removeCalendarGridTemplate(template: UserCalendarGridTemplate): P
   await deleteUserCalendarGridTemplate(template.id);
   userCalendarGridTemplates.value = userCalendarGridTemplates.value.filter((item) => item.id !== template.id);
   operationNotice.value = `Шаблон сетки «${template.name}» удалён`;
+  await saveAccountLibrary();
 }
 
 function applySelectedMonthAsMaster(): void {
@@ -2540,6 +2644,7 @@ async function saveCurrentDesignAsTemplate(): Promise<void> {
   const saved = await saveUserProjectTemplate(name.trim(), project.value);
   userProjectTemplates.value = [saved, ...userProjectTemplates.value];
   operationNotice.value = `Шаблон «${saved.name}» сохранён локально`;
+  await saveAccountLibrary();
 }
 
 function applyUserProjectTemplate(template: UserProjectTemplate): void {
@@ -2572,9 +2677,11 @@ async function removeUserProjectTemplate(template: UserProjectTemplate): Promise
   await deleteUserProjectTemplate(template.id);
   userProjectTemplates.value = userProjectTemplates.value.filter((item) => item.id !== template.id);
   operationNotice.value = `Шаблон «${template.name}» удалён`;
+  await saveAccountLibrary();
 }
 
-function cloneCurrentProjectToYear(): void {
+async function cloneCurrentProjectToYear(): Promise<void> {
+  if (serverCalendarId.value) { try { await saveServerCalendar(); } catch { return; } }
   const answer = promptInterface("Год для копии проекта", String(project.value.year + 1));
   if (answer === null) return;
   const year = Math.round(Number(answer));
@@ -2582,9 +2689,8 @@ function cloneCurrentProjectToYear(): void {
     operationNotice.value = "Введите год от 1900 до 2200";
     return;
   }
-  void saveProjectBackup(project.value, `Перед созданием копии на ${year} год`).then(async () => {
-    projectBackups.value = await listProjectBackups();
-  });
+  await createRecoveryPoint(`Перед созданием копии на ${year} год`);
+  serverCalendarId.value = undefined; serverRevision = 0; savedServerAssets.clear();
   project.value = normalizeCalendarProject(cloneProjectForYear(project.value, year));
   ensureCalendarWorkshopBranding(project.value);
   detachActiveProjectFile();
@@ -2592,7 +2698,8 @@ function cloneCurrentProjectToYear(): void {
   resetPageTabs();
   void registerProjectFonts(project.value);
   void loadCalendarData();
-  operationNotice.value = `Создана независимая копия проекта на ${year} год; выберите «Сохранить как…»`;
+  if (accountUser.value) { try { await saveServerCalendar(); } catch { return; } }
+  operationNotice.value = `Создана независимая копия календаря на ${year} год`;
 }
 
 function restoreProjectBackup(backup: ProjectBackup): void {
@@ -2670,6 +2777,36 @@ function assertRasterDimensions(
   if (dimensions.widthPx * dimensions.heightPx > MAX_RASTER_PIXELS) {
     throw new Error(`${label} слишком большое по разрешению: ${dimensions.widthPx} × ${dimensions.heightPx} px`);
   }
+}
+
+async function insertCatalogResource(item: CatalogItem): Promise<void> {
+  if (catalogBusy.value) return;
+  if (item.kind === 'template' && !confirmInterface(`Заменить текущий календарь шаблоном «${item.name}»?`)) return;
+  const target = project.value;
+  catalogBusy.value = true;
+  try {
+    const response = await fetch(catalogContentUrl(item.id));
+    if (!response.ok) throw new Error('Не удалось загрузить материал');
+    if (item.kind === 'font') {
+      const blob = await response.blob();
+      await new FontFace(item.family ?? item.name, await blob.arrayBuffer()).load();
+      const source = await readFileAsDataUrl(new File([blob], item.name, {type: item.mimeType}));
+      if (project.value !== target) return;
+      mutateProject('Добавить шрифт мастерской', () => {
+        const id = `asset-${crypto.randomUUID()}`;
+        project.value.assets.push({id, name: item.name, source, kind: 'font', mimeType: item.mimeType ?? 'font/ttf'});
+        project.value.customFonts ??= [];
+        project.value.customFonts.push({assetId: id, family: item.family ?? item.name, fontWeight: 400, fontStyle: 'normal'});
+      });
+      await registerProjectFonts();
+    } else if (item.kind === 'template') {
+      const template = normalizeCalendarProject(await response.json() as CalendarProject);
+      if (project.value !== target) return;
+      mutateProject('Применить шаблон мастерской', () => { project.value = template; });
+      resetPageTabs(); detachActiveProjectFile(); await registerProjectFonts(); await loadCalendarData();
+    }
+    operationNotice.value = `Добавлен материал «${item.name}»`;
+  } catch (error) { operationNotice.value = String(error); } finally { catalogBusy.value = false; }
 }
 
 async function registerProjectFonts(targetProject: CalendarProject = project.value): Promise<void> {
@@ -2869,7 +3006,7 @@ async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
 async function setSelectedDecorColor(color: string): Promise<void> {
   const element = selectedElement.value;
   if (!element || element.type !== "svg" || !element.libraryItemId) return;
-  const item = decorLibraryItems.find((candidate) => candidate.id === element.libraryItemId);
+  const item = decorLibraryItems.value.find((candidate) => candidate.id === element.libraryItemId);
   if (!item) return;
   const elementId = element.id;
   try {
@@ -2893,6 +3030,60 @@ async function setSelectedDecorColor(color: string): Promise<void> {
 
 async function updateSelectedDecorColor(event: Event): Promise<void> {
   await setSelectedDecorColor((event.target as HTMLInputElement).value);
+}
+
+async function uploadProjectPhotos(files: File[]): Promise<void> {
+  if (photoUploadBusy.value || !['none', 'editing'].includes(sharedAccessMode.value)) return;
+  const targetProject = project.value;
+  photoUploadBusy.value = true;
+  let added = 0;
+  const failures: string[] = [];
+  try {
+    for (const file of files) {
+      try {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error(`${file.name}: нужен JPG, PNG или WebP`);
+        assertFileSize(file, MAX_IMAGE_FILE_BYTES, 'Фотография');
+        const source = await readFileAsDataUrl(file);
+        const dimensions = await readRasterDimensions(source);
+        assertRasterDimensions(dimensions, file.name);
+        if (project.value !== targetProject || !['none', 'editing'].includes(sharedAccessMode.value)) break;
+        mutateProject('Загрузка фотографии', () => {
+          project.value.assets.push({ id: `asset-${crypto.randomUUID()}`, name: file.name,
+            mimeType: file.type, kind: 'image', source, photoLibrary: true, ...dimensions });
+        });
+        added++;
+      } catch (error) { failures.push(error instanceof Error ? error.message : file.name); }
+    }
+    operationNotice.value = `Загружено фотографий: ${added}` + (failures.length ? `. ${failures.join('; ')}` : '');
+  } finally { photoUploadBusy.value = false; }
+}
+
+function removeProjectPhoto(id: string): void {
+  if (!['none', 'editing'].includes(sharedAccessMode.value)) return;
+  const asset = projectPhotos.value.find(item => item.id === id);
+  if (!asset || !confirmInterface(`Убрать «${asset.name}» из фотопанели? Фотографии, уже размещённые на страницах, останутся.`)) return;
+  mutateProject('Удаление фотографии из панели', () => { asset.photoLibrary = false; });
+}
+
+function placeProjectPhoto(id: string, point?: { x: number; y: number }): void {
+  if (!openPages.value.length || !['none', 'editing'].includes(sharedAccessMode.value)) return;
+  const asset = projectPhotos.value.find(item => item.id === id);
+  if (!asset?.widthPx || !asset.heightPx) return;
+  const page = selectedPage.value;
+  const ratio = asset.widthPx / asset.heightPx;
+  const width = Math.min(page.width * 0.4, page.height * 0.4 * ratio);
+  const height = width / ratio;
+  const x = Math.max(0, Math.min(page.width - width, (point?.x ?? page.width / 2) - width / 2));
+  const y = Math.max(0, Math.min(page.height - height, (point?.y ?? page.height / 2) - height / 2));
+  const created = mutateProject('Размещение фотографии', () => {
+    const result = createElementOnOwnLayer(page, 'image', { x, y, width, height });
+    if (result.element.type === 'image') { result.element.assetId = id; result.element.fit = 'fit'; }
+    return result;
+  });
+  selectedElementId.value = created.element.id;
+  selectedLayerIds.value = [created.layer.id];
+  activeTool.value = 'selection';
+  operationNotice.value = `Помещена фотография: ${asset.name}`;
 }
 
 async function importSelectedAsset(event: Event): Promise<void> {
@@ -3176,7 +3367,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "save-project": void saveProjectNow(); break;
     case "save-as-project": void saveProjectAs(); break;
     case "download-project": downloadProjectFile(); break;
-    case "recovery": recoveryDialogOpen.value = true; break;
+    case "recovery": if (accountUser.value) void openAccountCabinet(); else recoveryDialogOpen.value = true; break;
     case "administrator":
       void openAdministrator();
       break;
@@ -3349,6 +3540,7 @@ function handlePageHide(): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
+  if (accountOpen.value) return;
   if (adminLoginOpen.value || verificationLanding.value || adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
       helpDialogPage.value = undefined;
@@ -3460,7 +3652,8 @@ onMounted(() => {
   window.addEventListener("beforeunload", handleBeforeUnload);
   window.addEventListener("pagehide", handlePageHide);
   window.addEventListener("resize", handleViewportResize);
-  void initializeApplication();
+  void initializeApplication().then(initializeAccount);
+  void refreshCatalog().catch(() => { operationNotice.value = 'Серверный каталог недоступен. Показаны встроенные материалы.'; });
 });
 watch(project, () => {
   scheduleAutosave();
@@ -3534,11 +3727,12 @@ onBeforeUnmount(() => {
   >
     <WelcomePage
       v-if="welcomeVisible"
-      :current-project-name="hasAutosavedProject ? project.name : undefined"
+      :current-project-name="accountUser && serverCalendarId ? project.name : undefined"
       :recent-project-names="recentProjectNames"
-      :shared-projects="sharedRecentProjects"
+      :shared-projects="[]"
       :compact-mode="compactViewport"
       @create="createNewProject"
+      @account="openAccountCabinet"
       @continue="continueFromWelcome"
       @open="openLocalProjectFromWelcome"
       @open-shared="openSharedProjectById"
@@ -3647,6 +3841,7 @@ onBeforeUnmount(() => {
       </div>
     </header>
 
+    <button type="button" class="account-entry" @click="openAccountCabinet">{{ accountUser?.email ?? 'Личный кабинет' }} · {{ accountUser && persistenceState === 'saving' ? 'Сохраняется…' : accountUser && persistenceState === 'error' ? 'Ошибка сохранения' : 'Мои календари' }}</button>
     <div class="editor-shell" :style="{ gridTemplateColumns: editorGridColumns }">
       <ToolsPanel
         v-if="showToolsPanel"
@@ -3661,6 +3856,8 @@ onBeforeUnmount(() => {
         @open-templates="activateDockPanel('templates')"
       />
 
+      <PhotoLibraryPanel v-if="!chromePanelsHidden" :photos="projectPhotos" :collapsed="photoPanelCollapsed" :busy="photoUploadBusy"
+        @toggle="photoPanelCollapsed = !photoPanelCollapsed" @upload="uploadProjectPhotos" @place="placeProjectPhoto" @remove="removeProjectPhoto" />
       <DocumentWorkspace
         v-if="openPages.length > 0"
         :page="selectedPage"
@@ -3679,6 +3876,7 @@ onBeforeUnmount(() => {
         @update-geometry="updateElementGeometry"
         @geometry-start="beginContinuousEdit"
         @geometry-end="endContinuousEdit"
+        @photo-drop="placeProjectPhoto"
       />
       <div v-else class="workspace-empty">
         <div class="workspace-empty__card">
@@ -4093,6 +4291,7 @@ onBeforeUnmount(() => {
         <div v-else-if="activeDockPanel === 'library'" class="dock-content decor-library-dock">
           <div class="dock-content__heading">Библиотека элементов</div>
           <DecorLibraryPanel :items="decorLibraryItems" @insert="insertDecorLibraryItem" />
+          <ResourceBrowser :busy="catalogBusy" @insert="insertCatalogResource" />
         </div>
 
         <div v-else-if="activeDockPanel === 'layers'" class="dock-content">
@@ -4289,7 +4488,8 @@ onBeforeUnmount(() => {
       </section>
     </div>
     <AdminLoginDialog v-if="adminLoginOpen" @authenticated="adminAuthenticated" @close="adminLoginOpen = false" />
-    <AdminDialog v-if="adminOpen" :access-token="''" @close="adminOpen = false; refreshGlobalCalendarGridTemplates()" @logout="adminOpen = false; canManageGlobalGridTemplates = false" />
+    <AccountPanel v-if="accountOpen" :user="accountUser" :token="accountToken" :external-error="accountError" @authenticated="accountAuthenticated" @logout="accountLoggedOut" @close="accountOpen = false" @create="createNewProject" @open="openAccountCalendar" @deleted="id => { if (serverCalendarId === id) { serverCalendarId = undefined; project = createBlankCalendarProject(); resetPageTabs(); welcomeVisible = true; } }" />
+    <AdminDialog v-if="adminOpen" :access-token="''" @close="adminOpen = false; refreshGlobalCalendarGridTemplates(); refreshCatalog()" @logout="adminOpen = false; canManageGlobalGridTemplates = false" />
     <EmailVerificationDialog
       v-if="emailVerificationOpen"
       :busy="emailVerificationBusy"
@@ -4329,7 +4529,7 @@ onBeforeUnmount(() => {
           <span>Страница {{ selectedPageIndex + 1 }} из {{ project.document.pages.length }}</span>
       <span class="status-bar__notice">{{ operationNotice }}</span>
       <span>{{ projectFileStatus }}</span>
-      <span>Автовосстановление: {{ persistenceState }}</span>
+      <span>{{ accountUser ? 'Сохранение на сервере' : 'Локальная рабочая копия' }}: {{ persistenceState === 'saved' ? 'сохранено' : persistenceState === 'saving' ? 'сохраняется…' : persistenceState === 'error' ? 'ошибка — изменения не сохранены' : 'загрузка' }}</span>
       <span v-if="pdfExportState !== 'idle'">PDF: {{ pdfExportState }}</span>
       <span v-if="calendarLoadState === 'ready'">{{ calendarEventCount }} размещений событий · Пасха {{ calendarYear?.pascha.day }}.{{ calendarYear?.pascha.month }}.{{ calendarYear?.pascha.year }}</span>
       <span v-else>{{ selectedPage.width }} × {{ selectedPage.height }} мм · календарные данные: {{ calendarLoadState }}</span>

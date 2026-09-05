@@ -20,6 +20,7 @@ const emit = defineEmits<{
   openShared: [id: string];
   help: [];
   admin: [];
+  account: [];
   languageChange: [language: InterfaceLanguage];
 }>();
 
@@ -70,6 +71,7 @@ function changeInterfaceLanguage(event: Event): void {
         </label>
         <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
         <button type="button" @click="emit('admin')">Администратор</button>
+        <button type="button" @click="emit('account')">Личный кабинет</button>
       </div>
     </header>
 
@@ -119,8 +121,9 @@ function changeInterfaceLanguage(event: Event): void {
         <button type="button" @click="emit('help')">Помощь</button>
       </div>
       <div class="welcome-projects__grid">
+        <button type="button" @click="emit('account')"><strong>Личный кабинет</strong><span>Все мои календари, фотографии и серверные версии</span></button>
         <button v-if="currentProjectName" type="button" @click="requestContinue">
-          <strong>{{ currentProjectName }}</strong><span>Последняя работа · сохранена на этом компьютере</span>
+          <strong>{{ currentProjectName }}</strong><span>Продолжить открытую работу</span>
         </button>
         <button v-for="item in sharedProjects" :key="item.id" type="button" @click="requestOpenShared(item.id)">
           <strong>{{ item.name }}</strong><span>Совместная версия · доступна по ссылке</span>

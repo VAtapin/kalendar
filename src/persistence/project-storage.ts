@@ -11,6 +11,8 @@ import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
 import { compactProjectAssets } from "../document/project-assets";
 
 const DATABASE_NAME = "orthodox-calendar-layout";
+let storageAccountId = '';
+export function setStorageAccount(id: string | null): void { storageAccountId = id && /^[0-9a-f-]{36}$/i.test(id) ? id : ''; }
 const DATABASE_VERSION = 4;
 const STORE_NAME = "projects";
 const BACKUP_STORE_NAME = "backups";
@@ -148,7 +150,7 @@ function normalizeLegacyTypography(page: PageModel, project: CalendarProject): v
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
+    const request = indexedDB.open(DATABASE_NAME + (storageAccountId ? ':' + storageAccountId : ''), DATABASE_VERSION);
     request.addEventListener("upgradeneeded", () => {
       const database = request.result;
       if (!database.objectStoreNames.contains(STORE_NAME)) {

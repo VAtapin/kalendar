@@ -45,6 +45,12 @@ onMounted(load);
         <small>{{ template.builtIn ? 'Встроенный макет' : 'Авторский макет' }}</small>
         <label>Название<input v-model="template.name" :disabled="busy" maxlength="100" /></label>
         <label>Описание<textarea v-model="template.description" :disabled="busy" rows="3" maxlength="500" /></label>
+        <label>Шрифт чисел<input v-model="template.grid.dayNumberFontFamily" :disabled="busy" maxlength="100" /></label>
+        <label>Размер чисел, pt<input v-model.number="template.grid.dayNumberFontSizePt" type="number" min="1" max="150" step="0.5" :disabled="busy" /></label>
+        <label>Шрифт событий<input v-model="template.grid.eventFontFamily" :disabled="busy" maxlength="100" /></label>
+        <label>Размер событий, pt<input v-model.number="template.grid.eventFontSizePt" type="number" min="1" max="100" step="0.5" :disabled="busy" /></label>
+        <label>Шрифт дней недели<input v-model="template.grid.weekdayFontFamily" :disabled="busy" maxlength="100" /></label>
+        <label>Размер дней недели, pt<input v-model.number="template.grid.weekdayFontSizePt" type="number" min="1" max="100" step="0.5" :disabled="busy" /></label>
         <p>{{ template.grid.weekdayFontFamily }} · {{ template.grid.dayNumberFontFamily }} · {{ template.grid.eventFontFamily }}</p>
         <button :disabled="busy || !template.name.trim()" @click="save(template)">Сохранить название и описание</button>
         <button v-if="!template.builtIn" :disabled="busy" @click="pendingDelete = template.id">Удалить…</button>

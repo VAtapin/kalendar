@@ -1,0 +1,43 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__ . '/../public/api/lib.php';
+$directory = __DIR__ . '/../tmp/account-test-' . bin2hex(random_bytes(5));
+$store = new CalendarStore($directory);
+function check_account(bool $value, string $label): void { if (!$value) throw new RuntimeException($label); echo "PASS: $label\n"; }
+function rejects_account(callable $action, int $status): void { try { $action(); throw new RuntimeException('Unexpected success'); } catch (ApiFailure $e) { check_account($e->httpStatus === $status, 'Access/validation rejection ' . $status); } }
+$aLink = $store->accountEmailLink('a@example.org', true);
+$aToken = $store->accountSetPassword($aLink['token'], 'password-first-123');
+$a = $store->accountUser($aToken);
+check_account($a !== null, 'Confirmation sets password and session');
+rejects_account(fn() => $store->accountSetPassword($aLink['token'], 'password-second-123'), 400);
+$bLink = $store->accountEmailLink('b@example.org', false);
+$b = $store->accountUser($store->accountSetPassword($bLink['token'], 'password-first-123'));
+$project = ['name' => 'Private calendar', 'year' => 2027, 'document' => ['pages' => []], 'assets' => []];
+$record = $store->accountSaveCalendar($a['id'], null, $project, 0);
+check_account(count($store->accountCalendars($b['id'])) === 0, 'Other user list is empty');
+rejects_account(fn() => $store->accountCalendar($record['id'], $b['id']), 404);
+rejects_account(fn() => $store->accountSaveCalendar($b['id'], $record['id'], $project, 1), 404);
+rejects_account(fn() => $store->accountDeleteCalendar($record['id'], $b['id']), 404);
+$record = $store->accountSaveCalendar($a['id'], $record['id'], $project, 1);
+rejects_account(fn() => $store->accountSaveCalendar($a['id'], $record['id'], $project, 1), 409);
+check_account(count($store->accountCalendar($record['id'], $a['id'])['history']) === 1, 'Server recovery history');
+$reset = $store->accountEmailLink('a@example.org', false);
+$newToken = $store->accountSetPassword($reset['token'], 'password-reset-123');
+check_account($store->accountUser($aToken) === null, 'Password reset invalidates old sessions');
+$store->accountBlock($a['id'], true);
+check_account($store->accountUser($newToken) === null, 'Admin block invalidates session');
+$store->accountBlock($a['id'], false);
+$login = $store->accountLogin('a@example.org', 'password-reset-123', 'test');
+check_account($store->accountUser($login) !== null, 'Password login after unblock');
+$store->accountLogout($login);
+check_account($store->accountUser($login) === null, 'Logout revokes session');
+$store->accountDeleteCalendar($record['id'], $a['id']);
+check_account(count($store->accountCalendars($a['id'])) === 0 && count(glob($directory . '/calendar-trash/*.json')) === 1, 'Delete moves to recoverable server trash');
+$trash = $store->accountTrash(); $store->accountRestoreTrash($trash[0]['id']);
+check_account(count($store->accountCalendars($a['id'])) === 1, 'Admin restores deleted calendar to its original owner');
+$store->accountSubscription('a@example.org', false);
+check_account(!$store->accountSubscription('a@example.org')['subscribed'], 'Account unsubscribe');
+$store->accountSubscription('a@example.org', true);
+check_account($store->accountSubscription('a@example.org')['subscribed'], 'Explicit account subscription');
+$changed = $store->accountChangePassword('a@example.org', 'password-reset-123', 'password-changed-456');
+check_account($store->accountUser($changed) !== null, 'Current password changes password and rotates session');

@@ -90,6 +90,34 @@ trait CalendarAdminStore
         return ['items' => array_slice($log, $offset, 25), 'total' => count($log)];
     }
 
+    public function newsletterDraft(?array $body = null): array {
+        return calendar_with_lock($this->locksDirectory, 'newsletter-draft', function () use ($body): array {
+            $file = $this->dataDirectory . '/newsletter-draft.json';
+            $value = calendar_read_json_file($file, ['revision' => 0, 'subject' => '', 'blocks' => []]);
+            if ($body !== null) {
+                if (($body['revision'] ?? null) !== $value['revision']) calendar_fail('draft_conflict', 409, 'Черновик изменён в другом окне. Загрузите его перед сохранением.');
+                if (!is_string($body['subject'] ?? null) || strlen($body['subject']) > 200 || preg_match('/[\r\n]/', $body['subject'])) calendar_fail('invalid_subject', 400);
+                $value = ['revision' => $value['revision'] + 1, 'subject' => $body['subject'], 'blocks' => calendar_newsletter_blocks($body['blocks'] ?? [])];
+                calendar_atomic_json_write($file, $value);
+            }
+            return $value;
+        });
+    }
+    public function newsletterCampaigns(?string $id = null): array {
+        if ($id !== null && !calendar_valid_uuid($id)) calendar_fail('not_found', 404);
+        $result = [];
+        foreach ($id ? [$this->dataDirectory . '/campaign-' . $id . '.json'] : (glob($this->dataDirectory . '/campaign-*.json') ?: []) as $file) {
+            $value = calendar_read_json_file($file, null);
+            if (!$value) continue;
+            $counts = array_count_values($value['recipients']);
+            unset($value['recipients']);
+            $value['counts'] = $counts;
+            if ($id !== null) return $value;
+            unset($value['blocks'], $value['text']); $result[] = $value;
+        }
+        if ($id !== null) calendar_fail('not_found', 404);
+        return array_reverse($result);
+    }
     public function createCampaign(string $subject, string $text, array $blocks = []): array
     {
         $recipients = [];

@@ -5,6 +5,18 @@ import { createElementOnOwnLayer } from "../src/editor/element-creation";
 import type { ImageElement } from "../src/document/types";
 
 describe("project asset compaction", () => {
+  it("retains unplaced library photos and transfers library membership on deduplication", () => {
+    const project = createBlankCalendarProject();
+    project.assets.push(
+      { id: 'first-photo', name: 'a.png', kind: 'image', mimeType: 'image/png', source: 'data:image/png;base64,AQ==' },
+      { id: 'library-copy', name: 'b.png', kind: 'image', mimeType: 'image/png', source: 'data:image/png;base64,AQ==', photoLibrary: true },
+    );
+    compactProjectAssets(project);
+    expect(project.assets.find(asset => asset.id === 'first-photo')?.photoLibrary).toBe(true);
+    expect(project.assets.some(asset => asset.id === 'library-copy')).toBe(false);
+    compactProjectAssets(project);
+    expect(project.assets.some(asset => asset.id === 'first-photo')).toBe(true);
+  });
   it("remaps duplicate assets and removes assets that are no longer used", () => {
     const project = createBlankCalendarProject();
     const page = project.document.pages[0]!;
