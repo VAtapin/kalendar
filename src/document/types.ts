@@ -96,6 +96,8 @@ export interface ImageCrop {
 
 export interface ImageElement extends LayoutElement<"image"> {
   assetId: string;
+  /** A placed photo can be cleared without deleting its original template frame. */
+  photoFrame?: boolean;
   fit: "fill" | "fit" | "crop";
   crop?: ImageCrop;
   opacity: number;

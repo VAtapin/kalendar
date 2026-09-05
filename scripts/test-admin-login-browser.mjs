@@ -47,7 +47,7 @@ try {
   await admin.getByRole('button',{name:'Макеты сеток',exact:true}).click();
   await admin.getByLabel('Название',{exact:true}).first().waitFor();
   await admin.getByLabel('Название',{exact:true}).first().fill('Проверенный макет');
-  await admin.getByRole('button',{name:'Сохранить название и описание',exact:true}).first().click();
+  await admin.getByRole('button',{name:'Сохранить макет',exact:true}).first().click();
   await admin.getByText('Макет «Проверенный макет» обновлён',{exact:true}).waitFor();
   await admin.getByRole('button',{name:'Рассылка',exact:true}).click();
   await admin.getByLabel('Тема',{exact:true}).fill('Новости мастерской');
@@ -56,6 +56,11 @@ try {
   await admin.getByRole('button',{name:'+ Кнопка',exact:true}).click();
   assert.equal(await admin.locator('fieldset').count(),4);
   await admin.getByLabel('Текст',{exact:true}).first().fill('Тестовое письмо без отправки');
+  await admin.frameLocator('iframe').getByText('Тестовое письмо без отправки').waitFor();
+  await admin.getByRole('button',{name:'Сохранить черновик',exact:true}).click();
+  await admin.getByText('Черновик сохранён на сервере',{exact:true}).waitFor();
+  await admin.getByLabel('Текст',{exact:true}).first().fill('Локальное изменение');
+  await admin.getByRole('button',{name:'Загрузить черновик',exact:true}).click();
   await admin.frameLocator('iframe').getByText('Тестовое письмо без отправки').waitFor();
   await page.screenshot({path:'tmp/admin-newsletter.png'});
   await admin.getByRole('button',{name:'Вернуться в редактор',exact:true}).click();

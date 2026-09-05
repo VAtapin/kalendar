@@ -97,7 +97,7 @@ trait CalendarAdminStore
             if ($body !== null) {
                 if (($body['revision'] ?? null) !== $value['revision']) calendar_fail('draft_conflict', 409, 'Черновик изменён в другом окне. Загрузите его перед сохранением.');
                 if (!is_string($body['subject'] ?? null) || strlen($body['subject']) > 200 || preg_match('/[\r\n]/', $body['subject'])) calendar_fail('invalid_subject', 400);
-                $value = ['revision' => $value['revision'] + 1, 'subject' => $body['subject'], 'blocks' => calendar_newsletter_blocks($body['blocks'] ?? [])];
+                $value = ['revision' => $value['revision'] + 1, 'subject' => $body['subject'], 'blocks' => calendar_newsletter_blocks($body['blocks'] ?? [], true)];
                 calendar_atomic_json_write($file, $value);
             }
             return $value;

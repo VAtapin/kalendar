@@ -17,7 +17,7 @@ if (class_exists('DOMDocument')) {
     $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="#b59032" d="M0 0L100 100"/></svg>';
     $store->catalogSave('resource-svg', ['name' => 'SVG', 'kind' => 'svg', 'source' => base64_encode($svg)]);
     check_catalog($store->catalogContent('resource-svg')['body'] === $svg, 'Safe SVG accepted');
-    foreach (['<script>alert(1)</script>', '<image href="https://example.org/a"/>', '<rect onload="alert(1)"/>', '<foreignObject/>'] as $unsafe) {
+    foreach (['<script>alert(1)</script>', '<image href="https://example.org/a"/>', '<rect onload="alert(1)"/>', '<foreignObject/>', '<style>rect {fill:url(//example.org/x)}</style>', '<rect style="fill:url(/secret)"/>'] as $unsafe) {
         try { $store->catalogSave('bad', ['name' => 'Unsafe', 'kind' => 'svg', 'source' => base64_encode('<svg xmlns="http://www.w3.org/2000/svg">' . $unsafe . '</svg>')]); throw new RuntimeException('Unsafe SVG accepted'); }
         catch (ApiFailure $e) { check_catalog($e->httpStatus === 400, 'Active SVG rejected'); }
     }

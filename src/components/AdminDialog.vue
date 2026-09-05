@@ -39,6 +39,7 @@ const sending = ref(false);
 const campaign = ref("");
 const progress = ref("");
 let draftRevision = 0;
+let draftLoaded = false;
 const campaignList = ref<{id: string; subject: string; counts: Record<string, number>}[]>([]);
 async function saveDraft() {
   busy.value = true; error.value = '';
@@ -47,7 +48,7 @@ async function saveDraft() {
 }
 async function loadDraft() {
   busy.value = true; error.value = '';
-  try { const value = await adminRequest<{revision: number; subject: string; blocks: typeof blocks.value}>('', 'newsletter-draft'); draftRevision = value.revision; subject.value = value.subject; blocks.value = value.blocks; campaign.value = ''; approved.value = false; }
+  try { const value = await adminRequest<{revision: number; subject: string; blocks: typeof blocks.value}>('', 'newsletter-draft'); draftRevision = value.revision; subject.value = value.subject; blocks.value = value.blocks.length ? value.blocks : [{type:'text',text:'',url:''}]; campaign.value = ''; approved.value = false; draftLoaded = true; }
   catch (e) { error.value = String(e); } finally { busy.value = false; }
 }
 async function listCampaigns() {
@@ -76,6 +77,7 @@ async function restoreTrash(id: string) {
 async function load(nextTab = tab.value, nextOffset = 0) {
   tab.value = nextTab; offset.value = nextOffset; preview.value = undefined;
   const version = ++requestVersion;
+  if (nextTab === 'campaigns' && !draftLoaded) { await loadDraft(); return; }
   if (['campaigns', 'templates', 'catalog', 'accounts'].includes(nextTab)) { busy.value = false; error.value = ""; return; }
   busy.value = true; error.value = "";
   try {

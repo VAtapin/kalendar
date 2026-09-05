@@ -1,11 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { accountRequest, type AccountUser, type AccountCalendar } from '../collaboration/account-client';
-const props = defineProps<{ user: AccountUser | null; token?: string; externalError?: string }>();
-const emit = defineEmits<{ close: []; authenticated: [user: AccountUser]; logout: []; open: [id: string]; create: []; deleted: [id: string] }>();
+const props = defineProps<{ user: AccountUser | null; token?: string; externalError?: string; reauthenticate?: boolean }>();
+const emit = defineEmits<{ close: []; authenticated: [user: AccountUser]; logout: []; open: [id: string]; create: []; import: []; deleted: [id: string] }>();
 const email = ref(''); const password = ref(''); const repeatPassword = ref(''); const subscribe = ref(false);
 const mode = ref(props.token ? 'password' : 'login'); const error = ref(''); const notice = ref(''); const busy = ref(false);
 const calendars = ref<AccountCalendar[]>([]); const pendingDelete = ref('');
+const search = ref('');
+const visibleCalendars = computed(() => calendars.value.filter(item => `${item.name} ${item.year}`.toLocaleLowerCase().includes(search.value.toLocaleLowerCase())));
+const trash = ref<{id: string; name: string; year: number}[]>([]); const showingTrash = ref(false);
+async function openTrash() {
+  busy.value = true; error.value = '';
+  try { trash.value = (await accountRequest<{items: typeof trash.value}>('trash')).items; showingTrash.value = true; }
+  catch (e) { error.value = String(e); } finally { busy.value = false; }
+}
+async function restoreTrash(id: string) {
+  busy.value = true; error.value = '';
+  try { await accountRequest('trash/restore', 'POST', {id}); await load(); await openTrash(); notice.value = 'Календарь возвращён в личный кабинет'; }
+  catch (e) { error.value = String(e); } finally { busy.value = false; }
+}
+async function download(calendar: AccountCalendar) {
+  busy.value = true; error.value = '';
+  try {
+    const value = await accountRequest<{project: unknown}>(`calendars/${calendar.id}`);
+    const url = URL.createObjectURL(new Blob([JSON.stringify({format:'orthodox-calendar-project',archiveVersion:1,savedAt:new Date().toISOString(),project:value.project})],{type:'application/json'}));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = calendar.name.replace(/[^\p{L}\p{N}._-]+/gu,'-') + '.kalendar'; anchor.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  } catch (e) { error.value = String(e); } finally { busy.value = false; }
+}
 const historyFor = ref<AccountCalendar>();
 const backups = ref<{revision: number; at: string}[]>([]);
 const settings = ref(false); const subscribed = ref(false); const consentText = ref('');
@@ -39,7 +60,7 @@ async function restore(revision: number) {
   try { await accountRequest(`calendars/${calendar.id}`, 'PUT', {revision: calendar.revision, restoreRevision: revision}); historyFor.value = undefined; await load(); notice.value = 'Версия восстановлена. Откройте календарь.'; }
   catch (e) { error.value = String(e); } finally { busy.value = false; }
 }
-async function load() { if (props.user) calendars.value = (await accountRequest<{items: AccountCalendar[]}>('calendars')).items; }
+async function load() { if (props.user && !props.reauthenticate) calendars.value = (await accountRequest<{items: AccountCalendar[]}>('calendars')).items; }
 async function action() {
   busy.value = true; error.value = ''; notice.value = '';
   try {
@@ -71,17 +92,22 @@ onMounted(async () => { try { await load(); } catch (e) { error.value = String(e
     <section role="dialog" aria-modal="true" aria-label="Личный кабинет" class="account-panel">
       <header><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h1>Личный кабинет</h1><p v-if="user">{{ user.email }}</p></div><button :disabled="busy" @click="emit('close')">Закрыть</button></header>
       <p v-if="error || externalError" role="alert">{{ error || externalError }}</p><p v-if="notice" role="status">{{ notice }}</p>
-      <template v-if="user">
-        <nav><button :disabled="busy" @click="emit('create')">+ Новый календарь</button><button :disabled="busy" @click="openSettings">Настройки аккаунта</button><button :disabled="busy" @click="logout">Выйти</button></nav>
+      <template v-if="user && !reauthenticate">
+        <nav><button :disabled="busy" @click="emit('create')">+ Новый календарь</button><button :disabled="busy" @click="emit('import')">Импортировать календарь</button><button :disabled="busy" @click="openSettings">Настройки аккаунта</button><button :disabled="busy" @click="logout">Выйти</button></nav>
         <section v-if="settings"><h2>Настройки</h2><label><input v-model="subscribed" type="checkbox" /> {{ consentText }}</label><button :disabled="busy" @click="saveSubscription">Сохранить подписку</button>
           <form @submit.prevent="changePassword"><h3>Изменить пароль</h3><label>Текущий пароль<input v-model="oldPassword" type="password" autocomplete="current-password" required maxlength="72" /></label><label>Новый пароль<input v-model="newPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="72" /></label><label>Повтор нового пароля<input v-model="newPasswordRepeat" type="password" autocomplete="new-password" required minlength="12" maxlength="72" /></label><button :disabled="busy">Изменить пароль</button></form><button @click="settings = false">Закрыть настройки</button>
         </section>
         <p>Календари и фотографии сохраняются на сервере. Скачать копию на компьютер можно из меню «Файл» в редакторе.</p>
+        <label>Поиск календаря<input v-model="search" type="search" placeholder="Название или год" /></label>
+        <button :disabled="busy" @click="openTrash">Корзина</button>
+        <section v-if="showingTrash"><h2>Моя корзина</h2><p v-if="!trash.length">Корзина пуста.</p><p v-for="item in trash" :key="item.id">{{ item.name }} · {{ item.year }} <button :disabled="busy" @click="restoreTrash(item.id)">Вернуть календарь</button></p><button @click="showingTrash = false">Закрыть корзину</button></section>
         <p v-if="!calendars.length">Календарей пока нет. Создайте первый.</p>
-        <div class="account-cards"><article v-for="calendar in calendars" :key="calendar.id"><h2>{{ calendar.name }}</h2><p>{{ calendar.year }} · {{ new Date(calendar.updatedAt).toLocaleString() }}</p>
+        <p v-if="calendars.length && !visibleCalendars.length">По этому запросу ничего не найдено.</p>
+        <div class="account-cards"><article v-for="calendar in visibleCalendars" :key="calendar.id"><h2>{{ calendar.name }}</h2><p>{{ calendar.year }} · {{ new Date(calendar.updatedAt).toLocaleString() }}</p>
+          <button :disabled="busy" @click="download(calendar)">Скачать копию</button>
           <button :disabled="busy" @click="emit('open', calendar.id)">Открыть</button><button :disabled="busy" @click="pendingDelete = calendar.id">Удалить…</button>
           <button :disabled="busy" @click="history(calendar)">Восстановление</button>
-          <div v-if="pendingDelete === calendar.id"><p>Убрать этот календарь из кабинета? Серверная копия переместится в корзину администратора.</p><button :disabled="busy" @click="remove(calendar.id)">Подтвердить удаление</button><button @click="pendingDelete = ''">Отмена</button></div>
+          <div v-if="pendingDelete === calendar.id"><p>Убрать этот календарь из кабинета? Его можно будет вернуть из корзины.</p><button :disabled="busy" @click="remove(calendar.id)">Подтвердить удаление</button><button @click="pendingDelete = ''">Отмена</button></div>
         </article></div>
         <section v-if="historyFor"><h2>Версии: {{ historyFor.name }}</h2><p v-if="!backups.length">Предыдущих версий пока нет.</p><p v-for="backup in backups" :key="backup.revision">{{ new Date(backup.at).toLocaleString() }} · версия {{ backup.revision }} <button :disabled="busy" @click="restore(backup.revision)">Восстановить</button></p><button @click="historyFor = undefined">Закрыть версии</button></section>
       </template>

@@ -22,3 +22,7 @@ foreach (['javascript:alert(1)', 'data:image/png;base64,abc', 'http://example.or
 }
 try { calendar_newsletter_blocks(array_fill(0, 41, ['type' => 'text', 'text' => 'x'])); throw new RuntimeException('Too many blocks'); }
 catch (ApiFailure $e) { check_newsletter($e->httpStatus === 400, 'Block limit enforced'); }
+$draftBlocks = [['type'=>'image','text'=>'Unfinished image','url'=>'']];
+check_newsletter(count(calendar_newsletter_blocks($draftBlocks, true)) === 1, 'Incomplete draft can be saved');
+try { calendar_newsletter_blocks($draftBlocks); throw new RuntimeException('Incomplete draft sent'); }
+catch (ApiFailure $e) { check_newsletter($e->httpStatus === 400, 'Incomplete draft cannot be sent'); }

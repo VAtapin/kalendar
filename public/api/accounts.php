@@ -98,20 +98,22 @@ trait CalendarAccounts
             return ['subscribed' => ($entry['status'] ?? '') === 'subscribed', 'consentText' => CALENDAR_CONSENT_TEXT];
         });
     }
-    public function accountTrash(): array {
+    public function accountTrash(?string $owner = null): array {
         $result = [];
         foreach (glob($this->dataDirectory . '/calendar-trash/*.json') ?: [] as $file) {
             $value = calendar_read_json_file($file, null);
-            if ($value) $result[] = ['id' => basename($file), 'name' => $value['project']['name'], 'year' => $value['project']['year'], 'owner' => $value['owner']];
+            if ($value && ($owner === null || $value['owner'] === $owner)) $result[] = ['id' => basename($file), 'name' => $value['project']['name'], 'year' => $value['project']['year'], 'owner' => $value['owner']];
         }
         return $result;
     }
-    public function accountRestoreTrash(string $file): void {
+    public function accountRestoreTrash(string $file, ?string $owner = null): void {
         if (!preg_match('/^[0-9a-f-]{36}-[0-9]+\.json$/', $file)) calendar_fail('not_found', 404);
-        calendar_with_lock($this->locksDirectory, 'private-calendars', function () use ($file): void {
+        calendar_with_lock($this->locksDirectory, 'private-calendars', function () use ($file, $owner): void {
             $source = $this->dataDirectory . '/calendar-trash/' . $file;
             $value = calendar_read_json_file($source, null);
-            if (!$value) calendar_fail('not_found', 404);
+            if (!$value || ($owner !== null && $value['owner'] !== $owner)) calendar_fail('not_found', 404);
+            $calendars = $this->accountCalendars($value['owner']);
+            if (count($calendars) >= 100 || array_sum(array_column($calendars, 'bytes')) + filesize($source) > 1024 * 1024 * 1024) calendar_fail('storage_quota', 413, 'Недостаточно места для восстановления. Освободите место в кабинете.');
             $target = $this->privateCalendarFile($value['id']);
             if (file_exists($target)) calendar_fail('already_restored', 409);
             if (!rename($source, $target)) throw new RuntimeException('restore_failed');
@@ -134,7 +136,9 @@ trait CalendarAccounts
     public function accountBlock(string $id, bool $blocked): void {
         calendar_with_lock($this->locksDirectory, 'accounts', function () use ($id, $blocked): void {
             $state = $this->accountState();
-            foreach ($state['users'] as &$user) if ($user['id'] === $id) { $user['blocked'] = $blocked; $user['version']++; }
+            $found = false;
+            foreach ($state['users'] as &$user) if ($user['id'] === $id) { $user['blocked'] = $blocked; $user['version']++; $found = true; }
+            if (!$found) calendar_fail('account_not_found', 404);
             unset($user); $this->writeAccounts($state);
         });
     }
@@ -146,13 +150,14 @@ trait CalendarAccounts
     }
     public function accountCalendars(?string $owner): array {
         $rows = [];
+        $owners = array_column($this->accountUsers(), 'email', 'id');
         foreach (glob($this->dataDirectory . '/calendars/*.json') ?: [] as $file) {
             $value = calendar_read_json_file($file, null);
             if (!$value || ($owner !== null && $value['owner'] !== $owner)) continue;
             $rows[] = ['id' => $value['id'], 'owner' => $value['owner'], 'name' => $value['project']['name'],
                 'year' => $value['project']['year'], 'updatedAt' => $value['updatedAt'], 'revision' => $value['revision'],
                 'pages' => count($value['project']['document']['pages']), 'bytes' => filesize($file),
-                'ownerEmail' => array_values(array_filter($this->accountUsers(), static fn($user) => $user['id'] === $value['owner']))[0]['email'] ?? null];
+                'ownerEmail' => $owners[$value['owner']] ?? null];
         }
         usort($rows, static fn($a, $b) => strcmp($b['updatedAt'], $a['updatedAt']));
         return $rows;
@@ -207,7 +212,11 @@ function calendar_account_routes(CalendarStore $store, string $method, string $p
         $body = api_request_json(4096); $email = strtolower(trim((string)($body['email'] ?? '')));
         if (!api_valid_email($email)) calendar_fail('invalid_email', 400);
         // Reuse delivery-aware throttling, including releasing failed attempts.
-        if (!$store->consumeVerificationRateLimit($email, api_client_address())) calendar_fail('email_wait', 429, 'Письмо уже отправляется или недавно отправлено. Проверьте почту; повторите через минуту.');
+        if (!$store->consumeVerificationRateLimit($email, api_client_address())) {
+            $retry = $store->verificationRetrySeconds($email, api_client_address());
+            header('Retry-After: ' . $retry);
+            calendar_fail('email_wait', 429, 'Повторная отправка будет доступна через ' . $retry . ' сек. Уже полученная ссылка продолжает работать.');
+        }
         try {
             $link = $store->accountEmailLink($email, ($body['subscribe'] ?? false) === true);
             calendar_send_verification_email($email, api_public_url() . '/?account-token=' . rawurlencode($link['token']), ($body['subscribe'] ?? false) === true);
@@ -228,6 +237,10 @@ function calendar_account_routes(CalendarStore $store, string $method, string $p
     if ($path === '/v1/account/logout' && $method === 'POST') { $store->accountLogout(calendar_account_token()); calendar_account_cookie(''); api_response(204); }
     $user = $store->accountUser(calendar_account_token());
     if (!$user) calendar_fail('login_required', 401, 'Войдите в личный кабинет');
+    if ($path === '/v1/account/trash' && $method === 'GET') api_response(200, ['items' => $store->accountTrash($user['id'])]);
+    if ($path === '/v1/account/trash/restore' && $method === 'POST') {
+        $body = api_request_json(2048); $store->accountRestoreTrash((string)($body['id'] ?? ''), $user['id']); api_response(200, ['ok' => true]);
+    }
     if ($path === '/v1/account/change-password' && $method === 'POST') {
         $body = api_request_json(4096);
         if (!is_string($body['current'] ?? null) || !is_string($body['password'] ?? null)) calendar_fail('invalid_body', 400);
@@ -253,6 +266,7 @@ function calendar_account_routes(CalendarStore $store, string $method, string $p
             if (str_ends_with($path, '/history')) api_response(200, ['items' => array_map(static fn($v) => ['revision' => $v['revision'], 'at' => $v['at']], $value['history'])]);
             unset($value['history']); api_response(200, $value);
         }
+        if (str_ends_with($path, '/history')) api_response(405, ['error' => 'method_not_allowed']);
         if ($method === 'PUT') {
             $body = api_request_json(100 * 1024 * 1024);
             $reuse = $body['reuseAssets'] ?? [];

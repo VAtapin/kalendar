@@ -18,6 +18,10 @@ async function context() {
 try {
   for(let i=0;i<50;i++){try{await fetch('http://127.0.0.1:18991/api/health');break;}catch{await new Promise(r=>setTimeout(r,100));}}
   const alice = await context(); const page = await alice.newPage(); page.on('dialog', d=>d.accept());
+  await page.goto('http://127.0.0.1:5178/');
+  await page.getByRole('button',{name:'Импортировать календарь с компьютера',exact:false}).click();
+  await page.getByRole('dialog',{name:'Личный кабинет',exact:true}).getByLabel('E-mail',{exact:true}).waitFor();
+  assert.equal(await page.locator('.welcome-page').isVisible(),true,'Anonymous import must keep the welcome screen');
   await page.goto(`http://127.0.0.1:5178/?account-token=${seed[0].token}`);
   let cabinet = page.getByRole('dialog',{name:'Личный кабинет',exact:true});
   await cabinet.getByLabel('Пароль',{exact:true}).fill('test-account-password-123');
@@ -26,6 +30,27 @@ try {
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
   await cabinet.getByRole('button',{name:'+ Новый календарь',exact:true}).click();
   await page.getByRole('complementary',{name:'Фотографии проекта'}).waitFor();
+  const photoToggle = page.getByRole('button',{name:'Фотографии',exact:true});
+  await photoToggle.click();
+  assert.equal(await page.getByRole('complementary',{name:'Фотографии проекта'}).count(),0);
+  assert.equal(await page.getByRole('separator',{name:'Изменить ширину фотопанели'}).count(),0);
+  await photoToggle.click();
+  const resizer = page.getByRole('separator',{name:'Изменить ширину фотопанели'});
+  const widthBefore = Number(await resizer.getAttribute('aria-valuenow'));
+  await resizer.focus(); await page.keyboard.press('ArrowRight');
+  assert.equal(Number(await resizer.getAttribute('aria-valuenow')),widthBefore+20);
+  const handleBox = await resizer.boundingBox();
+  await page.mouse.move(handleBox.x+handleBox.width/2,handleBox.y+50); await page.mouse.down();
+  await page.mouse.move(handleBox.x+handleBox.width/2+40,handleBox.y+50); await page.mouse.up();
+  assert.equal(Number(await resizer.getAttribute('aria-valuenow')),widthBefore+60);
+  await page.getByRole('tab',{name:'Страницы',exact:true}).click();
+  await page.getByRole('button',{name:'+ Пустая страница',exact:true}).click();
+  assert.equal(await page.locator('.page-list-entry').count(),2);
+  await page.locator('.page-list-entry').last().getByRole('button',{name:/Удалить страницу:/}).click();
+  assert.equal(await page.locator('.page-list-entry').count(),1);
+  await page.keyboard.press('Control+z');
+  await expect.poll(()=>page.locator('.page-list-entry').count()).toBe(2);
+  await page.locator('.page-list-entry').last().getByRole('button',{name:/Удалить страницу:/}).click();
   await expect.poll(()=>page.evaluate(async()=>{const r=await fetch('/api/v1/account/calendars');return (await r.json()).items?.length;})).toBe(1);
   const getCalendars = ()=>page.evaluate(async()=> (await (await fetch('/api/v1/account/calendars')).json()).items);
   const id=(await getCalendars())[0].id;
@@ -42,6 +67,14 @@ try {
   await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
   try { await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor({timeout:8000}); }
   catch(e) { await page.screenshot({path:'tmp/account-reopen-error.png'}); console.log(await page.locator('.status-bar').innerText()); throw e; }
+  await page.evaluate(async()=>fetch('/api/v1/account/logout',{method:'POST'}));
+  await page.getByRole('button',{name:/alice@example.org.*Мои календари/}).click();
+  await cabinet.getByLabel('E-mail',{exact:true}).fill('alice@example.org');
+  await cabinet.getByLabel('Пароль',{exact:true}).fill('test-account-password-123');
+  await cabinet.getByRole('button',{name:'Войти',exact:true}).click();
+  await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
+  await cabinet.getByRole('button',{name:'Закрыть',exact:true}).click();
+  await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor();
   const bob=await context();const bobPage=await bob.newPage();
   await bobPage.goto(`http://127.0.0.1:5178/?account-token=${seed[1].token}`);
   const bobCabinet=bobPage.getByRole('dialog',{name:'Личный кабинет',exact:true});
@@ -64,5 +97,60 @@ try {
   await cabinet.getByLabel('Пароль',{exact:true}).fill('test-account-password-123');
   await cabinet.getByRole('button',{name:'Войти',exact:true}).click();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
+  const downloadEvent = page.waitForEvent('download');
+  await cabinet.getByRole('button',{name:'Скачать копию',exact:true}).click();
+  assert.match((await downloadEvent).suggestedFilename(),/\.kalendar$/);
+  await cabinet.getByRole('button',{name:'Удалить…',exact:true}).click();
+  await cabinet.getByRole('button',{name:'Подтвердить удаление',exact:true}).click();
+  await cabinet.getByText('Календарей пока нет. Создайте первый.',{exact:true}).waitFor();
+  await cabinet.getByRole('button',{name:'Корзина',exact:true}).click();
+  await cabinet.getByRole('button',{name:'Вернуть календарь',exact:true}).click();
+  await cabinet.getByRole('button',{name:'Открыть',exact:true}).waitFor();
+  // Add a real empty frame to an isolated fixture, then exercise native drag/drop.
+  await page.evaluate(async id => {
+    const value = await (await fetch(`/api/v1/account/calendars/${id}`)).json();
+    const p = value.project.document.pages[0];
+    const image = p.elements.find(e=>e.type==='image' && !e.locked && e.assetId !== 'calendar-workshop-brand-logo');
+    const layer = p.layers.find(l=>l.id===image.layerId);
+    p.elements.push({...image,id:'test-frame',layerId:'test-frame-layer',assetId:'',x:20,y:20,width:120,height:80,rotation:0,zIndex:999});
+    p.layers.push({...layer,id:'test-frame-layer',elementId:'test-frame',order:999});
+    const response = await fetch(`/api/v1/account/calendars/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:value.revision,project:value.project})});
+    if (!response.ok) throw new Error('Fixture update failed');
+  },id);
+  await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
+  await page.locator('[data-element-id="test-frame"]').waitFor();
+  const dropPosition = await page.locator('.workspace__page').evaluate(svg=>{
+    const p = new DOMPoint(50,50).matrixTransform(svg.getScreenCTM()); const b=svg.getBoundingClientRect();return{x:p.x-b.x,y:p.y-b.y};
+  });
+  const beforeDrop = await page.locator('[data-element-type="image"]').count();
+  await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).dragTo(page.locator('.workspace__page'),{targetPosition:dropPosition});
+  await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();const e=v.project.document.pages[0].elements.find(e=>e.id==='test-frame');return Boolean(e.assetId)&&e.fit==='crop'&&e.width===120&&e.height===80;},id)).toBe(true);
+  assert.equal(await page.locator('[data-element-type="image"]').count(),beforeDrop);
+  await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).dragTo(page.locator('.workspace__page'),{targetPosition:dropPosition});
+  await expect.poll(()=>page.locator('[data-element-type="image"]').count()).toBe(beforeDrop+1);
+  await page.screenshot({path:'tmp/photo-frame-filled.png'});
+  // Standalone photo deletes immediately; a persisted frame clears first, then deletes.
+  await page.keyboard.press('Delete');
+  await expect.poll(()=>page.locator('[data-element-type="image"]').count()).toBe(beforeDrop);
+  await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();return v.project.document.pages[0].elements.length;},id)).toBe(await page.locator('[data-element-id]').count());
+  await page.reload();
+  await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
+  const frameNode = page.locator('[data-element-id="test-frame"]');
+  await frameNode.click();
+  await page.keyboard.press('Delete');
+  await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();const e=v.project.document.pages[0].elements.find(e=>e.id==='test-frame');return e?.assetId;},id)).toBe('');
+  assert.equal(await frameNode.count(),1);
+  await page.keyboard.press('Delete');
+  await expect.poll(()=>frameNode.count()).toBe(0);
+  await page.keyboard.press('Control+z');
+  await expect.poll(()=>frameNode.count()).toBe(1);
+  await page.keyboard.press('Control+z');
+  await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();return Boolean(v.project.document.pages[0].elements.find(e=>e.id==='test-frame')?.assetId);},id)).toBe(true);
+  // A signed-in import creates another server calendar, never overwriting the original.
+  const importedProject = await page.evaluate(async id=>(await(await fetch(`/api/v1/account/calendars/${id}`)).json()).project,id);
+  importedProject.name = 'Импортированный календарь';
+  await page.locator('input[accept=".kalendar,.json,.kalendar.json,application/json"]').setInputFiles({name:'import.kalendar',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({format:'orthodox-calendar-project',archiveVersion:1,project:importedProject}))});
+  await expect.poll(async()=>(await getCalendars()).length).toBe(2);
+  assert.ok((await getCalendars()).some(c=>c.id===id));
   console.log('PASS: confirmation/password, private server calendar, photo placement/save/reopen, cross-account read/delete denied, admin denied, logout/login. No real email sent.');
 } finally {await browser.close();server.kill();}

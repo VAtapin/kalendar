@@ -11,6 +11,7 @@ interface ToolDefinition {
 
 const props = defineProps<{
   activeTool: EditorTool;
+  photosActive?: boolean;
   templatesActive: boolean;
   fillColor: string;
   strokeColor: string;
@@ -37,7 +38,7 @@ function resetColors(): void {
 const tools: ToolDefinition[] = [
   { id: "selection", label: "Выделение", shortcut: "V", icon: "↖", group: "edit" },
   { id: "text", label: "Текстовый блок", shortcut: "T", icon: "T", group: "create" },
-  { id: "image", label: "Изображение", shortcut: "F", icon: "▧", group: "create" },
+  { id: "image", label: "Фотографии", shortcut: "F", icon: "▧", group: "create" },
   { id: "rectangle", label: "Прямоугольник", shortcut: "M", icon: "□", group: "create" },
   { id: "ellipse", label: "Эллипс", shortcut: "L", icon: "○", group: "create" },
   { id: "line", label: "Линия", shortcut: "\\", icon: "╱", group: "create" },
@@ -58,7 +59,8 @@ const tools: ToolDefinition[] = [
       <button
         type="button"
         class="tool-button"
-        :class="{ 'tool-button--active': activeTool === tool.id }"
+        :class="{ 'tool-button--active': tool.id === 'image' ? photosActive : activeTool === tool.id }"
+        :aria-expanded="tool.id === 'image' ? photosActive : undefined"
         :title="`${tool.label}${tool.shortcut ? ` (${tool.shortcut})` : ''}`"
         :aria-label="tool.label"
         @click="emit('select', tool.id)"

@@ -4,11 +4,13 @@ import { catalogItems, catalogRequest, refreshCatalog, catalogContentUrl, type C
 const kind = ref('all'); const search = ref(''); const busy = ref(false); const error = ref(''); const notice = ref('');
 const edited = ref<CatalogItem>(); const fileInput = ref<HTMLInputElement>(); const uploadKind = ref<CatalogItem['kind']>('image'); const uploadName = ref(''); const licensed = ref(false);
 const replaceId = ref<string>();
+const category = ref('');
+const categories = computed(() => [...new Set(catalogItems.value.map(item => item.category))].sort());
 function replaceFile() {
   if (!edited.value || !licensed.value) { error.value = 'Подтвердите право публикации материала в форме загрузки'; return; }
   replaceId.value = edited.value.id; uploadKind.value = edited.value.kind; uploadName.value = edited.value.family ?? edited.value.name; fileInput.value?.click();
 }
-const visible = computed(() => catalogItems.value.filter(item => (kind.value === 'all' || item.kind === kind.value) && item.name.toLowerCase().includes(search.value.toLowerCase())));
+const visible = computed(() => catalogItems.value.filter(item => (kind.value === 'all' || item.kind === kind.value) && (!category.value || item.category === category.value) && item.name.toLowerCase().includes(search.value.toLowerCase())));
 async function save() {
   if (!edited.value) return; busy.value = true; error.value = '';
   try { await catalogRequest(`admin/catalog/${edited.value.id}`, 'PUT', {name: edited.value.name, enabled: edited.value.enabled, category: edited.value.category}); await refreshCatalog(); notice.value = 'Изменения сохранены'; edited.value = undefined; }
@@ -37,7 +39,7 @@ onMounted(async () => { try { await refreshCatalog(); } catch (e) { error.value 
       <label><input v-model="licensed" type="checkbox" /> У меня есть право публиковать этот материал и разрешать его использование в календарях.</label>
       <button :disabled="!licensed" @click="replaceId = undefined; fileInput?.click()">Выбрать и загрузить файл</button><input ref="fileInput" hidden type="file" @change="upload" />
     </fieldset>
-    <nav><select v-model="kind" aria-label="Фильтр ресурсов"><option value="all">Все ресурсы</option><option value="image">Изображения</option><option value="svg">SVG</option><option value="font">Шрифты</option><option value="template">Шаблоны</option></select><input v-model="search" type="search" placeholder="Поиск…" aria-label="Поиск ресурса" /><span>{{ visible.length }} материалов</span></nav>
+    <nav><select v-model="kind" aria-label="Фильтр ресурсов"><option value="all">Все ресурсы</option><option value="image">Изображения</option><option value="svg">SVG</option><option value="font">Шрифты</option><option value="template">Шаблоны</option></select><select v-model="category" aria-label="Категория ресурсов"><option value="">Все категории</option><option v-for="entry in categories" :key="entry" :value="entry">{{ entry }}</option></select><input v-model="search" type="search" placeholder="Поиск…" aria-label="Поиск ресурса" /><span>{{ visible.length }} материалов</span></nav>
     <form v-if="edited" class="catalog-edit" @submit.prevent="save"><h3>Настройки ресурса</h3><label>Название<input v-model="edited.name" required maxlength="100" /></label><label>Категория<input v-model="edited.category" maxlength="80" /></label><label><input v-model="edited.enabled" type="checkbox" /> Доступен пользователям</label><button :disabled="busy">Сохранить</button><button v-if="edited.uploaded" type="button" :disabled="busy" @click="replaceFile">Заменить файл…</button><button type="button" :disabled="busy" @click="edited = undefined">Отмена</button></form>
     <div class="catalog-grid"><article v-for="item in visible" :key="item.id">
       <img v-if="item.kind === 'image' || item.kind === 'svg'" :src="item.uploaded ? catalogContentUrl(item.id) : item.source" :alt="item.name" loading="lazy" />

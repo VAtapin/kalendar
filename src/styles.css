@@ -951,6 +951,11 @@ input {
   background: #2c332d;
   box-shadow: inset 3px 0 #b79b5f;
 }
+.page-list-entry { margin-bottom: 12px; }
+.page-add { width: 100%; margin-bottom: 12px; padding: 9px; border: 1px solid #71613b; border-radius: 4px; background: #2c332d; color: #e5d7b6; cursor: pointer; }
+.page-list-entry .page-card { width: 100%; }
+.page-delete { width: 100%; padding: 7px; border: 1px solid #655443; border-radius: 4px; background: #292f29; color: #e6c5b6; cursor: pointer; }
+.page-delete:disabled { opacity: .4; cursor: default; }
 
 .page-thumbnail {
   display: block;

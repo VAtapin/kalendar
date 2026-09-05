@@ -83,7 +83,7 @@ function changeInterfaceLanguage(event: Event): void {
         <div class="welcome-hero__actions">
           <button type="button" class="welcome-primary" data-testid="welcome-create" @click="requestCreate">Создать календарь</button>
           <button v-if="currentProjectName" type="button" @click="requestContinue">Продолжить последний</button>
-          <button type="button" @click="requestOpen">Открыть календарь…</button>
+          <button type="button" @click="requestOpen">Импортировать календарь…</button>
         </div>
       </div>
       <img class="welcome-hero__art" src="/brand/share-card-preview.webp" alt="Календарная мастерская Свято-Георгиевского монастыря" />
@@ -92,7 +92,7 @@ function changeInterfaceLanguage(event: Event): void {
     <section class="welcome-features" aria-label="Возможности">
       <article><strong>Точный календарь</strong><span>Даты, праздники, посты и монастырские события.</span></article>
       <article><strong>Свободная вёрстка</strong><span>Страницы, слои, фотографии, текст и золотой декор.</span></article>
-      <article><strong>Совместная работа</strong><span>Передайте ссылку другому человеку, чтобы вместе подготовить календарь.</span></article>
+      <article><strong>Личный кабинет</strong><span>Календари и фотографии сохраняются на сервере и доступны после входа.</span></article>
       <article><strong>Готово к печати</strong><span>Скачайте готовый PDF и передайте его в типографию.</span></article>
     </section>
 
@@ -129,7 +129,7 @@ function changeInterfaceLanguage(event: Event): void {
           <strong>{{ item.name }}</strong><span>Совместная версия · доступна по ссылке</span>
         </button>
         <button type="button" @click="requestOpen">
-          <strong>Открыть календарь с компьютера</strong><span>Выберите ранее сохранённый файл календаря</span>
+          <strong>Импортировать календарь с компьютера</strong><span>Добавьте файл календаря в свой личный кабинет</span>
         </button>
       </div>
     </section>

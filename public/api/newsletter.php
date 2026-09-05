@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /** Structured email blocks: never accept executable, arbitrary HTML. */
-function calendar_newsletter_blocks(mixed $blocks): array
+function calendar_newsletter_blocks(mixed $blocks, bool $draft = false): array
 {
     if (!is_array($blocks) || !array_is_list($blocks) || count($blocks) > 40) calendar_fail('invalid_blocks', 400);
     $result = [];
@@ -11,10 +11,11 @@ function calendar_newsletter_blocks(mixed $blocks): array
         $text = $block['text'] ?? '';
         if (!is_string($text) || strlen($text) > 12000) calendar_fail('invalid_block_text', 400);
         $url = $block['url'] ?? '';
+        if (!is_string($url)) calendar_fail('invalid_block_url', 400);
         if (in_array($block['type'], ['image', 'button'], true)) {
-            if (!is_string($url) || strlen($url) > 2048 || !filter_var($url, FILTER_VALIDATE_URL)
+            if (!($draft && $url === '') && (strlen($url) > 2048 || !filter_var($url, FILTER_VALIDATE_URL)
                 || strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https'
-                || parse_url($url, PHP_URL_USER) !== null) calendar_fail('invalid_block_url', 400, 'Нужна полная HTTPS-ссылка');
+                || parse_url($url, PHP_URL_USER) !== null)) calendar_fail('invalid_block_url', 400, 'Нужна полная HTTPS-ссылка');
         } else $url = '';
         $result[] = ['type' => $block['type'], 'text' => $text, 'url' => $url];
     }

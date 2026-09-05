@@ -52,7 +52,7 @@ onMounted(load);
         <label>Шрифт дней недели<input v-model="template.grid.weekdayFontFamily" :disabled="busy" maxlength="100" /></label>
         <label>Размер дней недели, pt<input v-model.number="template.grid.weekdayFontSizePt" type="number" min="1" max="100" step="0.5" :disabled="busy" /></label>
         <p>{{ template.grid.weekdayFontFamily }} · {{ template.grid.dayNumberFontFamily }} · {{ template.grid.eventFontFamily }}</p>
-        <button :disabled="busy || !template.name.trim()" @click="save(template)">Сохранить название и описание</button>
+        <button :disabled="busy || !template.name.trim()" @click="save(template)">Сохранить макет</button>
         <button v-if="!template.builtIn" :disabled="busy" @click="pendingDelete = template.id">Удалить…</button>
         <div v-if="pendingDelete === template.id" role="alert">
           <p>Удалить этот макет из общего каталога? Это действие нельзя отменить здесь.</p>

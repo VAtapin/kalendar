@@ -16,6 +16,7 @@ trait CalendarCatalog
             if (isset($body['source'])) {
                 $kind = $body['kind'] ?? '';
                 if (!in_array($kind, ['image', 'svg', 'font', 'template'], true) || !is_string($body['source'])) calendar_fail('invalid_resource', 400);
+                if (isset($old['kind']) && $old['kind'] !== $kind) calendar_fail('resource_kind_changed', 400, 'Тип ресурса нельзя менять при замене файла');
                 $raw = base64_decode($body['source'], true);
                 if ($raw === false || strlen($raw) > 20 * 1024 * 1024) calendar_fail('resource_too_large', 413);
                 if ($kind === 'image') {
@@ -32,8 +33,13 @@ trait CalendarCatalog
                         foreach ($node->attributes as $attribute) {
                             $n = strtolower($attribute->localName); $v = trim($attribute->value);
                             if (str_starts_with($n, 'on') || ($n === 'href' && !str_starts_with($v, '#')) || preg_match('/(?:https?:|javascript:|data:|@import)/i', $v)) calendar_fail('unsafe_svg', 400);
+                            if (($n === 'style' || str_contains(strtolower($v), 'url(')) && !calendar_safe_svg_css($v)) calendar_fail('unsafe_svg', 400);
                         }
-                        if (strtolower($node->localName) === 'style' && preg_match('/(?:https?:|javascript:|data:|@import)/i', $node->textContent)) calendar_fail('unsafe_svg', 400);
+                        if (strtolower($node->localName) === 'style' && !calendar_safe_svg_css($node->textContent)) calendar_fail('unsafe_svg', 400);
+                    }
+                    $viewBox = preg_split('/[\s,]+/', trim($doc->documentElement->getAttribute('viewBox')));
+                    if (count($viewBox) === 4 && is_numeric($viewBox[2]) && is_numeric($viewBox[3]) && (float)$viewBox[2] > 0 && (float)$viewBox[3] > 0) {
+                        $item['widthPx'] = (float)$viewBox[2]; $item['heightPx'] = (float)$viewBox[3];
                     }
                     $item['mimeType'] = 'image/svg+xml';
                 } elseif ($kind === 'font') {
@@ -65,6 +71,14 @@ trait CalendarCatalog
         if (!$raw) calendar_fail('not_found', 404);
         return ['mimeType' => $item['mimeType'], 'body' => base64_decode($raw['base64'])];
     }
+}
+
+function calendar_safe_svg_css(string $css): bool {
+    // CSS escapes/comments can disguise URLs. Public catalogue SVG uses only local paint references.
+    if (str_contains($css, '\\') || str_contains($css, '/*') || preg_match('/(?:@import|https?:|javascript:|data:)/i', $css)) return false;
+    preg_match_all('/url\s*\(([^)]*)\)/i', $css, $matches);
+    foreach ($matches[1] as $url) if (!preg_match('/^#[a-zA-Z0-9_.:-]+$/', trim($url, " \t\r\n\"'"))) return false;
+    return true;
 }
 
 function calendar_catalog_routes(CalendarStore $store, string $method, string $path): void {
