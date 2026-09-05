@@ -1,4 +1,4 @@
-import type { CalendarProject } from "../document/types";
+import type { CalendarProject, ProgramSettings } from "../document/types";
 
 export interface SharedEditorPresence {
   label: string;
@@ -42,6 +42,8 @@ export interface EmailVerificationConfirmed {
   accessToken: string;
   email: string;
 }
+
+export type UserProgramSettings = ProgramSettings;
 
 export interface PdfUploadCreated {
   uploadId: string;

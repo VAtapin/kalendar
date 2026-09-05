@@ -259,6 +259,12 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
   // Calendar source data is loaded once per application session and must not
   // become part of Vue's deep-reactive editable document.
   project.calendarData = null;
+  const savedInterfaceLanguage = project.programSettings?.interfaceLanguage;
+  project.programSettings = {
+    interfaceLanguage: savedInterfaceLanguage === "de" || savedInterfaceLanguage === "en" || savedInterfaceLanguage === "uk"
+      ? savedInterfaceLanguage
+      : "ru",
+  };
   project.fastingProfileId = project.fastingProfileId === "parish" ? "parish" : "typikon-strict";
   project.printSettings ??= {
     includeCropMarks: true,

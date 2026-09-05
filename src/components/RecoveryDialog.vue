@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue";
 import type { ProjectBackup } from "../persistence/project-storage";
+import { INTERFACE_LANGUAGE_LOCALES, interfaceLanguage } from "../i18n/interface-language";
 
 defineProps<{
   backups: ProjectBackup[];
@@ -14,7 +15,7 @@ const emit = defineEmits<{
 const dialog = ref<HTMLElement>();
 
 function formatBackupTime(value: string): string {
-  return new Intl.DateTimeFormat("ru-RU", {
+  return new Intl.DateTimeFormat(INTERFACE_LANGUAGE_LOCALES[interfaceLanguage.value], {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

@@ -16,11 +16,49 @@ test("shows a readable mobile welcome page and keeps the editor on a large scree
   await expect(page.getByRole("link", { name: "ATAPIN.DE", exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 
+  await page.getByLabel("Язык интерфейса").selectOption("de");
+  await expect(page.getByRole("heading", { name: "Erstellen Sie einen druckfertigen orthodoxen Kalender" })).toBeVisible();
+  await page.getByLabel("Sprache der Benutzeroberfläche").selectOption("ru");
+
   await page.getByTestId("welcome-create").click();
   const notice = page.getByRole("dialog", { name: "Для работы нужен большой экран" });
   await expect(notice).toBeVisible();
   await expect(notice).toContainText("Откройте, пожалуйста, эту же страницу или полученную ссылку на компьютере.");
   await expect(page.locator(".shared-lock-backdrop")).toHaveCount(0);
+});
+
+test("changes the interface language from File settings and remembers it locally", async ({ page }) => {
+  await openEditor(page);
+  await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-program-settings").click();
+
+  const dialog = page.getByRole("dialog", { name: "Настройки программы" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByLabel("English").check();
+  await dialog.getByRole("button", { name: "Применить" }).click();
+
+  await expect(page.getByRole("button", { name: "File", exact: true })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Properties" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("orthodox-calendar-layout:interface-language"))).toBe("en");
+
+  await page.getByRole("button", { name: "Calendar templates" }).click();
+  await page.getByRole("button", { name: "Create cover and 12 months" }).click();
+  await page.getByRole("tab", { name: "Pages" }).click();
+  await page.locator(".page-card").nth(1).click();
+  await expect(page.locator(".page-element__calendar-weekday").first()).toContainText("Понедельник");
+
+  await page.getByRole("button", { name: "File", exact: true }).click();
+  await page.getByTestId("menu-command-program-settings").click();
+  await page.getByRole("dialog", { name: "Program settings" }).getByLabel("Українська").check();
+  await page.getByRole("dialog", { name: "Program settings" }).getByRole("button", { name: "Apply" }).click();
+  await expect(page.getByRole("button", { name: "Редагування", exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-program-settings").click();
+  await page.getByRole("dialog", { name: "Налаштування програми" }).getByLabel("Deutsch").check();
+  await page.getByRole("dialog", { name: "Налаштування програми" }).getByRole("button", { name: "Застосувати" }).click();
+  await expect(page.getByRole("button", { name: "Bearbeiten", exact: true })).toBeVisible();
 });
 
 test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
@@ -451,17 +489,23 @@ test("verifies e-mail, shares one editable calendar and offers a copy to the sec
   await expect(page.locator(".workspace")).toBeVisible();
 
   await page.getByRole("button", { name: "Файл", exact: true }).click();
+  await page.getByTestId("menu-command-program-settings").click();
+  await page.getByRole("dialog", { name: "Настройки программы" }).getByLabel("English").check();
+  await page.getByRole("dialog", { name: "Настройки программы" }).getByRole("button", { name: "Применить" }).click();
+
+  await page.getByRole("button", { name: "File", exact: true }).click();
   await page.getByTestId("menu-command-share-project").click();
-  const linkDialog = page.getByRole("dialog", { name: "Ссылка на календарь" });
-  const shareUrl = await linkDialog.getByLabel("Ссылка").inputValue();
+  const linkDialog = page.getByRole("dialog", { name: "Calendar link" });
+  const shareUrl = await linkDialog.getByLabel("Link").inputValue();
   await expect(shareUrl).toContain("?shared=");
 
   const secondContext = await browser.newContext();
   const second = await secondContext.newPage();
   await second.goto(shareUrl.replace("5173", "4173"));
-  const locked = second.getByRole("dialog", { name: "Совместная работа" });
-  await expect(locked).toContainText("Календарь сейчас занят");
-  await locked.getByRole("button", { name: "Сделать копию" }).click();
-  await expect(second.getByRole("dialog", { name: "Ссылка на календарь" })).toContainText("независимая копия");
+  const locked = second.getByRole("dialog", { name: "Collaboration" });
+  await expect(locked).toContainText("The calendar is currently in use");
+  await expect(second.locator("html")).toHaveAttribute("lang", "en");
+  await locked.getByRole("button", { name: "Make a copy" }).click();
+  await expect(second.getByRole("dialog", { name: "Calendar link" })).toContainText("independent copy");
   await secondContext.close();
 });

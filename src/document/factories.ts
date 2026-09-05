@@ -193,6 +193,7 @@ export function createBlankCalendarProject(year = 2027): CalendarProject {
     styleTheme: createDefaultTheme(),
     assets: [createBrandLogoAsset()],
     customFonts: [],
+    programSettings: { interfaceLanguage: "ru" },
     printSettings: {
       includeCropMarks: true,
       cropMarkLengthMm: 2,

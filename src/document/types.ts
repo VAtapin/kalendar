@@ -356,6 +356,12 @@ export interface StyleTheme {
   tokens: Record<string, ThemeStyleToken>;
 }
 
+export type InterfaceLanguage = "ru" | "de" | "en" | "uk";
+
+export interface ProgramSettings {
+  interfaceLanguage: InterfaceLanguage;
+}
+
 export interface CalendarProject {
   schemaVersion: 1;
   /** Additive layout defaults migration, independent from the file schema. */
@@ -370,6 +376,8 @@ export interface CalendarProject {
   styleTheme: StyleTheme;
   assets: DocumentAsset[];
   customFonts?: ProjectFontFace[];
+  /** Program preferences carried with the document, including shared copies. */
+  programSettings?: ProgramSettings;
   printSettings?: PrintSettings;
   foodMarkerPackId?: FoodMarkerPackId;
   foodMarkerAssets?: Partial<Record<

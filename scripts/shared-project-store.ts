@@ -23,6 +23,7 @@ export interface ProjectLease {
 interface PersistedIdentityState {
   pending: Array<{ tokenHash: string; email: string; expiresAt: string }>;
   credentials: Array<{ id: string; tokenHash: string; email: string; createdAt: string }>;
+  settingsByEmail: Record<string, { interfaceLanguage: "ru" | "de" | "en" | "uk" }>;
 }
 
 export interface PdfUploadRecord {
@@ -38,7 +39,7 @@ export interface PdfUploadRecord {
 
 export class SharedProjectStore {
   private readonly leases = new Map<string, ProjectLease>();
-  private identityState: PersistedIdentityState = { pending: [], credentials: [] };
+  private identityState: PersistedIdentityState = { pending: [], credentials: [], settingsByEmail: {} };
   private initialized = false;
 
   constructor(
@@ -70,6 +71,9 @@ export class SharedProjectStore {
       this.identityState = {
         pending: Array.isArray(parsed.pending) ? parsed.pending : [],
         credentials: Array.isArray(parsed.credentials) ? parsed.credentials : [],
+        settingsByEmail: parsed.settingsByEmail && typeof parsed.settingsByEmail === "object"
+          ? parsed.settingsByEmail
+          : {},
       };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
@@ -140,6 +144,23 @@ export class SharedProjectStore {
     await this.initialize();
     const hash = this.hash(accessToken);
     return this.identityState.credentials.find((entry) => entry.tokenHash === hash);
+  }
+
+  async programSettingsFor(accessToken: string): Promise<{ interfaceLanguage: "ru" | "de" | "en" | "uk" } | undefined> {
+    const credential = await this.credentialFor(accessToken);
+    if (!credential) return undefined;
+    return this.identityState.settingsByEmail[credential.email] ?? { interfaceLanguage: "ru" };
+  }
+
+  async saveProgramSettings(
+    accessToken: string,
+    settings: { interfaceLanguage: "ru" | "de" | "en" | "uk" },
+  ): Promise<{ interfaceLanguage: "ru" | "de" | "en" | "uk" } | undefined> {
+    const credential = await this.credentialFor(accessToken);
+    if (!credential) return undefined;
+    this.identityState.settingsByEmail[credential.email] = settings;
+    await this.persistIdentities();
+    return settings;
   }
 
   async createProject(project: unknown, ownerCredentialId: string): Promise<StoredSharedProject> {

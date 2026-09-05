@@ -11,6 +11,17 @@ import {
 import { createMonthTemplatePageWithPreset } from "../src/templates/calendar-templates";
 
 describe("project storage migration", () => {
+  it("keeps the project interface language valid", () => {
+    const project = createBlankCalendarProject(2027);
+    project.programSettings = undefined;
+    normalizeCalendarProject(project);
+    expect(project.programSettings).toEqual({ interfaceLanguage: "ru" });
+
+    project.programSettings = { interfaceLanguage: "uk" };
+    normalizeCalendarProject(project);
+    expect(project.programSettings.interfaceLanguage).toBe("uk");
+  });
+
   it("expands legacy month layouts, removes quote objects and uses only occupied week rows", () => {
     const project = createBlankCalendarProject(2027);
     const page = createMonthTemplatePageWithPreset("A3", "portrait", 1, 2027, "editorial-photo");

@@ -2984,6 +2984,23 @@ input {
   object-position: left center;
 }
 
+.welcome-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.welcome-page__header-actions select {
+  min-width: 128px;
+  height: 34px;
+  padding: 0 30px 0 10px;
+  border: 1px solid rgb(205 171 88 / 45%);
+  border-radius: 5px;
+  color: #eadbaa;
+  background: #16201c;
+  font: inherit;
+}
+
 .welcome-page a,
 .welcome-page button {
   color: inherit;
@@ -3267,6 +3284,17 @@ input {
   .welcome-page__header a {
     align-self: flex-start;
     margin-top: 12px;
+  }
+
+  .welcome-page__header-actions {
+    align-self: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .welcome-page__header-actions select {
+    min-width: 118px;
   }
 
   .welcome-hero {

@@ -41,6 +41,19 @@ describe("shared project store", () => {
     expect(await store.credentialFor(accessTokens.at(-1)!)).toMatchObject({ email: "user@example.com" });
   });
 
+  it("stores program settings per verified e-mail and shares them between its devices", async () => {
+    const store = await createStore();
+    const firstPending = await store.createEmailVerification("user@example.com");
+    const first = await store.confirmEmailVerification(firstPending.token);
+    const secondPending = await store.createEmailVerification("USER@example.com");
+    const second = await store.confirmEmailVerification(secondPending.token);
+
+    expect(await store.programSettingsFor(first.accessToken)).toEqual({ interfaceLanguage: "ru" });
+    await store.saveProgramSettings(first.accessToken, { interfaceLanguage: "de" });
+    expect(await store.programSettingsFor(second.accessToken)).toEqual({ interfaceLanguage: "de" });
+    expect(await store.programSettingsFor("invalid-token")).toBeUndefined();
+  });
+
   it("allows one editor, expires a lost lease and protects revisions", async () => {
     let clock = Date.parse("2026-09-04T10:00:00Z");
     const store = await createStore(() => clock);

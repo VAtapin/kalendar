@@ -254,6 +254,13 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   }
 
   if (request.method === "GET") {
+    if (url.pathname === "/v1/user-settings") {
+      const accessToken = bearerToken(request);
+      const settings = accessToken ? await store.programSettingsFor(accessToken) : undefined;
+      return settings
+        ? respond(request, response, 200, settings)
+        : respond(request, response, 401, { error: "email_required", message: "Сначала подтвердите e-mail" });
+    }
     const api = apiFor(profileFrom(url));
     if (url.pathname === "/health" || url.pathname === "/v1") {
       return respond(request, response, 200, { ok: true, collaboration: true, ...api.metadata() }, true);
@@ -294,6 +301,21 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     const body = await readJson<{ token?: unknown }>(request);
     if (typeof body.token !== "string") return respond(request, response, 400, { error: "invalid_token" });
     return respond(request, response, 200, await store.confirmEmailVerification(body.token));
+  }
+
+  if (request.method === "PUT" && url.pathname === "/v1/user-settings") {
+    const accessToken = bearerToken(request);
+    const body = await readJson<{ interfaceLanguage?: unknown }>(request, 16 * 1024);
+    const interfaceLanguage = body.interfaceLanguage;
+    if (interfaceLanguage !== "ru" && interfaceLanguage !== "de" && interfaceLanguage !== "en" && interfaceLanguage !== "uk") {
+      return respond(request, response, 400, { error: "invalid_settings", message: "Неизвестный язык интерфейса" });
+    }
+    const settings = accessToken
+      ? await store.saveProgramSettings(accessToken, { interfaceLanguage })
+      : undefined;
+    return settings
+      ? respond(request, response, 200, settings)
+      : respond(request, response, 401, { error: "email_required", message: "Сначала подтвердите e-mail" });
   }
 
   if (request.method === "POST" && url.pathname === "/v1/shared-projects") {

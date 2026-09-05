@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { nextTick, ref } from "vue";
+import type { InterfaceLanguage } from "../document/types";
+import {
+  INTERFACE_LANGUAGE_OPTIONS,
+  interfaceLanguage,
+} from "../i18n/interface-language";
 
 const props = defineProps<{
   currentProjectName?: string;
@@ -14,6 +19,7 @@ const emit = defineEmits<{
   open: [];
   openShared: [id: string];
   help: [];
+  languageChange: [language: InterfaceLanguage];
 }>();
 
 const desktopRequiredOpen = ref(false);
@@ -42,13 +48,27 @@ async function requestOpen(): Promise<void> {
 async function requestOpenShared(id: string): Promise<void> {
   if (!(await requireDesktop())) emit("openShared", id);
 }
+
+function changeInterfaceLanguage(event: Event): void {
+  emit("languageChange", (event.target as HTMLSelectElement).value as InterfaceLanguage);
+}
 </script>
 
 <template>
   <main class="welcome-page">
     <header class="welcome-page__header">
       <img src="/brand/logo-kalendar-preview.webp" alt="Календарная мастерская при Свято-Георгиевском монастыре" />
-      <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
+      <div class="welcome-page__header-actions">
+        <label>
+          <span class="visually-hidden">Язык интерфейса</span>
+          <select :value="interfaceLanguage" aria-label="Язык интерфейса" @change="changeInterfaceLanguage">
+            <option v-for="option in INTERFACE_LANGUAGE_OPTIONS" :key="option.id" :value="option.id" :lang="option.id">
+              {{ option.nativeLabel }}
+            </option>
+          </select>
+        </label>
+        <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
+      </div>
     </header>
 
     <section class="welcome-hero">

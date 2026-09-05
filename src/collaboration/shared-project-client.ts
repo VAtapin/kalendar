@@ -7,6 +7,7 @@ import type {
   SharedProjectOpenResult,
   PdfExportReady,
   PdfUploadCreated,
+  UserProgramSettings,
 } from "./shared-project-types";
 
 const API_BASE = (import.meta.env.VITE_CALENDAR_API_URL as string | undefined)?.replace(/\/$/, "") ?? "/api";
@@ -82,6 +83,21 @@ export async function confirmEmailVerification(token: string): Promise<EmailVeri
   return request("/v1/email-verifications/confirm", {
     method: "POST",
     body: JSON.stringify({ token }),
+  });
+}
+
+export async function loadUserProgramSettings(accessToken: string): Promise<UserProgramSettings> {
+  return request("/v1/user-settings", { headers: bearer(accessToken) });
+}
+
+export async function saveUserProgramSettings(
+  accessToken: string,
+  settings: UserProgramSettings,
+): Promise<UserProgramSettings> {
+  return request("/v1/user-settings", {
+    method: "PUT",
+    headers: bearer(accessToken),
+    body: JSON.stringify(settings),
   });
 }
 

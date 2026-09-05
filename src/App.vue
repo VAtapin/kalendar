@@ -13,6 +13,7 @@ import WelcomePage from "./components/WelcomePage.vue";
 import EmailVerificationDialog from "./components/EmailVerificationDialog.vue";
 import SharedProjectDialog from "./components/SharedProjectDialog.vue";
 import LinkResultDialog from "./components/LinkResultDialog.vue";
+import ProgramSettingsDialog from "./components/ProgramSettingsDialog.vue";
 import {
   changePageFormat,
   createBlankCalendarProject,
@@ -34,6 +35,7 @@ import type {
   CornerRadiiMm,
   DocumentAsset,
   ImageElement,
+  InterfaceLanguage,
   MonasteryEvent,
   PageFormatId,
   PageModel,
@@ -109,11 +111,13 @@ import {
   copySharedProject,
   createSharedProject,
   heartbeatSharedProject,
+  loadUserProgramSettings,
   openSharedProject,
   releaseSharedProject,
   replaceSharedProjectInLocation,
   requestEmailVerification,
   saveSharedProject,
+  saveUserProgramSettings,
   sharedProjectIdFromLocation,
   sharedProjectUrl,
   uploadPdfExport,
@@ -133,8 +137,16 @@ import {
   cloneProjectForYear,
   describeMonthMasterApplication,
 } from "./templates/project-templates";
+import {
+  INTERFACE_LANGUAGE_STORAGE_KEY,
+  INTERFACE_LANGUAGE_LOCALES,
+  interfaceLanguage,
+  setInterfaceLanguage,
+  translateInterfaceText,
+} from "./i18n/interface-language";
 
 const project = ref(createBlankCalendarProject());
+project.value.programSettings = { interfaceLanguage: interfaceLanguage.value };
 const zoomPercent = ref(55);
 const showGuides = ref(true);
 const activeTool = ref<EditorTool>("selection");
@@ -180,7 +192,7 @@ const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
 type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
 type MenuCommandId =
-  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "share-project" | "export-pdf"
+  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "share-project" | "export-pdf" | "program-settings"
   | "save-user-template" | "clone-year"
   | "undo" | "redo" | "duplicate" | "delete"
   | "full-template" | "add-cover" | "add-month" | "delete-page"
@@ -235,6 +247,9 @@ interface HistoryEntry {
 const activeMenu = ref<ApplicationMenuId>();
 const helpDialogPage = ref<HelpDialogPage>();
 const recoveryDialogOpen = ref(false);
+const programSettingsOpen = ref(false);
+const programSettingsBusy = ref(false);
+const programSettingsError = ref<string>();
 const welcomeVisible = ref(compactViewport.value || (!sharedProjectIdFromLocation() && !verificationTokenFromLocation()));
 const hasAutosavedProject = ref(false);
 const emailVerificationOpen = ref(false);
@@ -339,20 +354,11 @@ const dockPanels: ReadonlyArray<{ id: DockPanelId; label: string }> = [
   { id: "events", label: "События" },
   { id: "preflight", label: "Проверка" },
 ];
-const monthNames = [
-  "Январь",
-  "Февраль",
-  "Март",
-  "Апрель",
-  "Май",
-  "Июнь",
-  "Июль",
-  "Август",
-  "Сентябрь",
-  "Октябрь",
-  "Ноябрь",
-  "Декабрь",
-] as const;
+const monthNames = computed(() => Array.from({ length: 12 }, (_, month) => {
+  const label = new Intl.DateTimeFormat(INTERFACE_LANGUAGE_LOCALES[interfaceLanguage.value], { month: "long" })
+    .format(new Date(Date.UTC(2027, month, 1)));
+  return label.charAt(0).toLocaleUpperCase(INTERFACE_LANGUAGE_LOCALES[interfaceLanguage.value]) + label.slice(1);
+}));
 const foodRuleOptions = Object.values(FOOD_RULES).filter((rule) => rule.id !== "no-fast");
 const activeFoodMarkerPack = computed(() => getFoodMarkerPack(project.value.foodMarkerPackId));
 const calendarTemplatePresets = CALENDAR_TEMPLATE_PRESETS;
@@ -522,6 +528,7 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "save-as-project", label: "Сохранить как…", shortcut: "Ctrl+Shift+S" },
         { command: "download-project", label: "Скачать резервную копию…" },
         { command: "recovery", label: "Восстановление…", disabled: projectBackups.value.length === 0 },
+        { command: "program-settings", label: "Настройки программы…" },
         { separator: true },
         { command: "share-project", label: sharedLease.value ? "Ссылка для совместной работы…" : "Поделиться для совместной работы…" },
         { separator: true },
@@ -664,7 +671,9 @@ function mutateProject<T>(label: string, mutation: () => T): T {
 }
 
 function restoreProjectSnapshot(snapshot: string, pageId?: string): void {
+  const currentProgramSettings = project.value.programSettings;
   const restored = normalizeCalendarProject(historyCodec.deserialize(snapshot));
+  restored.programSettings = currentProgramSettings;
   ensureCalendarWorkshopBranding(restored);
   project.value = restored;
   selectedPageId.value =
@@ -733,6 +742,70 @@ function verifiedAccessToken(): string | undefined {
   return localStorage.getItem(EMAIL_ACCESS_TOKEN_KEY) ?? undefined;
 }
 
+function confirmInterface(message: string): boolean {
+  return window.confirm(translateInterfaceText(message));
+}
+
+function promptInterface(message: string, defaultValue?: string): string | null {
+  return window.prompt(translateInterfaceText(message), defaultValue);
+}
+
+function applyInterfaceLanguage(language: InterfaceLanguage, updateProject = true): void {
+  setInterfaceLanguage(language);
+  if (updateProject) project.value.programSettings = { interfaceLanguage: language };
+}
+
+function applyProjectInterfaceLanguage(calendarProject: CalendarProject): void {
+  applyInterfaceLanguage(calendarProject.programSettings?.interfaceLanguage ?? "ru", false);
+}
+
+async function loadVerifiedProgramSettings(): Promise<void> {
+  const accessToken = verifiedAccessToken();
+  if (!accessToken) return;
+  try {
+    const settings = await loadUserProgramSettings(accessToken);
+    applyInterfaceLanguage(settings.interfaceLanguage);
+  } catch {
+    // A local preference remains usable while the server is temporarily down.
+  }
+}
+
+async function saveProgramSettingsFromDialog(language: InterfaceLanguage): Promise<void> {
+  programSettingsBusy.value = true;
+  programSettingsError.value = undefined;
+  applyInterfaceLanguage(language);
+  try {
+    const accessToken = verifiedAccessToken();
+    if (accessToken) await saveUserProgramSettings(accessToken, { interfaceLanguage: language });
+    programSettingsOpen.value = false;
+    operationNotice.value = accessToken
+      ? "Настройки программы сохранены на сервере и в календаре"
+      : "Настройки программы сохранены на этом компьютере и в календаре";
+  } catch (error) {
+    if (error instanceof SharedProjectApiError && error.status === 401) {
+      localStorage.removeItem(EMAIL_ACCESS_TOKEN_KEY);
+      localStorage.removeItem(VERIFIED_EMAIL_KEY);
+      programSettingsOpen.value = false;
+      operationNotice.value = "Настройки сохранены локально; для сохранения на сервере подтвердите e-mail";
+      return;
+    }
+    programSettingsError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    programSettingsBusy.value = false;
+  }
+}
+
+async function changeInterfaceLanguageFromWelcome(language: InterfaceLanguage): Promise<void> {
+  applyInterfaceLanguage(language);
+  const accessToken = verifiedAccessToken();
+  if (!accessToken) return;
+  try {
+    await saveUserProgramSettings(accessToken, { interfaceLanguage: language });
+  } catch {
+    // The explicit local choice remains active and can be synchronized later.
+  }
+}
+
 function requestVerifiedAction(action: PendingVerifiedAction): boolean {
   if (verifiedAccessToken()) return true;
   pendingVerifiedAction.value = action;
@@ -799,6 +872,7 @@ async function loadProjectForSharedEditing(sharedProject: CalendarProject): Prom
   const normalized = normalizeCalendarProject(sharedProject);
   ensureCalendarWorkshopBranding(normalized);
   project.value = normalized;
+  applyProjectInterfaceLanguage(normalized);
   await registerProjectFonts(project.value);
   detachActiveProjectFile();
   resetPageTabs();
@@ -1136,6 +1210,19 @@ async function initializeApplication(): Promise<void> {
       const confirmed = await confirmEmailVerification(verificationToken);
       localStorage.setItem(EMAIL_ACCESS_TOKEN_KEY, confirmed.accessToken);
       localStorage.setItem(VERIFIED_EMAIL_KEY, confirmed.email);
+      try {
+        if (localStorage.getItem(INTERFACE_LANGUAGE_STORAGE_KEY)) {
+          await saveUserProgramSettings(confirmed.accessToken, {
+            interfaceLanguage: interfaceLanguage.value,
+          });
+        } else {
+          const settings = await loadUserProgramSettings(confirmed.accessToken);
+          applyInterfaceLanguage(settings.interfaceLanguage);
+        }
+      } catch {
+        // E-mail verification remains valid if preference synchronization is
+        // temporarily unavailable; the local language is kept and retried later.
+      }
       operationNotice.value = `E-mail ${confirmed.email} подтверждён`;
       replaceSharedProjectInLocation(sharedProjectIdFromLocation());
       const pending = localStorage.getItem(PENDING_VERIFIED_ACTION_KEY) as PendingVerifiedAction | null;
@@ -1145,6 +1232,8 @@ async function initializeApplication(): Promise<void> {
       welcomeVisible.value = true;
       operationNotice.value = `Ссылка подтверждения недействительна: ${error instanceof Error ? error.message : String(error)}`;
     }
+  } else {
+    await loadVerifiedProgramSettings();
   }
   const projectId = sharedProjectIdFromLocation();
   if (projectId && sharedAccessMode.value === "none" && !compactViewport.value) {
@@ -1335,6 +1424,7 @@ async function loadProjectFromFile(file: File, handle?: ProjectFileHandle): Prom
   const loadedProject = parseProjectArchive(candidate);
   if (!loadedProject) throw new Error("Неподдерживаемый формат проекта");
   project.value = loadedProject;
+  applyProjectInterfaceLanguage(loadedProject);
   ensureCalendarWorkshopBranding(project.value);
   await registerProjectFonts(project.value);
   resetPageTabs();
@@ -1362,7 +1452,7 @@ async function requestProjectFile(): Promise<void> {
   if (
     savedProjectFileSnapshot.value !== serializeEditableProject() &&
     project.value.document.pages.some((page) => page.elements.length > 0) &&
-    !window.confirm("Открыть другой проект? Несохранённые в файл изменения текущего проекта будут потеряны.")
+    !confirmInterface("Открыть другой проект? Несохранённые в файл изменения текущего проекта будут потеряны.")
   ) return;
   const pickerWindow = window as ProjectPickerWindow;
   if (!pickerWindow.showOpenFilePicker) {
@@ -1414,11 +1504,12 @@ async function createNewProject(): Promise<void> {
     project.value.document.pages.some((page) =>
       page.elements.some((element) => !isCalendarWorkshopBrandElement(page, element)),
     ) &&
-    !window.confirm("Создать новый проект? Текущий проект будет закрыт. Если он ещё не сохранён в файл, сначала нажмите «Сохранить как…».")
+    !confirmInterface("Создать новый проект? Текущий проект будет закрыт. Если он ещё не сохранён в файл, сначала нажмите «Сохранить как…».")
   ) return;
   await leaveSharedProject();
   await createRecoveryPoint("Перед созданием нового проекта");
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
+  project.value.programSettings = { interfaceLanguage: interfaceLanguage.value };
   detachActiveProjectFile();
   resetPageTabs();
   selectedElementId.value = undefined;
@@ -1470,7 +1561,7 @@ async function applyFullCalendarTemplate(): Promise<void> {
     project.value.document.pages.some((page) =>
       page.elements.some((element) => !isCalendarWorkshopBrandElement(page, element)),
     ) &&
-    !window.confirm("Заменить все текущие страницы новой обложкой и 12 месяцами? Изменённые страницы будут удалены. После создания действие можно отменить через Ctrl+Z.")
+    !confirmInterface("Заменить все текущие страницы новой обложкой и 12 месяцами? Изменённые страницы будут удалены. После создания действие можно отменить через Ctrl+Z.")
   ) return;
   await createRecoveryPoint("Перед заменой страниц полным шаблоном");
   mutateProject("Создание полного календаря", () => {
@@ -2128,7 +2219,7 @@ async function saveSelectedGridAsTemplate(): Promise<void> {
     operationNotice.value = "Сначала выберите календарную сетку";
     return;
   }
-  const name = window.prompt("Название шаблона календарной сетки", "Моя календарная сетка");
+  const name = promptInterface("Название шаблона календарной сетки", translateInterfaceText("Моя календарная сетка"));
   if (!name?.trim()) return;
   const saved = await saveUserCalendarGridTemplate(name.trim(), grid);
   userCalendarGridTemplates.value = [saved, ...userCalendarGridTemplates.value];
@@ -2159,7 +2250,7 @@ function applyCalendarGridTemplate(template: UserCalendarGridTemplate, allMonths
 }
 
 async function removeCalendarGridTemplate(template: UserCalendarGridTemplate): Promise<void> {
-  if (!window.confirm(`Удалить шаблон сетки «${template.name}»?`)) return;
+  if (!confirmInterface(`Удалить шаблон сетки «${template.name}»?`)) return;
   await deleteUserCalendarGridTemplate(template.id);
   userCalendarGridTemplates.value = userCalendarGridTemplates.value.filter((item) => item.id !== template.id);
   operationNotice.value = `Шаблон сетки «${template.name}» удалён`;
@@ -2171,7 +2262,7 @@ function applySelectedMonthAsMaster(): void {
     return;
   }
   const summary = describeMonthMasterApplication(project.value, selectedPage.value.id);
-  if (!window.confirm(`${summary}\n\nПрименить мастер-страницу?`)) return;
+  if (!confirmInterface(`${summary}\n\nПрименить мастер-страницу?`)) return;
   const result = mutateProject("Применение мастер-страницы", () =>
     applyMonthMaster(project.value, selectedPage.value.id),
   );
@@ -2179,7 +2270,7 @@ function applySelectedMonthAsMaster(): void {
 }
 
 async function saveCurrentDesignAsTemplate(): Promise<void> {
-  const name = window.prompt("Название пользовательского шаблона", `${project.value.name} — дизайн`);
+  const name = promptInterface("Название пользовательского шаблона", `${project.value.name} — ${translateInterfaceText("дизайн")}`);
   if (!name?.trim()) return;
   const saved = await saveUserProjectTemplate(name.trim(), project.value);
   userProjectTemplates.value = [saved, ...userProjectTemplates.value];
@@ -2187,7 +2278,7 @@ async function saveCurrentDesignAsTemplate(): Promise<void> {
 }
 
 function applyUserProjectTemplate(template: UserProjectTemplate): void {
-  if (!window.confirm(`Применить шаблон «${template.name}» ко всему документу? Текущие страницы будут заменены; действие можно отменить.`)) return;
+  if (!confirmInterface(`Применить шаблон «${template.name}» ко всему документу? Текущие страницы будут заменены; действие можно отменить.`)) return;
   const current = project.value;
   const prepared = cloneProjectForYear(template.project, current.year);
   mutateProject("Применение пользовательского шаблона", () => {
@@ -2195,6 +2286,7 @@ function applyUserProjectTemplate(template: UserProjectTemplate): void {
       ...prepared,
       id: current.id,
       name: current.name,
+      programSettings: current.programSettings,
       publisherProfile: current.publisherProfile,
       monasteryEvents: current.monasteryEvents,
       assets: [...prepared.assets, ...current.assets.filter((asset) => !prepared.assets.some((item) => item.id === asset.id))],
@@ -2211,14 +2303,14 @@ function applyUserProjectTemplate(template: UserProjectTemplate): void {
 }
 
 async function removeUserProjectTemplate(template: UserProjectTemplate): Promise<void> {
-  if (!window.confirm(`Удалить шаблон «${template.name}»?`)) return;
+  if (!confirmInterface(`Удалить шаблон «${template.name}»?`)) return;
   await deleteUserProjectTemplate(template.id);
   userProjectTemplates.value = userProjectTemplates.value.filter((item) => item.id !== template.id);
   operationNotice.value = `Шаблон «${template.name}» удалён`;
 }
 
 function cloneCurrentProjectToYear(): void {
-  const answer = window.prompt("Год для копии проекта", String(project.value.year + 1));
+  const answer = promptInterface("Год для копии проекта", String(project.value.year + 1));
   if (answer === null) return;
   const year = Math.round(Number(answer));
   if (!Number.isInteger(year) || year < 1900 || year > 2200) {
@@ -2239,9 +2331,11 @@ function cloneCurrentProjectToYear(): void {
 }
 
 function restoreProjectBackup(backup: ProjectBackup): void {
-  if (!window.confirm(`Восстановить резервную копию «${backup.label}» от ${new Date(backup.createdAt).toLocaleString("ru-RU")}?`)) return;
+  if (!confirmInterface(`Восстановить резервную копию «${backup.label}» от ${new Date(backup.createdAt).toLocaleString(INTERFACE_LANGUAGE_LOCALES[interfaceLanguage.value])}?`)) return;
   mutateProject("Восстановление резервной копии", () => {
+    const currentProgramSettings = project.value.programSettings;
     project.value = normalizeCalendarProject(createPersistentProjectSnapshot(backup.project));
+    project.value.programSettings = currentProgramSettings;
     ensureCalendarWorkshopBranding(project.value);
   });
   detachActiveProjectFile();
@@ -2338,7 +2432,7 @@ async function importCustomFont(event: Event): Promise<void> {
   try {
     assertFileSize(file, MAX_FONT_FILE_BYTES, "Файл шрифта");
     const suggested = file.name.replace(/\.(?:ttf|otf|woff2?)$/iu, "").replace(/[-_]+/gu, " ").trim();
-    const family = window.prompt("Название семейства шрифта", suggested);
+    const family = promptInterface("Название семейства шрифта", suggested);
     if (!family?.trim()) return;
     const source = await readFileAsDataUrl(file);
     const assetId = `asset-font-${crypto.randomUUID()}`;
@@ -2818,6 +2912,10 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "save-as-project": void saveProjectAs(); break;
     case "download-project": downloadProjectFile(); break;
     case "recovery": recoveryDialogOpen.value = true; break;
+    case "program-settings":
+      programSettingsError.value = undefined;
+      programSettingsOpen.value = true;
+      break;
     case "share-project": void shareCurrentProject(); break;
     case "save-user-template": void saveCurrentDesignAsTemplate(); break;
     case "clone-year": cloneCurrentProjectToYear(); break;
@@ -2983,10 +3081,11 @@ function handlePageHide(): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
-  if (helpDialogPage.value || recoveryDialogOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
+  if (helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
       helpDialogPage.value = undefined;
       recoveryDialogOpen.value = false;
+      programSettingsOpen.value = false;
     }
     return;
   }
@@ -3097,6 +3196,11 @@ watch(project, () => {
   scheduleAutosave();
   scheduleSharedSave();
 }, { deep: true });
+watch(interfaceLanguage, (language) => {
+  if (project.value.programSettings?.interfaceLanguage !== language) {
+    project.value.programSettings = { interfaceLanguage: language };
+  }
+});
 watch(
   [() => project.value.document.pages.map((page) => page.id), selectedPageId],
   ([pageIds, activePageId]) => {
@@ -3165,6 +3269,7 @@ onBeforeUnmount(() => {
       @open="openLocalProjectFromWelcome"
       @open-shared="openSharedProjectById"
       @help="helpDialogPage = 'guide'"
+      @language-change="changeInterfaceLanguageFromWelcome"
     />
     <header class="application-header">
       <nav class="menu-bar" aria-label="Главное меню" @click.stop>
@@ -3865,6 +3970,15 @@ onBeforeUnmount(() => {
       :backups="projectBackups"
       @close="recoveryDialogOpen = false"
       @restore="restoreProjectBackupFromDialog"
+    />
+    <ProgramSettingsDialog
+      v-if="programSettingsOpen"
+      :language="interfaceLanguage"
+      :verified="Boolean(verifiedAccessToken())"
+      :busy="programSettingsBusy"
+      :error="programSettingsError"
+      @close="programSettingsOpen = false"
+      @save="saveProgramSettingsFromDialog"
     />
     <EmailVerificationDialog
       v-if="emailVerificationOpen"

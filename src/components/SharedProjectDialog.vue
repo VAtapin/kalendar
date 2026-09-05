@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SharedEditorPresence } from "../collaboration/shared-project-types";
+import { INTERFACE_LANGUAGE_LOCALES, interfaceLanguage } from "../i18n/interface-language";
 
 defineProps<{
   mode: "loading" | "locked" | "waiting" | "error";
@@ -16,7 +17,7 @@ const emit = defineEmits<{
 }>();
 
 function time(value?: string): string {
-  return value ? new Date(value).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+  return value ? new Date(value).toLocaleTimeString(INTERFACE_LANGUAGE_LOCALES[interfaceLanguage.value], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
 }
 </script>
 
