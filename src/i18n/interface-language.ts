@@ -690,11 +690,20 @@ const TRANSLATIONS: Record<string, Translation> = {
   "Настройки сохранены локально; для сохранения на сервере подтвердите e-mail": { de: "Einstellungen lokal gespeichert; bestätigen Sie Ihre E-Mail, um sie auf dem Server zu speichern", en: "Settings saved locally; verify your email to save them on the server", uk: "Налаштування збережено локально; щоб зберегти їх на сервері, підтвердьте e-mail" },
 };
 
+export function domainDefaultLanguage(hostname = typeof location === "undefined" ? "" : location.hostname): "de" | "ru" {
+  return hostname.toLowerCase().replace(/\.$/, "") === "kalender.georg-kloster.de" ? "de" : "ru";
+}
+
+export function resolveInterfaceLanguage(hostname: string, preference: unknown): InterfaceLanguage {
+  return isInterfaceLanguage(preference) ? preference : domainDefaultLanguage(hostname);
+}
+
 function storedLanguage(): InterfaceLanguage {
-  if (typeof localStorage === "undefined") return "ru";
-  const value = localStorage.getItem(INTERFACE_LANGUAGE_STORAGE_KEY);
-  if (value === "de" || value === "en" || value === "uk" || value === "ru") return value;
-  return "ru";
+  let preference: unknown;
+  try {
+    if (typeof localStorage !== "undefined") preference = localStorage.getItem(INTERFACE_LANGUAGE_STORAGE_KEY);
+  } catch { /* Domain defaults also work when browser storage is unavailable. */ }
+  return resolveInterfaceLanguage(typeof location === "undefined" ? "" : location.hostname, preference);
 }
 
 export const interfaceLanguage = ref<InterfaceLanguage>(storedLanguage());
@@ -705,9 +714,9 @@ export function isInterfaceLanguage(value: unknown): value is InterfaceLanguage 
 
 export function setInterfaceLanguage(language: InterfaceLanguage): void {
   interfaceLanguage.value = language;
-  if (typeof localStorage !== "undefined") {
-    localStorage.setItem(INTERFACE_LANGUAGE_STORAGE_KEY, language);
-  }
+  try {
+    if (typeof localStorage !== "undefined") localStorage.setItem(INTERFACE_LANGUAGE_STORAGE_KEY, language);
+  } catch { /* Keep manual switching usable without persistent storage. */ }
   if (typeof document !== "undefined") document.documentElement.lang = language;
 }
 

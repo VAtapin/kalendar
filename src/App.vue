@@ -168,6 +168,7 @@ import {
   INTERFACE_LANGUAGE_STORAGE_KEY,
   INTERFACE_LANGUAGE_LOCALES,
   interfaceLanguage,
+  domainDefaultLanguage,
   setInterfaceLanguage,
   translateInterfaceText,
 } from "./i18n/interface-language";
@@ -965,7 +966,7 @@ function applyInterfaceLanguage(language: InterfaceLanguage, updateProject = tru
 }
 
 function applyProjectInterfaceLanguage(calendarProject: CalendarProject): void {
-  applyInterfaceLanguage(calendarProject.programSettings?.interfaceLanguage ?? "ru", false);
+  applyInterfaceLanguage(calendarProject.programSettings?.interfaceLanguage ?? interfaceLanguage.value, false);
 }
 
 async function loadVerifiedProgramSettings(): Promise<void> {
@@ -1835,6 +1836,12 @@ async function createNewProject(): Promise<void> {
   await createRecoveryPoint("Перед созданием нового проекта");
   resetServerCalendar();
   project.value = createBlankCalendarProject(new Date().getFullYear() + 1);
+  project.value.calendarLanguage = interfaceLanguage.value === 'en' ? domainDefaultLanguage() : interfaceLanguage.value;
+  if (project.value.calendarLanguage === 'de') project.value.name = `Orthodoxer Kalender ${project.value.year}`;
+  for (const page of project.value.document.pages) {
+    const grid = page.elements.find(element => element.type === 'calendar-grid');
+    if (page.kind === 'month' && grid?.type === 'calendar-grid') page.name = calendarMonthHeading(grid.month, project.value.year, project.value.calendarLanguage);
+  }
   project.value.programSettings = { interfaceLanguage: interfaceLanguage.value };
   detachActiveProjectFile();
   resetPageTabs();

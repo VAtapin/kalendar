@@ -2,10 +2,24 @@ import { describe, expect, it } from "vitest";
 import {
   INTERFACE_LANGUAGE_OPTIONS,
   isInterfaceLanguage,
+  domainDefaultLanguage,
+  resolveInterfaceLanguage,
   translateInterfaceText,
 } from "../src/i18n/interface-language";
 
 describe("interface languages", () => {
+  it("defaults to the domain language without overriding a manual preference", () => {
+    expect(domainDefaultLanguage('kalender.georg-kloster.de')).toBe('de');
+    expect(domainDefaultLanguage('KALENDER.GEORG-KLOSTER.DE.')).toBe('de');
+    expect(domainDefaultLanguage('kalender.georg-kloster.ru')).toBe('ru');
+    expect(domainDefaultLanguage('localhost')).toBe('ru');
+    expect(resolveInterfaceLanguage('kalender.georg-kloster.de', null)).toBe('de');
+    expect(resolveInterfaceLanguage('kalender.georg-kloster.de', 'invalid')).toBe('de');
+    for (const preference of ['ru', 'de', 'en', 'uk']) {
+      expect(resolveInterfaceLanguage('kalender.georg-kloster.de', preference)).toBe(preference);
+      expect(resolveInterfaceLanguage('kalender.georg-kloster.ru', preference)).toBe(preference);
+    }
+  });
   it("offers Russian, German, English and Ukrainian", () => {
     expect(INTERFACE_LANGUAGE_OPTIONS.map((option) => option.id)).toEqual(["ru", "de", "en", "uk"]);
     expect(isInterfaceLanguage("de")).toBe(true);
