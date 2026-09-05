@@ -4289,7 +4289,7 @@ onBeforeUnmount(() => {
       </section>
     </div>
     <AdminLoginDialog v-if="adminLoginOpen" @authenticated="adminAuthenticated" @close="adminLoginOpen = false" />
-    <AdminDialog v-if="adminOpen" :access-token="''" @close="adminOpen = false" @logout="adminOpen = false; canManageGlobalGridTemplates = false" />
+    <AdminDialog v-if="adminOpen" :access-token="''" @close="adminOpen = false; refreshGlobalCalendarGridTemplates()" @logout="adminOpen = false; canManageGlobalGridTemplates = false" />
     <EmailVerificationDialog
       v-if="emailVerificationOpen"
       :busy="emailVerificationBusy"

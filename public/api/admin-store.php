@@ -90,13 +90,13 @@ trait CalendarAdminStore
         return ['items' => array_slice($log, $offset, 25), 'total' => count($log)];
     }
 
-    public function createCampaign(string $subject, string $text): array
+    public function createCampaign(string $subject, string $text, array $blocks = []): array
     {
         $recipients = [];
         foreach ($this->identities()['subscriptions'] as $email => $entry) {
             if (($entry['status'] ?? '') === 'subscribed') $recipients[$email] = 'pending';
         }
-        $campaign = ['id' => calendar_uuid(), 'subject' => $subject, 'text' => $text,
+        $campaign = ['id' => calendar_uuid(), 'subject' => $subject, 'text' => $text, 'blocks' => calendar_newsletter_blocks($blocks),
             'createdAt' => calendar_now(), 'recipients' => $recipients];
         calendar_atomic_json_write($this->dataDirectory . '/campaign-' . $campaign['id'] . '.json', $campaign);
         return ['id' => $campaign['id'], 'total' => count($recipients)];
@@ -119,7 +119,7 @@ trait CalendarAdminStore
                     if (($entry['status'] ?? '') !== 'subscribed') return 'skipped';
                     try {
                         $url = rtrim(calendar_config_value('APP_PUBLIC_URL'), '/') . '/api/v1/unsubscribe?token=' . rawurlencode($entry['unsubscribeToken']);
-                        calendar_send_newsletter($email, $campaign['subject'], $campaign['text'], $url);
+                        calendar_send_newsletter($email, $campaign['subject'], $campaign['text'], $url, $campaign['blocks'] ?? []);
                         return 'accepted';
                     } catch (Throwable $error) {
                         error_log('Calendar newsletter: ' . $error->getMessage());

@@ -314,13 +314,15 @@ try {
             api_response(200, ['project' => $stored['project']]);
         }
         if ($method === 'POST' && $path === '/v1/admin/campaigns') {
-            $body = api_request_json(32 * 1024);
+            $body = api_request_json(128 * 1024);
+            $blocks = calendar_newsletter_blocks($body['blocks'] ?? []);
+            if ($blocks) $body['text'] = calendar_newsletter_content($blocks)['text'];
             if (!is_string($body['subject'] ?? null) || !is_string($body['text'] ?? null)
                 || trim($body['subject']) === '' || trim($body['text']) === ''
                 || strlen($body['subject']) > 200 || strlen($body['text']) > 20000 || preg_match('/[\r\n]/', $body['subject'])) {
                 api_response(400, ['error' => 'invalid_campaign', 'message' => 'Укажите тему до 200 байт и текст до 20 КБ']);
             }
-            api_response(201, $store->createCampaign(trim($body['subject']), trim($body['text'])));
+            api_response(201, $store->createCampaign(trim($body['subject']), trim($body['text']), $blocks));
         }
         if ($method === 'POST' && preg_match('#^/v1/admin/campaigns/([0-9a-f-]{36})/send$#i', $path, $match)) {
             api_response(200, $store->dispatchCampaign($match[1]));

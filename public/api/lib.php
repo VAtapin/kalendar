@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/email-template.php';
 require_once __DIR__ . '/admin-store.php';
 require_once __DIR__ . '/admin-auth.php';
+require_once __DIR__ . '/newsletter.php';
 
 final class ApiFailure extends RuntimeException
 {
@@ -970,14 +971,16 @@ function calendar_send_verification_email(string $recipient, string $verificatio
         calendar_mail_sender_address(), calendar_mail_sender_name(), $subscribe, null, $browserFlow));
 }
 
-function calendar_send_newsletter(string $recipient, string $subject, string $text, string $unsubscribeUrl): void
+function calendar_send_newsletter(string $recipient, string $subject, string $text, string $unsubscribeUrl, array $blocks = []): void
 {
     $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $content = $blocks ? calendar_newsletter_content($blocks) : ['html' => '<p style="line-height:1.7;">' . nl2br($escape($text)) . '</p>', 'text' => $text];
+    $text = $content['text'];
     $html = '<!doctype html><html lang="ru"><body style="background:#f2efe8;font-family:Arial,sans-serif;padding:20px;">'
         . '<table role="presentation" style="max-width:600px;width:100%;margin:auto;background:#fffdf8;border-top:4px solid #b3924d;padding:24px;"><tr><td>'
         . '<img width="280" style="width:100%;max-width:280px;height:auto;" src="https://kalender.georg-kloster.ru/brand/logo-kalendar.png" alt="Календарная мастерская">'
         . '<h1 style="font-family:Georgia,serif;color:#28483b;">' . $escape($subject) . '</h1>'
-        . '<p style="line-height:1.7;">' . nl2br($escape($text)) . '</p><hr>'
+        . $content['html'] . '<hr>'
         . '<p><a href="https://kalender.georg-kloster.ru/">Календарная мастерская</a> · <a href="https://georg-kloster.ru/">Монастырь</a></p>'
         . '<p>Вы подтвердили подписку на новости мастерской и напоминания о календарях.</p>'
         . '<p><a href="' . $escape($unsubscribeUrl) . '">Отписаться от рассылки</a></p></td></tr></table></body></html>';

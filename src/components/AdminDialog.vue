@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, shallowRef } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { adminRequest } from "../collaboration/shared-project-client";
 import PageScene from "./PageScene.vue";
+import NewsletterEditor from "./NewsletterEditor.vue";
+import AdminTemplates from "./AdminTemplates.vue";
 import type { CalendarProject } from "../document/types";
 import type { OrthodoxCalendarYear } from "../calendar/types";
 import { mergeMonasteryEvents } from "../calendar/engine/merge-monastery-events";
@@ -26,7 +28,10 @@ const pageIndex = ref(0);
 const selectedPage = computed(() => preview.value?.document.pages[pageIndex.value]);
 const subject = ref("");
 const text = ref("");
+const blocks = ref<{type: "heading" | "text" | "image" | "button"; text: string; url: string}[]>([{type: "text", text: "", url: ""}]);
+const hasContent = computed(() => blocks.value.some(block => block.text.trim()));
 const approved = ref(false);
+watch([subject, blocks], () => { approved.value = false; }, { deep: true });
 const sending = ref(false);
 const campaign = ref("");
 const progress = ref("");
@@ -38,8 +43,8 @@ const statusLabel = (status?: string) => ({ subscribed: "Подписан", unsu
   accepted: "Принято почтовым сервером", failed: "Ошибка отправки", unknown: "Результат неизвестен", skipped: "Пропущено" }[status ?? ""] ?? status);
 async function load(nextTab = tab.value, nextOffset = 0) {
   tab.value = nextTab; offset.value = nextOffset; preview.value = undefined;
-  if (nextTab === "campaigns") return;
   const version = ++requestVersion;
+  if (nextTab === "campaigns" || nextTab === "templates") { busy.value = false; error.value = ""; return; }
   busy.value = true; error.value = "";
   try {
     const data = await adminRequest<{items: Row[]; total: number}>(props.accessToken, `${nextTab}?offset=${nextOffset}`);
@@ -61,11 +66,11 @@ async function openPreview(id: string) {
   } catch (e) { error.value = String(e); } finally { busy.value = false; }
 }
 async function send() {
-  if (sending.value || !approved.value || !subject.value.trim() || !text.value.trim()) return;
+  if (sending.value || !approved.value || !subject.value.trim() || !hasContent.value) return;
   sending.value = true; error.value = ""; stopped = false;
   try {
     if (!campaign.value) {
-      const result = await adminRequest<{id: string; total: number}>(props.accessToken, "campaigns", {subject: subject.value, text: text.value});
+      const result = await adminRequest<{id: string; total: number}>(props.accessToken, "campaigns", {subject: subject.value, text: text.value, blocks: blocks.value});
       campaign.value = result.id;
     }
     while (!stopped) {
@@ -79,28 +84,29 @@ onMounted(() => void load());
 </script>
 
 <template>
-  <div class="application-dialog-backdrop">
+  <div class="application-dialog-backdrop admin-backdrop">
     <section class="application-dialog admin-dialog" role="dialog" aria-modal="true" aria-label="Администратор">
-      <header class="application-dialog__header"><h2>Администратор</h2><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="emit('close')">Закрыть</button></div></header>
+      <header class="application-dialog__header"><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h2>Управление мастерской</h2></div><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="emit('close')">Вернуться в редактор</button></div></header>
       <div class="application-dialog__content">
         <nav class="admin-nav">
-          <button v-for="entry in [['calendars','Календари'],['subscribers','Пользователи и подписки'],['mail-log','Журнал писем'],['campaigns','Рассылка']]" :key="entry[0]" :disabled="busy || sending" :aria-pressed="tab === entry[0]" @click="load(entry[0])">{{ entry[1] }}</button>
+          <button v-for="entry in [['calendars','Календари'],['subscribers','Пользователи и подписки'],['templates','Общие макеты'],['mail-log','Журнал писем'],['campaigns','Рассылка']]" :key="entry[0]" :disabled="busy || sending" :aria-pressed="tab === entry[0]" @click="load(entry[0])">{{ entry[1] }}</button>
         </nav>
         <p v-if="error" role="alert">{{ error }}</p><p v-if="busy">Загрузка…</p>
         <template v-if="tab === 'campaigns'">
           <p>Отправка только подтверждённым подписчикам. Отписка проверяется перед каждым письмом. Оставьте окно открытым до завершения.</p>
-          <label class="field-stack">Тема<input v-model="subject" :disabled="!!campaign" maxlength="100" /></label>
-          <label class="field-stack">Текст<textarea v-model="text" :disabled="!!campaign" rows="8" maxlength="6000" /></label>
+          <label class="field-stack">Тема<input v-model="subject" :disabled="!!campaign || sending" maxlength="100" /></label>
+          <NewsletterEditor v-model="blocks" :disabled="!!campaign || sending" :subject="subject" />
           <label><input v-model="approved" type="checkbox" :disabled="sending" /> Я проверил текст и хочу отправить его подписчикам</label>
-          <p><button :disabled="!approved || sending || !subject.trim() || !text.trim()" @click="send">{{ campaign ? 'Продолжить отправку' : 'Создать и отправить рассылку' }}</button>
+          <p><button :disabled="!approved || sending || !subject.trim() || !hasContent" @click="send">{{ campaign ? 'Продолжить отправку' : 'Создать и отправить рассылку' }}</button>
           <button v-if="sending" @click="stopSending">Остановить после текущего письма</button></p>
           <p aria-live="polite">{{ progress }}</p>
-          <button v-if="campaign && !sending" @click="campaign = ''; approved = false; progress = ''; subject = ''; text = ''">Новая рассылка</button>
+          <button v-if="campaign && !sending" @click="campaign = ''; approved = false; progress = ''; subject = ''; text = ''; blocks = [{type: 'text', text: '', url: ''}]">Новая рассылка</button>
         </template>
+        <AdminTemplates v-else-if="tab === 'templates'" />
         <template v-else>
           <p v-if="tab === 'calendars'">Календари на сервере. Локальные файлы и проекты, оставшиеся только в браузере, сюда не передаются. Просмотр не изменяет оригинал.</p>
           <p v-if="tab === 'mail-log'">Последние 2000 событий. «Принято сервером» не означает доставку или прочтение. Ссылки входа в журнал не записываются.</p>
-          <p v-if="tab === 'subscribers'">Подтверждение адреса без галочки не создаёт подписку. Старые пользователи не подписываются автоматически.</p>
+          <p v-if="tab === 'subscribers'">Рассылку получают только пользователи, которые выбрали подписку и подтвердили адрес.</p>
           <div class="admin-table-wrap"><table class="admin-table">
             <thead><tr><th>{{ tab === 'calendars' ? 'Календарь' : 'E-mail' }}</th><th>Информация</th><th>Действия / дата</th></tr></thead>
             <tbody><tr v-for="(row, i) in items" :key="row.id ?? `${row.email}-${i}`">
@@ -127,7 +133,11 @@ onMounted(() => void load());
 </template>
 
 <style scoped>
-.admin-dialog { width: min(1100px, 96vw); max-width: 1100px; }
+.admin-backdrop { padding:0; }
+.admin-dialog { box-sizing:border-box; width: 100%; max-width: none; height: 100dvh; max-height: 100dvh; border:0; border-radius:0; display:flex; flex-direction:column; }
+.admin-dialog > .application-dialog__content { flex:1; min-height:0; overflow:auto; padding:24px 32px; }
+.admin-dialog .application-dialog__header { flex-shrink:0; }
+.admin-dialog .application-dialog__header small { color:#b3924d; letter-spacing:2px; }
 .admin-dialog button, .admin-dialog select, .admin-dialog input:not([type="checkbox"]), .admin-dialog textarea {
   font:inherit; color:#e8ece5; background:#26372f; border:1px solid #586456; border-radius:4px; padding:8px 12px;
 }
