@@ -84,6 +84,65 @@ test("changes printed calendar language independently from the interface", async
   await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("і҆аннꙋарїй 2027");
 });
 
+test("offers five public calendar-grid layouts without owner controls", async ({ page }) => {
+  await openEditor(page);
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await expect.poll(() => page.locator(".grid-preset-card").count()).toBeGreaterThanOrEqual(5);
+  await expect(page.getByText("Издательская классика", { exact: true })).toBeVisible();
+  await expect(page.getByText("Монастырская книга", { exact: true })).toBeVisible();
+  await expect(page.getByText("Современная светлая", { exact: true })).toBeVisible();
+  await expect(page.getByText("Торжественная золотая", { exact: true })).toBeVisible();
+  await expect(page.getByText("Компактная подробная", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Обновить", exact: true })).toHaveCount(0);
+  expect(await page.evaluate(async () => (await fetch("/api/v1/calendar-grid-templates", {
+    method: "POST",
+    headers: { Authorization: "Bearer e2e-local-token", "Content-Type": "application/json" },
+    body: "{}",
+  })).status)).toBe(403);
+
+  await page.getByRole("button", { name: "Создать обложку и 12 месяцев" }).click();
+  await page.getByRole("tab", { name: "Страницы" }).click();
+  await page.locator(".page-card").nth(1).click();
+  await page.locator('.page-element[data-element-type="calendar-grid"]').click({ force: true });
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await page.getByTestId("global-grid-template-clean-modern").getByRole("button", { name: "Применить", exact: true }).click();
+
+  const grid = page.locator('.page-element[data-element-type="calendar-grid"]');
+  await expect(grid.locator(".page-element__calendar-heading").first()).toHaveAttribute("data-grid-style", "minimal");
+  await expect(grid.locator(".page-element__calendar-weekday").first()).toContainText("Пн");
+});
+
+test("allows only the verified workshop owner to publish a grid layout for everyone", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("welcome-create").click();
+  const verification = page.getByRole("dialog", { name: "Подтверждение e-mail" });
+  await verification.getByLabel("E-mail").fill("owner@example.com");
+  await verification.getByRole("button", { name: "Получить ссылку" }).click();
+  await verification.getByRole("link", { name: "Открыть тестовую ссылку подтверждения" }).click();
+  await expect(page.locator(".workspace")).toBeVisible();
+
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await expect(page.getByText("Управление владельца", { exact: true })).toBeVisible();
+  await expect.poll(() => page.getByRole("button", { name: "Обновить", exact: true }).count()).toBeGreaterThanOrEqual(5);
+  await page.getByRole("button", { name: "Создать обложку и 12 месяцев" }).click();
+  await page.getByRole("tab", { name: "Страницы" }).click();
+  await page.locator(".page-card").nth(1).click();
+  await page.locator('.page-element[data-element-type="calendar-grid"]').click({ force: true });
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+
+  const cards = page.locator(".grid-preset-card");
+  const initialCount = await cards.count();
+  const promptAnswers = ["Проверочный общий макет", "Опубликован владельцем в браузерном тесте"];
+  page.on("dialog", async (dialog) => dialog.accept(promptAnswers.shift() ?? ""));
+  await page.getByRole("button", { name: "Сохранить выбранную сетку для всех…" }).click();
+  await expect(cards).toHaveCount(initialCount + 1);
+
+  const published = page.getByTestId(/global-grid-template-[0-9a-f-]{36}/).filter({ hasText: "Проверочный общий макет" });
+  await expect(published).toBeVisible();
+  await published.getByRole("button", { name: "Удалить", exact: true }).click();
+  await expect(cards).toHaveCount(initialCount);
+});
+
 test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
   await openEditor(page);
   expect(await page.evaluate(async () => {
@@ -303,7 +362,7 @@ test("creates a full calendar safely and keeps cell geometry independent", async
   page.once("dialog", async (dialog) => dialog.accept("Крупная сетка"));
   await page.getByRole("button", { name: "Сохранить выбранную сетку…" }).click();
   await expect(page.locator(".grid-template-row")).toContainText("Крупная сетка");
-  await page.getByTitle("Применить ко всем месяцам").click();
+  await page.locator(".grid-template-row").getByTitle("Применить ко всем месяцам").click();
   await expect(page.locator(".status-bar__notice")).toContainText("применён к 12 месяцам");
 });
 

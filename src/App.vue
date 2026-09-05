@@ -14,6 +14,7 @@ import EmailVerificationDialog from "./components/EmailVerificationDialog.vue";
 import SharedProjectDialog from "./components/SharedProjectDialog.vue";
 import LinkResultDialog from "./components/LinkResultDialog.vue";
 import ProgramSettingsDialog from "./components/ProgramSettingsDialog.vue";
+import CalendarGridTemplateCard from "./components/CalendarGridTemplateCard.vue";
 import {
   changePageFormat,
   createBlankCalendarProject,
@@ -105,6 +106,10 @@ import {
 import { checkCalendarProject, type PreflightIssue } from "./preflight/project-preflight";
 import { copyCalendarGridPresentation } from "./templates/calendar-grid-settings";
 import {
+  defaultGlobalCalendarGridTemplates,
+  type GlobalCalendarGridTemplate,
+} from "./templates/calendar-grid-presets";
+import {
   calendarWorkshopBrandProtectedLayerIds,
   ensureCalendarWorkshopBranding,
   isCalendarWorkshopBrandElement,
@@ -115,8 +120,11 @@ import {
   SharedProjectApiError,
   confirmEmailVerification,
   copySharedProject,
+  createGlobalCalendarGridTemplate,
   createSharedProject,
+  deleteGlobalCalendarGridTemplate,
   heartbeatSharedProject,
+  loadGlobalCalendarGridTemplates,
   loadUserProgramSettings,
   openSharedProject,
   releaseSharedProject,
@@ -126,6 +134,7 @@ import {
   saveUserProgramSettings,
   sharedProjectIdFromLocation,
   sharedProjectUrl,
+  updateGlobalCalendarGridTemplate,
   uploadPdfExport,
   verificationTokenFromLocation,
 } from "./collaboration/shared-project-client";
@@ -194,6 +203,10 @@ let dockResizeStartWidth = DOCK_PANEL_DEFAULT_WIDTH_PX;
 const selectedTemplateId = ref<CalendarTemplateId>("editorial-photo");
 const userProjectTemplates = ref<UserProjectTemplate[]>([]);
 const userCalendarGridTemplates = ref<UserCalendarGridTemplate[]>([]);
+const globalCalendarGridTemplates = ref<GlobalCalendarGridTemplate[]>(defaultGlobalCalendarGridTemplates());
+const canManageGlobalGridTemplates = ref(false);
+const globalGridTemplatesBusy = ref(false);
+const globalGridTemplatesError = ref<string>();
 const projectBackups = ref<ProjectBackup[]>([]);
 const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
@@ -264,7 +277,7 @@ const emailVerificationBusy = ref(false);
 const emailVerificationSentTo = ref<string>();
 const emailVerificationError = ref<string>();
 const developmentVerificationUrl = ref<string>();
-type PendingVerifiedAction = "new" | "share" | "export";
+type PendingVerifiedAction = "new" | "share" | "export" | "global-grid-templates";
 const pendingVerifiedAction = ref<PendingVerifiedAction>();
 const EMAIL_ACCESS_TOKEN_KEY = "orthodox-calendar-layout:verified-email-token";
 const VERIFIED_EMAIL_KEY = "orthodox-calendar-layout:verified-email";
@@ -778,6 +791,22 @@ async function loadVerifiedProgramSettings(): Promise<void> {
   }
 }
 
+async function refreshGlobalCalendarGridTemplates(): Promise<void> {
+  globalGridTemplatesBusy.value = true;
+  globalGridTemplatesError.value = undefined;
+  try {
+    const result = await loadGlobalCalendarGridTemplates(verifiedAccessToken());
+    if (result.templates.length >= 5) globalCalendarGridTemplates.value = result.templates;
+    canManageGlobalGridTemplates.value = result.canManage;
+  } catch (error) {
+    // The five bundled layouts remain available even while the server is down.
+    canManageGlobalGridTemplates.value = false;
+    globalGridTemplatesError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    globalGridTemplatesBusy.value = false;
+  }
+}
+
 async function saveProgramSettingsFromDialog(language: InterfaceLanguage): Promise<void> {
   programSettingsBusy.value = true;
   programSettingsError.value = undefined;
@@ -1206,7 +1235,14 @@ async function runPendingVerifiedAction(action: PendingVerifiedAction | undefine
   localStorage.removeItem(PENDING_VERIFIED_ACTION_KEY);
   if (action === "new") await createNewProject();
   else if (action === "share") await shareCurrentProject();
-  else await exportPrintPdf();
+  else if (action === "export") await exportPrintPdf();
+  else {
+    activeDockPanel.value = "templates";
+    await refreshGlobalCalendarGridTemplates();
+    operationNotice.value = canManageGlobalGridTemplates.value
+      ? "Управление общими макетами открыто"
+      : "Этот e-mail не является владельцем мастерской";
+  }
 }
 
 async function initializeApplication(): Promise<void> {
@@ -1243,6 +1279,7 @@ async function initializeApplication(): Promise<void> {
   } else {
     await loadVerifiedProgramSettings();
   }
+  await refreshGlobalCalendarGridTemplates();
   const projectId = sharedProjectIdFromLocation();
   if (projectId && sharedAccessMode.value === "none" && !compactViewport.value) {
     await openSharedProjectById(projectId);
@@ -2253,7 +2290,10 @@ async function saveSelectedGridAsTemplate(): Promise<void> {
   operationNotice.value = `Шаблон сетки «${saved.name}» сохранён`;
 }
 
-function applyCalendarGridTemplate(template: UserCalendarGridTemplate, allMonths: boolean): void {
+function applyCalendarGridTemplate(
+  template: Pick<UserCalendarGridTemplate, "name" | "grid">,
+  allMonths: boolean,
+): void {
   const selectedGrid = selectedElement.value?.type === "calendar-grid" ? selectedElement.value : undefined;
   if (!allMonths && !selectedGrid) {
     operationNotice.value = "Сначала выберите календарную сетку месяца";
@@ -2274,6 +2314,94 @@ function applyCalendarGridTemplate(template: UserCalendarGridTemplate, allMonths
   operationNotice.value = allMonths
     ? `Шаблон «${template.name}» применён к ${updated} месяцам`
     : `Шаблон «${template.name}» применён к выбранной сетке`;
+}
+
+function requestGlobalGridTemplateManagement(): void {
+  if (canManageGlobalGridTemplates.value) {
+    operationNotice.value = "Управление общими макетами уже открыто";
+    return;
+  }
+  pendingVerifiedAction.value = "global-grid-templates";
+  localStorage.setItem(PENDING_VERIFIED_ACTION_KEY, "global-grid-templates");
+  emailVerificationSentTo.value = undefined;
+  emailVerificationError.value = undefined;
+  developmentVerificationUrl.value = undefined;
+  emailVerificationOpen.value = true;
+}
+
+function selectedCalendarGrid(): CalendarGridElement | undefined {
+  return selectedElement.value?.type === "calendar-grid" ? selectedElement.value : undefined;
+}
+
+async function saveSelectedGridForEveryone(): Promise<void> {
+  const grid = selectedCalendarGrid();
+  if (!grid) {
+    operationNotice.value = "Сначала выберите и настройте календарную сетку";
+    return;
+  }
+  const accessToken = verifiedAccessToken();
+  if (!canManageGlobalGridTemplates.value || !accessToken) {
+    requestGlobalGridTemplateManagement();
+    return;
+  }
+  const name = promptInterface("Название общего макета календарной сетки", "Новый макет");
+  if (!name?.trim()) return;
+  const description = promptInterface("Кратко опишите отличие макета", "Авторский макет календарной сетки") ?? "";
+  globalGridTemplatesBusy.value = true;
+  try {
+    const saved = await createGlobalCalendarGridTemplate(accessToken, {
+      name: name.trim(),
+      description: description.trim(),
+      grid,
+    });
+    globalCalendarGridTemplates.value = [...globalCalendarGridTemplates.value, saved];
+    operationNotice.value = `Общий макет «${saved.name}» сохранён и доступен всем`;
+  } catch (error) {
+    operationNotice.value = `Не удалось сохранить общий макет: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    globalGridTemplatesBusy.value = false;
+  }
+}
+
+async function overwriteGlobalCalendarGridTemplate(template: GlobalCalendarGridTemplate): Promise<void> {
+  const grid = selectedCalendarGrid();
+  const accessToken = verifiedAccessToken();
+  if (!grid) {
+    operationNotice.value = "Сначала примените макет, измените выбранную сетку и снова нажмите «Обновить»";
+    return;
+  }
+  if (!canManageGlobalGridTemplates.value || !accessToken) return requestGlobalGridTemplateManagement();
+  if (!confirmInterface(`Заменить общий макет «${template.name}» оформлением выбранной сетки? Изменение увидят все пользователи.`)) return;
+  globalGridTemplatesBusy.value = true;
+  try {
+    const saved = await updateGlobalCalendarGridTemplate(accessToken, template.id, {
+      name: template.name,
+      description: template.description,
+      grid,
+    });
+    globalCalendarGridTemplates.value = globalCalendarGridTemplates.value.map((item) => item.id === saved.id ? saved : item);
+    operationNotice.value = `Общий макет «${saved.name}» обновлён для всех`;
+  } catch (error) {
+    operationNotice.value = `Не удалось обновить общий макет: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    globalGridTemplatesBusy.value = false;
+  }
+}
+
+async function removeGlobalCalendarGridTemplate(template: GlobalCalendarGridTemplate): Promise<void> {
+  const accessToken = verifiedAccessToken();
+  if (template.builtIn || !canManageGlobalGridTemplates.value || !accessToken) return;
+  if (!confirmInterface(`Удалить общий макет «${template.name}»? Он исчезнет у всех пользователей.`)) return;
+  globalGridTemplatesBusy.value = true;
+  try {
+    await deleteGlobalCalendarGridTemplate(accessToken, template.id);
+    globalCalendarGridTemplates.value = globalCalendarGridTemplates.value.filter((item) => item.id !== template.id);
+    operationNotice.value = `Общий макет «${template.name}» удалён`;
+  } catch (error) {
+    operationNotice.value = `Не удалось удалить общий макет: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    globalGridTemplatesBusy.value = false;
+  }
 }
 
 async function removeCalendarGridTemplate(template: UserCalendarGridTemplate): Promise<void> {
@@ -3959,7 +4087,31 @@ onBeforeUnmount(() => {
             </div>
           </section>
           <section class="template-picker">
-            <h3>Шаблоны календарной сетки</h3>
+            <h3>Макеты календарной сетки</h3>
+            <p class="property-help">Выберите макет для текущей сетки или сразу для всех двенадцати месяцев. После применения все параметры можно менять в «Свойствах».</p>
+            <div class="global-grid-template-list" :class="{ 'global-grid-template-list--busy': globalGridTemplatesBusy }">
+              <CalendarGridTemplateCard
+                v-for="template in globalCalendarGridTemplates"
+                :key="template.id"
+                :template="template"
+                :can-manage="canManageGlobalGridTemplates"
+                :has-selected-grid="selectedElement?.type === 'calendar-grid'"
+                @apply="applyCalendarGridTemplate(template, false)"
+                @apply-all="applyCalendarGridTemplate(template, true)"
+                @update="overwriteGlobalCalendarGridTemplate(template)"
+                @remove="removeGlobalCalendarGridTemplate(template)"
+              />
+            </div>
+            <p v-if="globalGridTemplatesError" class="template-server-note">Сервер общих макетов временно недоступен. Пять встроенных макетов продолжают работать.</p>
+            <div v-if="canManageGlobalGridTemplates" class="template-owner-tools">
+              <strong>Управление владельца</strong>
+              <small>Только вы можете изменять набор, который видят все пользователи.</small>
+              <button class="primary-action" type="button" :disabled="selectedElement?.type !== 'calendar-grid' || globalGridTemplatesBusy" @click="saveSelectedGridForEveryone">Сохранить выбранную сетку для всех…</button>
+            </div>
+            <button v-else type="button" @click="requestGlobalGridTemplateManagement">Управление общими макетами…</button>
+          </section>
+          <section class="template-picker">
+            <h3>Личные макеты сетки</h3>
             <button class="primary-action" type="button" :disabled="selectedElement?.type !== 'calendar-grid'" @click="saveSelectedGridAsTemplate">Сохранить выбранную сетку…</button>
             <p v-if="userCalendarGridTemplates.length === 0" class="empty-panel-message">Сохранённых сеток пока нет.</p>
             <div v-for="template in userCalendarGridTemplates" :key="template.id" class="grid-template-row">

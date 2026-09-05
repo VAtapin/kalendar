@@ -19,6 +19,11 @@ describe("interface languages", () => {
     expect(translateInterfaceText("Страница 3 из 13", "de")).toBe("Seite 3 von 13");
     expect(translateInterfaceText("По горизонтали: -25%", "en")).toBe("Horizontal: -25%");
     expect(translateInterfaceText("Удалить шаблон «Мой»?", "uk")).toBe("Видалити шаблон «Мой»?");
+    expect(translateInterfaceText("Макеты календарной сетки", "en")).toBe("Calendar grid layouts");
+    expect(translateInterfaceText(
+      "Заменить общий макет «Книжный» оформлением выбранной сетки? Изменение увидят все пользователи.",
+      "de",
+    )).toContain("Alle Benutzer");
     expect(translateInterfaceText(
       "Язык интерфейса можно выбрать на стартовой странице или в меню Файл → Настройки программы…. Он меняет меню, кнопки, подсказки и окна, но не язык печатного календаря.",
       "en",

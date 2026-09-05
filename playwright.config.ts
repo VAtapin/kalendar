@@ -26,6 +26,7 @@ export default defineConfig({
       url: "http://127.0.0.1:8787/health",
       reuseExistingServer: true,
       timeout: 30_000,
+      env: { CALENDAR_OWNER_EMAIL: "owner@example.com" },
     },
   ],
 });

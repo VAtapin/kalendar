@@ -13,6 +13,7 @@ import {
 } from "../src/calendar";
 import { SharedProjectStore } from "./shared-project-store";
 import { parseHttpByteRange } from "./http-byte-range";
+import type { CalendarGridElement } from "../src/document/types";
 
 const workspace = resolve(import.meta.dirname, "..");
 const xml = await readFile(resolve(workspace, "public/data/MemoryDays.xml"), "utf8");
@@ -23,6 +24,7 @@ const dataDirectory = resolve(process.env.CALENDAR_DATA_DIR ?? resolve(workspace
 const allowedOrigin = process.env.CALENDAR_ALLOWED_ORIGIN ?? "*";
 const maxProjectBytes = Number(process.env.MAX_SHARED_PROJECT_BYTES ?? 100 * 1024 * 1024);
 const maxPdfBytes = Number(process.env.MAX_PDF_EXPORT_BYTES ?? 300 * 1024 * 1024);
+const calendarOwnerEmail = (process.env.CALENDAR_OWNER_EMAIL ?? "").trim().toLowerCase();
 const store = new SharedProjectStore(dataDirectory);
 await store.initialize();
 
@@ -168,6 +170,33 @@ function validProject(value: unknown): value is { document: { pages: unknown[] }
     Array.isArray(pages) && pages.length > 0 && pages.length <= 100;
 }
 
+function validGlobalGridTemplate(value: unknown): value is {
+  name: string;
+  description: string;
+  grid: CalendarGridElement;
+} {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as { name?: unknown; description?: unknown; grid?: unknown };
+  if (typeof candidate.name !== "string" || !candidate.name.trim() || candidate.name.length > 80) return false;
+  if (typeof candidate.description !== "string" || candidate.description.length > 300) return false;
+  if (!candidate.grid || typeof candidate.grid !== "object") return false;
+  const grid = candidate.grid as Partial<CalendarGridElement>;
+  return grid.type === "calendar-grid" &&
+    grid.columns === 7 &&
+    (grid.weekRows === 4 || grid.weekRows === 5 || grid.weekRows === 6) &&
+    typeof grid.weekdayLabelMode === "string" &&
+    typeof grid.showWeekdayHeader === "boolean" &&
+    typeof grid.dayNumberFontFamily === "string" && grid.dayNumberFontFamily.length <= 120 &&
+    typeof grid.eventFontFamily === "string" && grid.eventFontFamily.length <= 120;
+}
+
+async function calendarOwnerFor(request: IncomingMessage): Promise<{ id: string; email: string } | undefined> {
+  if (!calendarOwnerEmail) return undefined;
+  const token = bearerToken(request);
+  const credential = token ? await store.credentialFor(token) : undefined;
+  return credential?.email === calendarOwnerEmail ? credential : undefined;
+}
+
 function editorBody(value: unknown): { editorId: string; editorLabel: string } | undefined {
   if (!value || typeof value !== "object") return undefined;
   const body = value as { editorId?: unknown; editorLabel?: unknown };
@@ -254,6 +283,13 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   }
 
   if (request.method === "GET") {
+    if (url.pathname === "/v1/calendar-grid-templates") {
+      const canManage = Boolean(await calendarOwnerFor(request));
+      return respond(request, response, 200, {
+        templates: await store.listGlobalCalendarGridTemplates(),
+        canManage: canManage,
+      });
+    }
     if (url.pathname === "/v1/user-settings") {
       const accessToken = bearerToken(request);
       const settings = accessToken ? await store.programSettingsFor(accessToken) : undefined;
@@ -316,6 +352,45 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
     return settings
       ? respond(request, response, 200, settings)
       : respond(request, response, 401, { error: "email_required", message: "Сначала подтвердите e-mail" });
+  }
+
+  if (request.method === "POST" && url.pathname === "/v1/calendar-grid-templates") {
+    if (!await calendarOwnerFor(request)) {
+      return respond(request, response, 403, { error: "owner_required", message: "Управление общими макетами доступно только владельцу мастерской" });
+    }
+    const body = await readJson(request, 256 * 1024);
+    if (!validGlobalGridTemplate(body)) {
+      return respond(request, response, 400, { error: "invalid_grid_template", message: "Макет календарной сетки повреждён" });
+    }
+    return respond(request, response, 201, await store.saveGlobalCalendarGridTemplate({
+      name: body.name.trim(),
+      description: body.description.trim(),
+      grid: body.grid,
+    }));
+  }
+
+  const globalGridTemplateMatch = /^\/v1\/calendar-grid-templates\/([0-9a-z-]{1,80})$/i.exec(url.pathname);
+  if (globalGridTemplateMatch && request.method === "PUT") {
+    if (!await calendarOwnerFor(request)) {
+      return respond(request, response, 403, { error: "owner_required", message: "Управление общими макетами доступно только владельцу мастерской" });
+    }
+    const body = await readJson(request, 256 * 1024);
+    if (!validGlobalGridTemplate(body)) {
+      return respond(request, response, 400, { error: "invalid_grid_template", message: "Макет календарной сетки повреждён" });
+    }
+    return respond(request, response, 200, await store.saveGlobalCalendarGridTemplate({
+      name: body.name.trim(),
+      description: body.description.trim(),
+      grid: body.grid,
+    }, globalGridTemplateMatch[1]!));
+  }
+
+  if (globalGridTemplateMatch && request.method === "DELETE") {
+    if (!await calendarOwnerFor(request)) {
+      return respond(request, response, 403, { error: "owner_required", message: "Управление общими макетами доступно только владельцу мастерской" });
+    }
+    await store.deleteGlobalCalendarGridTemplate(globalGridTemplateMatch[1]!);
+    return respond(request, response, 204, null);
   }
 
   if (request.method === "POST" && url.pathname === "/v1/shared-projects") {
@@ -410,9 +485,10 @@ createServer((request, response) => {
   void handleRequest(request, response).catch((error: unknown) => {
     const code = error instanceof Error ? error.message : "server_error";
     const status = code === "payload_too_large" ? 413
-      : code === "project_not_found" ? 404
+      : code === "project_not_found" || code === "grid_template_not_found" ? 404
         : code === "revision_conflict" ? 409
-          : code === "lease_required" || code === "upload_required" ? 403
+          : code === "built_in_grid_template" ? 409
+            : code === "lease_required" || code === "upload_required" || code === "owner_required" ? 403
             : code.startsWith("invalid_") || code === "upload_incomplete" ? 400
               : 500;
     if (status === 500) console.error(error);

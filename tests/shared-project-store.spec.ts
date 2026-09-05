@@ -54,6 +54,33 @@ describe("shared project store", () => {
     expect(await store.programSettingsFor("invalid-token")).toBeUndefined();
   });
 
+  it("seeds five global grid layouts and persists owner changes", async () => {
+    const store = await createStore();
+    const initial = await store.listGlobalCalendarGridTemplates();
+    expect(initial).toHaveLength(5);
+    expect(initial.every((template) => template.builtIn)).toBe(true);
+
+    const custom = await store.saveGlobalCalendarGridTemplate({
+      name: "Авторская сетка",
+      description: "Общий макет",
+      grid: initial[0]!.grid,
+    });
+    expect(custom.builtIn).toBe(false);
+    expect(await store.listGlobalCalendarGridTemplates()).toHaveLength(6);
+
+    const updated = await store.saveGlobalCalendarGridTemplate({
+      name: "Обновлённая классика",
+      description: initial[0]!.description,
+      grid: { ...initial[0]!.grid, weekdayFontFamily: "Monomakh Unicode" },
+    }, initial[0]!.id);
+    expect(updated.builtIn).toBe(true);
+    expect(updated.grid.weekdayFontFamily).toBe("Monomakh Unicode");
+
+    await store.deleteGlobalCalendarGridTemplate(custom.id);
+    expect(await store.listGlobalCalendarGridTemplates()).toHaveLength(5);
+    await expect(store.deleteGlobalCalendarGridTemplate(initial[0]!.id)).rejects.toThrow("built_in_grid_template");
+  });
+
   it("allows one editor, expires a lost lease and protects revisions", async () => {
     let clock = Date.parse("2026-09-04T10:00:00Z");
     const store = await createStore(() => clock);

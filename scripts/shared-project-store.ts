@@ -1,6 +1,10 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { appendFile, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import {
+  defaultGlobalCalendarGridTemplates,
+  type GlobalCalendarGridTemplate,
+} from "../src/templates/calendar-grid-presets";
 
 export interface StoredSharedProject {
   id: string;
@@ -40,6 +44,7 @@ export interface PdfUploadRecord {
 export class SharedProjectStore {
   private readonly leases = new Map<string, ProjectLease>();
   private identityState: PersistedIdentityState = { pending: [], credentials: [], settingsByEmail: {} };
+  private globalGridTemplates: GlobalCalendarGridTemplate[] = defaultGlobalCalendarGridTemplates();
   private initialized = false;
 
   constructor(
@@ -60,6 +65,10 @@ export class SharedProjectStore {
     return resolve(this.dataDirectory, "pdf-exports");
   }
 
+  private get globalGridTemplatesFile(): string {
+    return resolve(this.dataDirectory, "calendar-grid-templates.json");
+  }
+
   async initialize(): Promise<void> {
     if (this.initialized) return;
     await Promise.all([
@@ -77,6 +86,23 @@ export class SharedProjectStore {
       };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    try {
+      const stored = JSON.parse(await readFile(this.globalGridTemplatesFile, "utf8")) as unknown;
+      if (!Array.isArray(stored)) throw new Error("invalid_global_grid_templates");
+      const savedTemplates = stored as GlobalCalendarGridTemplate[];
+      const savedById = new Map(savedTemplates.map((template) => [template.id, template]));
+      const defaults = defaultGlobalCalendarGridTemplates();
+      this.globalGridTemplates = [
+        ...defaults.map((template) => savedById.get(template.id) ?? template),
+        ...savedTemplates.filter((template) => !defaults.some((item) => item.id === template.id)),
+      ];
+      if (this.globalGridTemplates.length !== savedTemplates.length) {
+        await this.atomicWrite(this.globalGridTemplatesFile, this.globalGridTemplates);
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      await this.atomicWrite(this.globalGridTemplatesFile, this.globalGridTemplates);
     }
     this.prunePendingVerifications();
     this.initialized = true;
@@ -161,6 +187,47 @@ export class SharedProjectStore {
     this.identityState.settingsByEmail[credential.email] = settings;
     await this.persistIdentities();
     return settings;
+  }
+
+  async listGlobalCalendarGridTemplates(): Promise<GlobalCalendarGridTemplate[]> {
+    await this.initialize();
+    return JSON.parse(JSON.stringify(this.globalGridTemplates)) as GlobalCalendarGridTemplate[];
+  }
+
+  async saveGlobalCalendarGridTemplate(
+    value: Pick<GlobalCalendarGridTemplate, "name" | "description" | "grid">,
+    templateId?: string,
+  ): Promise<GlobalCalendarGridTemplate> {
+    await this.initialize();
+    const existingIndex = templateId
+      ? this.globalGridTemplates.findIndex((template) => template.id === templateId)
+      : -1;
+    if (templateId && existingIndex < 0) throw new Error("grid_template_not_found");
+    const existing = existingIndex >= 0 ? this.globalGridTemplates[existingIndex] : undefined;
+    const now = new Date(this.now()).toISOString();
+    const template: GlobalCalendarGridTemplate = {
+      id: existing?.id ?? randomUUID(),
+      name: value.name,
+      description: value.description,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+      builtIn: existing?.builtIn ?? false,
+      grid: JSON.parse(JSON.stringify(value.grid)) as GlobalCalendarGridTemplate["grid"],
+    };
+    if (existingIndex >= 0) this.globalGridTemplates.splice(existingIndex, 1, template);
+    else this.globalGridTemplates.push(template);
+    await this.atomicWrite(this.globalGridTemplatesFile, this.globalGridTemplates);
+    return JSON.parse(JSON.stringify(template)) as GlobalCalendarGridTemplate;
+  }
+
+  async deleteGlobalCalendarGridTemplate(templateId: string): Promise<boolean> {
+    await this.initialize();
+    const template = this.globalGridTemplates.find((item) => item.id === templateId);
+    if (!template) throw new Error("grid_template_not_found");
+    if (template.builtIn) throw new Error("built_in_grid_template");
+    this.globalGridTemplates = this.globalGridTemplates.filter((item) => item.id !== templateId);
+    await this.atomicWrite(this.globalGridTemplatesFile, this.globalGridTemplates);
+    return true;
   }
 
   async createProject(project: unknown, ownerCredentialId: string): Promise<StoredSharedProject> {

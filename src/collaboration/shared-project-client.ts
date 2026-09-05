@@ -1,4 +1,4 @@
-import type { CalendarProject } from "../document/types";
+import type { CalendarGridElement, CalendarProject } from "../document/types";
 import type {
   EmailVerificationConfirmed,
   EmailVerificationRequested,
@@ -8,7 +8,9 @@ import type {
   PdfExportReady,
   PdfUploadCreated,
   UserProgramSettings,
+  GlobalCalendarGridTemplatesResult,
 } from "./shared-project-types";
+import type { GlobalCalendarGridTemplate } from "../templates/calendar-grid-presets";
 
 const API_BASE = (import.meta.env.VITE_CALENDAR_API_URL as string | undefined)?.replace(/\/$/, "") ?? "/api";
 
@@ -98,6 +100,47 @@ export async function saveUserProgramSettings(
     method: "PUT",
     headers: bearer(accessToken),
     body: JSON.stringify(settings),
+  });
+}
+
+export async function loadGlobalCalendarGridTemplates(
+  accessToken?: string,
+): Promise<GlobalCalendarGridTemplatesResult> {
+  return request("/v1/calendar-grid-templates", {
+    ...(accessToken ? { headers: bearer(accessToken) } : {}),
+  });
+}
+
+export async function createGlobalCalendarGridTemplate(
+  accessToken: string,
+  value: { name: string; description: string; grid: CalendarGridElement },
+): Promise<GlobalCalendarGridTemplate> {
+  return request("/v1/calendar-grid-templates", {
+    method: "POST",
+    headers: bearer(accessToken),
+    body: JSON.stringify(value),
+  });
+}
+
+export async function updateGlobalCalendarGridTemplate(
+  accessToken: string,
+  templateId: string,
+  value: { name: string; description: string; grid: CalendarGridElement },
+): Promise<GlobalCalendarGridTemplate> {
+  return request(`/v1/calendar-grid-templates/${encodeURIComponent(templateId)}`, {
+    method: "PUT",
+    headers: bearer(accessToken),
+    body: JSON.stringify(value),
+  });
+}
+
+export async function deleteGlobalCalendarGridTemplate(
+  accessToken: string,
+  templateId: string,
+): Promise<void> {
+  await request(`/v1/calendar-grid-templates/${encodeURIComponent(templateId)}`, {
+    method: "DELETE",
+    headers: bearer(accessToken),
   });
 }
 

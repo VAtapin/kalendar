@@ -1,4 +1,5 @@
 import type { CalendarProject, ProgramSettings } from "../document/types";
+import type { GlobalCalendarGridTemplate } from "../templates/calendar-grid-presets";
 
 export interface SharedEditorPresence {
   label: string;
@@ -44,6 +45,11 @@ export interface EmailVerificationConfirmed {
 }
 
 export type UserProgramSettings = ProgramSettings;
+
+export interface GlobalCalendarGridTemplatesResult {
+  templates: GlobalCalendarGridTemplate[];
+  canManage: boolean;
+}
 
 export interface PdfUploadCreated {
   uploadId: string;
