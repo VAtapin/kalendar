@@ -1,5 +1,6 @@
 import type { OrthodoxCalendarDay, OrthodoxCalendarYear } from "../calendar";
-import type { CalendarGridElement } from "../document/types";
+import type { CalendarGridElement, CalendarLanguage } from "../document/types";
+import { localizeCalendarEvent } from "../calendar/localization/calendar-language";
 import { layoutTextBlock, type MeasureTextWidth } from "./text-layout";
 import {
   isMinorCommemorationEvent,
@@ -145,6 +146,7 @@ export function layoutCalendarCellText(
   element: CalendarGridElement,
   cell: CalendarGridCellLayout,
   measure: MeasureTextWidth,
+  calendarLanguage: CalendarLanguage = "ru",
 ): CalendarCellTextLayout {
   const day = cell.day;
   if (!day) return {
@@ -201,7 +203,7 @@ export function layoutCalendarCellText(
     // A single important commemoration may use the otherwise empty height of
     // the cell. With several events the fair-share limit still keeps balance.
     const allowedLines = Math.min(fairShare, remainingLines);
-    const candidates = eventDisplayCandidates(event);
+    const candidates = eventDisplayCandidates(event, calendarLanguage);
     let eventLayout = layoutTextBlock(
       candidates.at(-1) ?? event.title,
       contentWidth,
@@ -264,6 +266,7 @@ export function layoutCalendarCellTextAutoFit(
   element: CalendarGridElement,
   cell: CalendarGridCellLayout,
   measure: (text: string, fontSizeMm: number) => number,
+  calendarLanguage: CalendarLanguage = "ru",
 ): CalendarCellTextLayout {
   const requested = Math.max(0.1, element.eventFontSizePt ?? 10);
   const minimum = element.autoFitText === false
@@ -278,6 +281,7 @@ export function layoutCalendarCellTextAutoFit(
       candidateElement,
       cell,
       (value) => measure(value, sizeMm),
+      calendarLanguage,
     );
     candidate.usedFontSizePt = candidateSize;
     best = candidate;
@@ -342,8 +346,12 @@ export function eventDisplayTitle(event: OrthodoxCalendarDay["events"][number]):
   return event.veryShortTitle ?? event.shortTitle ?? event.title;
 }
 
-export function eventDisplayCandidates(event: OrthodoxCalendarDay["events"][number]): string[] {
-  return [event.title, event.shortTitle, event.veryShortTitle]
+export function eventDisplayCandidates(
+  event: OrthodoxCalendarDay["events"][number],
+  calendarLanguage: CalendarLanguage = "ru",
+): string[] {
+  const localized = localizeCalendarEvent(event, calendarLanguage);
+  return [localized.title, localized.shortTitle, localized.veryShortTitle]
     .filter((value): value is string => Boolean(value?.trim()))
     .filter((value, index, values) => values.indexOf(value) === index);
 }

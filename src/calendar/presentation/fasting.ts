@@ -1,4 +1,6 @@
 import type { OrthodoxCalendarDay } from "../types";
+import type { CalendarLanguage } from "../../document/types";
+import { calendarFoodRuleLabel } from "../localization/calendar-language";
 import {
   resolveFoodRuleForDay,
   type FoodRule,
@@ -27,8 +29,8 @@ const FOOD_RULE_LEGEND_LABELS: Record<FoodRuleId, string> = {
   memorial: "поминовение усопших",
 };
 
-export function foodRuleLegendLabel(rule: FoodRuleId): string {
-  return FOOD_RULE_LEGEND_LABELS[rule];
+export function foodRuleLegendLabel(rule: FoodRuleId, language: CalendarLanguage = "ru"): string {
+  return language === "ru" ? FOOD_RULE_LEGEND_LABELS[rule] : calendarFoodRuleLabel(rule, language);
 }
 
 const foodRuleCache = new WeakMap<OrthodoxCalendarDay, Map<FastingProfileId, FoodRule>>();

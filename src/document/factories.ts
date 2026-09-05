@@ -187,6 +187,7 @@ export function createBlankCalendarProject(year = 2027): CalendarProject {
     name: `Православный календарь ${year}`,
     publisherProfile: { name: "Издатель", logoAssetId: BRAND_LOGO_ASSET_ID },
     year,
+    calendarLanguage: "ru",
     fastingProfileId: "typikon-strict",
     calendarData: null,
     monasteryEvents: [],

@@ -6,7 +6,7 @@ import type {
   PageModel,
 } from "../document/types";
 import { BRAND_LOGO_ASSET_ID } from "../document/branding";
-import { RUSSIAN_MONTH_NAMES } from "./calendar-templates";
+import { calendarMonthHeading } from "../calendar/localization/calendar-language";
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -24,10 +24,11 @@ export function updatePageCalendarYear(
   page: PageModel,
   oldYear: number,
   newYear: number,
+  calendarLanguage: CalendarProject["calendarLanguage"] = "ru",
 ): void {
   const month = monthOf(page);
   if (page.kind === "month" && month) {
-    page.name = `${RUSSIAN_MONTH_NAMES[month - 1]} ${newYear}`;
+    page.name = calendarMonthHeading(month, newYear, calendarLanguage);
   } else {
     page.name = replaceYearText(page.name, oldYear, newYear);
   }
@@ -56,7 +57,7 @@ export function cloneProjectForYear(
   project.name = replaceYearText(project.name, oldYear, year);
   if (project.name === source.name) project.name = `${source.name} — ${year}`;
   project.document.title = replaceYearText(project.document.title, oldYear, year);
-  project.document.pages.forEach((page) => updatePageCalendarYear(page, oldYear, year));
+  project.document.pages.forEach((page) => updatePageCalendarYear(page, oldYear, year, project.calendarLanguage));
   project.calendarData = null;
   return project;
 }
@@ -150,8 +151,8 @@ export function applyMonthMaster(
       element.weekRows = oldGridRows[index] ?? element.weekRows;
     });
     next.id = target.id;
-    next.name = `${RUSSIAN_MONTH_NAMES[targetMonth - 1]} ${project.year}`;
-    updatePageCalendarYear(next, project.year, project.year);
+    next.name = calendarMonthHeading(targetMonth, project.year, project.calendarLanguage);
+    updatePageCalendarYear(next, project.year, project.year, project.calendarLanguage);
     Object.assign(target, next);
     changedPages += 1;
   }

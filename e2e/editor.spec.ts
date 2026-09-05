@@ -61,6 +61,29 @@ test("changes the interface language from File settings and remembers it locally
   await expect(page.getByRole("button", { name: "Bearbeiten", exact: true })).toBeVisible();
 });
 
+test("changes printed calendar language independently from the interface", async ({ page }) => {
+  await openEditor(page);
+  await expect(page.getByText("XML: 3811", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Файл", exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await page.getByRole("button", { name: "Создать обложку и 12 месяцев" }).click();
+  await page.getByRole("tab", { name: "Страницы" }).click();
+  await page.locator(".page-card").nth(1).click();
+  await page.getByRole("tab", { name: "Свойства" }).click();
+  await page.getByTestId("calendar-language-select").selectOption("pl");
+  await expect(page.getByTestId("calendar-language-select")).toHaveValue("pl");
+
+  await expect(page.locator(".page-element__calendar-weekday").first()).toContainText("Poniedziałek");
+  await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("Styczeń 2027");
+  await expect(page.locator(".calendar-cell__event").filter({ hasText: "Narodzenie" }).first()).toBeVisible();
+  await expect(page.locator(".calendar-cell__event").filter({ hasText: "Chrystusa" }).first()).toBeVisible();
+
+  await page.getByTestId("calendar-language-select").selectOption("cu");
+  await expect(page.locator(".page-element__calendar-weekday").last()).toContainText("недѣ́лѧ");
+  await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("і҆аннꙋарїй 2027");
+});
+
 test("inserts a print-ready transparent gold ornament from the objects library", async ({ page }) => {
   await openEditor(page);
   expect(await page.evaluate(async () => {

@@ -101,15 +101,20 @@ const TRANSLATIONS: Record<string, Translation> = {
 
   "Настройки программы": { de: "Programmeinstellungen", en: "Program settings", uk: "Налаштування програми" },
   "Язык интерфейса": { de: "Sprache der Benutzeroberfläche", en: "Interface language", uk: "Мова інтерфейсу" },
-  "Язык можно выбрать на стартовой странице или в меню Файл → Настройки программы…. Переводятся меню, кнопки, подсказки и окна программы. Церковные данные календаря и введённый вами текст не переводятся.": {
-    de: "Die Sprache kann auf der Startseite oder unter Datei → Programmeinstellungen… gewählt werden. Menüs, Schaltflächen, Hinweise und Dialoge werden übersetzt. Kirchliche Kalenderdaten und von Ihnen eingegebener Text werden nicht übersetzt.",
-    en: "Choose the language on the start page or under File → Program settings…. Menus, buttons, hints and dialogs are translated. Church calendar data and text you enter are not translated.",
-    uk: "Мову можна вибрати на стартовій сторінці або в меню Файл → Налаштування програми…. Перекладаються меню, кнопки, підказки та вікна програми. Церковні дані календаря й введений вами текст не перекладаються.",
+  "Язык интерфейса можно выбрать на стартовой странице или в меню Файл → Настройки программы…. Он меняет меню, кнопки, подсказки и окна, но не язык печатного календаря.": {
+    de: "Die Oberflächensprache kann auf der Startseite oder unter Datei → Programmeinstellungen… gewählt werden. Sie ändert Menüs, Schaltflächen, Hinweise und Dialoge, nicht aber die Sprache des gedruckten Kalenders.",
+    en: "Choose the interface language on the start page or under File → Program settings…. It changes menus, buttons, hints and dialogs, but not the printed calendar language.",
+    uk: "Мову інтерфейсу можна вибрати на стартовій сторінці або в меню Файл → Налаштування програми…. Вона змінює меню, кнопки, підказки та вікна, але не мову друкованого календаря.",
   },
-  "Язык применяется ко всем меню, подсказкам и окнам программы. Содержание календаря и введённый вами текст не переводятся.": {
-    de: "Die Sprache gilt für alle Menüs, Hinweise und Dialoge. Kalenderinhalte und von Ihnen eingegebener Text werden nicht übersetzt.",
-    en: "The language applies to all menus, hints and dialogs. Calendar content and text you enter are not translated.",
-    uk: "Мова застосовується до всіх меню, підказок і вікон програми. Вміст календаря та введений вами текст не перекладаються.",
+  "Эта настройка меняет только меню, подсказки и окна программы. Язык печатного календаря выбирается отдельно в свойствах календаря.": {
+    de: "Diese Einstellung ändert nur Menüs, Hinweise und Dialoge. Die Sprache des gedruckten Kalenders wird separat in den Kalendereigenschaften gewählt.",
+    en: "This setting changes only menus, hints and dialogs. Choose the printed calendar language separately in Calendar properties.",
+    uk: "Це налаштування змінює лише меню, підказки та вікна програми. Мову друкованого календаря вибирають окремо у властивостях календаря.",
+  },
+  "Выберите его в панели «Свойства», когда не выделен объект. Эта настройка меняет названия месяцев и дней недели, церковные праздники, постные обозначения и имена святых в редакторе и PDF. Она сохраняется вместе с календарём и применяется по ссылке совместной работы.": {
+    de: "Wählen Sie sie im Bedienfeld „Eigenschaften“, wenn kein Objekt ausgewählt ist. Diese Einstellung ändert Monats- und Wochentagsnamen, kirchliche Feste, Fastenangaben und Heiligennamen im Editor und im PDF. Sie wird mit dem Kalender gespeichert und gilt auch über den Link zur Zusammenarbeit.",
+    en: "Choose it in Properties when no object is selected. It changes month and weekday names, Church feasts, fasting labels and saints’ names in the editor and PDF. It is saved with the calendar and also applies through a collaboration link.",
+    uk: "Виберіть її на панелі «Властивості», коли жоден об’єкт не виділено. Це налаштування змінює назви місяців і днів тижня, церковні свята, позначення посту та імена святих у редакторі й PDF. Воно зберігається разом із календарем і діє за посиланням для спільної роботи.",
   },
   "Настройка сохранена на этом компьютере.": {
     de: "Die Einstellung wurde auf diesem Computer gespeichert.",
@@ -192,6 +197,8 @@ const TRANSLATIONS: Record<string, Translation> = {
   "Альбомная": { de: "Querformat", en: "Landscape", uk: "Альбомна" },
   "Название проекта": { de: "Projektname", en: "Project name", uk: "Назва проєкту" },
   "Календарный год": { de: "Kalenderjahr", en: "Calendar year", uk: "Календарний рік" },
+  "Язык календаря": { de: "Kalendersprache", en: "Calendar language", uk: "Мова календаря" },
+  "Язык месяцев, дней недели, праздников, постов и имён святых. Он не зависит от языка программы.": { de: "Sprache der Monate, Wochentage, Feste, Fastenzeiten und Heiligennamen. Sie ist unabhängig von der Programmsprache.", en: "Language for months, weekdays, feasts, fasting and saints’ names. It is independent of the program language.", uk: "Мова назв місяців, днів тижня, свят, постів та імен святих. Вона не залежить від мови програми." },
   "Правила поста": { de: "Fastenregeln", en: "Fasting rules", uk: "Правила посту" },
   "Издатель / монастырь": { de: "Herausgeber / Kloster", en: "Publisher / monastery", uk: "Видавець / монастир" },
   "ШРИФТЫ ПРОЕКТА": { de: "PROJEKTSCHRIFTEN", en: "PROJECT FONTS", uk: "ШРИФТИ ПРОЄКТУ" },

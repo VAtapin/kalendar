@@ -4,6 +4,7 @@ import {
   RUSSIAN_MONTH_NAMES,
   requiredMonthWeekRows,
 } from "../templates/calendar-templates";
+import { normalizeCalendarLanguage } from "../calendar/localization/calendar-language";
 import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-defaults";
 import { normalizedOpacity } from "../document/paint";
 import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
@@ -265,6 +266,7 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
       ? savedInterfaceLanguage
       : "ru",
   };
+  project.calendarLanguage = normalizeCalendarLanguage(project.calendarLanguage);
   project.fastingProfileId = project.fastingProfileId === "parish" ? "parish" : "typikon-strict";
   project.printSettings ??= {
     includeCropMarks: true,

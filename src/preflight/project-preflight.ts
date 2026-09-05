@@ -158,6 +158,7 @@ function checkCalendarGrid(
   page: PageModel,
   element: CalendarGridElement,
   calendar: OrthodoxCalendarYear,
+  calendarLanguage: CalendarProject["calendarLanguage"],
 ): PreflightIssue[] {
   const issues: PreflightIssue[] = [];
   const layout = buildCalendarGridLayout(element, calendar);
@@ -178,6 +179,7 @@ function checkCalendarGrid(
       element,
       cell,
       (value, fontSizeMm) => value.length * fontSizeMm * 0.52,
+      calendarLanguage,
     );
     if (text.truncatedRequiredEventCount > 0) overflowingDays += 1;
     if (text.hiddenRequiredEventCount > 0) daysWithHiddenRequiredEvents += 1;
@@ -306,7 +308,7 @@ export function checkCalendarProject(
           issues.push(issue(page, element, "missing-calendar-data", "error", "Календарные данные ещё не загружены."));
           continue;
         }
-        issues.push(...checkCalendarGrid(page, element, calendar));
+        issues.push(...checkCalendarGrid(page, element, calendar, project.calendarLanguage));
         // Every rule has a built-in marker in the selected pack. A custom image,
         // when supplied, simply overrides that rule without making it required.
       }

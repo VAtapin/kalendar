@@ -77,6 +77,8 @@ export interface TextTypography {
 export interface TextElement extends LayoutElement<"text"> {
   content: TextVariants;
   typography: TextTypography;
+  /** Machine-owned text whose visible value follows the calendar language. */
+  semanticRole?: "calendar-month-title";
   /** Optional print-safe effects intended for display-size headings. */
   textEffects?: LargeTextEffects;
 }
@@ -357,6 +359,7 @@ export interface StyleTheme {
 }
 
 export type InterfaceLanguage = "ru" | "de" | "en" | "uk";
+export type CalendarLanguage = "ru" | "cu" | "de" | "uk" | "pl";
 
 export interface ProgramSettings {
   interfaceLanguage: InterfaceLanguage;
@@ -370,6 +373,8 @@ export interface CalendarProject {
   name: string;
   publisherProfile: PublisherProfile;
   year: number;
+  /** Printed calendar language; intentionally independent from the program UI. */
+  calendarLanguage?: CalendarLanguage;
   fastingProfileId?: "typikon-strict" | "parish";
   calendarData: unknown;
   monasteryEvents: MonasteryEvent[];

@@ -43,6 +43,9 @@ describe("PDF exporter", () => {
     expect(families).toContain("Italiano Decor");
     expect(families).toContain("Cormorant Garamond");
     expect(families).not.toContain("Neoneon");
+
+    project.calendarLanguage = "cu";
+    expect(collectBundledFontFamilies(project)).toContain("Monomakh Unicode");
   });
 
   it("creates a Cyrillic print page with MediaBox, TrimBox and bleed", async () => {

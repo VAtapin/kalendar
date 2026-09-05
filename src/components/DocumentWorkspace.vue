@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { DocumentAsset, PageModel } from "../document/types";
+import type { CalendarLanguage, DocumentAsset, PageModel } from "../document/types";
 import type { ElementFrame } from "../editor/element-creation";
 import type { EditorTool } from "../editor/types";
 import type { OrthodoxCalendarYear } from "../calendar";
@@ -17,6 +17,7 @@ const props = defineProps<{
   foodMarkerPackId?: FoodMarkerPackId;
   foodMarkerAssets?: Partial<Record<FoodRuleId, string>>;
   fastingProfileId?: FastingProfileId;
+  calendarLanguage?: CalendarLanguage;
   calendarYear?: OrthodoxCalendarYear;
   pixelsPerMm: number;
   showGuides: boolean;
@@ -69,6 +70,7 @@ const mediaEndY = computed(() => props.page.height + props.page.bleed.bottom);
         :food-marker-pack-id="foodMarkerPackId"
         :food-marker-assets="foodMarkerAssets"
         :fasting-profile-id="fastingProfileId"
+        :calendar-language="calendarLanguage"
         :calendar-year="calendarYear"
         :pixels-per-mm="pixelsPerMm"
         :show-guides="showGuides"

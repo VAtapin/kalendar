@@ -55,7 +55,14 @@ import {
   typikonMarkerPdfSource,
 } from "../calendar/presentation/typikon-markers";
 import type { TypikonMarkKind } from "../calendar/presentation/typikon-style";
+import {
+  calendarMonasteryEventLabel,
+  calendarOldStylePrefix,
+  calendarWeekdayLabels,
+  localizedTextTitle,
+} from "../calendar/localization/calendar-language";
 import type {
+  CalendarLanguage,
   CalendarGridElement,
   CalendarProject,
   DocumentAsset,
@@ -80,7 +87,6 @@ import {
   calendarFoodMarkerGeometry,
   calendarCellTypography,
   layoutCalendarCellTextAutoFit,
-  WEEKDAY_LABELS,
 } from "../layout/calendar-grid-layout";
 import { layoutTextBlock } from "../layout/text-layout";
 import { buildRightAlignedLegendLayout } from "../layout/legend-layout";
@@ -157,6 +163,7 @@ interface PageContext {
   page: PageModel;
   calendar?: OrthodoxCalendarYear;
   fastingProfileId: CalendarProject["fastingProfileId"];
+  calendarLanguage: CalendarLanguage;
   fonts: EmbeddedFonts;
   assets: Map<string, DocumentAsset>;
   warnings: PdfExportWarning[];
@@ -556,7 +563,9 @@ function drawTextFrame(
   context: PageContext,
   element: TextElement | MonthTextElement,
 ): void {
-  const typography = element.typography;
+  const typography = element.type === "text" && element.semanticRole === "calendar-month-title" && context.calendarLanguage === "cu"
+    ? { ...element.typography, fontFamily: "Monomakh Unicode" }
+    : element.typography;
   const font = chooseFont(context.fonts, typography);
   const fontSize = typography.fontSizePt;
   const lineHeight = fontSize * typography.lineHeight;
@@ -571,8 +580,11 @@ function drawTextFrame(
     0,
     mm(element.height) - padding * 2 - attributionSize - attributionGap,
   );
+  const visibleTitle = element.type === "text"
+    ? localizedTextTitle(element, context.page, context.calendar?.year ?? new Date().getFullYear(), context.calendarLanguage)
+    : element.content.title;
   const layout = layoutTextBlock(
-    element.content.title,
+    visibleTitle,
     width,
     height,
     lineHeight,
@@ -584,7 +596,7 @@ function drawTextFrame(
       pageName: context.page.name,
       elementId: element.id,
       code: "text-overflow",
-      message: `Текст не помещается в блоке «${element.content.title.slice(0, 50)}».`,
+      message: `Текст не помещается в блоке «${visibleTitle.slice(0, 50)}».`,
     });
   }
 
@@ -801,12 +813,11 @@ async function drawImageElement(
   if (clipped) context.pdfPage.pushOperators(popGraphicsState());
 }
 
-function weekdayLabels(element: CalendarGridElement): readonly string[] {
+function weekdayLabels(element: CalendarGridElement, language: CalendarLanguage): readonly string[] {
   if (element.weekdayLabelMode === "custom" && element.customWeekdayLabels?.length === 7) {
     return element.customWeekdayLabels;
   }
-  if (element.weekdayLabelMode === "short") return ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-  return WEEKDAY_LABELS;
+  return calendarWeekdayLabels(language, element.weekdayLabelMode === "short");
 }
 
 function drawCalendarGrid(context: PageContext, element: CalendarGridElement): void {
@@ -842,7 +853,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
   }
   const headingFontSize = element.weekdayFontSizePt ?? 18;
   const headingFont = chooseFont(context.fonts, {
-    fontFamily: element.weekdayFontFamily ?? "Ruslan Display",
+    fontFamily: context.calendarLanguage === "cu" ? "Monomakh Unicode" : element.weekdayFontFamily ?? "Ruslan Display",
     fontSizePt: headingFontSize,
     lineHeight: 1,
     letterSpacingPt: 0,
@@ -851,7 +862,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     verticalAlign: "middle",
     paddingMm: 0,
   });
-  const labels = weekdayLabels(element);
+  const labels = weekdayLabels(element, context.calendarLanguage);
   const availableLabelWidth = Math.max(1, mm(layout.columnWidth - 2));
   const widestRequestedLabel = Math.max(
     1,
@@ -951,10 +962,10 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
       element.dayNumberTextEffects,
     );
     if (element.showOldStyleDate) {
-      const oldStyle = `ст. ст. ${cell.day.oldStyleDate.day}.${cell.day.oldStyleDate.month}`;
+      const oldStyle = `${calendarOldStylePrefix(context.calendarLanguage)} ${cell.day.oldStyleDate.day}.${cell.day.oldStyleDate.month}`;
       const oldStyleSize = mm(typography.oldStyleFontSizeMm);
       const oldStyleFont = chooseFont(context.fonts, {
-        fontFamily: element.oldStyleFontFamily ?? "Cormorant Garamond",
+        fontFamily: context.calendarLanguage === "cu" ? "Monomakh Unicode" : element.oldStyleFontFamily ?? "Cormorant Garamond",
         fontSizePt: element.oldStyleFontSizePt ?? 4.4,
         lineHeight: 1,
         letterSpacingPt: 0,
@@ -983,7 +994,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     }
 
     const eventMeasureFont = chooseFont(context.fonts, {
-      fontFamily: element.eventFontFamily ?? "Cormorant Garamond",
+      fontFamily: context.calendarLanguage === "cu" ? "Monomakh Unicode" : element.eventFontFamily ?? "Cormorant Garamond",
       fontSizePt: element.eventFontSizePt ?? 10,
       lineHeight: element.eventLineHeight ?? 1.08,
       letterSpacingPt: 0,
@@ -996,6 +1007,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
       element,
       cell,
       (value, fontSizeMm) => eventMeasureFont.widthOfTextAtSize(value, mm(fontSizeMm)) / MM_TO_PT,
+      context.calendarLanguage,
     );
     const primaryTypikonEvent = eventTextLayout.lines.find((line) => !line.isContinuation)?.event;
     if (element.showTypikonIcons === true && primaryTypikonEvent) {
@@ -1010,7 +1022,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     for (const line of eventTextLayout.lines) {
       const style = eventTypikonStyle(line.event, cell.day);
       const eventFont = chooseFont(context.fonts, {
-        fontFamily: element.eventFontFamily ?? "Cormorant Garamond",
+        fontFamily: context.calendarLanguage === "cu" ? "Monomakh Unicode" : element.eventFontFamily ?? "Cormorant Garamond",
         fontSizePt: element.eventFontSizePt ?? 10,
         lineHeight: element.eventLineHeight ?? 1.08,
         letterSpacingPt: 0,
@@ -1080,20 +1092,20 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
   );
   const months = new Set(pageGrids.map((grid) => grid.month));
   if (context.calendar?.days.some((day) => months.has(day.date.month) && day.events.some((event) => event.styleToken === "monastery-feast"))) {
-    items.push({ id: "monastery", label: "событие монастыря", fill: "#8a641b" });
+    items.push({ id: "monastery", label: calendarMonasteryEventLabel(context.calendarLanguage), fill: "#8a641b" });
   }
   const rules = pageGrids.some((grid) => grid.showFoodIcons)
     ? usedFoodRulesForMonths(context.calendar?.days ?? [], months, context.fastingProfileId)
     : new Set<FoodRuleId>();
   for (const rule of Object.values(FOOD_RULES)) {
     if (rule.id !== "no-fast" && rules.has(rule.id)) {
-      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id), fill: rule.color, foodRule: rule.id });
+      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id, context.calendarLanguage), fill: rule.color, foodRule: rule.id });
     }
   }
   const rowHeightMm = element.height;
   const baseFontSize = Math.min(mm(3.1), mm(rowHeightMm) * 0.42);
   const legendFont = chooseFont(context.fonts, {
-    fontFamily: "Cormorant Garamond",
+    fontFamily: context.calendarLanguage === "cu" ? "Monomakh Unicode" : "Cormorant Garamond",
     fontSizePt: baseFontSize,
     lineHeight: 1,
     letterSpacingPt: 0,
@@ -1459,6 +1471,7 @@ export async function exportCalendarProjectPdf(
       page,
       calendar,
       fastingProfileId: project.fastingProfileId,
+      calendarLanguage: project.calendarLanguage ?? "ru",
       fonts,
       assets,
       warnings,
@@ -1505,6 +1518,9 @@ export function collectBundledFontFamilies(project: CalendarProject): Set<Bundle
     const bundled = knownFamilies.get(family.trim().toLocaleLowerCase());
     if (bundled) result.add(bundled);
   };
+  // Church-Slavonic combining marks and historic Cyrillic must not silently
+  // fall back to .notdef glyphs in the PDF encoder.
+  if (project.calendarLanguage === "cu") add("Monomakh Unicode");
 
   for (const page of project.document.pages) {
     for (const element of page.elements) {

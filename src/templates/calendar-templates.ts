@@ -2,11 +2,13 @@ import { createBlankPage } from "../document/factories";
 import { attachElementToLayer, createEmptyLayer } from "../document/layer-operations";
 import type {
   LegendElement,
+  CalendarLanguage,
   PageFormatId,
   PageModel,
   PageOrientation,
   TextElement,
 } from "../document/types";
+import { calendarMonthHeading } from "../calendar/localization/calendar-language";
 import { createElementOnOwnLayer, type ElementIdFactory } from "../editor/element-creation";
 import { applyDefaultCalendarCellGeometry } from "./calendar-cell-defaults";
 import {
@@ -96,10 +98,11 @@ export function createMonthTemplatePageWithPreset(
   year: number,
   templateId: CalendarTemplateId,
   idFactory: ElementIdFactory = defaultId,
+  calendarLanguage: CalendarLanguage = "ru",
 ): PageModel {
   const page = createBlankPage(formatId, orientation);
   page.id = `page-month-${month}-${idFactory()}`;
-  page.name = `${RUSSIAN_MONTH_NAMES[month - 1] ?? "Месяц"} ${year}`;
+  page.name = calendarMonthHeading(month, year, calendarLanguage);
   page.kind = "month";
   page.layers = [];
   page.elements = [];
@@ -169,7 +172,8 @@ export function createMonthTemplatePageWithPreset(
     { x: margin, y: page.height * (compactLayout?.titleY ?? preset.titleY), width: contentWidth, height: titleHeight },
     { idFactory, fillColor: preset.titleColor },
   ).element as TextElement;
-  monthTitle.content.title = `${RUSSIAN_MONTH_NAMES[month - 1] ?? "Месяц"} ${year}`;
+  monthTitle.content.title = calendarMonthHeading(month, year, calendarLanguage);
+  monthTitle.semanticRole = "calendar-month-title";
   monthTitle.typography.fontFamily = "Ruslan Display";
   monthTitle.typography.fontSizePt = Math.max(20, page.width * 0.105);
   monthTitle.typography.fontWeight = 400;
@@ -235,6 +239,7 @@ export function createMonthTemplatePage(
   month: number,
   year: number,
   idFactory: ElementIdFactory = defaultId,
+  calendarLanguage: CalendarLanguage = "ru",
 ): PageModel {
   return createMonthTemplatePageWithPreset(
     formatId,
@@ -243,6 +248,7 @@ export function createMonthTemplatePage(
     year,
     "editorial-photo",
     idFactory,
+    calendarLanguage,
   );
 }
 
@@ -352,11 +358,12 @@ export function createFullCalendarTemplate(
   year: number,
   publisherName: string,
   templateId: CalendarTemplateId = "editorial-photo",
+  calendarLanguage: CalendarLanguage = "ru",
 ): PageModel[] {
   return [
     createCoverTemplatePage(formatId, orientation, year, publisherName),
     ...Array.from({ length: 12 }, (_, index) =>
-      createMonthTemplatePageWithPreset(formatId, orientation, index + 1, year, templateId),
+      createMonthTemplatePageWithPreset(formatId, orientation, index + 1, year, templateId, defaultId, calendarLanguage),
     ),
   ];
 }

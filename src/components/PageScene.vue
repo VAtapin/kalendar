@@ -4,6 +4,7 @@ import FoodMarker from "./FoodMarker.vue";
 import TypikonRankMarker from "./TypikonRankMarker.vue";
 import type {
   CalendarGridElement,
+  CalendarLanguage,
   DocumentAsset,
   ImageElement,
   LargeTextEffects,
@@ -14,6 +15,12 @@ import type {
   ShapeElement,
   TextElement,
 } from "../document/types";
+import {
+  calendarMonasteryEventLabel,
+  calendarOldStylePrefix,
+  calendarWeekdayLabels,
+  localizedTextTitle,
+} from "../calendar/localization/calendar-language";
 import { calculateImagePlacement } from "../document/image-placement";
 import { hasRoundedCorners, resolvedCornerRadii } from "../document/corner-radii";
 import { normalizedOpacity } from "../document/paint";
@@ -48,7 +55,6 @@ import {
   calendarFoodMarkerGeometry,
   calendarCellTypography,
   layoutCalendarCellTextAutoFit,
-  WEEKDAY_LABELS,
   type CalendarGridCellLayout,
   type CalendarGridLayout,
 } from "../layout/calendar-grid-layout";
@@ -82,6 +88,7 @@ const props = defineProps<{
   foodMarkerPackId?: FoodMarkerPackId;
   foodMarkerAssets?: Partial<Record<FoodRuleId, string>>;
   fastingProfileId?: FastingProfileId;
+  calendarLanguage?: CalendarLanguage;
   calendarYear?: OrthodoxCalendarYear;
   pixelsPerMm: number;
   showGuides: boolean;
@@ -145,14 +152,14 @@ const legendPreviewItems = computed<LegendPreviewItem[]>(() => {
   );
   const months = new Set(grids.map((grid) => grid.month));
   if (calendar.days.some((day) => months.has(day.date.month) && day.events.some((event) => event.styleToken === "monastery-feast"))) {
-    items.push({ id: "monastery", label: "событие монастыря", color: "#8a641b" });
+    items.push({ id: "monastery", label: calendarMonasteryEventLabel(props.calendarLanguage), color: "#8a641b" });
   }
   const foodRules = grids.some((grid) => grid.showFoodIcons)
     ? usedFoodRulesForMonths(calendar.days, months, props.fastingProfileId)
     : new Set<FoodRuleId>();
   for (const rule of Object.values(FOOD_RULES)) {
     if (rule.id !== "no-fast" && foodRules.has(rule.id)) {
-      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id), color: rule.color, foodRule: rule.id });
+      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id, props.calendarLanguage), color: rule.color, foodRule: rule.id });
     }
   }
   return items;
@@ -469,6 +476,16 @@ function fontSizeMm(fontSizePt: number): number {
   return fontSizePt * (25.4 / 72);
 }
 
+function calendarFontFamily(preferred: string): string {
+  return props.calendarLanguage === "cu" ? `"Monomakh Unicode", ${preferred}` : preferred;
+}
+
+function textElementFontFamily(element: TextElement | MonthTextElement): string {
+  return element.type === "text" && element.semanticRole === "calendar-month-title"
+    ? calendarFontFamily(element.typography.fontFamily)
+    : element.typography.fontFamily;
+}
+
 function shapeFill(element: ShapeElement): string {
   return element.fillGradient
     ? `url(#shape-gradient-${element.id})`
@@ -512,7 +529,9 @@ function textFrameLayout(element: TextElement | MonthTextElement): TextBlockLayo
     ? fontSize * 0.72 + lineHeight * 0.25
     : 0;
   return layoutTextBlock(
-    element.content.title,
+    element.type === "text"
+      ? localizedTextTitle(element, props.page, props.calendarYear?.year ?? new Date().getFullYear(), props.calendarLanguage)
+      : element.content.title,
     Math.max(0, element.width - padding * 2),
     Math.max(0, element.height - padding * 2 - attributionHeight),
     lineHeight,
@@ -546,6 +565,7 @@ function calendarCellText(element: CalendarGridElement, cell: CalendarGridCellLa
     element,
     cell,
     (value, fontSizeMm) => value.length * fontSizeMm * 0.52,
+    props.calendarLanguage,
   );
 }
 
@@ -584,9 +604,9 @@ function weekdayLabels(element: CalendarGridElement): readonly string[] {
     return element.customWeekdayLabels;
   }
   if (element.weekdayLabelMode === "short") {
-    return ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+    return calendarWeekdayLabels(props.calendarLanguage, true);
   }
-  return WEEKDAY_LABELS;
+  return calendarWeekdayLabels(props.calendarLanguage);
 }
 
 function weekdayFontSizeMm(element: CalendarGridElement): number {
@@ -726,7 +746,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                 :key="`${element.id}-extrusion-${lineIndex}-${effectIndex}`"
                 :x="textPositionX(element) + offset.xMm"
                 :y="textFirstBaseline(element) + lineIndex * fontSizeMm(element.typography.fontSizePt) * element.typography.lineHeight + offset.yMm"
-                :font-family="element.typography.fontFamily"
+                :font-family="textElementFontFamily(element)"
                 :font-size="fontSizeMm(element.typography.fontSizePt)"
                 :fill="element.textEffects.extrusion.color"
                 :opacity="normalizedOpacity(element.opacity) * offset.opacity"
@@ -745,7 +765,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
             :key="`${element.id}-line-${lineIndex}`"
             :x="textPositionX(element)"
             :y="textFirstBaseline(element) + lineIndex * fontSizeMm(element.typography.fontSizePt) * element.typography.lineHeight"
-            :font-family="element.typography.fontFamily"
+            :font-family="textElementFontFamily(element)"
             :font-size="fontSizeMm(element.typography.fontSizePt)"
             :fill="element.type === 'text' ? largeTextFill(element.textEffects, element.id, element.typography.color ?? '#17201d') : element.typography.color ?? '#17201d'"
             :filter="element.type === 'text' ? largeTextFilter(element.textEffects, element.id) : undefined"
@@ -964,7 +984,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                   class="page-element__calendar-weekday large-text-extrusion"
                   :style="{
                     fill: element.weekdayTextEffects.extrusion.color,
-                    fontFamily: element.weekdayFontFamily ?? 'Ruslan Display',
+                    fontFamily: calendarFontFamily(element.weekdayFontFamily ?? 'Ruslan Display'),
                     fontSize: `${weekdayFontSizeMm(element)}px`,
                   }"
                   :opacity="offset.opacity"
@@ -983,7 +1003,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
               :class="{ 'page-element__calendar-weekday--sunday': column === 6 }"
               :style="{
                 fill: largeTextFill(element.weekdayTextEffects, `${element.id}-weekday`, column === 6 ? '#9d2929' : '#26322d'),
-                fontFamily: element.weekdayFontFamily ?? 'Ruslan Display',
+                fontFamily: calendarFontFamily(element.weekdayFontFamily ?? 'Ruslan Display'),
                 fontSize: `${weekdayFontSizeMm(element)}px`,
               }"
               :filter="largeTextFilter(element.weekdayTextEffects, `${element.id}-weekday`)"
@@ -1059,10 +1079,10 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                   :x="cell.x + calendarCellTypography(element).oldStyleXOffsetMm"
                   :y="cell.y + calendarCellTypography(element).oldStyleYOffsetMm + calendarCellTypography(element).oldStyleFontSizeMm"
                   :font-size="calendarCellTypography(element).oldStyleFontSizeMm"
-                  :style="{ fontFamily: element.oldStyleFontFamily ?? 'Cormorant Garamond' }"
+                  :style="{ fontFamily: calendarFontFamily(element.oldStyleFontFamily ?? 'Cormorant Garamond') }"
                   class="calendar-cell__old-style"
                 >
-                  ст. ст. {{ cell.day.oldStyleDate.day }}.{{ cell.day.oldStyleDate.month }}
+                  {{ calendarOldStylePrefix(calendarLanguage) }} {{ cell.day.oldStyleDate.day }}.{{ cell.day.oldStyleDate.month }}
                 </text>
                 <FoodMarker
                   v-if="element.showFoodIcons && resolveFoodRule(cell.day, fastingProfileId).id !== 'no-fast'"
@@ -1087,7 +1107,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                     :style="{
                       fill: element.showFeastColors === false ? '#2a3530' : eventTypikonStyle(line.event, cell.day).color,
                       fontWeight: eventTypikonStyle(line.event, cell.day).fontWeight,
-                      fontFamily: element.eventFontFamily ?? 'Cormorant Garamond',
+                      fontFamily: calendarFontFamily(element.eventFontFamily ?? 'Cormorant Garamond'),
                     }"
                     class="calendar-cell__event"
                     :data-style-token="line.event.styleToken"

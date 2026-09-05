@@ -30,6 +30,7 @@ import {
 } from "./document/layer-operations";
 import type {
   CalendarGridElement,
+  CalendarLanguage,
   CalendarProject,
   CommemorationRankFilterId,
   CornerRadiiMm,
@@ -44,6 +45,11 @@ import type {
   PageOrientation,
   SvgElement,
 } from "./document/types";
+import {
+  CALENDAR_LANGUAGE_OPTIONS,
+  calendarMonthHeading,
+  normalizeCalendarLanguage,
+} from "./calendar/localization/calendar-language";
 import {
   PRINT_GOLD_COLOR,
   createGoldGradient,
@@ -136,6 +142,7 @@ import {
   applyMonthMaster,
   cloneProjectForYear,
   describeMonthMasterApplication,
+  updatePageCalendarYear,
 } from "./templates/project-templates";
 import {
   INTERFACE_LANGUAGE_STORAGE_KEY,
@@ -364,6 +371,7 @@ const activeFoodMarkerPack = computed(() => getFoodMarkerPack(project.value.food
 const calendarTemplatePresets = CALENDAR_TEMPLATE_PRESETS;
 const commemorationFilterOptions = COMMEMORATION_FILTER_OPTIONS;
 const fastingProfileOptions = Object.values(FASTING_PROFILES);
+const calendarLanguageOptions = CALENDAR_LANGUAGE_OPTIONS;
 const decorLibraryItems = DECOR_LIBRARY_ITEMS;
 
 const selectedPage = computed(() => {
@@ -1571,6 +1579,7 @@ async function applyFullCalendarTemplate(): Promise<void> {
       project.value.year,
       project.value.publisherProfile.name,
       selectedTemplateId.value,
+      project.value.calendarLanguage,
     );
   });
   resetPageTabs();
@@ -1585,6 +1594,8 @@ function addMonthTemplatePage(month = 1): void {
       month,
       project.value.year,
       selectedTemplateId.value,
+      undefined,
+      project.value.calendarLanguage,
     );
     project.value.document.pages.push(created);
     return created;
@@ -1715,10 +1726,26 @@ function updateProjectYear(event: Event): void {
   const value = Math.round(Number((event.target as HTMLInputElement).value));
   if (!Number.isInteger(value) || value < 1900 || value > 2200 || value === project.value.year) return;
   mutateProject("Изменение календарного года", () => {
+    const oldYear = project.value.year;
     project.value.year = value;
+    project.value.document.pages.forEach((page) => updatePageCalendarYear(page, oldYear, value, project.value.calendarLanguage));
   });
   void loadCalendarData();
   operationNotice.value = `Календарь пересчитан на ${value} год`;
+}
+
+function updateCalendarLanguage(event: Event): void {
+  const language = normalizeCalendarLanguage((event.target as HTMLSelectElement).value) as CalendarLanguage;
+  if (language === project.value.calendarLanguage) return;
+  mutateProject("Изменение языка календаря", () => {
+    project.value.calendarLanguage = language;
+    for (const page of project.value.document.pages) {
+      if (page.kind !== "month") continue;
+      const month = page.elements.find((element) => element.type === "calendar-grid")?.month;
+      if (month) page.name = calendarMonthHeading(month, project.value.year, language);
+    }
+  });
+  operationNotice.value = `Язык календаря: ${calendarLanguageOptions.find((item) => item.id === language)?.label ?? language}`;
 }
 
 function findLayer(layerId: string) {
@@ -3393,6 +3420,7 @@ onBeforeUnmount(() => {
         :food-marker-pack-id="project.foodMarkerPackId"
         :food-marker-assets="project.foodMarkerAssets"
         :fasting-profile-id="project.fastingProfileId"
+        :calendar-language="project.calendarLanguage"
         :calendar-year="displayedCalendarYear"
         :pixels-per-mm="pixelsPerMm"
         :show-guides="showGuides"
@@ -3725,6 +3753,8 @@ onBeforeUnmount(() => {
               <template v-else>
               <label class="field-stack"><span>Название проекта</span><input v-model="project.name" type="text" /></label>
               <label class="field-control"><span>Календарный год</span><input :value="project.year" type="number" min="1900" max="2200" @change="updateProjectYear" /></label>
+              <label class="field-control"><span>Язык календаря</span><select data-testid="calendar-language-select" :value="project.calendarLanguage ?? 'ru'" @change="updateCalendarLanguage"><option v-for="language in calendarLanguageOptions" :key="language.id" :value="language.id">{{ language.label }}</option></select></label>
+              <p class="property-help">Язык месяцев, дней недели, праздников, постов и имён святых. Он не зависит от языка программы.</p>
               <label class="field-control"><span>Правила поста</span><select v-model="project.fastingProfileId"><option v-for="profile in fastingProfileOptions" :key="profile.id" :value="profile.id">{{ profile.label }}</option></select></label>
               <p class="property-help">{{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].description }} Версия правил {{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].rulesVersion }}.</p>
               <label class="field-stack"><span>Издатель / монастырь</span><input v-model="project.publisherProfile.name" type="text" /></label>
@@ -3950,7 +3980,7 @@ onBeforeUnmount(() => {
             type="button"
             @click="selectPage(page.id)"
           >
-            <PageThumbnail :page="page" :assets="project.assets" :year="project.year" />
+            <PageThumbnail :page="page" :assets="project.assets" :year="project.year" :calendar-language="project.calendarLanguage" />
             <span>
               <strong>{{ pageIndex + 1 }}. {{ page.name }}</strong>
               <small>{{ page.width }} × {{ page.height }} мм</small>

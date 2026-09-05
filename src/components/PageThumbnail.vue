@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type {
+  CalendarLanguage,
   DocumentAsset,
   ImageElement,
   LayerMask,
@@ -8,6 +9,7 @@ import type {
   PageModel,
   SvgElement,
 } from "../document/types";
+import { calendarWeekdayLabels, localizedTextTitle } from "../calendar/localization/calendar-language";
 import { calculateImagePlacement } from "../document/image-placement";
 import { hasRoundedCorners, resolvedCornerRadii } from "../document/corner-radii";
 import { flattenObjectLayers } from "../document/layer-operations";
@@ -16,6 +18,7 @@ const props = defineProps<{
   page: PageModel;
   assets: DocumentAsset[];
   year: number;
+  calendarLanguage?: CalendarLanguage;
 }>();
 
 const canvas = ref<HTMLCanvasElement>();
@@ -181,13 +184,16 @@ function drawText(context: CanvasRenderingContext2D, element: Extract<LayoutElem
   context.beginPath();
   context.rect(x, y, width, Math.max(2, element.height * scaleY));
   context.clip();
-  const measured = context.measureText(element.content.title).width;
+  const title = element.type === "text"
+    ? localizedTextTitle(element, props.page, props.year, props.calendarLanguage)
+    : element.content.title;
+  const measured = context.measureText(title).width;
   const textX = element.typography.align === "center"
     ? x + (width - measured) / 2
     : element.typography.align === "right"
       ? x + width - measured
       : x;
-  context.fillText(element.content.title, textX, y);
+  context.fillText(title, textX, y);
   context.restore();
 }
 
@@ -223,7 +229,7 @@ function drawCalendarGrid(context: CanvasRenderingContext2D, element: Extract<La
     context.fillStyle = "#29332f";
     context.font = "bold 3.5px Georgia, serif";
     for (let column = 0; column < 7; column += 1) {
-      context.fillText(["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"][column] ?? "", x + column * columnWidth + 1, y + 1);
+      context.fillText(calendarWeekdayLabels(props.calendarLanguage, true)[column] ?? "", x + column * columnWidth + 1, y + 1);
     }
   }
   const firstWeekday = (new Date(Date.UTC(props.year, element.month - 1, 1)).getUTCDay() + 6) % 7;
@@ -342,7 +348,7 @@ onMounted(() => {
 });
 
 watch(() => props.page, scheduleRender, { deep: true });
-watch(() => [props.assets.length, props.year], scheduleRender);
+watch(() => [props.assets.length, props.year, props.calendarLanguage], scheduleRender);
 
 onBeforeUnmount(() => {
   observer?.disconnect();
