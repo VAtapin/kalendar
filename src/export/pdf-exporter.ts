@@ -1,4 +1,5 @@
 import fontkit from "@pdf-lib/fontkit";
+import { FASTING_COLORS } from '../calendar/presentation/fasting-colors';
 import {
   PDFDocument,
   PDFDict,
@@ -916,13 +917,15 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     const cellY = bottomPt(context, cell.y, cell.height);
     const cellWidth = mm(cell.width);
     const cellHeight = mm(cell.height);
+    const fastingFill = element.showFastingColors && cell.day ? FASTING_COLORS[resolveFoodRule(cell.day, context.fastingProfileId).id] : undefined;
+    if (fastingFill && gridStyle !== 'boxed') context.pdfPage.drawRectangle({ x: cellX, y: cellY, width: cellWidth, height: cellHeight, color: color(fastingFill) });
     if (gridStyle === "boxed") {
       context.pdfPage.drawRectangle({
         x: cellX,
         y: cellY,
         width: cellWidth,
         height: cellHeight,
-        color: color("#ffffff"),
+        color: color(fastingFill ?? "#ffffff"),
         borderColor: color("#28342f"),
         borderWidth: mm(0.35),
       });
@@ -982,7 +985,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
         color: color("#76817c"),
       });
     }
-    if (element.showFoodIcons && resolveFoodRule(cell.day, context.fastingProfileId).id !== "no-fast") {
+    if (element.showFoodIcons && !element.showFastingColors && resolveFoodRule(cell.day, context.fastingProfileId).id !== "no-fast") {
       const marker = calendarFoodMarkerGeometry(element, cell);
       drawFoodMarker(
         context,
@@ -1086,7 +1089,7 @@ function drawFoodMarker(
 }
 
 function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { type: "legend" }>): void {
-  const items: Array<{ id: string; label: string; fill: string; foodRule?: FoodRuleId }> = [];
+  const items: Array<{ id: string; label: string; fill: string; foodRule?: FoodRuleId; colorSwatch?: boolean }> = [];
   const pageGrids = buildPageScene(context.page).elements.filter(
     (item): item is CalendarGridElement => item.type === "calendar-grid",
   );
@@ -1094,12 +1097,13 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
   if (context.calendar?.days.some((day) => months.has(day.date.month) && day.events.some((event) => event.styleToken === "monastery-feast"))) {
     items.push({ id: "monastery", label: calendarMonasteryEventLabel(context.calendarLanguage), fill: "#8a641b" });
   }
-  const rules = pageGrids.some((grid) => grid.showFoodIcons)
+  const useColors = pageGrids.some(grid => grid.showFastingColors);
+  const rules = pageGrids.some((grid) => grid.showFoodIcons || grid.showFastingColors)
     ? usedFoodRulesForMonths(context.calendar?.days ?? [], months, context.fastingProfileId)
     : new Set<FoodRuleId>();
   for (const rule of Object.values(FOOD_RULES)) {
-    if (rule.id !== "no-fast" && rules.has(rule.id)) {
-      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id, context.calendarLanguage), fill: rule.color, foodRule: rule.id });
+    if ((useColors || rule.id !== "no-fast") && rules.has(rule.id)) {
+      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id, context.calendarLanguage), fill: useColors ? FASTING_COLORS[rule.id] : rule.color, foodRule: useColors ? undefined : rule.id, colorSwatch: useColors });
     }
   }
   const rowHeightMm = element.height;
@@ -1136,6 +1140,7 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
         markerSize,
       );
     }
+    else if (item.colorSwatch) context.pdfPage.drawRectangle({ x, y: bottomPt(context, rowTopMm + (rowHeightMm + markerSize) / 2), width: mm(markerSize), height: mm(markerSize), color: color(item.fill), borderColor: color('#68736d'), borderWidth: mm(0.15) });
     else context.pdfPage.drawCircle({ x: x + mm(markerSize / 2), y: bottomPt(context, rowTopMm + rowHeightMm / 2), size: mm(2.1), color: color(item.fill) });
     context.pdfPage.drawText(item.label, { x: x + mm(itemLayout.labelOffsetMm), y, size: fontSize, font: legendFont, color: color("#34413b") });
   });

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import FoodMarker from "./FoodMarker.vue";
+import { FASTING_COLORS } from '../calendar/presentation/fasting-colors';
 import TypikonRankMarker from "./TypikonRankMarker.vue";
 import type {
   CalendarGridElement,
@@ -142,6 +143,7 @@ interface LegendPreviewItem {
   label: string;
   color: string;
   foodRule?: FoodRuleId;
+  colorSwatch?: boolean;
 }
 const legendPreviewItems = computed<LegendPreviewItem[]>(() => {
   const items: LegendPreviewItem[] = [];
@@ -154,12 +156,13 @@ const legendPreviewItems = computed<LegendPreviewItem[]>(() => {
   if (calendar.days.some((day) => months.has(day.date.month) && day.events.some((event) => event.styleToken === "monastery-feast"))) {
     items.push({ id: "monastery", label: calendarMonasteryEventLabel(props.calendarLanguage), color: "#8a641b" });
   }
-  const foodRules = grids.some((grid) => grid.showFoodIcons)
+  const useColors = grids.some(grid => grid.showFastingColors);
+  const foodRules = grids.some((grid) => grid.showFoodIcons || grid.showFastingColors)
     ? usedFoodRulesForMonths(calendar.days, months, props.fastingProfileId)
     : new Set<FoodRuleId>();
   for (const rule of Object.values(FOOD_RULES)) {
-    if (rule.id !== "no-fast" && foodRules.has(rule.id)) {
-      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id, props.calendarLanguage), color: rule.color, foodRule: rule.id });
+    if ((useColors || rule.id !== "no-fast") && foodRules.has(rule.id)) {
+      items.push({ id: rule.id, label: foodRuleLegendLabel(rule.id, props.calendarLanguage), color: useColors ? FASTING_COLORS[rule.id] : rule.color, foodRule: useColors ? undefined : rule.id, colorSwatch: useColors });
     }
   }
   return items;
@@ -1025,6 +1028,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                 :width="cell.width"
                 :height="cell.height"
                 class="page-element__calendar"
+                :style="element.showFastingColors && cell.day ? { fill: FASTING_COLORS[resolveFoodRule(cell.day, fastingProfileId).id] } : undefined"
                 :data-grid-style="element.gridStyle ?? 'editorial'"
               />
               <line
@@ -1085,7 +1089,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                   {{ calendarOldStylePrefix(calendarLanguage) }} {{ cell.day.oldStyleDate.day }}.{{ cell.day.oldStyleDate.month }}
                 </text>
                 <FoodMarker
-                  v-if="element.showFoodIcons && resolveFoodRule(cell.day, fastingProfileId).id !== 'no-fast'"
+                  v-if="element.showFoodIcons && !element.showFastingColors && resolveFoodRule(cell.day, fastingProfileId).id !== 'no-fast'"
                   :rule="resolveFoodRule(cell.day, fastingProfileId).id"
                   :source="foodMarkerSource(resolveFoodRule(cell.day, fastingProfileId).id)"
                   :x="cell.x + calendarFoodMarkerGeometry(element, cell).xOffsetMm"
@@ -1150,6 +1154,7 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
               :y="Math.max(0, (legendRowHeight(element) - legendLayout(element).markerSizeMm) / 2)"
               :size="legendLayout(element).markerSizeMm"
             />
+            <rect v-else-if="item.colorSwatch" :x="0" :y="(legendRowHeight(element) - legendLayout(element).markerSizeMm) / 2" :width="legendLayout(element).markerSizeMm" :height="legendLayout(element).markerSizeMm" :fill="item.color" stroke="#68736d" stroke-width="0.15" />
             <circle v-else :cx="legendLayout(element).markerSizeMm / 2" :cy="legendRowHeight(element) / 2" r="2.1" :fill="item.color" />
             <text
               :x="legendLayout(element).items[index]!.widthMm"

@@ -101,6 +101,15 @@ function baseGrid(overrides: Partial<CalendarGridElement>): CalendarGridElement 
 
 export const DEFAULT_GLOBAL_CALENDAR_GRID_TEMPLATES: readonly GlobalCalendarGridTemplate[] = [
   {
+    id: "fasting-colors",
+    name: "Пост цветом",
+    description: "Светлые цветные ячейки вместо картинок: категории поста с цветной легендой.",
+    createdAt: INITIAL_PRESET_DATE,
+    updatedAt: INITIAL_PRESET_DATE,
+    builtIn: true,
+    grid: baseGrid({ gridStyle: "boxed", showFoodIcons: false, showFastingColors: true, showTypikonIcons: false }),
+  },
+  {
     id: "editorial-classic",
     name: "Издательская классика",
     description: "Полные названия дней, крупные даты и лёгкие пунктирные разделители.",

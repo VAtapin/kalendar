@@ -8,6 +8,7 @@ const PRESENTATION_KEYS = [
   "showOldStyleDate",
   "maxVisibleEvents",
   "showFoodIcons",
+  "showFastingColors",
   "showFeastColors",
   "showTypikonIcons",
   "showFastingText",

@@ -78,6 +78,8 @@ describe("PDF exporter", () => {
       }
       if (element.type === "calendar-grid") {
         element.showFoodIcons = false;
+        element.showFastingColors = true;
+        element.gridStyle = 'boxed';
         element.weekdayTextEffects = {
           gradient: createGoldGradient(),
           shadow: { color: "#000000", offsetXMm: 0.5, offsetYMm: 0.5, blurMm: 0.4, opacity: 0.35 },
@@ -95,6 +97,8 @@ describe("PDF exporter", () => {
       boldItalic,
     });
     const exported = await PDFDocument.load(result.bytes);
+    // January contains oil days; the background color must survive vector PDF export.
+    expect(decodedPageContent(exported, 0)).toContain(`${247 / 255} ${229 / 255} ${181 / 255} rg`);
     expect(exported.getPageCount()).toBe(1);
     const page = exported.getPage(0);
     expect(page.getWidth()).toBeCloseTo((105 + 6) * MM_TO_PT, 2);

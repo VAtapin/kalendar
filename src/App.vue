@@ -2619,6 +2619,12 @@ function applyCalendarGridTemplate(
         if (grid.type !== "calendar-grid") continue;
         if (!allMonths && grid.id !== selectedGrid?.id) continue;
         copyCalendarGridPresentation(template.grid, grid);
+        if (grid.showFastingColors && !page.elements.some(element => element.type === 'legend')) {
+          const id = `legend-${crypto.randomUUID()}`;
+          const layer = createEmptyLayer(page, `layer-${id}`, 'Легенда поста');
+          layer.elementId = id;
+          page.elements.push({ id, type: 'legend', layerId: layer.id, x: grid.x, y: Math.min(grid.y + grid.height + 2, page.height - 12), width: grid.width, height: 8, rotation: 0, zIndex: grid.zIndex + 1, locked: false, visible: true, overflow: 'none', generatedFromVisibleMarkers: true, columns: 8 });
+        }
         updated += 1;
       }
     }
@@ -4252,6 +4258,7 @@ onBeforeUnmount(() => {
                     <label class="field-control"><span>Y, мм</span><input v-model.number="selectedElement.typikonMarkerYOffsetMm" data-testid="typikon-marker-y" type="number" step="0.1" /></label>
                   </div>
                   <label class="checkbox-field"><input v-model="selectedElement.showFoodIcons" type="checkbox" /><span>Значки пищи и поста</span></label>
+                  <label class="checkbox-field"><input v-model="selectedElement.showFastingColors" type="checkbox" /><span>Пост цветом</span></label>
                   <div v-if="selectedElement.showFoodIcons" class="cell-object-controls">
                     <strong>Значок пищи / поста</strong>
                     <label class="field-control"><span>Размер, мм</span><input v-model.number="selectedElement.foodMarkerSizeMm" data-testid="food-marker-size" type="number" step="0.1" /></label>

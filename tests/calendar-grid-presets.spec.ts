@@ -1,15 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { copyCalendarGridPresentation } from "../src/templates/calendar-grid-settings";
+import { FASTING_COLORS } from '../src/calendar/presentation/fasting-colors';
+import { FOOD_RULES } from '../src/calendar/fasting/fasting-api';
 import {
   defaultGlobalCalendarGridTemplates,
   mergeGlobalCalendarGridTemplates,
 } from "../src/templates/calendar-grid-presets";
 
 describe("global calendar-grid layouts", () => {
-  it("ships five visibly distinct editable layouts", () => {
+  it('copies color fasting mode and removes it when applying an icon template', () => {
     const templates = defaultGlobalCalendarGridTemplates();
-    expect(templates).toHaveLength(5);
-    expect(new Set(templates.map((template) => template.id)).size).toBe(5);
+    const colored = templates.find(t => t.id === 'fasting-colors')!;
+    const classic = templates.find(t => t.id === 'editorial-classic')!;
+    const target = structuredClone(classic.grid);
+    copyCalendarGridPresentation(colored.grid, target);
+    expect(target.showFastingColors).toBe(true);
+    expect(target.showFoodIcons).toBe(false);
+    copyCalendarGridPresentation(classic.grid, target);
+    expect(target.showFastingColors).toBeUndefined();
+    expect(target.showFoodIcons).toBe(true);
+    expect(Object.keys(FASTING_COLORS).sort()).toEqual(Object.keys(FOOD_RULES).sort());
+    expect(new Set(Object.values(FASTING_COLORS)).size).toBe(Object.keys(FOOD_RULES).length);
+  });
+  it("ships six visibly distinct editable layouts", () => {
+    const templates = defaultGlobalCalendarGridTemplates();
+    expect(templates).toHaveLength(6);
+    expect(new Set(templates.map((template) => template.id)).size).toBe(6);
     expect(new Set(templates.map((template) => template.grid.gridStyle)).size).toBe(3);
     expect(new Set(templates.map((template) => template.grid.weekdayFontFamily)).size).toBe(5);
     expect(new Set(templates.map((template) => template.grid.dayNumberFontFamily)).size).toBe(5);
@@ -51,7 +67,7 @@ describe("global calendar-grid layouts", () => {
 
     const merged = mergeGlobalCalendarGridTemplates([changed, custom]);
 
-    expect(merged).toHaveLength(6);
+    expect(merged).toHaveLength(7);
     expect(merged[0]?.name).toBe("Обновлённый макет");
     expect(merged[0]?.grid.eventFontSizePt).toBe(11);
     expect(merged.at(-1)?.id).toBe("custom-layout");

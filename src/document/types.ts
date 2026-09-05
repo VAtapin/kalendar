@@ -170,6 +170,7 @@ export interface CalendarGridElement extends LayoutElement<"calendar-grid"> {
   showOldStyleDate: boolean;
   maxVisibleEvents: number;
   showFoodIcons: boolean;
+  showFastingColors?: boolean;
   showFeastColors: boolean;
   showTypikonIcons?: boolean;
   showFastingText?: boolean;

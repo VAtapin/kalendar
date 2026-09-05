@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { FASTING_COLORS } from '../calendar/presentation/fasting-colors';
 import type { GlobalCalendarGridTemplate } from "../templates/calendar-grid-presets";
 
 const props = defineProps<{
@@ -27,7 +28,7 @@ const weekdaySamples = computed(() => props.template.grid.weekdayLabelMode === "
         <span v-for="(label, index) in weekdaySamples" :key="label" :class="{ sunday: index === 6 }">{{ label }}</span>
       </span>
       <span class="grid-preset-preview__days" :data-grid-style="template.grid.gridStyle ?? 'editorial'">
-        <span v-for="day in [12, 13, 14]" :key="day" class="grid-preset-preview__day">
+        <span v-for="(day, index) in [12, 13, 14]" :key="day" class="grid-preset-preview__day" :style="template.grid.showFastingColors ? {background: [FASTING_COLORS.fast, FASTING_COLORS.fish, FASTING_COLORS['dry-eating']][index]} : undefined">
           <b :style="{ fontFamily: template.grid.dayNumberFontFamily }">{{ day }}</b>
           <i :style="{ fontFamily: template.grid.eventFontFamily }">Праздник<br />память святого</i>
         </span>

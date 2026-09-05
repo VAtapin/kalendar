@@ -29,6 +29,8 @@ type Translation = Record<Exclude<InterfaceLanguage, "ru">, string>;
  * Calendar content, project names and user-entered text are deliberately absent.
  */
 const TRANSLATIONS: Record<string, Translation> = {
+  "Пост цветом": { de: "Fastenfarben", en: "Fasting colors", uk: "Піст кольором" },
+  "Светлые цветные ячейки вместо картинок: категории поста с цветной легендой.": { de: "Helle Farbfelder statt Bilder: Fastenkategorien mit Farblegende.", en: "Light colored cells instead of pictures: fasting categories with a color legend.", uk: "Світлі кольорові клітинки замість зображень: категорії посту з кольоровою легендою." },
   "Файл": { de: "Datei", en: "File", uk: "Файл" },
   "Правка": { de: "Bearbeiten", en: "Edit", uk: "Редагування" },
   "Макет": { de: "Layout", en: "Layout", uk: "Макет" },
