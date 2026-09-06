@@ -17,7 +17,8 @@ try {
     expect(requests.filter(p=>/\/App-|pdf-exporter|parse-memory-days|calendar-grid-presets|\/PageScene-|\/AdminTemplates-|\/NewsletterEditor-|MemoryDays/i.test(p))).toEqual([]);
     expect(errors).toEqual([]);
     if(path==='/') {
-      await expect(page.locator('.welcome-hero__blessing')).toHaveText('По благословению игумена Даниила, настоятеля Свято-Георгиевского монастыря');
+      await expect(page.locator('.welcome-hero__blessing > span')).toHaveText(['По благословению игумена Даниила,', 'настоятеля Свято‑Георгиевского монастыря']);
+      expect(await page.locator('.welcome-hero__blessing > span').evaluateAll(lines => lines.every(line => getComputedStyle(line).display === 'block'))).toBe(true);
       await expect(page.locator('.welcome-hero__blessing')).toBeVisible();
       const videoLink = page.locator('.welcome-hero__actions a.button-link');
       await expect(videoLink).toHaveText('Видеоуроки');

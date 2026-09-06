@@ -29,7 +29,8 @@ type Translation = Record<Exclude<InterfaceLanguage, "ru">, string>;
  * Calendar content, project names and user-entered text are deliberately absent.
  */
 const TRANSLATIONS: Record<string, Translation> = {
-  "По благословению игумена Даниила, настоятеля Свято-Георгиевского монастыря": { de: "Mit dem Segen von Igumen Daniel, Abt des St.-Georg-Klosters", en: "With the blessing of Igumen Daniel, Abbot of St. George’s Monastery", uk: "З благословення ігумена Даниїла, настоятеля Свято-Георгіївського монастиря" },
+  "По благословению игумена Даниила,": { de: "Mit dem Segen von Igumen Daniel,", en: "With the blessing of Igumen Daniel,", uk: "З благословення ігумена Даниїла," },
+  "настоятеля Свято‑Георгиевского монастыря": { de: "Abt des St.‑Georg‑Klosters", en: "Abbot of St. George’s Monastery", uk: "настоятеля Свято‑Георгіївського монастиря" },
   "Личный кабинет": {de:"Mein Konto",en:"My account",uk:"Особистий кабінет"},
   "КАЛЕНДАРНАЯ МАСТЕРСКАЯ": {de:"KALENDERWERKSTATT",en:"CALENDAR WORKSHOP",uk:"КАЛЕНДАРНА МАЙСТЕРНЯ"},
   "Вход": {de:"Anmeldung",en:"Sign in",uk:"Вхід"},
