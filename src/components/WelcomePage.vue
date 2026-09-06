@@ -135,9 +135,10 @@ function changeInterfaceLanguage(event: Event): void {
     </section>
 
     <footer class="welcome-page__footer">
-      <span>ATAPIN.DE · Volodymyr Atapin</span>
-      <button type="button" @click="emit('help')">Помощь</button>
-      <a href="https://atapin.de/" target="_blank" rel="noreferrer">Разработка ATAPIN.DE</a>
+      <div class="welcome-page__footer-tools">
+        <button type="button" @click="emit('help')">Помощь</button>
+        <a href="https://atapin.de/" target="_blank" rel="noreferrer">Разработка ATAPIN.DE</a>
+      </div>
       <LegalLinks />
     </footer>
 

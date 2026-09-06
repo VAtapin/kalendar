@@ -3237,9 +3237,17 @@ input {
   font-size: 11px;
 }
 
+.welcome-page__footer-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-right: auto;
+}
+
 .welcome-page__footer button {
   min-height: 0;
-  margin-left: auto;
+  margin-left: 0;
   padding: 0;
   border: 0;
   color: #c8b678;
