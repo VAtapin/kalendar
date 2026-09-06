@@ -12,31 +12,31 @@ export const TYPIKON_MARKERS: Readonly<Record<TypikonMarkKind, TypikonMarkerAsse
     id: "great",
     label: "Великий праздник",
     svgSource: "/assets/typikon/great.svg",
-    pdfRasterSource: "/assets/typikon/great.png",
+    pdfRasterSource: "/assets/typikon/great-print.png",
   },
   vigil: {
     id: "vigil",
     label: "Бденный праздник",
     svgSource: "/assets/typikon/vigil.svg",
-    pdfRasterSource: "/assets/typikon/vigil.png",
+    pdfRasterSource: "/assets/typikon/vigil-print.png",
   },
   polyeleos: {
     id: "polyeleos",
     label: "Полиелейный праздник",
     svgSource: "/assets/typikon/polyeleos.svg",
-    pdfRasterSource: "/assets/typikon/polyeleos.png",
+    pdfRasterSource: "/assets/typikon/polyeleos-print.png",
   },
   doxology: {
     id: "doxology",
     label: "Славословная служба",
     svgSource: "/assets/typikon/doxology.svg",
-    pdfRasterSource: "/assets/typikon/doxology.png",
+    pdfRasterSource: "/assets/typikon/doxology-print.png",
   },
   six_stichera: {
     id: "six_stichera",
     label: "Шестеричная служба",
     svgSource: "/assets/typikon/six-stichera.svg",
-    pdfRasterSource: "/assets/typikon/six-stichera.png",
+    pdfRasterSource: "/assets/typikon/six-stichera-print.png",
   },
 } as const;
 
