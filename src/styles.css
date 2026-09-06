@@ -3400,7 +3400,8 @@ input {
     margin-top: 23px;
   }
 
-  .welcome-hero__actions button {
+  .welcome-hero__actions button,
+  .welcome-hero__actions .button-link {
     width: 100%;
     min-height: 46px;
   }

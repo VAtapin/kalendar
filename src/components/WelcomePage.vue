@@ -85,8 +85,8 @@ function changeInterfaceLanguage(event: Event): void {
           <button type="button" class="welcome-primary" data-testid="welcome-create" @click="requestCreate">Создать календарь</button>
           <button v-if="currentProjectName" type="button" @click="requestContinue">Продолжить последний</button>
           <button type="button" @click="requestOpen">Импортировать календарь…</button>
+          <a class="button-link welcome-primary" :href="localizedPath('/videos')">Видеоуроки</a>
         </div>
-        <p><a :href="localizedPath('/videos')">Как пользоваться? Видеоуроки</a></p>
       </div>
       <img class="welcome-hero__art" src="/brand/share-card-preview.webp" alt="Календарная мастерская Свято-Георгиевского монастыря" />
     </section>

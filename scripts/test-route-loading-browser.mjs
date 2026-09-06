@@ -17,6 +17,11 @@ try {
     expect(requests.filter(p=>/\/App-|pdf-exporter|parse-memory-days|calendar-grid-presets|\/PageScene-|\/AdminTemplates-|\/NewsletterEditor-|MemoryDays/i.test(p))).toEqual([]);
     expect(errors).toEqual([]);
     if(path==='/') {
+      const videoLink = page.locator('.welcome-hero__actions a.button-link');
+      await expect(videoLink).toHaveText('Видеоуроки');
+      await expect(videoLink).toHaveAttribute('href', '/videos');
+      await expect(videoLink).toHaveClass(/welcome-primary/);
+      await expect(page.getByText('Как пользоваться? Видеоуроки', {exact:true})).toHaveCount(0);
       expect(requests.filter(p=>p.startsWith('/api/'))).toEqual(['/api/v1/site-pages']); // Footer links only.
       for(const width of [1600, 1100, 390]) {
         await page.setViewportSize({width,height:800});
