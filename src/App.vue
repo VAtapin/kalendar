@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
+import { editorIntent } from './editor-intent';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
@@ -1374,7 +1375,7 @@ async function openLocalProjectFromWelcome(): Promise<void> {
 
 async function showWelcomePage(): Promise<void> {
   await leaveSharedProject();
-  welcomeVisible.value = true;
+  navigate('/');
 }
 
 function retrySharedProject(): void {
@@ -3781,6 +3782,7 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 let navigationReady = false;
+let editorDisposed = false;
 let applyingRoute = false;
 let routeRequest = 0;
 async function applyBrowserRoute(): Promise<void> {
@@ -3788,6 +3790,7 @@ async function applyBrowserRoute(): Promise<void> {
   calendarOpenRequest++; switchingCalendar = false;
   const request = ++routeRequest;
   const path = routePath.value;
+  if (!path.startsWith('/calendar/')) return;
   applyingRoute = true;
   try {
     accountOpen.value = false; adminOpen.value = false; adminLoginOpen.value = false;
@@ -3804,6 +3807,14 @@ async function applyBrowserRoute(): Promise<void> {
     const calendar = /^\/calendar\/([a-zA-Z0-9-]+)$/.exec(path);
     if (calendar) {
       if (!accountUser.value) { accountOpen.value = true; return; }
+      if (calendar[1] === 'new' || calendar[1] === 'import') {
+        const file = editorIntent.file;
+        delete editorIntent.file;
+        if (file) await loadProjectFromFile(file);
+        else await createNewProject();
+        if (serverCalendarId.value) navigate(`/calendar/${serverCalendarId.value}`, true);
+        return;
+      }
       if (serverCalendarId.value !== calendar[1]) await openAccountCalendar(calendar[1]!);
       else welcomeVisible.value = false;
       if (accountError.value) accountOpen.value = true;
@@ -3817,7 +3828,7 @@ watch(routePath, () => {
   void applyBrowserRoute();
 }, { flush: 'sync' });
 watch([accountOpen, adminOpen, adminLoginOpen], ([account, admin, login]) => {
-  if (!navigationReady || applyingRoute || isPublicPath(routePath.value)) return;
+  if (!navigationReady || applyingRoute || !routePath.value.startsWith('/calendar/')) return;
   if (admin || login) { if (!routePath.value.startsWith('/admin')) navigate('/admin'); }
   else if (account) { if (!routePath.value.startsWith('/calendar/') && routePath.value !== '/login') navigate('/account'); }
   else if (routePath.value === '/account' || routePath.value === '/login' || routePath.value.startsWith('/admin') || (routePath.value.startsWith('/calendar/') && !accountUser.value)) navigate(editorAddress());
@@ -3826,7 +3837,7 @@ watch(accountUser, user => {
   if (navigationReady && user && routePath.value.startsWith('/calendar/')) void applyBrowserRoute();
 });
 watch(serverCalendarId, id => {
-  if (navigationReady && !applyingRoute && id && !accountOpen.value && !adminOpen.value && !isPublicPath(routePath.value)) navigate(`/calendar/${id}`, true);
+  if (navigationReady && !applyingRoute && id && !accountOpen.value && !adminOpen.value && routePath.value.startsWith('/calendar/')) navigate(`/calendar/${id}`, true);
 });
 onMounted(() => {
   window.addEventListener("focus", startBrowserVerificationPolling);
@@ -3835,7 +3846,8 @@ onMounted(() => {
   window.addEventListener('calendar-account-expired', accountSessionExpired);
   window.addEventListener("pagehide", handlePageHide);
   window.addEventListener("resize", handleViewportResize);
-  void initializeApplication().then(initializeAccount).then(() => {
+  void initializeApplication().then(async () => { if (!editorDisposed) await initializeAccount(); }).then(() => {
+    if (editorDisposed) return;
     navigationReady = true;
     if (routePath.value === '/' && accountOpen.value) navigate('/account', true);
     else void applyBrowserRoute();
@@ -3845,6 +3857,9 @@ onMounted(() => {
 const removeDomainPreparation = beforeDomainChange(async () => {
   if (accountUser.value && serverCalendarId.value) await saveServerCalendar();
 });
+defineExpose({ saveBeforeLeave: async () => {
+  if (accountUser.value && serverCalendarId.value) await saveServerCalendar();
+} });
 onBeforeUnmount(removeDomainPreparation);
 watch(project, () => {
   scheduleAutosave();
@@ -3893,6 +3908,7 @@ watch(
   { deep: true },
 );
 onBeforeUnmount(() => {
+  editorDisposed = true;
   verificationDisposed = true;
   if (verificationPollTimer !== undefined) window.clearTimeout(verificationPollTimer);
   window.removeEventListener("focus", startBrowserVerificationPolling);

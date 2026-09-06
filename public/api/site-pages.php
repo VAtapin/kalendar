@@ -1,6 +1,36 @@
 <?php
 declare(strict_types=1);
 
+function calendar_page_html(mixed $html): string {
+    if (!is_string($html) || strlen($html)>200000) calendar_fail('invalid_html',400);
+    if ($html==='') return '';
+    $doc=new DOMDocument('1.0','UTF-8');
+    $previous=libxml_use_internal_errors(true);
+    try { $doc->loadHTML('<?xml encoding="UTF-8"><html><body>'.$html.'</body></html>', LIBXML_NONET); }
+    finally { libxml_clear_errors(); libxml_use_internal_errors($previous); }
+    $allowed=['p','div','span','br','h1','h2','h3','h4','h5','h6','strong','b','em','i','u','s','ul','ol','li','blockquote','a','img','hr','table','thead','tbody','tr','th','td'];
+    $escape=fn($s)=>htmlspecialchars($s,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
+    $render=function($node) use (&$render,$allowed,$escape):string {
+        if ($node instanceof DOMText) return $escape($node->textContent);
+        if (!($node instanceof DOMElement)) return '';
+        $tag=strtolower($node->tagName);
+        if (in_array($tag,['script','style','iframe','object','embed','svg','math','template'],true)) return '';
+        $children='';foreach($node->childNodes as $child)$children.=$render($child);
+        if(!in_array($tag,$allowed,true))return $children;
+        $attrs='';
+        foreach(['href','src','alt','title','colspan','rowspan'] as $attr){
+            if(!$node->hasAttribute($attr))continue;
+            $value=$node->getAttribute($attr);
+            if(in_array($attr,['href','src'],true)&&(!preg_match('~^(?:https?://|mailto:|tel:|/(?!/)|#)~i',$value)||preg_match('/[\x00-\x20\x7f\\\\]/',$value)))continue;
+            if(in_array($attr,['colspan','rowspan'],true)&&!preg_match('/^[1-9][0-9]?$/D',$value))continue;
+            $attrs.=' '.$attr.'="'.$escape($value).'"';
+        }
+        return '<'.$tag.$attrs.'>'.(in_array($tag,['img','br','hr'],true)?'':$children.'</'.$tag.'>');
+    };
+    $result='';foreach($doc->getElementsByTagName('body')->item(0)->childNodes as $child)$result.=$render($child);
+    return $result;
+}
+
 function calendar_content_blocks(mixed $blocks): array {
     if (!is_array($blocks) || !array_is_list($blocks) || count($blocks) > 40) calendar_fail('invalid_blocks', 400);
     $result = [];
@@ -48,6 +78,7 @@ trait CalendarSitePages {
                 if ($tr === null) continue;
                 if (!is_array($tr) || !is_string($tr['title'] ?? null) || strlen($tr['title']) > 400) calendar_fail('invalid_translation',400);
                 $translations[$lang] = ['title'=>trim($tr['title']), 'blocks'=>calendar_content_blocks($tr['blocks'] ?? null)];
+                if (array_key_exists('html',$tr)) $translations[$lang]['html']=calendar_page_html($tr['html']);
             }
             $old = $index === null ? null : $state['items'][$index];
             $new = ['id'=>$page['id'],'slug'=>$page['slug'],'order'=>$page['order'],'translations'=>$translations,
@@ -56,7 +87,7 @@ trait CalendarSitePages {
             if (!in_array($action,['draft','publish','unpublish','delete'],true)) calendar_fail('invalid_action',400);
             if ($action === 'publish') {
                 if (($body['reviewed'] ?? false) !== true) calendar_fail('review_required',400);
-                foreach (['ru','de'] as $lang) if (empty($translations[$lang]['title']) || empty($translations[$lang]['blocks'])) calendar_fail('translation_required',400,'Перед публикацией заполните русский и немецкий тексты');
+                foreach (['ru','de'] as $lang) if (empty($translations[$lang]['title']) || (isset($translations[$lang]['html']) ? trim(strip_tags($translations[$lang]['html'],'<img>'))==='' : empty($translations[$lang]['blocks']))) calendar_fail('translation_required',400,'Перед публикацией заполните русский и немецкий тексты');
                 $new['live']=$translations; $new['liveSlug']=$page['slug']; $new['liveOrder']=$page['order']; $new['published']=true;
             }
             if ($action === 'unpublish') $new['published']=false;

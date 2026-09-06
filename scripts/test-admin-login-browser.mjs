@@ -65,8 +65,7 @@ try {
   await admin.getByRole('button',{name:'Загрузить черновик',exact:true}).click();
   await admin.frameLocator('iframe').getByText('Тестовое письмо без отправки').waitFor();
   await page.screenshot({path:'tmp/admin-newsletter.png'});
-  await admin.getByRole('button',{name:'Вернуться в редактор',exact:true}).click();
-  await page.getByTestId('welcome-create').click();
+  await admin.getByRole('button',{name:'На главную',exact:true}).click();
   assert.equal(await page.getByRole('dialog',{name:'Подтверждение e-mail'}).count(),0);
   await page.reload();
   await page.getByRole('button',{name:'Администратор',exact:true}).click();
@@ -75,8 +74,7 @@ try {
   assert.equal(await page.evaluate(()=>localStorage.getItem('orthodox-calendar-layout:verified-email-token')),null);
   await page.screenshot({path:'tmp/admin-password-login.png'});
   await admin.getByRole('button',{name:'Выйти из аккаунта'}).click();
-  await page.getByRole('button',{name:'Администратор',exact:true}).click();
   await login.waitFor();
   assert.equal(mailRequests,0);
-  console.log('PASS: password login without email, bad password rejected, admin creates calendar, cookie survives reload, logout requires password again.');
+  console.log('PASS: separate admin route, password login without email, bad password rejected, resources/templates/newsletter, cookie survives reload, logout requires password again.');
 } finally { await browser.close(); server.kill(); }

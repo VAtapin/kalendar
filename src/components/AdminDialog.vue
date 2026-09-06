@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { routePath, navigate, beforeNavigate } from '../navigation';
 import { adminRequest } from "../collaboration/shared-project-client";
-import PageScene from "./PageScene.vue";
-import NewsletterEditor from "./NewsletterEditor.vue";
-import AdminTemplates from "./AdminTemplates.vue";
-import AdminCatalog from "./AdminCatalog.vue";
-import AdminAccounts from "./AdminAccounts.vue";
-import AdminSitePages from './AdminSitePages.vue';
-import AdminAiSettings from './AdminAiSettings.vue';
-import AiDraftAssistant from './AiDraftAssistant.vue';
+const PageScene = defineAsyncComponent(() => import('./PageScene.vue'));
+const NewsletterEditor = defineAsyncComponent(() => import('./NewsletterEditor.vue'));
+const AdminTemplates = defineAsyncComponent(() => import('./AdminTemplates.vue'));
+const AdminCatalog = defineAsyncComponent(() => import('./AdminCatalog.vue'));
+const AdminAccounts = defineAsyncComponent(() => import('./AdminAccounts.vue'));
+const AdminSitePages = defineAsyncComponent(() => import('./AdminSitePages.vue'));
+const AdminAiSettings = defineAsyncComponent(() => import('./AdminAiSettings.vue'));
+const AiDraftAssistant = defineAsyncComponent(() => import('./AiDraftAssistant.vue'));
 import type { PageTranslation } from '../content/site-pages';
 import { catalogRequest } from "../collaboration/catalog-client";
 import type { CalendarProject } from "../document/types";
 import type { OrthodoxCalendarYear } from "../calendar/types";
 import { mergeMonasteryEvents } from "../calendar/engine/merge-monastery-events";
 
-const props = defineProps<{ accessToken: string }>();
+const props = defineProps<{ accessToken: string; closeLabel?: string }>();
 const emit = defineEmits<{ close: []; logout: [] }>();
 const pageDirty=ref(false);
 function canLeavePages(){if(!pageDirty.value)return true;if(!window.confirm('Оставить несохранённые изменения страницы?'))return false;pageDirty.value=false;return true;}
@@ -140,7 +140,7 @@ onMounted(() => void load());
 <template>
   <div class="application-dialog-backdrop admin-backdrop">
     <section class="application-dialog admin-dialog" role="dialog" aria-modal="true" aria-label="Администратор">
-      <header class="application-dialog__header"><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h2>Управление мастерской</h2></div><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="closeAdmin">Вернуться в редактор</button></div></header>
+      <header class="application-dialog__header"><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h2>Управление мастерской</h2></div><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="closeAdmin">{{ closeLabel ?? 'Вернуться в редактор' }}</button></div></header>
       <div class="application-dialog__content">
         <nav class="admin-nav">
           <button :disabled="busy || sending" @click="load('pages')">Страницы сайта</button>

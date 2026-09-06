@@ -21,7 +21,7 @@ try {
   await page.goto('http://127.0.0.1:5178/');
   await page.getByRole('button',{name:'Импортировать календарь с компьютера',exact:false}).click();
   await page.getByRole('dialog',{name:'Личный кабинет',exact:true}).getByLabel('E-mail',{exact:true}).waitFor();
-  assert.equal(await page.locator('.welcome-page').isVisible(),true,'Anonymous import must keep the welcome screen');
+  assert.equal(await page.locator('.app-shell').count(),0,'Anonymous import must not mount the editor');
   await page.goto(`http://127.0.0.1:5178/?account-token=${seed[0].token}`);
   let cabinet = page.getByRole('dialog',{name:'Личный кабинет',exact:true});
   await cabinet.getByLabel('Пароль',{exact:true}).fill('test-account-password-123');
@@ -77,6 +77,17 @@ try {
   await page.reload();
   await expect(page).toHaveURL(new RegExp(`/calendar/${id}$`));
   await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor();
+  // Leave immediately after an edit, before the debounce timer can fire.
+  await page.getByRole('tab',{name:'Страницы',exact:true}).click();
+  await page.getByRole('button',{name:'+ Пустая страница',exact:true}).click();
+  await page.locator('.brand__home').click();
+  await expect(page.locator('.welcome-page')).toBeVisible();
+  await expect(page.locator('.app-shell')).toHaveCount(0);
+  expect(await page.evaluate(async id=>(await(await fetch(`/api/v1/account/calendars/${id}`)).json()).project.document.pages.length,id)).toBe(2);
+  await page.goBack();
+  await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor();
+  await page.getByRole('tab',{name:'Страницы',exact:true}).click();
+  await page.locator('.page-list-entry').last().getByRole('button',{name:/Удалить страницу:/}).click();
   await page.getByRole('button',{name:/alice@example.org.*Мои календари/}).click();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
   await page.screenshot({path:'tmp/account-dashboard.png'});
@@ -89,7 +100,7 @@ try {
   await cabinet.getByLabel('Пароль',{exact:true}).fill('test-account-password-123');
   await cabinet.getByRole('button',{name:'Войти',exact:true}).click();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
-  await cabinet.getByRole('button',{name:'Закрыть',exact:true}).click();
+  await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
   await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor();
   const bob=await context();const bobPage=await bob.newPage();
   await bobPage.goto(`http://127.0.0.1:5178/?account-token=${seed[1].token}`);
@@ -168,5 +179,11 @@ try {
   await page.locator('input[accept=".kalendar,.json,.kalendar.json,application/json"]').setInputFiles({name:'import.kalendar',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({format:'orthodox-calendar-project',archiveVersion:1,project:importedProject}))});
   await expect.poll(async()=>(await getCalendars()).length).toBe(2);
   assert.ok((await getCalendars()).some(c=>c.id===id));
+  await page.getByRole('button',{name:/alice@example.org.*Мои календари/}).click();
+  await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
+  await expect(page.locator('.app-shell')).toHaveCount(0);
+  await page.locator('input[accept=".kalendar,.json"]').setInputFiles({name:'cabinet-import.kalendar',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({format:'orthodox-calendar-project',archiveVersion:1,project:importedProject}))});
+  await expect.poll(async()=>(await getCalendars()).length).toBe(3);
+  await expect(page).toHaveURL(/\/calendar\/[a-f0-9-]+$/);
   console.log('PASS: confirmation/password, private server calendar, photo placement/save/reopen, cross-account read/delete denied, admin denied, logout/login. No real email sent.');
 } finally {await browser.close();server.kill();}

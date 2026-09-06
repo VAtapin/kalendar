@@ -3,10 +3,12 @@ import { computed,onMounted,onBeforeUnmount,ref,watch } from 'vue';
 import { catalogRequest } from '../collaboration/catalog-client';
 import { loadSitePages,type SitePage,type PageTranslation } from '../content/site-pages';
 import type { InterfaceLanguage } from '../document/types';
-import VisualContentEditor from './VisualContentEditor.vue';
+import PageTextEditor from './PageTextEditor.vue';
+import { pageHtml } from '../content/page-html';
 import AiDraftAssistant from './AiDraftAssistant.vue';
 const items=ref<SitePage[]>([]),revision=ref(0),selected=ref<SitePage>(),lang=ref<InterfaceLanguage>('ru'),busy=ref(false),error=ref(''),notice=ref(''),reviewed=ref(false),dirty=ref(false);
 const tr=computed(()=>selected.value?.translations[lang.value]);
+function updateHtml(html:string){if(tr.value){tr.value.html=html;tr.value.blocks=[];}}
 const emit=defineEmits<{dirty:[boolean]}>();
 watch(dirty,value=>emit('dirty',value),{flush:'sync'});
 onBeforeUnmount(()=>{emit('dirty',false);});
@@ -26,6 +28,6 @@ onMounted(load);
 <nav><button v-for="page in items" :key="page.id" type="button" :disabled="busy" @click="select(page)">{{page.translations.ru?.title || page.slug}} · {{page.published?'На сайте':'Черновик'}}</button></nav>
 <fieldset v-if="selected" :disabled="busy"><label>Адрес страницы<input v-model="selected.slug" maxlength="80" pattern="[a-z][a-z0-9-]*" /></label><label>Порядок в футере<input v-model.number="selected.order" type="number" min="-10000" max="10000" /></label>
 <label>Язык<select v-model="lang" @change="ensureLanguage"><option value="ru">Русский</option><option value="de">Deutsch</option><option value="en">English</option><option value="uk">Українська</option></select></label>
-<template v-if="tr"><label>Название<input v-model="tr.title" maxlength="100" /></label><VisualContentEditor :key="selected.id+lang" v-model="tr.blocks" :disabled="busy" /><AiDraftAssistant :key="'ai-'+selected.id+lang" :language="lang" :source="JSON.stringify(tr)" :disabled="busy" @apply="applyAi" /></template>
+<template v-if="tr"><label>Название<input v-model="tr.title" maxlength="100" /></label><PageTextEditor :key="selected.id+lang" :model-value="pageHtml(tr)" :disabled="busy" @update:model-value="updateHtml" /><AiDraftAssistant :key="'ai-'+selected.id+lang" :language="lang" :source="JSON.stringify(tr)" :disabled="busy" @apply="applyAi" /></template>
 <button type="button" @click="save('draft')">Сохранить черновик</button><label><input v-model="reviewed" type="checkbox" /> Я проверил тексты и переводы перед публикацией</label><button type="button" :disabled="!reviewed" @click="save('publish')">Опубликовать</button><button type="button" v-if="selected.published" @click="save('unpublish')">Снять с публикации</button><button type="button" @click="save('delete')">Удалить страницу…</button></fieldset></section></template>
 <style scoped>nav{display:flex;flex-wrap:wrap;margin:15px 0;gap:8px}fieldset{border:0;padding:0}label{display:block;margin:12px 0}input:not([type=checkbox]),select{padding:8px;display:block;max-width:100%;box-sizing:border-box}button{padding:9px;margin:4px;color:inherit;background:#304738;border:1px solid #8a784e;border-radius:5px;cursor:pointer}button:disabled{opacity:.4}input:not([type=checkbox]){width:min(600px,100%)}</style>

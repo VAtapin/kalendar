@@ -5,7 +5,7 @@ export type ContentBlock = { type: 'heading' | 'text' | 'image' | 'button'; text
 export function blockStyle(style?:BlockStyle) {
   return {textAlign:style?.align,fontSize:style?.fontSize?`${Math.min(48,Math.max(10,style.fontSize))}px`:undefined,color:style?.color && /^#[0-9a-f]{6}$/i.test(style.color)?style.color:undefined,fontWeight:style?.bold===undefined?undefined:style.bold?'bold':'normal',fontStyle:style?.italic?'italic':undefined};
 }
-export type PageTranslation = { title: string; blocks: ContentBlock[] };
+export type PageTranslation = { title: string; blocks: ContentBlock[]; html?: string };
 export type SitePage = { id: string; slug: string; order: number; published?: boolean; translations: Partial<Record<'ru'|'de'|'en'|'uk', PageTranslation>> };
 export const sitePages = ref<SitePage[]>([]);
 let loading: Promise<void> | undefined;

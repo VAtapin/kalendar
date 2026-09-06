@@ -24,7 +24,15 @@ try{
  await admin.getByRole('button',{name:'Страницы сайта',exact:true}).click();
  await admin.getByRole('button',{name:/Impressum — правовая информация/}).click();
  await admin.getByLabel('Название',{exact:true}).fill('Наш Impressum');
- const block=admin.getByRole('textbox',{name:'Блок 1',exact:true});await block.fill('Проверенный оператор <script>alert(1)</script>');await block.blur();
+ const block=admin.getByRole('textbox',{name:'Текст страницы',exact:true});await block.fill('Проверенный оператор <script>alert(1)</script>');await block.blur();
+ await expect(admin.getByRole('button',{name:'+ Абзац',exact:true})).toHaveCount(0);
+ await admin.getByRole('button',{name:'HTML',exact:true}).click();
+ await admin.getByLabel('HTML страницы').fill('<h2>Контакты</h2><p><strong>Проверенный оператор &lt;script&gt;alert(1)&lt;/script&gt;</strong></p><ul><li>Первый пункт</li></ul><script>alert(2)</script><a href="javascript:alert(3)" onclick="alert(4)">Ссылка</a>');
+ await admin.getByRole('button',{name:'Применить HTML',exact:true}).click();
+ await expect(block.locator('strong')).toHaveCount(1);
+ await block.focus();await page.keyboard.press('Control+End');
+ await block.evaluate(el=>{const data=new DataTransfer();data.setData('text/html','<p><em>Вставленный текст</em></p>');el.dispatchEvent(new ClipboardEvent('paste',{clipboardData:data,bubbles:true,cancelable:true}));});
+ await expect(block.locator('em')).toContainText('Вставленный текст');
  await admin.getByRole('button',{name:'Сохранить черновик',exact:true}).click();
  await expect(admin.getByText('Черновик сохранён; опубликованный текст не изменён',{exact:true})).toBeVisible();
  let publicPages=await (await fetch('http://127.0.0.1:18993/api/v1/site-pages')).json();expect(publicPages.items[0].translations.ru.title).not.toBe('Наш Impressum');
