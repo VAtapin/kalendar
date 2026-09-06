@@ -34,7 +34,7 @@ trait CalendarSitePages {
             if (($body['revision'] ?? null) !== $state['revision']) calendar_fail('revision_conflict',409,'Страницы изменены в другом окне. Перезагрузите список.');
             $page = $body['page'] ?? null;
             if (!is_array($page) || !is_string($page['id'] ?? null) || !calendar_valid_uuid($page['id']) || !is_string($page['slug'] ?? null)
-                || !preg_match('/^[a-z][a-z0-9-]{0,79}$/D', $page['slug']) || in_array($page['slug'], ['account','login','admin','calendar','api','assets'], true) || !is_int($page['order'] ?? null) || abs($page['order']) > 10000) calendar_fail('invalid_page',400);
+                || !preg_match('/^[a-z][a-z0-9-]{0,79}$/D', $page['slug']) || in_array($page['slug'], ['ru','de','en','uk','account','login','admin','calendar','api','assets'], true) || !is_int($page['order'] ?? null) || abs($page['order']) > 10000) calendar_fail('invalid_page',400);
             $index = null;
             foreach ($state['items'] as $i=>$existing) {
                 if ($existing['id'] === $page['id']) $index=$i;

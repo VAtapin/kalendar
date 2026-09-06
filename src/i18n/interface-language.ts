@@ -753,11 +753,20 @@ export function resolveInterfaceLanguage(hostname: string, preference: unknown):
 }
 
 function storedLanguage(): InterfaceLanguage {
-  let preference: unknown;
-  try {
-    if (typeof localStorage !== "undefined") preference = localStorage.getItem(INTERFACE_LANGUAGE_STORAGE_KEY);
-  } catch { /* Domain defaults also work when browser storage is unavailable. */ }
-  return resolveInterfaceLanguage(typeof location === "undefined" ? "" : location.hostname, preference);
+  return resolveBrowserLanguage(
+    typeof location === 'undefined' ? '/' : location.pathname,
+    typeof navigator === 'undefined' ? [] : navigator.languages?.length ? navigator.languages : [navigator.language],
+  );
+}
+
+export function resolveBrowserLanguage(path: string, languages: readonly string[]): InterfaceLanguage {
+  const explicit = path.split('/')[1]?.toLowerCase();
+  if (isInterfaceLanguage(explicit)) return explicit;
+  for (const candidate of languages) {
+    const language = candidate.toLowerCase().split(/[-_]/)[0];
+    if (isInterfaceLanguage(language)) return language;
+  }
+  return 'en';
 }
 
 export const interfaceLanguage = ref<InterfaceLanguage>(storedLanguage());

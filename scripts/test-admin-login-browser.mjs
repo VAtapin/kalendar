@@ -12,7 +12,7 @@ const server = spawn('php',['-S','127.0.0.1:18990','scripts/php-dev-router.php']
 const browser = await chromium.launch({channel:'msedge'});
 try {
   for (let i=0;i<50;i++) { try { await fetch('http://127.0.0.1:18990/api/health'); break; } catch { await new Promise(r=>setTimeout(r,100)); } }
-  const context = await browser.newContext({viewport:{width:1500,height:1000}});
+  const context = await browser.newContext({locale:'ru-RU',viewport:{width:1500,height:1000}});
   let mailRequests = 0;
   await context.route('**/api/**',async route => {
     const url = new URL(route.request().url());

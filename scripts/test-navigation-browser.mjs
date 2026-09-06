@@ -9,14 +9,14 @@ const server = spawn('php', ['-S','127.0.0.1:18994','scripts/php-dev-router.php'
 const browser = await chromium.launch({channel:'msedge'});
 try {
   for(let i=0;i<50;i++){try{await fetch('http://127.0.0.1:18994/api/health');break;}catch{await new Promise(r=>setTimeout(r,100));}}
-  const context = await browser.newContext({viewport:{width:1550,height:1050}});
+  const context = await browser.newContext({locale:'ru-RU',viewport:{width:1550,height:1050}});
   await context.route('**/api/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`http://127.0.0.1:18994${u.pathname}${u.search}`})});});
   const page = await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:5178/impressum');
   expect(await page.evaluate(() => window.dispatchEvent(new Event('beforeunload', {cancelable:true})))).toBe(true);
   await expect(page.locator('.public-site-page article')).toBeVisible();
-  await page.locator('.public-site-page a[href="/datenschutz"]').click();
+  await page.locator('.public-site-page a[href="/ru/datenschutz"]').click();
   await expect(page).toHaveURL(/\/datenschutz$/);
   await page.goBack();await expect(page).toHaveURL(/\/impressum$/);
   await page.goForward();await expect(page).toHaveURL(/\/datenschutz$/);
@@ -45,5 +45,21 @@ try {
   await expect(page.locator('.account-panel')).toBeVisible();
   await expect(page).toHaveURL(/\/calendar\/00000000-0000-4000-8000-000000000000$/);
   expect(errors).toEqual([]);
+  const foreign = await browser.newContext({locale:'de-DE'});
+  await foreign.route('**/api/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`http://127.0.0.1:18994${u.pathname}${u.search}`})});});
+  const localized = await foreign.newPage();
+  await localized.goto('http://127.0.0.1:5178/');await expect(localized).toHaveURL('http://127.0.0.1:5178/de/');
+  await localized.goto('http://127.0.0.1:5178/ru/impressum');
+  await expect(localized.locator('.public-site-page select')).toHaveValue('ru');
+  await localized.locator('.public-site-page select').selectOption('de');
+  await expect(localized).toHaveURL('http://127.0.0.1:5178/de/impressum');
+  await expect(localized.locator('.public-site-page a[href="/de/datenschutz"]')).toBeVisible();
+  await localized.goBack();await expect(localized).toHaveURL('http://127.0.0.1:5178/ru/impressum');
+  await expect(localized.locator('.public-site-page select')).toHaveValue('ru');
+  await localized.goForward();await expect(localized.locator('.public-site-page select')).toHaveValue('de');
+  await localized.reload();await expect(localized.locator('.public-site-page select')).toHaveValue('de');
+  await localized.locator('.public-site-page select').selectOption('en');await expect(localized).toHaveURL(/\/en\/impressum$/);
+  await localized.locator('.public-site-page select').selectOption('uk');await expect(localized).toHaveURL(/\/uk\/impressum$/);
+  await foreign.close();
   console.log('PASS: public paths, reload, back/forward, direct admin login return, section history, unsaved-page cancellation, private calendar login gate.');
 } finally { await browser.close();server.kill(); }

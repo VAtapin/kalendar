@@ -4,10 +4,21 @@ import {
   isInterfaceLanguage,
   domainDefaultLanguage,
   resolveInterfaceLanguage,
+  resolveBrowserLanguage,
   translateInterfaceText,
 } from "../src/i18n/interface-language";
 
 describe("interface languages", () => {
+  it('prioritizes the URL, then browser languages, then English', () => {
+    expect(resolveBrowserLanguage('/ru/impressum', ['de-DE'])).toBe('ru');
+    expect(resolveBrowserLanguage('/de/account', ['ru-RU'])).toBe('de');
+    expect(resolveBrowserLanguage('/en/', ['de-DE'])).toBe('en');
+    expect(resolveBrowserLanguage('/uk/admin', ['en-US'])).toBe('uk');
+    expect(resolveBrowserLanguage('/', ['fr-FR', 'de-DE'])).toBe('de');
+    expect(resolveBrowserLanguage('/impressum', ['uk-UA'])).toBe('uk');
+    expect(resolveBrowserLanguage('/', ['fr-FR'])).toBe('en');
+    expect(resolveBrowserLanguage('/', [])).toBe('en');
+  });
   it("defaults to the domain language without overriding a manual preference", () => {
     expect(domainDefaultLanguage('kalender.georg-kloster.de')).toBe('de');
     expect(domainDefaultLanguage('KALENDER.GEORG-KLOSTER.DE.')).toBe('de');

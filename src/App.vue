@@ -977,7 +977,7 @@ function applyInterfaceLanguage(language: InterfaceLanguage, updateProject = tru
 }
 
 function applyProjectInterfaceLanguage(calendarProject: CalendarProject): void {
-  applyInterfaceLanguage(calendarProject.programSettings?.interfaceLanguage ?? interfaceLanguage.value, false);
+  calendarProject.programSettings = { interfaceLanguage: interfaceLanguage.value };
 }
 
 async function loadVerifiedProgramSettings(): Promise<void> {
@@ -985,7 +985,7 @@ async function loadVerifiedProgramSettings(): Promise<void> {
   if (!accessToken) return;
   try {
     const settings = await loadUserProgramSettings(accessToken);
-    applyInterfaceLanguage(settings.interfaceLanguage);
+    if (!/^\/(ru|de|en|uk)(\/|$)/.test(location.pathname)) applyInterfaceLanguage(settings.interfaceLanguage);
   } catch {
     // A local preference remains usable while the server is temporarily down.
   }
@@ -1550,7 +1550,7 @@ async function initializeApplication(): Promise<void> {
           });
         } else {
           const settings = await loadUserProgramSettings(confirmed.accessToken);
-          applyInterfaceLanguage(settings.interfaceLanguage);
+          if (!/^\/(ru|de|en|uk)(\/|$)/.test(location.pathname)) applyInterfaceLanguage(settings.interfaceLanguage);
         }
       } catch {
         // E-mail verification remains valid if preference synchronization is

@@ -11,7 +11,7 @@ const adminHash = execFileSync('php', ['-r', 'echo password_hash("test-admin-pas
 const server = spawn('php', ['-S','127.0.0.1:18991','scripts/php-dev-router.php'], {windowsHide:true, stdio:'ignore',env:{...process.env,CALENDAR_DATA_DIR:data,APP_PUBLIC_URL:'http://127.0.0.1:5178',MAIL_TRANSPORT:'disabled-test',ADMIN_LOGIN:'admin',ADMIN_PASSWORD_HASH:adminHash}});
 const browser = await chromium.launch({channel:'msedge'});
 async function context() {
-  const c = await browser.newContext({viewport:{width:1600,height:1000}});
+  const c = await browser.newContext({locale:'ru-RU',viewport:{width:1600,height:1000}});
   await c.route('**/api/**', async route => { const url = new URL(route.request().url()); if (['POST','PUT'].includes(route.request().method()) && url.pathname.includes('/account/calendars')) { const b=route.request().postDataJSON(); console.log('SAVE',route.request().method(),url.pathname,b.revision,b.project?.assets?.map(a=>({name:a.name,library:a.photoLibrary,length:a.source?.length}))); } const response = await route.fetch({url:`http://127.0.0.1:18991${url.pathname}${url.search}`}); await route.fulfill({response}); });
   return c;
 }
