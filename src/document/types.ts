@@ -79,6 +79,8 @@ export interface TextElement extends LayoutElement<"text"> {
   typography: TextTypography;
   /** Machine-owned text whose visible value follows the calendar language. */
   semanticRole?: "calendar-month-title";
+  /** Explicit user text must not be rewritten when changing the calendar year. */
+  manualTitle?: boolean;
   /** Optional print-safe effects intended for display-size headings. */
   textEffects?: LargeTextEffects;
 }

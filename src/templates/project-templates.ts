@@ -34,6 +34,7 @@ export function updatePageCalendarYear(
   }
   for (const element of page.elements) {
     if (element.type !== "text" && element.type !== "month-text") continue;
+    if (element.type === 'text' && element.manualTitle) continue;
     element.content.title = replaceYearText(element.content.title, oldYear, newYear);
     if (element.content.shortTitle) {
       element.content.shortTitle = replaceYearText(element.content.shortTitle, oldYear, newYear);

@@ -9,6 +9,12 @@ const Editor = defineAsyncComponent(() => import('../App.vue'));
 const user = ref<AccountUser|null>(null);
 const ready = ref(false);
 const error = ref('');
+const returnPath = ref<string>(history.state?.accountReturnPath ?? '/');
+const returnOwner = ref<string|undefined>(history.state?.accountReturnOwner);
+function closeCabinet() {
+  const target = user.value?.id === returnOwner.value && /^\/calendar\/[a-f0-9-]+$/.test(returnPath.value) ? returnPath.value : '/';
+  navigate(target);
+}
 const editor = ref<{ saveBeforeLeave: () => Promise<void> }>();
 const picker = ref<HTMLInputElement>();
 const token = ref(new URLSearchParams(location.search).get('account-token') ?? undefined);
@@ -21,7 +27,12 @@ async function loadSession() {
 }
 onMounted(loadSession);
 watch(() => props.path, (next, previous) => {
-  if (!next.startsWith('/calendar/') && previous.startsWith('/calendar/')) void loadSession();
+  if (!next.startsWith('/calendar/') && previous.startsWith('/calendar/')) {
+    returnPath.value = previous;
+    returnOwner.value = user.value?.id;
+    history.replaceState({...history.state,accountReturnPath:previous,accountReturnOwner:returnOwner.value},'');
+    void loadSession();
+  }
 });
 function authenticated(value: AccountUser) {
   user.value = value;
@@ -39,7 +50,7 @@ defineExpose({ saveBeforeLeave: async () => { await editor.value?.saveBeforeLeav
   <p v-if="!ready" role="status">…</p>
   <Editor v-else-if="editing" ref="editor" />
   <AccountPanel v-else :key="user?.id" :user="user" :token="token" :external-error="error"
-    @authenticated="authenticated" @logout="user = null" @close="navigate('/')"
+    @authenticated="authenticated" @logout="user = null; returnPath = '/'" @close="closeCabinet" @deleted="id => { if (returnPath === `/calendar/${id}`) returnPath = '/'; }"
     @create="navigate('/calendar/new')" @open="navigate(`/calendar/${$event}`)" @import="picker?.click()" />
   <input ref="picker" type="file" accept=".kalendar,.json" hidden @change="importFile" />
 </template>

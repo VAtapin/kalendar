@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
+import { setManualTextTitle } from './document/text-title';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
@@ -2084,6 +2085,15 @@ function updateProjectYear(event: Event): void {
   });
   void loadCalendarData();
   operationNotice.value = `Календарь пересчитан на ${value} год`;
+}
+
+function editSelectedTextTitle(event: Event): void {
+  const element = selectedElement.value;
+  if (!element || (element.type !== 'text' && element.type !== 'month-text')) return;
+  const title = (event.target as HTMLTextAreaElement).value;
+  mutateProject('Изменение текста', () => {
+    setManualTextTitle(element, title);
+  });
 }
 
 function updateCalendarLanguage(event: Event): void {
@@ -4214,7 +4224,7 @@ onBeforeUnmount(() => {
                 <details v-if="selectedElement.type === 'text' || selectedElement.type === 'month-text'" class="inspector-subgroup object-properties" open>
                   <summary>{{ selectedElement.type === "text" ? "Текст" : "Текст месяца" }}</summary>
                   <div class="inspector-subgroup__body">
-                  <label class="field-stack"><span>Текст</span><textarea v-model="selectedElement.content.title" rows="3"></textarea></label>
+                  <label class="field-stack"><span>Текст</span><textarea :value="selectedElement.content.title" rows="3" @input="editSelectedTextTitle"></textarea></label>
                   <label v-if="selectedElement.type === 'month-text'" class="field-stack"><span>Автор / источник</span><input v-model="selectedElement.attribution" type="text" /></label>
                   <label class="field-control"><span>Шрифт</span><select v-model="selectedElement.typography.fontFamily" :style="{ fontFamily: selectedElement.typography.fontFamily }"><optgroup v-for="group in fontOptionGroups" :key="group.label" :label="group.label"><option v-for="option in group.options" :key="option.family" :value="option.family" :style="{ fontFamily: option.family }">{{ option.label }}</option></optgroup></select></label>
                   <label class="field-control"><span>Размер, pt</span><input v-model.number="selectedElement.typography.fontSizePt" type="number" min="3" max="300" step="0.5" /></label>

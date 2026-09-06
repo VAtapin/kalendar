@@ -95,7 +95,9 @@ try {
   await page.getByRole('button',{name:/alice@example.org.*Мои календари/}).click();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
   await page.screenshot({path:'tmp/account-dashboard.png'});
-  await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
+  await page.reload();
+  await cabinet.getByRole('button',{name:'Закрыть',exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`/calendar/${id}$`));
   try { await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor({timeout:8000}); }
   catch(e) { await page.screenshot({path:'tmp/account-reopen-error.png'}); console.log(await page.locator('.status-bar').innerText()); throw e; }
   await page.evaluate(async()=>fetch('/api/v1/account/logout',{method:'POST'}));
