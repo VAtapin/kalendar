@@ -16,7 +16,7 @@ try{
  const page=await context.newPage();page.on('dialog',d=>d.accept());page.on('pageerror',e=>console.error('PAGE ERROR',e.message));
  await page.goto('http://127.0.0.1:5178/');
  await expect(page.locator('.welcome-page__footer a[href="/impressum"]')).toBeVisible();
- await page.getByRole('button',{name:'Администратор',exact:true}).click();
+ await page.goto('http://127.0.0.1:5178/admin');
  const login=page.getByRole('dialog',{name:'Вход администратора'});
  await login.getByLabel('Логин',{exact:true}).fill('admin');await login.getByLabel('Пароль',{exact:true}).fill('local-test-password-123');await login.getByRole('button',{name:'Войти',exact:true}).click();
  const admin=page.getByRole('dialog',{name:'Администратор',exact:true});await admin.waitFor();

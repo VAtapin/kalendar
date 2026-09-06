@@ -71,7 +71,6 @@ function changeInterfaceLanguage(event: Event): void {
           </select>
         </label>
         <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
-        <button type="button" @click="emit('admin')">Администратор</button>
         <button type="button" @click="emit('account')">Личный кабинет</button>
       </div>
     </header>

@@ -2621,6 +2621,7 @@ function applyCalendarGridTemplate(
   const selectedGrid = selectedElement.value?.type === "calendar-grid" ? selectedElement.value : undefined;
   if (!allMonths && !selectedGrid) {
     operationNotice.value = "Сначала выберите календарную сетку месяца";
+    window.alert(translateInterfaceText("Сначала выберите календарную сетку"));
     return;
   }
   let updated = 0;
@@ -3936,7 +3937,7 @@ onBeforeUnmount(() => {
     @click="activeMenu = undefined"
   >
     <WelcomePage
-      v-if="welcomeVisible"
+      v-if="welcomeVisible && routePath === '/'"
       :current-project-name="accountUser && serverCalendarId ? project.name : undefined"
       :recent-project-names="recentProjectNames"
       :shared-projects="[]"

@@ -28,8 +28,12 @@ try {
   await cabinet.getByLabel('Повторите пароль',{exact:true}).fill('test-account-password-123');
   await cabinet.getByRole('button',{name:'Сохранить пароль и войти'}).click();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
+  const duplicate=await page.evaluate(async()=>{const r=await fetch('/api/v1/account/email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'ALICE@example.org',purpose:'register',subscribe:true})});return {status:r.status,body:await r.json()};});
+  expect(duplicate.status).toBe(409);expect(duplicate.body.error).toBe('account_exists');
+  await page.evaluate(()=>{window.__homeFlash=false;new MutationObserver(()=>{if(document.querySelector('.welcome-page'))window.__homeFlash=true;}).observe(document.body,{childList:true,subtree:true});});
   await cabinet.getByRole('button',{name:'+ Новый календарь',exact:true}).click();
   await page.getByRole('complementary',{name:'Фотографии проекта'}).waitFor();
+  expect(await page.evaluate(()=>window.__homeFlash)).toBe(false);
   const photoToggle = page.getByRole('button',{name:'Фотографии',exact:true});
   await photoToggle.click();
   assert.equal(await page.getByRole('complementary',{name:'Фотографии проекта'}).count(),0);

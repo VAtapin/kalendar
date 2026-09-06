@@ -21,7 +21,9 @@ rejects_account(fn() => $store->accountDeleteCalendar($record['id'], $b['id']), 
 $record = $store->accountSaveCalendar($a['id'], $record['id'], $project, 1);
 rejects_account(fn() => $store->accountSaveCalendar($a['id'], $record['id'], $project, 1), 409);
 check_account(count($store->accountCalendar($record['id'], $a['id'])['history']) === 1, 'Server recovery history');
-$reset = $store->accountEmailLink('a@example.org', false);
+rejects_account(fn() => $store->accountEmailLink(' A@EXAMPLE.ORG ', true),409);
+rejects_account(fn() => $store->accountEmailLink('missing@example.org', false,'reset'),404);
+$reset = $store->accountEmailLink('a@example.org', false,'reset');
 $newToken = $store->accountSetPassword($reset['token'], 'password-reset-123');
 check_account($store->accountUser($aToken) === null, 'Password reset invalidates old sessions');
 $store->accountBlock($a['id'], true);

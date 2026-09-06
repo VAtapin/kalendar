@@ -7,12 +7,21 @@ trait CalendarAccounts
         return calendar_read_json_file($this->dataDirectory . '/accounts.json', ['users' => [], 'sessions' => [], 'links' => [], 'attempts' => []]);
     }
     private function writeAccounts(array $state): void { calendar_atomic_json_write($this->dataDirectory . '/accounts.json', $state); }
-    public function accountEmailLink(string $email, bool $subscribe): array {
+    public function checkAccountEmailPurpose(string $email, string $purpose): void {
+        $exists=isset($this->accountState()['users'][strtolower(trim($email))]);
+        if ($purpose === 'register' && $exists) calendar_fail('account_exists',409,'Этот e-mail уже зарегистрирован. Войдите в аккаунт.');
+        if ($purpose === 'reset' && !$exists) calendar_fail('account_not_found',404,'Аккаунт с этим e-mail не найден. Создайте аккаунт.');
+        if (!in_array($purpose,['register','reset'],true)) calendar_fail('invalid_purpose',400);
+    }
+    public function accountEmailLink(string $email, bool $subscribe, string $purpose = 'register'): array {
+        $email=strtolower(trim($email));
+        $this->checkAccountEmailPurpose($email,$purpose);
         $verification = $this->createEmailVerification($email, $subscribe, false);
-        calendar_with_lock($this->locksDirectory, 'accounts', function () use ($verification): void {
+        calendar_with_lock($this->locksDirectory, 'accounts', function () use ($verification,$purpose): void {
             $state = $this->accountState();
             $state['links'] = array_filter($state['links'], static fn($link) => $link > time());
             $state['links'][calendar_hash($verification['token'])] = time() + 1800;
+            $state['linkPurposes'][calendar_hash($verification['token'])]=$purpose;
             $this->writeAccounts($state);
         });
         return $verification;
@@ -32,11 +41,13 @@ trait CalendarAccounts
             $confirmed = $this->confirmEmailVerification($token);
             $email = $confirmed['email'];
             $existing = $state['users'][$email] ?? null;
+            if ($existing && ($state['linkPurposes'][$key] ?? 'register') === 'register') calendar_fail('account_exists',409,'Этот e-mail уже зарегистрирован. Войдите в аккаунт.');
             if ($existing['blocked'] ?? false) calendar_fail('account_blocked', 403, 'Учётная запись заблокирована');
             $state['users'][$email] = ['id' => $existing['id'] ?? calendar_uuid(), 'email' => $email,
                 'passwordHash' => $hash, 'version' => ($existing['version'] ?? 0) + 1, 'blocked' => false,
                 'createdAt' => $existing['createdAt'] ?? calendar_now()];
             unset($state['links'][$key]);
+            unset($state['linkPurposes'][$key]);
             $session = $this->newAccountSession($state, $email);
             $this->writeAccounts($state);
             return $session;
@@ -211,6 +222,9 @@ function calendar_account_routes(CalendarStore $store, string $method, string $p
     if ($method === 'POST' && $path === '/v1/account/email') {
         $body = api_request_json(4096); $email = strtolower(trim((string)($body['email'] ?? '')));
         if (!api_valid_email($email)) calendar_fail('invalid_email', 400);
+        $purpose=$body['purpose'] ?? 'register';
+        if (!is_string($purpose)) calendar_fail('invalid_purpose',400);
+        $store->checkAccountEmailPurpose($email,$purpose);
         // Reuse delivery-aware throttling, including releasing failed attempts.
         if (!$store->consumeVerificationRateLimit($email, api_client_address())) {
             $retry = $store->verificationRetrySeconds($email, api_client_address());
@@ -218,8 +232,9 @@ function calendar_account_routes(CalendarStore $store, string $method, string $p
             calendar_fail('email_wait', 429, 'Повторная отправка будет доступна через ' . $retry . ' сек. Уже полученная ссылка продолжает работать.');
         }
         try {
-            $link = $store->accountEmailLink($email, ($body['subscribe'] ?? false) === true);
-            calendar_send_verification_email($email, api_public_url() . '/?account-token=' . rawurlencode($link['token']), ($body['subscribe'] ?? false) === true);
+            $subscribe=$purpose==='register' && ($body['subscribe'] ?? false) === true;
+            $link = $store->accountEmailLink($email, $subscribe, $purpose);
+            calendar_send_verification_email($email, api_public_url() . '/?account-token=' . rawurlencode($link['token']), $subscribe);
             $store->finishVerificationSend($email, api_client_address(), true);
             $store->logMail($email, 'verification', 'accepted');
         } catch (Throwable $e) { $store->finishVerificationSend($email, api_client_address(), false); $store->logMail($email, 'verification', 'failed'); throw $e; }

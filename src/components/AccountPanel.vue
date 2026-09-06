@@ -65,8 +65,8 @@ async function load() { if (props.user && !props.reauthenticate) calendars.value
 async function action() {
   busy.value = true; error.value = ''; notice.value = '';
   try {
-    if (mode.value === 'email') {
-      await accountRequest('email', 'POST', { email: email.value, subscribe: subscribe.value });
+    if (mode.value === 'email' || mode.value === 'reset') {
+      await accountRequest('email', 'POST', { email: email.value, subscribe: mode.value === 'email' && subscribe.value, purpose: mode.value === 'reset' ? 'reset' : 'register' });
       notice.value = 'Письмо отправлено. Откройте ссылку, задайте пароль, затем войдите на любом устройстве.';
     } else {
       if (mode.value === 'password' && password.value !== repeatPassword.value) throw new Error('Пароли не совпадают');
@@ -114,14 +114,14 @@ onMounted(async () => { try { await load(); } catch (e) { error.value = String(e
         <section v-if="historyFor"><h2>Версии: {{ historyFor.name }}</h2><p v-if="!backups.length">Предыдущих версий пока нет.</p><p v-for="backup in backups" :key="backup.revision">{{ new Date(backup.at).toLocaleString() }} · версия {{ backup.revision }} <button :disabled="busy" @click="restore(backup.revision)">Восстановить</button></p><button @click="historyFor = undefined">Закрыть версии</button></section>
       </template>
       <form v-else @submit.prevent="action">
-        <h2>{{ mode === 'password' ? 'Установите пароль' : mode === 'email' ? 'Регистрация / восстановление доступа' : 'Вход' }}</h2>
+        <h2>{{ mode === 'password' ? 'Установите пароль' : mode === 'email' ? 'Создать аккаунт' : mode === 'reset' ? 'Восстановление пароля' : 'Вход' }}</h2>
         <label v-if="mode !== 'password'">E-mail<input v-model="email" type="email" autocomplete="username" required maxlength="254" /></label>
-        <template v-if="mode !== 'email'"><label>Пароль<input v-model="password" type="password" :autocomplete="mode === 'password' ? 'new-password' : 'current-password'" :minlength="mode === 'password' ? 12 : 1" maxlength="72" required /></label>
+        <template v-if="mode !== 'email' && mode !== 'reset'"><label>Пароль<input v-model="password" type="password" :autocomplete="mode === 'password' ? 'new-password' : 'current-password'" :minlength="mode === 'password' ? 12 : 1" maxlength="72" required /></label>
           <label v-if="mode === 'password'">Повторите пароль<input v-model="repeatPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="72" /></label>
         </template>
         <label v-if="mode === 'email'"><input v-model="subscribe" type="checkbox" /> Хочу получать новости мастерской и напоминания о календарях. Можно отписаться в каждом письме.</label>
-        <button :disabled="busy">{{ busy ? 'Подождите…' : mode === 'email' ? 'Получить письмо' : mode === 'password' ? 'Сохранить пароль и войти' : 'Войти' }}</button>
-        <p><button type="button" :disabled="busy" @click="mode = mode === 'login' ? 'email' : 'login'; error = ''; notice = ''">{{ mode === 'login' ? 'Создать аккаунт / забыли пароль?' : 'Уже есть пароль — войти' }}</button></p>
+        <button :disabled="busy">{{ busy ? 'Подождите…' : mode === 'email' || mode === 'reset' ? 'Получить письмо' : mode === 'password' ? 'Сохранить пароль и войти' : 'Войти' }}</button>
+        <p><button type="button" :disabled="busy" @click="mode = mode === 'login' ? 'email' : 'login'; error = ''; notice = ''">{{ mode === 'login' ? 'Создать аккаунт' : 'Уже есть пароль — войти' }}</button><button v-if="mode === 'login'" type="button" :disabled="busy" @click="mode = 'reset'; error = ''; notice = ''">Забыли пароль?</button></p>
       </form>
     </section>
   </div>

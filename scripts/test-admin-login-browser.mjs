@@ -23,7 +23,8 @@ try {
   const page = await context.newPage();
   page.on('dialog',d=>d.accept());
   await page.goto('http://127.0.0.1:5178/');
-  await page.getByRole('button',{name:'Администратор',exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:'Администратор',exact:true}).count(),0);
+  await page.goto('http://127.0.0.1:5178/admin');
   const login = page.getByRole('dialog',{name:'Вход администратора'});
   await login.getByLabel('Логин',{exact:true}).fill('admin');
   await login.getByLabel('Пароль',{exact:true}).fill('wrong');
@@ -68,7 +69,7 @@ try {
   await admin.getByRole('button',{name:'На главную',exact:true}).click();
   assert.equal(await page.getByRole('dialog',{name:'Подтверждение e-mail'}).count(),0);
   await page.reload();
-  await page.getByRole('button',{name:'Администратор',exact:true}).click();
+  await page.goto('http://127.0.0.1:5178/admin');
   await admin.waitFor();
   assert.equal(await login.count(),0);
   assert.equal(await page.evaluate(()=>localStorage.getItem('orthodox-calendar-layout:verified-email-token')),null);
