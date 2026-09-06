@@ -7,6 +7,7 @@ require_once __DIR__ . '/admin-store.php';
 require_once __DIR__ . '/admin-auth.php';
 require_once __DIR__ . '/newsletter.php';
 require_once __DIR__ . '/accounts.php';
+require_once __DIR__ . '/domain-session.php';
 require_once __DIR__ . '/print-orders.php';
 require_once __DIR__ . '/catalog.php';
 require_once __DIR__ . '/site-pages-defaults.php';
@@ -208,6 +209,7 @@ final class CalendarStore
     use CalendarAdminStore;
     use CalendarAdminAuth;
     use CalendarAccounts;
+    use CalendarDomainSessions;
     use CalendarPrintOrders;
     use CalendarCatalog;
     use CalendarSitePages;

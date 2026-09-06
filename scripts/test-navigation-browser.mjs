@@ -16,7 +16,7 @@ try {
   await page.goto('http://127.0.0.1:5178/impressum');
   expect(await page.evaluate(() => window.dispatchEvent(new Event('beforeunload', {cancelable:true})))).toBe(true);
   await expect(page.locator('.public-site-page article')).toBeVisible();
-  await page.locator('.public-site-page a[href="/ru/datenschutz"]').click();
+  await page.locator('.public-site-page a[href="/datenschutz"]').click();
   await expect(page).toHaveURL(/\/datenschutz$/);
   await page.goBack();await expect(page).toHaveURL(/\/impressum$/);
   await page.goForward();await expect(page).toHaveURL(/\/datenschutz$/);
@@ -48,13 +48,13 @@ try {
   const foreign = await browser.newContext({locale:'de-DE'});
   await foreign.route('**/api/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`http://127.0.0.1:18994${u.pathname}${u.search}`})});});
   const localized = await foreign.newPage();
-  await localized.goto('http://127.0.0.1:5178/');await expect(localized).toHaveURL('http://127.0.0.1:5178/de/');
+  await localized.goto('http://127.0.0.1:5178/');await expect(localized).toHaveURL('http://127.0.0.1:5178/');
   await localized.goto('http://127.0.0.1:5178/ru/impressum');
   await expect(localized.locator('.public-site-page select')).toHaveValue('ru');
   await localized.locator('.public-site-page select').selectOption('de');
   await expect(localized).toHaveURL('http://127.0.0.1:5178/de/impressum');
   await expect(localized.locator('.public-site-page a[href="/de/datenschutz"]')).toBeVisible();
-  await localized.goBack();await expect(localized).toHaveURL('http://127.0.0.1:5178/ru/impressum');
+  await localized.goBack();await expect(localized).toHaveURL('http://127.0.0.1:5178/impressum');
   await expect(localized.locator('.public-site-page select')).toHaveValue('ru');
   await localized.goForward();await expect(localized.locator('.public-site-page select')).toHaveValue('de');
   await localized.reload();await expect(localized.locator('.public-site-page select')).toHaveValue('de');

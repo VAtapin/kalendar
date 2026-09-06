@@ -29,6 +29,23 @@ type Translation = Record<Exclude<InterfaceLanguage, "ru">, string>;
  * Calendar content, project names and user-entered text are deliberately absent.
  */
 const TRANSLATIONS: Record<string, Translation> = {
+  "Личный кабинет": {de:"Mein Konto",en:"My account",uk:"Особистий кабінет"},
+  "КАЛЕНДАРНАЯ МАСТЕРСКАЯ": {de:"KALENDERWERKSTATT",en:"CALENDAR WORKSHOP",uk:"КАЛЕНДАРНА МАЙСТЕРНЯ"},
+  "Вход": {de:"Anmeldung",en:"Sign in",uk:"Вхід"},
+  "Пароль": {de:"Passwort",en:"Password",uk:"Пароль"},
+  "Войти": {de:"Anmelden",en:"Sign in",uk:"Увійти"},
+  "Выйти": {de:"Abmelden",en:"Sign out",uk:"Вийти"},
+  "+ Новый календарь": {de:"+ Neuer Kalender",en:"+ New calendar",uk:"+ Новий календар"},
+  "Импортировать календарь": {de:"Kalender importieren",en:"Import calendar",uk:"Імпортувати календар"},
+  "Настройки аккаунта": {de:"Kontoeinstellungen",en:"Account settings",uk:"Налаштування облікового запису"},
+  "Поиск календаря": {de:"Kalender suchen",en:"Find a calendar",uk:"Пошук календаря"},
+  "Название или год": {de:"Name oder Jahr",en:"Name or year",uk:"Назва або рік"},
+  "Корзина": {de:"Papierkorb",en:"Trash",uk:"Кошик"},
+  "Календарей пока нет. Создайте первый.": {de:"Noch keine Kalender. Erstellen Sie Ihren ersten Kalender.",en:"No calendars yet. Create your first one.",uk:"Календарів поки немає. Створіть перший."},
+  "Календари и фотографии сохраняются на сервере. Скачать копию на компьютер можно из меню «Файл» в редакторе.": {de:"Kalender und Fotos werden auf dem Server gespeichert. Eine Kopie können Sie im Editor über das Menü „Datei“ herunterladen.",en:"Calendars and photos are saved on the server. Download a copy from the editor’s File menu.",uk:"Календарі та фотографії зберігаються на сервері. Завантажити копію можна через меню «Файл» у редакторі."},
+  "Создать аккаунт / забыли пароль?": {de:"Konto erstellen / Passwort vergessen?",en:"Create account / forgot password?",uk:"Створити обліковий запис / забули пароль?"},
+  "Уже есть пароль — войти": {de:"Passwort vorhanden — anmelden",en:"Already have a password — sign in",uk:"Вже є пароль — увійти"},
+  "Подождите…": {de:"Bitte warten…",en:"Please wait…",uk:"Зачекайте…"},
   "Страницы сайта": {de:"Website-Seiten",en:"Website pages",uk:"Сторінки сайту"},
   "ИИ-помощник": {de:"KI-Assistent",en:"AI assistant",uk:"ШІ-помічник"},
   "+ Добавить страницу": {de:"+ Seite hinzufügen",en:"+ Add page",uk:"+ Додати сторінку"},
@@ -756,17 +773,14 @@ function storedLanguage(): InterfaceLanguage {
   return resolveBrowserLanguage(
     typeof location === 'undefined' ? '/' : location.pathname,
     typeof navigator === 'undefined' ? [] : navigator.languages?.length ? navigator.languages : [navigator.language],
+    typeof location === 'undefined' ? '' : location.hostname,
   );
 }
 
-export function resolveBrowserLanguage(path: string, languages: readonly string[]): InterfaceLanguage {
+export function resolveBrowserLanguage(path: string, _languages: readonly string[], hostname = ''): InterfaceLanguage {
   const explicit = path.split('/')[1]?.toLowerCase();
   if (isInterfaceLanguage(explicit)) return explicit;
-  for (const candidate of languages) {
-    const language = candidate.toLowerCase().split(/[-_]/)[0];
-    if (isInterfaceLanguage(language)) return language;
-  }
-  return 'en';
+  return domainDefaultLanguage(hostname);
 }
 
 export const interfaceLanguage = ref<InterfaceLanguage>(storedLanguage());

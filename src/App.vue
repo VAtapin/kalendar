@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
-import { routePath, navigate, isPublicPath } from './navigation';
+import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
 import { emptyPhotoFrameAt, clearPhotoFrameImage } from './document/photo-drop';
@@ -985,7 +985,7 @@ async function loadVerifiedProgramSettings(): Promise<void> {
   if (!accessToken) return;
   try {
     const settings = await loadUserProgramSettings(accessToken);
-    if (!/^\/(ru|de|en|uk)(\/|$)/.test(location.pathname)) applyInterfaceLanguage(settings.interfaceLanguage);
+    void settings; // Interface language is determined by the URL/domain, not stored preferences.
   } catch {
     // A local preference remains usable while the server is temporarily down.
   }
@@ -1550,7 +1550,7 @@ async function initializeApplication(): Promise<void> {
           });
         } else {
           const settings = await loadUserProgramSettings(confirmed.accessToken);
-          if (!/^\/(ru|de|en|uk)(\/|$)/.test(location.pathname)) applyInterfaceLanguage(settings.interfaceLanguage);
+          void settings; // Do not override the URL/domain language on login.
         }
       } catch {
         // E-mail verification remains valid if preference synchronization is
@@ -3842,6 +3842,10 @@ onMounted(() => {
   });
   void refreshCatalog().catch(() => { operationNotice.value = 'Серверный каталог недоступен. Показаны встроенные материалы.'; });
 });
+const removeDomainPreparation = beforeDomainChange(async () => {
+  if (accountUser.value && serverCalendarId.value) await saveServerCalendar();
+});
+onBeforeUnmount(removeDomainPreparation);
 watch(project, () => {
   scheduleAutosave();
   scheduleSharedSave();

@@ -69,5 +69,8 @@ function calendar_admin_check_origin(): void {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     $url = parse_url(calendar_config_value('APP_PUBLIC_URL'));
     $expected = isset($url['scheme'], $url['host']) ? $url['scheme'] . '://' . $url['host'] . (isset($url['port']) ? ':' . $url['port'] : '') : '';
-    if ($expected === '' || $origin !== $expected) calendar_fail('invalid_origin', 403, 'Обновите страницу и повторите действие');
+    $allowed = [$expected];
+    $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
+    if (in_array($expected, $aliases, true)) $allowed = $aliases;
+    if ($expected === '' || !in_array($origin, $allowed, true)) calendar_fail('invalid_origin', 403, 'Обновите страницу и повторите действие');
 }
