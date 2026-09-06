@@ -8,6 +8,7 @@ defineProps<{
 const emit = defineEmits<{
   close: [];
   copy: [];
+  order: [];
 }>();
 </script>
 
@@ -22,6 +23,7 @@ const emit = defineEmits<{
         <p>{{ kind === 'share' ? 'Отправьте эту ссылку другому человеку. Пока вы работаете, он сможет подождать или создать независимую копию.' : 'Скачивание можно повторить или продолжить после разрыва соединения по этой ссылке.' }}</p>
         <label class="field-stack"><span>Ссылка</span><input :value="url" type="url" readonly @focus="($event.target as HTMLInputElement).select()" /></label>
         <p v-if="detail" class="application-dialog__note">{{ detail }}</p>
+        <button v-if="kind === 'pdf'" type="button" class="primary-action" @click="emit('order')">Заказать печать календаря</button>
         <div class="online-dialog__actions"><button type="button" class="primary-action" @click="emit('copy')">Копировать ссылку</button><a class="button-link" :href="url" :download="kind === 'pdf' ? '' : undefined" target="_blank" rel="noreferrer">{{ kind === 'pdf' ? 'Скачать PDF' : 'Открыть ссылку' }}</a></div>
       </div>
     </section>

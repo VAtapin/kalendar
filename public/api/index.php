@@ -244,6 +244,8 @@ try {
     $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $path = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
     $path = preg_replace('#^/api(?=/|$)#', '', $path) ?: '/';
+    calendar_print_routes($store, $method, $path);
+    calendar_site_routes($store, $method, $path);
     calendar_account_routes($store, $method, $path);
     calendar_catalog_routes($store, $method, $path);
 

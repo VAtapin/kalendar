@@ -7,7 +7,10 @@ require_once __DIR__ . '/admin-store.php';
 require_once __DIR__ . '/admin-auth.php';
 require_once __DIR__ . '/newsletter.php';
 require_once __DIR__ . '/accounts.php';
+require_once __DIR__ . '/print-orders.php';
 require_once __DIR__ . '/catalog.php';
+require_once __DIR__ . '/site-pages-defaults.php';
+require_once __DIR__ . '/site-pages.php';
 
 final class ApiFailure extends RuntimeException
 {
@@ -81,6 +84,8 @@ function calendar_config(): array
         'SMTP_USER' => '',
         'SMTP_PASSWORD' => '',
         'MAIL_FROM' => '',
+        'STRIPE_SECRET_KEY' => '',
+        'STRIPE_WEBHOOK_SECRET' => '',
     ]) as $key) {
         $environmentValue = getenv($key);
         if ($environmentValue !== false) {
@@ -203,13 +208,16 @@ final class CalendarStore
     use CalendarAdminStore;
     use CalendarAdminAuth;
     use CalendarAccounts;
+    use CalendarPrintOrders;
     use CalendarCatalog;
+    use CalendarSitePages;
     private const BUILT_IN_TEMPLATE_IDS = [
         'editorial-classic',
         'monastic-book',
         'clean-modern',
         'festal-gold',
         'compact-information',
+        'fasting-colors',
     ];
 
     private readonly string $projectsDirectory;

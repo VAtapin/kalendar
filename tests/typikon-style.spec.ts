@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { buildOrthodoxCalendarYear, parseMemoryDaysXml } from "../src/calendar";
 import type { OrthodoxCalendarDay, ResolvedCalendarEvent } from "../src/calendar";
 import {
   dayNumberTypikonStyle,
   eventTypikonStyle,
   typikonMarkForEvent,
+  primaryTypikonEvent,
 } from "../src/calendar/presentation/typikon-style";
 
 function event(typeCode: number, styleToken?: string): ResolvedCalendarEvent {
@@ -37,8 +40,37 @@ describe("typikon presentation", () => {
     expect(typikonMarkForEvent(event(3))).toBe("vigil");
     expect(typikonMarkForEvent(event(4))).toBe("polyeleos");
     expect(typikonMarkForEvent(event(5))).toBe("doxology");
-    expect(typikonMarkForEvent(event(18))).toBe("six_stichera");
-    expect(typikonMarkForEvent(event(-100, "monastery-feast"))).toBe("six_stichera");
+    expect(typikonMarkForEvent(event(6))).toBe("six_stichera");
+    for (const code of [7, 8, 9, 10, 16, 17, 18, 19, 20, 100, 201, -100, 999, 6.5, NaN]) {
+      expect(typikonMarkForEvent(event(code))).toBeUndefined();
+    }
+    expect(typikonMarkForEvent(event(-100, "monastery-feast"))).toBeUndefined();
+  });
+
+  it("selects only an explicit rank regardless of event order", () => {
+    expect(primaryTypikonEvent([])).toBeUndefined();
+    expect(primaryTypikonEvent([event(7), event(18), event(100)])).toBeUndefined();
+    expect(primaryTypikonEvent([event(100), event(6), event(4), event(7)])?.typeCode).toBe(4);
+    expect(primaryTypikonEvent([event(4), event(7), event(6), event(100)])?.typeCode).toBe(4);
+  });
+
+  it("does not manufacture signs for ordinary February 2027 memories", () => {
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(
+      readFileSync(new URL("../public/data/MemoryDays.xml", import.meta.url), "utf8"),
+    ));
+    for (const isoDate of ["2027-02-03", "2027-02-04"]) {
+      const current = calendar.days.find((item) => item.isoDate === isoDate)!;
+      expect(current).toBeDefined();
+      expect(primaryTypikonEvent(current.events), isoDate).toBeUndefined();
+    }
+    const presentation = calendar.days.find((item) => item.isoDate === "2027-02-15")!;
+    expect(typikonMarkForEvent(primaryTypikonEvent(presentation.events)!)).toBe("great");
+    // The afterfeast itself is unmarked, but this day also has a ranked memory.
+    const afterfeast = calendar.days.find((item) => item.isoDate === "2027-02-16")!;
+    expect(typikonMarkForEvent(primaryTypikonEvent(afterfeast.events)!)).toBe("six_stichera");
+    const sixStichera = calendar.days.flatMap((item) => item.events).filter((item) => item.typeCode === 6);
+    expect(sixStichera.length).toBeGreaterThan(0);
+    expect(sixStichera.every((item) => typikonMarkForEvent(item) === "six_stichera")).toBe(true);
   });
 
   it("marks every Sunday red and honours monastery styling", () => {

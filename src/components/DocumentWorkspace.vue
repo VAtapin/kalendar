@@ -32,22 +32,25 @@ const emit = defineEmits<{
   updateGeometry: [elementId: string, frame: ElementFrame];
   geometryEnd: [];
   photoDrop: [id: string, point: { x: number; y: number }];
+  decorDrop: [id: string, point: { x: number; y: number }];
 }>();
 
 function allowPhotoDrop(event: DragEvent): void {
-  if (event.dataTransfer?.types.includes('application/x-calendar-photo')) {
+  if (event.dataTransfer?.types.some(type => ['application/x-calendar-photo', 'application/x-calendar-decor'].includes(type))) {
     event.preventDefault(); event.dataTransfer.dropEffect = 'copy';
   }
 }
 function dropPhoto(event: DragEvent): void {
+  const decorId = event.dataTransfer?.getData('application/x-calendar-decor');
   const id = event.dataTransfer?.getData('application/x-calendar-photo');
-  if (!id) return;
+  if (!id && !decorId) return;
   event.preventDefault();
   const svg = event.currentTarget as SVGSVGElement;
   const transform = svg.getScreenCTM();
   if (!transform) return;
   const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
-  emit('photoDrop', id, { x: point.x, y: point.y });
+  if (decorId) { emit('decorDrop', decorId, { x: point.x, y: point.y }); return; }
+  if (id) emit('photoDrop', id, { x: point.x, y: point.y });
 }
 
 function forwardCreate(tool: EditorTool, frame: ElementFrame): void {

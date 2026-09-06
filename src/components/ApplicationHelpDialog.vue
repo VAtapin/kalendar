@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from "vue";
+import LegalLinks from './LegalLinks.vue';
 
 export type HelpDialogPage = "guide" | "shortcuts" | "about";
 
@@ -130,12 +131,14 @@ onMounted(async () => {
         </div>
         <p>Издательский инструмент для подготовки православных печатных календарей.</p>
         <section>
-          <h3>Проект монастыря</h3>
+          <h3>Монастырь</h3>
           <p>Свято‑Георгиевский мужской монастырь Берлинской епархии в Гётчендорфе.</p>
           <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
         </section>
         <section>
-          <h3>Разработка</h3>
+          <h3>Оператор и разработчик</h3>
+          <p>Volodymyr Atapin · ATAPIN.DE</p>
+          <p>Neuhofer Straße 7, 16278 Angermünde, Deutschland</p>
           <p><a href="https://atapin.de/" target="_blank" rel="noreferrer">ATAPIN.DE</a></p>
           <p><a href="tel:+491713517274">+49 171 351 72 74</a></p>
           <p><a href="mailto:atapin@gmail.com">atapin@gmail.com</a></p>
@@ -143,6 +146,7 @@ onMounted(async () => {
       </div>
 
       <footer class="application-dialog__footer">
+        <LegalLinks />
         <button type="button" class="primary-action" @click="emit('close')">Закрыть</button>
       </footer>
     </section>

@@ -39,6 +39,7 @@ import {
   dayNumberTypikonStyle,
   eventTypikonStyle,
   typikonMarkForEvent,
+  primaryTypikonEvent,
 } from "../calendar/presentation/typikon-style";
 import {
   FOOD_RULES,
@@ -95,6 +96,7 @@ const props = defineProps<{
   showGuides: boolean;
   activeTool: EditorTool;
   selectedElementId?: string;
+  previewViewport?: { x:number; y:number; width:number; height:number };
 }>();
 
 const emit = defineEmits<{
@@ -168,7 +170,7 @@ const legendPreviewItems = computed<LegendPreviewItem[]>(() => {
   return items;
 });
 const viewBox = computed(() => {
-  const box = scene.value.mediaBox;
+  const box = props.previewViewport ?? scene.value.mediaBox;
   return `${box.x} ${box.y} ${box.width} ${box.height}`;
 });
 const draftFrame = computed<ElementFrame | undefined>(() => {
@@ -572,8 +574,8 @@ function calendarCellText(element: CalendarGridElement, cell: CalendarGridCellLa
   );
 }
 
-function calendarCellPrimaryTypikonEvent(element: CalendarGridElement, cell: CalendarGridCellLayout) {
-  return calendarCellText(element, cell).lines.find((line) => !line.isContinuation)?.event;
+function calendarCellPrimaryTypikonEvent(cell: CalendarGridCellLayout) {
+  return primaryTypikonEvent(cell.day?.events ?? []);
 }
 
 function calendarCellClipId(elementId: string, cellKey: string): string {
@@ -1097,8 +1099,8 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
                   :size="calendarFoodMarkerGeometry(element, cell).sizeMm"
                 />
                 <TypikonRankMarker
-                  v-if="element.showTypikonIcons === true && calendarCellPrimaryTypikonEvent(element, cell)"
-                  :kind="typikonMarkForEvent(calendarCellPrimaryTypikonEvent(element, cell)!)"
+                  v-if="element.showTypikonIcons === true && calendarCellPrimaryTypikonEvent(cell)"
+                  :kind="typikonMarkForEvent(calendarCellPrimaryTypikonEvent(cell)!)!"
                   :x="cell.x + calendarCellTypography(element).eventMarkerXOffsetMm"
                   :y="cell.y + calendarCellTypography(element).eventMarkerYOffsetMm"
                   :size="calendarCellTypography(element).eventMarkerSizeMm"
@@ -1220,5 +1222,6 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
         class="page-scene__safe"
       />
     </g>
+    <slot />
   </svg>
 </template>

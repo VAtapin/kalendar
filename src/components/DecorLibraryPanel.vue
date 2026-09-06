@@ -8,6 +8,11 @@ import {
 
 const props = defineProps<{ items: readonly DecorLibraryItem[] }>();
 const emit = defineEmits<{ insert: [item: DecorLibraryItem] }>();
+function dragDecor(event: DragEvent, id: string): void {
+  if (!event.dataTransfer) return;
+  event.dataTransfer.setData('application/x-calendar-decor', id);
+  event.dataTransfer.effectAllowed = 'copy';
+}
 
 const search = ref("");
 const collection = ref<"gold" | "svg">("gold");
@@ -71,7 +76,7 @@ function previewSource(item: DecorLibraryItem): string {
       </label>
     </div>
     <p class="decor-library__summary">
-      {{ visibleItems.length }} из {{ collectionItems.length }} · щелчок вставляет на новый верхний слой
+      {{ visibleItems.length }} из {{ collectionItems.length }} · перетащите на страницу или нажмите для вставки
     </p>
     <div class="decor-library__grid">
       <button
@@ -79,10 +84,13 @@ function previewSource(item: DecorLibraryItem): string {
         :key="item.id"
         type="button"
         class="decor-library__item"
+        :data-decor-id="item.id"
+        draggable="true"
+        @dragstart="dragDecor($event, item.id)"
         :title="`${item.label} · ${item.kind === 'image' ? `PNG, ${item.nominalDpi ?? 300} dpi` : `исходник ${item.sourceId}`}`"
         @click="emit('insert', item)"
       >
-        <span class="decor-library__preview"><img :src="previewSource(item)" alt="" loading="lazy" decoding="async" /></span>
+        <span class="decor-library__preview"><img :src="previewSource(item)" draggable="false" alt="" loading="lazy" decoding="async" /></span>
         <span class="decor-library__item-label">{{ item.label }}</span>
         <small v-if="item.kind === 'image'" class="decor-library__item-meta">PNG · {{ item.nominalDpi ?? 300 }} dpi</small>
       </button>

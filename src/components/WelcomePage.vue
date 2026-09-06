@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref } from "vue";
+import LegalLinks from './LegalLinks.vue';
 import type { InterfaceLanguage } from "../document/types";
 import {
   INTERFACE_LANGUAGE_OPTIONS,
@@ -135,9 +136,10 @@ function changeInterfaceLanguage(event: Event): void {
     </section>
 
     <footer class="welcome-page__footer">
-      <span>Проект Свято‑Георгиевского мужского монастыря</span>
+      <span>ATAPIN.DE · Volodymyr Atapin</span>
       <button type="button" @click="emit('help')">Помощь</button>
       <a href="https://atapin.de/" target="_blank" rel="noreferrer">Разработка ATAPIN.DE</a>
+      <LegalLinks />
     </footer>
 
     <div v-if="desktopRequiredOpen" class="application-dialog-backdrop" @click.self="desktopRequiredOpen = false">

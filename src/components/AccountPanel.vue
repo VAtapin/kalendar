@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import LegalLinks from './LegalLinks.vue';
 import { accountRequest, type AccountUser, type AccountCalendar } from '../collaboration/account-client';
 const props = defineProps<{ user: AccountUser | null; token?: string; externalError?: string; reauthenticate?: boolean }>();
 const emit = defineEmits<{ close: []; authenticated: [user: AccountUser]; logout: []; open: [id: string]; create: []; import: []; deleted: [id: string] }>();
@@ -92,6 +93,7 @@ onMounted(async () => { try { await load(); } catch (e) { error.value = String(e
     <section role="dialog" aria-modal="true" aria-label="Личный кабинет" class="account-panel">
       <header><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h1>Личный кабинет</h1><p v-if="user">{{ user.email }}</p></div><button :disabled="busy" @click="emit('close')">Закрыть</button></header>
       <p v-if="error || externalError" role="alert">{{ error || externalError }}</p><p v-if="notice" role="status">{{ notice }}</p>
+      <LegalLinks />
       <template v-if="user && !reauthenticate">
         <nav><button :disabled="busy" @click="emit('create')">+ Новый календарь</button><button :disabled="busy" @click="emit('import')">Импортировать календарь</button><button :disabled="busy" @click="openSettings">Настройки аккаунта</button><button :disabled="busy" @click="logout">Выйти</button></nav>
         <section v-if="settings"><h2>Настройки</h2><label><input v-model="subscribed" type="checkbox" /> {{ consentText }}</label><button :disabled="busy" @click="saveSubscription">Сохранить подписку</button>

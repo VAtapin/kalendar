@@ -6,6 +6,10 @@ import NewsletterEditor from "./NewsletterEditor.vue";
 import AdminTemplates from "./AdminTemplates.vue";
 import AdminCatalog from "./AdminCatalog.vue";
 import AdminAccounts from "./AdminAccounts.vue";
+import AdminSitePages from './AdminSitePages.vue';
+import AdminAiSettings from './AdminAiSettings.vue';
+import AiDraftAssistant from './AiDraftAssistant.vue';
+import type { PageTranslation } from '../content/site-pages';
 import { catalogRequest } from "../collaboration/catalog-client";
 import type { CalendarProject } from "../document/types";
 import type { OrthodoxCalendarYear } from "../calendar/types";
@@ -13,7 +17,11 @@ import { mergeMonasteryEvents } from "../calendar/engine/merge-monastery-events"
 
 const props = defineProps<{ accessToken: string }>();
 const emit = defineEmits<{ close: []; logout: [] }>();
+const pageDirty=ref(false);
+function canLeavePages(){return !pageDirty.value || window.confirm('Оставить несохранённые изменения страницы?');}
+function closeAdmin(){if(canLeavePages())emit('close');}
 async function logout() {
+  if(!canLeavePages())return;
   try { await adminRequest("", "logout", {}); emit("logout"); }
   catch (e) { error.value = String(e); }
 }
@@ -33,6 +41,7 @@ const subject = ref("");
 const text = ref("");
 const blocks = ref<{type: "heading" | "text" | "image" | "button"; text: string; url: string}[]>([{type: "text", text: "", url: ""}]);
 const hasContent = computed(() => blocks.value.some(block => block.text.trim()));
+function applyNewsletterAi(draft: PageTranslation) { subject.value=draft.title; blocks.value=draft.blocks; approved.value=false; }
 const approved = ref(false);
 watch([subject, blocks], () => { approved.value = false; }, { deep: true });
 const sending = ref(false);
@@ -75,10 +84,11 @@ async function restoreTrash(id: string) {
   catch (e) { error.value = String(e); }
 }
 async function load(nextTab = tab.value, nextOffset = 0) {
+  if(nextTab!==tab.value && !canLeavePages())return;
   tab.value = nextTab; offset.value = nextOffset; preview.value = undefined;
   const version = ++requestVersion;
   if (nextTab === 'campaigns' && !draftLoaded) { await loadDraft(); return; }
-  if (['campaigns', 'templates', 'catalog', 'accounts'].includes(nextTab)) { busy.value = false; error.value = ""; return; }
+  if (['campaigns', 'templates', 'catalog', 'accounts', 'pages', 'ai'].includes(nextTab)) { busy.value = false; error.value = ""; return; }
   busy.value = true; error.value = "";
   try {
     const data = nextTab === 'calendars' || nextTab === 'trash'
@@ -122,9 +132,11 @@ onMounted(() => void load());
 <template>
   <div class="application-dialog-backdrop admin-backdrop">
     <section class="application-dialog admin-dialog" role="dialog" aria-modal="true" aria-label="Администратор">
-      <header class="application-dialog__header"><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h2>Управление мастерской</h2></div><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="emit('close')">Вернуться в редактор</button></div></header>
+      <header class="application-dialog__header"><div><small>КАЛЕНДАРНАЯ МАСТЕРСКАЯ</small><h2>Управление мастерской</h2></div><div><button type="button" :disabled="sending" @click="logout">Выйти из аккаунта</button> <button type="button" :disabled="sending" @click="closeAdmin">Вернуться в редактор</button></div></header>
       <div class="application-dialog__content">
         <nav class="admin-nav">
+          <button :disabled="busy || sending" @click="load('pages')">Страницы сайта</button>
+          <button :disabled="busy || sending" @click="load('ai')">ИИ-помощник</button>
           <button v-for="entry in [['calendars','Календари'],['trash','Корзина'],['accounts','Аккаунты'],['subscribers','Подписки'],['catalog','Ресурсы: шрифты, SVG, изображения'],['templates','Макеты сеток'],['mail-log','Журнал писем'],['campaigns','Рассылка']]" :key="entry[0]" :disabled="busy || sending" :aria-pressed="tab === entry[0]" @click="load(entry[0])">{{ entry[1] }}</button>
         </nav>
         <p v-if="error" role="alert">{{ error }}</p><p v-if="busy">Загрузка…</p>
@@ -134,6 +146,7 @@ onMounted(() => void load());
           <p>Отправка только подтверждённым подписчикам. Отписка проверяется перед каждым письмом. Оставьте окно открытым до завершения.</p>
           <label class="field-stack">Тема<input v-model="subject" :disabled="!!campaign || sending" maxlength="100" /></label>
           <NewsletterEditor v-model="blocks" :disabled="!!campaign || sending" :subject="subject" />
+          <AiDraftAssistant :source="JSON.stringify({title:subject,blocks})" :disabled="!!campaign || sending" @apply="applyNewsletterAi" />
           <label><input v-model="approved" type="checkbox" :disabled="sending" /> Я проверил текст и хочу отправить его подписчикам</label>
           <p><button :disabled="!approved || sending || !subject.trim() || !hasContent" @click="send">{{ campaign ? 'Продолжить отправку' : 'Создать и отправить рассылку' }}</button>
           <button v-if="sending" @click="stopSending">Остановить после текущего письма</button></p>
@@ -143,6 +156,8 @@ onMounted(() => void load());
         <AdminTemplates v-else-if="tab === 'templates'" />
         <AdminCatalog v-else-if="tab === 'catalog'" />
         <AdminAccounts v-else-if="tab === 'accounts'" />
+        <AdminSitePages v-else-if="tab === 'pages'" @dirty="pageDirty=$event" />
+        <AdminAiSettings v-else-if="tab === 'ai'" />
         <template v-else>
           <p v-if="tab === 'calendars'">Личные календари пользователей на сервере. Администратор может просматривать их без изменения оригинала.</p>
           <p v-if="tab === 'mail-log'">Последние 2000 событий. «Принято сервером» не означает доставку или прочтение. Ссылки входа в журнал не записываются.</p>

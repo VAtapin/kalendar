@@ -29,6 +29,58 @@ type Translation = Record<Exclude<InterfaceLanguage, "ru">, string>;
  * Calendar content, project names and user-entered text are deliberately absent.
  */
 const TRANSLATIONS: Record<string, Translation> = {
+  "Страницы сайта": {de:"Website-Seiten",en:"Website pages",uk:"Сторінки сайту"},
+  "ИИ-помощник": {de:"KI-Assistent",en:"AI assistant",uk:"ШІ-помічник"},
+  "+ Добавить страницу": {de:"+ Seite hinzufügen",en:"+ Add page",uk:"+ Додати сторінку"},
+  "Опубликовать": {de:"Veröffentlichen",en:"Publish",uk:"Опублікувати"},
+  "Снять с публикации": {de:"Veröffentlichung aufheben",en:"Unpublish",uk:"Зняти з публікації"},
+  "Адрес страницы": {de:"Seitenadresse",en:"Page address",uk:"Адреса сторінки"},
+  "Порядок в футере": {de:"Reihenfolge in der Fußzeile",en:"Footer order",uk:"Порядок у футері"},
+  "Редактировать визуально": {de:"Visuell bearbeiten",en:"Edit visually",uk:"Редагувати візуально"},
+  "Создать копию": {de:"Kopie erstellen",en:"Create copy",uk:"Створити копію"},
+  "ИИ: написать / улучшить / перевести": {de:"KI: schreiben / verbessern / übersetzen",en:"AI: write / improve / translate",uk:"ШІ: написати / покращити / перекласти"},
+  "Применить в редакторе": {de:"Im Editor übernehmen",en:"Apply in editor",uk:"Застосувати в редакторі"},
+  "Получить черновик": {de:"Entwurf erstellen",en:"Generate draft",uk:"Отримати чернетку"},
+  "Месяц — печатный вид": {de:"Monat — Druckansicht",en:"Month — print preview",uk:"Місяць — друкований вигляд"},
+  "Ячейка — перемещение и размер мышью": {de:"Tageszelle — mit der Maus verschieben und skalieren",en:"Day cell — drag and resize",uk:"Комірка — переміщення та розмір мишею"},
+  "Правовая информация": { de: "Rechtliche Informationen", en: "Legal information", uk: "Правова інформація" },
+  "Оператор и разработчик": { de: "Betreiber und Entwickler", en: "Operator and developer", uk: "Оператор і розробник" },
+  "Для заказа печати свяжитесь с нами по следующим контактным данным:": { de: "Für eine Druckbestellung kontaktieren Sie uns bitte:", en: "To order printing, please contact us:", uk: "Для замовлення друку зв’яжіться з нами за такими контактними даними:" },
+  "Тираж, стоимость и детали печати обсудим лично.": { de: "Auflage, Preis und Druckdetails besprechen wir persönlich.", en: "We will discuss the quantity, price and printing details personally.", uk: "Тираж, вартість і деталі друку обговоримо особисто." },
+  "Заказать печать календаря": { de:"Kalenderdruck bestellen", en:"Order calendar printing", uk:"Замовити друк календаря" },
+  "Заказать печать календаря…": { de:"Kalenderdruck bestellen…", en:"Order calendar printing…", uk:"Замовити друк календаря…" },
+  "Заказы печати": { de:"Druckaufträge", en:"Print orders", uk:"Замовлення друку" },
+  "Мои заказы": { de:"Meine Bestellungen", en:"My orders", uk:"Мої замовлення" },
+  "Скрыть заказы": { de:"Bestellungen ausblenden", en:"Hide orders", uk:"Приховати замовлення" },
+  "Заказы": { de:"Bestellungen", en:"Orders", uk:"Замовлення" },
+  "Клиенты": { de:"Kunden", en:"Customers", uk:"Клієнти" },
+  "Счета": { de:"Rechnungen", en:"Invoices", uk:"Рахунки" },
+  "Цены и Stripe": { de:"Preise und Stripe", en:"Pricing and Stripe", uk:"Ціни та Stripe" },
+  "Тираж, шт.": { de:"Auflage, Stück", en:"Quantity, copies", uk:"Тираж, шт." },
+  "Плотность бумаги": { de:"Papiergewicht", en:"Paper weight", uk:"Щільність паперу" },
+  "Матовая": { de:"Matt", en:"Matte", uk:"Матова" },
+  "Глянцевая": { de:"Glänzend", en:"Glossy", uk:"Глянцева" },
+  "Получение": { de:"Abholung / Versand", en:"Collection / delivery", uk:"Отримання" },
+  "Самовывоз": { de:"Selbstabholung", en:"Collection", uk:"Самовивіз" },
+  "Доставка": { de:"Versand", en:"Delivery", uk:"Доставка" },
+  "Дополнительные услуги": { de:"Zusatzleistungen", en:"Additional services", uk:"Додаткові послуги" },
+  "Проверка перед печатью": { de:"Druckdatenprüfung", en:"Prepress check", uk:"Перевірка перед друком" },
+  "Фолирование первой страницы": { de:"Folierung der ersten Seite", en:"First-page foiling", uk:"Фольгування першої сторінки" },
+  "Рассчитать стоимость": { de:"Preis berechnen", en:"Calculate price", uk:"Розрахувати вартість" },
+  "Контактные данные": { de:"Kontaktdaten", en:"Contact details", uk:"Контактні дані" },
+  "Телефон": { de:"Telefon", en:"Phone", uk:"Телефон" },
+  "Организация": { de:"Organisation", en:"Organization", uk:"Організація" },
+  "Адрес доставки": { de:"Lieferadresse", en:"Delivery address", uk:"Адреса доставки" },
+  "Налоговый номер (если нужен)": { de:"Steuernummer (falls erforderlich)", en:"Tax ID (if needed)", uk:"Податковий номер (за потреби)" },
+  "Отправить заявку в типографию": { de:"Anfrage an die Druckerei senden", en:"Send request to printer", uk:"Надіслати заявку до друкарні" },
+  "Заявка принята": { de:"Anfrage eingegangen", en:"Request received", uk:"Заявку прийнято" },
+  "Оплатить через Stripe": { de:"Mit Stripe bezahlen", en:"Pay with Stripe", uk:"Сплатити через Stripe" },
+  "Открыть счёт Stripe": { de:"Stripe-Rechnung öffnen", en:"Open Stripe invoice", uk:"Відкрити рахунок Stripe" },
+  "Скачать заказанный PDF": { de:"Bestellte PDF herunterladen", en:"Download ordered PDF", uk:"Завантажити замовлений PDF" },
+  "За экземпляр": { de:"Pro Exemplar", en:"Per copy", uk:"За примірник" },
+  "Сохранить прайс": { de:"Preisliste speichern", en:"Save pricing", uk:"Зберегти прайс" },
+  "Я проверил PDF, состав заказа, стоимость и принимаю условия печати.": { de:"Ich habe die PDF, den Bestellumfang und den Preis geprüft und akzeptiere die Druckbedingungen.", en:"I checked the PDF, order details and price, and accept the printing terms.", uk:"Я перевірив PDF, склад замовлення, вартість і приймаю умови друку." },
+  "Сейчас деньги не списываются. После проверки заказа оплатить его можно через Stripe.": { de:"Jetzt wird nichts abgebucht. Nach Prüfung der Bestellung können Sie mit Stripe bezahlen.", en:"No payment is taken now. After review, you can pay via Stripe.", uk:"Зараз кошти не списуються. Після перевірки замовлення можна сплатити через Stripe." },
   "Пост цветом": { de: "Fastenfarben", en: "Fasting colors", uk: "Піст кольором" },
   "Светлые цветные ячейки вместо картинок: категории поста с цветной легендой.": { de: "Helle Farbfelder statt Bilder: Fastenkategorien mit Farblegende.", en: "Light colored cells instead of pictures: fasting categories with a color legend.", uk: "Світлі кольорові клітинки замість зображень: категорії посту з кольоровою легендою." },
   "Файл": { de: "Datei", en: "File", uk: "Файл" },
@@ -861,7 +913,7 @@ function parts(value: string): { before: string; core: string; after: string } {
 
 function translateTextNode(node: Node): void {
   if (!node.nodeValue) return;
-  if (node.parentElement?.closest(".page-scene")) return;
+  if (node.parentElement?.closest(".page-scene, [data-no-translate], [contenteditable]")) return;
   const current = parts(node.nodeValue);
   const previous = textStateByNode.get(node);
   const source = previous && current.core === previous.rendered
@@ -875,7 +927,7 @@ function translateTextNode(node: Node): void {
 }
 
 function translateAttribute(element: Element, attribute: string): void {
-  if (element.closest(".page-scene")) return;
+  if (element.closest(".page-scene, [data-no-translate], [contenteditable]")) return;
   const value = element.getAttribute(attribute);
   if (value === null) return;
   const current = parts(value);
@@ -899,7 +951,7 @@ const TRANSLATABLE_ATTRIBUTES = ["aria-label", "placeholder", "title", "alt", "l
 
 function translateElement(element: Element): void {
   // The page scene is the user's printable document, not application chrome.
-  if (element.closest(".page-scene")) return;
+  if (element.closest(".page-scene, [data-no-translate], [contenteditable]")) return;
   for (const attribute of TRANSLATABLE_ATTRIBUTES) {
     translateAttribute(element, attribute);
   }

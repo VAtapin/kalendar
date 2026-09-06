@@ -46,12 +46,23 @@ export function eventTypikonStyle(
   return { rank: "ordinary", color: BLACK, fontWeight: 400 };
 }
 
-export function typikonMarkForEvent(event: ResolvedCalendarEvent): TypikonMarkKind {
+export function typikonMarkForEvent(event: ResolvedCalendarEvent): TypikonMarkKind | undefined {
+  if (!Number.isInteger(event.typeCode)) return undefined;
   if (event.typeCode >= 0 && event.typeCode <= 2) return "great";
   if (event.typeCode === 3) return "vigil";
   if (event.typeCode === 4) return "polyeleos";
   if (event.typeCode === 5) return "doxology";
-  return "six_stichera";
+  if (event.typeCode === 6) return "six_stichera";
+  // Ordinary memories (7), other categories and unknown codes have no sign.
+  return undefined;
+}
+
+/** Select the highest explicit rank, independently of text ordering or clipping. */
+export function primaryTypikonEvent(events: readonly ResolvedCalendarEvent[]): ResolvedCalendarEvent | undefined {
+  return events.reduce<ResolvedCalendarEvent | undefined>((selected, event) => {
+    if (!typikonMarkForEvent(event)) return selected;
+    return !selected || event.typeCode < selected.typeCode ? event : selected;
+  }, undefined);
 }
 
 export function dayNumberTypikonStyle(day: OrthodoxCalendarDay): TypikonTextStyle {

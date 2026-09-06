@@ -61,6 +61,19 @@ try {
   await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();return v.project?.assets?.some(a=>a.photoLibrary) === true;},id),{timeout:15000}).toBe(true);
   await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();const photo=v.project.assets.find(a=>a.photoLibrary); return v.project.document.pages.flatMap(p=>p.elements).filter(e=>e.assetId===photo.id).length;},id)).toBe(2);
   await page.screenshot({path:'tmp/account-photo-editor.png'});
+  // Native library drags use page millimetres (including zoom) and create separate editable objects.
+  for (const collection of ['gold','svg']) {
+    await page.getByRole('tab',{name:'Элементы',exact:true}).click();
+    await page.getByTestId(`decor-collection-${collection}`).click();
+    const card=page.locator('.decor-library__item').first();
+    const decorId=await card.getAttribute('data-decor-id');
+    const target=await page.locator('.workspace__page').evaluate(svg=>{const p=new DOMPoint(100,120).matrixTransform(svg.getScreenCTM());const r=svg.getBoundingClientRect();return{x:p.x-r.x,y:p.y-r.y};});
+    await card.dragTo(page.locator('.workspace__page'),{targetPosition:target});
+    await expect.poll(()=>page.evaluate(async({id,decorId})=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();const asset=v.project.assets.find(a=>a.libraryItemId===decorId);const e=v.project.document.pages[0].elements.find(e=>e.libraryItemId===decorId||(asset&&e.assetId===asset.id));return e?{centerX:Math.round(e.x+e.width/2),centerY:Math.round(e.y+e.height/2),type:e.type}:null;},{id,decorId}),{timeout:20000}).toEqual({centerX:100,centerY:120,type:collection==='gold'?'image':'svg'});
+    await expect(page.locator('.page-element__selection')).toHaveCount(1);
+    await page.screenshot({path:`tmp/decor-drag-${collection}.png`});
+    await page.keyboard.press('Delete');
+  }
   await page.reload();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
   await page.screenshot({path:'tmp/account-dashboard.png'});

@@ -21,6 +21,8 @@ import EmailVerificationDialog from "./components/EmailVerificationDialog.vue";
 import AdminLoginDialog from "./components/AdminLoginDialog.vue";
 import SharedProjectDialog from "./components/SharedProjectDialog.vue";
 import LinkResultDialog from "./components/LinkResultDialog.vue";
+import PrintContactDialog from './components/PrintContactDialog.vue';
+import LegalLinks from './components/LegalLinks.vue';
 import ProgramSettingsDialog from "./components/ProgramSettingsDialog.vue";
 import CalendarGridTemplateCard from "./components/CalendarGridTemplateCard.vue";
 import {
@@ -224,6 +226,7 @@ const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
 type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
 type MenuCommandId =
+  | "order-print"
   | "administrator"
   | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "share-project" | "export-pdf" | "program-settings"
   | "save-user-template" | "clone-year"
@@ -450,6 +453,10 @@ const calendarYear = shallowRef<OrthodoxCalendarYear>();
 const calendarLoadState = ref<"loading" | "ready" | "error">("loading");
 const persistenceState = ref<"loading" | "saved" | "saving" | "error">("loading");
 const pdfExportState = ref<"idle" | "exporting" | "ready" | "error">("idle");
+const printContactOpen = ref(false);
+function beginPrintOrder(): void {
+  printContactOpen.value = true;
+}
 const currentFillColor = ref("#f4f1e8");
 const currentStrokeColor = ref("#17201d");
 const catalogBusy = ref(false);
@@ -741,6 +748,7 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
         { command: "clone-year", label: "Создать копию для другого года…" },
         { separator: true },
         { command: "export-pdf", label: "Экспортировать печатный PDF…", shortcut: "Ctrl+E", disabled: pdfExportState.value === "exporting" },
+        { label: "Заказать печать календаря…", command: "order-print" },
       ],
     },
     {
@@ -3006,7 +3014,7 @@ function removeProjectFont(assetId: string): void {
   });
 }
 
-function frameForDecor(item: DecorLibraryItem): ElementFrame {
+function frameForDecor(item: DecorLibraryItem, point?: { x: number; y: number }): ElementFrame {
   const page = selectedPage.value;
   const usableWidth = page.width - page.safeArea.left - page.safeArea.right;
   const usableHeight = page.height - page.safeArea.top - page.safeArea.bottom;
@@ -3028,8 +3036,8 @@ function frameForDecor(item: DecorLibraryItem): ElementFrame {
     width = height * item.aspectRatio;
   }
   return {
-    x: page.safeArea.left + (usableWidth - width) / 2,
-    y: page.safeArea.top + (usableHeight - height) / 2,
+    x: point ? Math.max(0, Math.min(page.width - width, point.x - width / 2)) : page.safeArea.left + (usableWidth - width) / 2,
+    y: point ? Math.max(0, Math.min(page.height - height, point.y - height / 2)) : page.safeArea.top + (usableHeight - height) / 2,
     width,
     height,
   };
@@ -3048,7 +3056,17 @@ async function loadDecorImage(item: DecorLibraryItem): Promise<string> {
   return readFileAsDataUrl(new File([blob], `${item.id}.png`, { type: blob.type || "image/png" }));
 }
 
-async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
+function dropDecorLibraryItem(id: string, point: { x: number; y: number }): void {
+  const item = decorLibraryItems.value.find(candidate => candidate.id === id);
+  if (item && Number.isFinite(point.x) && Number.isFinite(point.y)) void insertDecorLibraryItem(item, point);
+}
+
+async function insertDecorLibraryItem(item: DecorLibraryItem, point?: { x: number; y: number }): Promise<void> {
+  if (!openPages.value.length || !['none', 'editing'].includes(sharedAccessMode.value)) return;
+  const targetProject = project.value;
+  const targetPage = selectedPage.value;
+  const frame = frameForDecor(item, point);
+  const stillEditable = () => project.value === targetProject && selectedPage.value === targetPage && ['none', 'editing'].includes(sharedAccessMode.value) && decorLibraryItems.value.some(candidate => candidate.id === item.id);
   try {
     if (item.kind === "image") {
       const reusableAsset = project.value.assets.find(
@@ -3064,9 +3082,10 @@ async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
           heightPx: item.heightPx,
           libraryItemId: item.id,
         };
+      if (!stillEditable()) return;
       const created = mutateProject("Вставка печатного декора из библиотеки", () => {
         if (!reusableAsset) project.value.assets.push(asset);
-        const result = createElementOnOwnLayer(selectedPage.value, "image", frameForDecor(item));
+        const result = createElementOnOwnLayer(targetPage, "image", frame);
         result.layer.name = item.label;
         const element = result.element as ImageElement;
         element.assetId = asset.id;
@@ -3082,6 +3101,7 @@ async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
     }
     const color = currentStrokeColor.value;
     const markup = recolorSvgMarkup(await loadDecorMarkup(item), color);
+    if (!stillEditable()) return;
     const asset = {
       id: `asset-decor-${crypto.randomUUID()}`,
       name: `${item.label}.svg`,
@@ -3091,7 +3111,7 @@ async function insertDecorLibraryItem(item: DecorLibraryItem): Promise<void> {
     };
     const created = mutateProject("Вставка элемента из библиотеки", () => {
       project.value.assets.push(asset);
-      const result = createElementOnOwnLayer(selectedPage.value, "svg", frameForDecor(item));
+      const result = createElementOnOwnLayer(targetPage, "svg", frame);
       result.layer.name = item.label;
       const element = result.element as SvgElement;
       element.assetId = asset.id;
@@ -3493,6 +3513,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "save-user-template": void saveCurrentDesignAsTemplate(); break;
     case "clone-year": cloneCurrentProjectToYear(); break;
     case "export-pdf": void exportPrintPdf(); break;
+    case "order-print": void beginPrintOrder(); break;
     case "undo": undo(); break;
     case "redo": redo(); break;
     case "duplicate": duplicateSelection(); break;
@@ -4002,6 +4023,7 @@ onBeforeUnmount(() => {
         @geometry-start="beginContinuousEdit"
         @geometry-end="endContinuousEdit"
         @photo-drop="placeProjectPhoto"
+        @decor-drop="dropDecorLibraryItem"
       />
       <div v-else class="workspace-empty">
         <div class="workspace-empty__card">
@@ -4583,7 +4605,7 @@ onBeforeUnmount(() => {
               <small>{{ page.width }} × {{ page.height }} мм</small>
             </span>
           </button>
-          <button type="button" class="page-delete" :aria-label="`Удалить страницу: ${page.name}`" :disabled="project.document.pages.length <= 1" @click="deleteCurrentPage(page.id)">Удалить страницу</button>
+          <button type="button" class="page-delete" :title="`Удалить страницу: ${page.name}`" :aria-label="`Удалить страницу: ${page.name}`" :disabled="project.document.pages.length <= 1" @click="deleteCurrentPage(page.id)">×</button>
           </div>
         </div>
       </aside>
@@ -4640,6 +4662,7 @@ onBeforeUnmount(() => {
     />
     <LinkResultDialog
       v-if="linkResult"
+      @order="beginPrintOrder"
       :kind="linkResult.kind"
       :url="linkResult.url"
       :detail="linkResult.detail"
@@ -4647,7 +4670,9 @@ onBeforeUnmount(() => {
       @close="linkResult = undefined"
     />
 
+    <PrintContactDialog v-if="printContactOpen" @close="printContactOpen = false" />
     <footer class="status-bar">
+      <LegalLinks />
       <button
         type="button"
         class="status-bar__preflight"

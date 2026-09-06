@@ -42,6 +42,7 @@ import {
   dayNumberTypikonStyle,
   eventTypikonStyle,
   typikonMarkForEvent,
+  primaryTypikonEvent,
 } from "../calendar/presentation/typikon-style";
 import {
   FOOD_RULES,
@@ -1012,11 +1013,11 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
       (value, fontSizeMm) => eventMeasureFont.widthOfTextAtSize(value, mm(fontSizeMm)) / MM_TO_PT,
       context.calendarLanguage,
     );
-    const primaryTypikonEvent = eventTextLayout.lines.find((line) => !line.isContinuation)?.event;
-    if (element.showTypikonIcons === true && primaryTypikonEvent) {
+    const rankedEvent = primaryTypikonEvent(cell.day?.events ?? []);
+    if (element.showTypikonIcons === true && rankedEvent) {
       drawTypikonRankMarker(
         context,
-        primaryTypikonEvent,
+        rankedEvent,
         cell.x + typography.eventMarkerXOffsetMm,
         cell.y + typography.eventMarkerYOffsetMm,
         typography.eventMarkerSizeMm,
@@ -1054,6 +1055,7 @@ function drawTypikonRankMarker(
   sizeMm: number,
 ): void {
   const kind = typikonMarkForEvent(event);
+  if (!kind) return;
   const marker = context.typikonImages.get(kind);
   if (!marker) return;
   const size = mm(sizeMm);

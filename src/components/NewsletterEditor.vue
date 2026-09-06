@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-type Block = { type: "heading" | "text" | "image" | "button"; text: string; url: string };
+import VisualContentEditor from './VisualContentEditor.vue';
+import { blockStyle, type ContentBlock as Block, type BlockStyle } from '../content/site-pages';
 const props = defineProps<{ modelValue: Block[]; disabled: boolean; subject: string }>();
 const emit = defineEmits<{ "update:modelValue": [blocks: Block[]] }>();
 const labels = { heading: "Заголовок", text: "Текст", image: "Изображение", button: "Кнопка" };
@@ -18,13 +19,14 @@ function move(index: number, direction: number) {
   emit("update:modelValue", blocks);
 }
 const escape = (text: string) => text.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+const css = (style?:BlockStyle) => Object.entries(blockStyle(style)).filter(([,v])=>v!==undefined).map(([k,v])=>`${k.replace(/[A-Z]/g,c=>'-'+c.toLowerCase())}:${v}`).join(';');
 const safeUrl = (url: string) => { try { const parsed = new URL(url); return parsed.protocol === "https:" && !parsed.username ? escape(url) : ""; } catch { return ""; } };
 const preview = computed(() => `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https:; style-src 'unsafe-inline';"><style>body{margin:0;padding:24px;background:#f2efe8;color:#253a32;font:16px Arial}main{max-width:552px;margin:auto;padding:24px;background:#fffdf8;border-top:4px solid #b3924d}h1,h2{font-family:Georgia;color:#28483b}p{line-height:1.7}img{width:100%;height:auto}a{color:#28483b}</style></head><body><main><img style="max-width:280px" src="https://kalender.georg-kloster.ru/brand/logo-kalendar.png" alt="Календарная мастерская"><h1>${escape(props.subject)}</h1>${props.modelValue.map(block => {
   const text = escape(block.text); const url = safeUrl(block.url);
-  if (block.type === "heading") return `<h2>${text}</h2>`;
+  if (block.type === "heading") return `<h2 style="${css(block.style)}">${text}</h2>`;
   if (block.type === "image") return url ? `<p><img src="${url}" alt="${text}"></p>` : '<p>Укажите HTTPS-ссылку на изображение</p>';
   if (block.type === "button") return `<p><a href="${url}" style="display:inline-block;background:#28483b;color:white;padding:14px 22px;text-decoration:none;border-radius:4px">${text}</a></p>`;
-  return `<p>${text.replace(/\n/g, "<br>")}</p>`;
+  return `<p style="${css(block.style)}">${text.replace(/\n/g, "<br>")}</p>`;
 }).join("")}<hr><p>Календарная мастерская · Монастырь</p><p>Вы подтвердили подписку на новости мастерской и напоминания о календарях.</p><p><u>Отписаться от рассылки</u></p></main></body></html>`);
 </script>
 
@@ -32,6 +34,8 @@ const preview = computed(() => `<!doctype html><html lang="ru"><head><meta chars
   <div class="newsletter-editor">
     <div>
       <p>HTML-письмо собирается из блоков. Оформление, текстовая версия и ссылка отписки добавляются автоматически.</p>
+      <VisualContentEditor :model-value="modelValue" :disabled="disabled" @update:model-value="emit('update:modelValue',$event)" />
+      <details><summary>Поля блоков и ссылки</summary>
       <fieldset v-for="(block, index) in modelValue" :key="index" :disabled="disabled">
         <legend>{{ index + 1 }}. {{ labels[block.type] }}</legend>
         <label>{{ block.type === 'image' ? 'Описание изображения (alt)' : 'Текст' }}
@@ -48,6 +52,7 @@ const preview = computed(() => `<!doctype html><html lang="ru"><head><meta chars
       </fieldset>
       <div class="block-actions"><button v-for="(label, type) in labels" :key="type" type="button" :disabled="disabled || modelValue.length >= 40" @click="add(type)">+ {{ label }}</button></div>
       <p>Изображения должны быть опубликованы по HTTPS без авторизации. Не используйте приватные ссылки. Почтовый клиент может скрывать картинки до разрешения получателя.</p>
+      </details>
     </div>
     <aside><h3>Предпросмотр письма</h3><iframe title="Предпросмотр HTML-рассылки" sandbox="" referrerpolicy="no-referrer" :srcdoc="preview" /></aside>
   </div>

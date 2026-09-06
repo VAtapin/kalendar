@@ -1,0 +1,64 @@
+<script setup lang="ts">
+import { computed,onMounted,ref,shallowRef,watch } from 'vue';
+import type { CalendarGridElement,PageModel,CalendarLanguage } from '../document/types';
+import type { OrthodoxCalendarYear } from '../calendar';
+import { buildCalendarGridLayout,calendarCellTypography,calendarFoodMarkerGeometry } from '../layout/calendar-grid-layout';
+import { FONT_OPTIONS } from '../typography/font-catalog';
+import PageScene from './PageScene.vue';
+const props=defineProps<{modelValue:CalendarGridElement;disabled?:boolean}>();
+const emit=defineEmits<{'update:modelValue':[CalendarGridElement]}>();
+const calendar=shallowRef<OrthodoxCalendarYear>(),error=ref(''),previewYear=ref(2027),language=ref<CalendarLanguage>('ru'),selectedDay=ref(7);
+const selected=ref('number'),past=ref<string[]>([]),future=ref<string[]>([]);
+const zoom=ref<HTMLElement>();
+const grid=computed(()=>({...props.modelValue,x:10,y:10,rotation:0,visible:true,locked:false}));
+const insets={top:0,right:0,bottom:0,left:0};
+const page=computed<PageModel>(()=>({id:'grid-preview',name:'Макет сетки',kind:'month',formatId:'A3',orientation:'portrait',width:grid.value.width+20,height:grid.value.height+20,bleed:insets,safeArea:insets,backgroundToken:'paper',layers:[{id:grid.value.layerId,kind:'layer',name:'Сетка',order:0,visible:true,locked:false,color:'#99773b',elementId:grid.value.id}],elements:[grid.value]}));
+const layout=computed(()=>calendar.value?buildCalendarGridLayout(grid.value,calendar.value):undefined);
+const cell=computed(()=>layout.value?.cells.find(c=>c.day?.date.day===selectedDay.value) ?? layout.value?.cells.find(c=>c.day));
+const cellViewport=computed(()=>cell.value?{x:cell.value.x-1,y:cell.value.y-1,width:cell.value.width+2,height:cell.value.height+2}:undefined);
+const zoomPage=computed<PageModel>(()=>({...page.value,layers:page.value.layers.map(layer=>({...layer,elementId:grid.value.id+'-cell-preview'})),elements:[{...grid.value,id:grid.value.id+'-cell-preview'}]}));
+type Part={id:string;label:string;xKey:keyof CalendarGridElement;yKey:keyof CalendarGridElement;sizeKey:keyof CalendarGridElement;x:number;y:number;width:number;height:number;visible:boolean};
+const parts=computed<Part[]>(()=>{
+  const g=grid.value,t=calendarCellTypography(g),c=cell.value;
+  if(!c)return [];
+  const food=calendarFoodMarkerGeometry(g,c);
+  return [
+    {id:'events',label:'События',xKey:'eventTextXOffsetMm',yKey:'eventTextYOffsetMm',sizeKey:'eventFontSizePt',x:t.contentLeftMm,y:t.eventTopMm,width:Math.max(2,c.width-t.contentLeftMm-t.eventRightInsetMm),height:Math.max(2,c.height-t.eventTopMm-t.eventBottomInsetMm),visible:true},
+    {id:'number',label:'Число',xKey:'dayNumberXOffsetMm',yKey:'dayNumberYOffsetMm',sizeKey:'dayNumberFontSizePt',x:t.dayNumberXOffsetMm,y:t.dayNumberYOffsetMm,width:t.dayNumberFontSizeMm*1.3,height:t.dayNumberFontSizeMm*1.2,visible:true},
+    {id:'old',label:'Старый стиль',xKey:'oldStyleXOffsetMm',yKey:'oldStyleYOffsetMm',sizeKey:'oldStyleFontSizePt',x:t.oldStyleXOffsetMm,y:t.oldStyleYOffsetMm,width:t.oldStyleFontSizeMm*2.2,height:t.oldStyleFontSizeMm*1.5,visible:g.showOldStyleDate},
+    {id:'food',label:'Знак поста',xKey:'foodMarkerXOffsetMm',yKey:'foodMarkerYOffsetMm',sizeKey:'foodMarkerSizeMm',x:food.xOffsetMm,y:food.yOffsetMm,width:food.sizeMm,height:food.sizeMm,visible:g.showFoodIcons},
+    {id:'typikon',label:'Типикон',xKey:'typikonMarkerXOffsetMm',yKey:'typikonMarkerYOffsetMm',sizeKey:'typikonMarkerSizeMm',x:t.eventMarkerXOffsetMm,y:t.eventMarkerYOffsetMm,width:t.eventMarkerSizeMm,height:t.eventMarkerSizeMm,visible:!!g.showTypikonIcons}
+  ];
+});
+const active=computed(()=>parts.value.find(p=>p.id===selected.value));
+function snapshot(){past.value=[...past.value.slice(-49),JSON.stringify(props.modelValue)];future.value=[];}
+function change(key:keyof CalendarGridElement,value:unknown){if(props.disabled)return;snapshot();emit('update:modelValue',{...props.modelValue,[key]:value});}
+function undo(){const value=past.value.pop();if(!value)return;future.value.push(JSON.stringify(props.modelValue));emit('update:modelValue',JSON.parse(value));}
+function redo(){const value=future.value.pop();if(!value)return;past.value.push(JSON.stringify(props.modelValue));emit('update:modelValue',JSON.parse(value));}
+let drag:{part:Part;mode:'move'|'resize';x:number;y:number;grid:CalendarGridElement;pointer:number}|undefined;
+function point(e:PointerEvent){const matrix=zoom.value?.querySelector('svg')?.getScreenCTM();return matrix?new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse()):undefined;}
+function start(e:PointerEvent,part:Part,mode:'move'|'resize'){if(props.disabled)return;const p=point(e);if(!p)return;e.preventDefault();snapshot();selected.value=part.id;drag={part:{...part},mode,x:p.x,y:p.y,grid:{...props.modelValue},pointer:e.pointerId};zoom.value?.setPointerCapture(e.pointerId);}
+function move(e:PointerEvent){const p=point(e);if(!drag||!p||!cell.value)return;const d=drag;const dx=p.x-d.x,dy=p.y-d.y;const next={...d.grid};
+  if(d.mode==='move'){Object.assign(next,{[d.part.xKey]:Math.round(Math.max(0,Math.min(cell.value.width-1,d.part.x+dx))*100)/100,[d.part.yKey]:Math.round(Math.max(0,Math.min(cell.value.height-1,d.part.y+dy))*100)/100});}
+  else if(d.part.id==='events'){next.eventTextRightInsetMm=Math.max(0,cell.value.width-d.part.x-Math.max(2,d.part.width+dx));next.eventTextBottomInsetMm=Math.max(0,cell.value.height-d.part.y-Math.max(2,d.part.height+dy));}
+  else{const original=Number(d.grid[d.part.sizeKey] ?? (d.part.id==='food'?d.part.height:10));Object.assign(next,{[d.part.sizeKey]:Math.round(Math.max(1,Math.min(150,original*Math.max(.1,(d.part.height+dy)/d.part.height)))*100)/100});}
+  emit('update:modelValue',next);
+}
+function end(){drag=undefined;}
+let loadVersion=0;
+async function loadCalendar(){const version=++loadVersion;try{const [parser,engine,response]=await Promise.all([import('../calendar/xml/parse-memory-days'),import('../calendar/engine/build-calendar-year'),fetch('/data/MemoryDays.xml')]);if(!response.ok)throw new Error('Не удалось загрузить календарные данные');const built=engine.buildOrthodoxCalendarYear(previewYear.value,parser.parseMemoryDaysXml(await response.text()));if(version===loadVersion)calendar.value=built;}catch(e){error.value=String(e);}}
+watch(previewYear,()=>{if(Number.isInteger(previewYear.value)&&previewYear.value>=1900&&previewYear.value<=2200)void loadCalendar();});
+onMounted(loadCalendar);
+</script>
+<template><section class="visual-grid-editor"><p v-if="error" role="alert">{{error}}</p><nav><button type="button" :disabled="disabled||!past.length" @click="undo">Отменить</button><button type="button" :disabled="disabled||!future.length" @click="redo">Повторить</button><label>Год<input v-model.number="previewYear" type="number" min="1900" max="2200" /></label><label>Месяц<select :value="modelValue.month" :disabled="disabled" @change="change('month',Number(($event.target as HTMLSelectElement).value))"><option v-for="m in 12" :key="m" :value="m">{{m}}</option></select></label><label>Язык календаря<select v-model="language"><option value="ru">Русский</option><option value="de">Deutsch</option><option value="en">English</option><option value="uk">Українська</option></select></label></nav>
+<div v-if="calendar" class="grid-designer-layout"><div><h3>Месяц — печатный вид</h3><div class="month-preview"><PageScene :page="page" :assets="[]" :calendar-year="calendar" :calendar-language="language" :pixels-per-mm="2" :show-guides="false" active-tool="selection" /></div><p v-if="layout?.hasRowOverflow" role="alert">Не все дни помещаются: увеличьте число строк.</p>
+<h3>Ячейка — перемещение и размер мышью</h3><label>День для примера<select v-model.number="selectedDay"><option v-for="d in 28" :key="d" :value="d">{{d}}</option></select></label><p>Потяните рамку внутри ячейки. Нижний правый угол меняет размер. Изменения применяются ко всем дням.</p><nav><button v-for="part in parts.filter(p=>p.visible)" :key="part.id" type="button" :aria-pressed="selected===part.id" @click="selected=part.id">{{part.label}}</button></nav>
+<div ref="zoom" class="cell-zoom" :style="{maxWidth:cellViewport?`${360*cellViewport.width/cellViewport.height}px`:undefined}" @pointermove="move" @pointerup="end" @pointercancel="end"><PageScene :page="zoomPage" :assets="[]" :calendar-year="calendar" :calendar-language="language" :preview-viewport="cellViewport" :pixels-per-mm="1" :show-guides="false" active-tool="selection" style="width:100%;height:360px;overflow:hidden">
+<g v-if="cell"><g v-for="part in parts.filter(p=>p.visible)" :key="part.id"><rect :data-grid-part="part.id" :x="cell.x+part.x" :y="cell.y+part.y" :width="part.width" :height="part.height" fill="transparent" :stroke="selected===part.id?'#226abb':'#9bb6c8'" stroke-width="0.15" stroke-dasharray="0.5 0.3" @pointerdown.stop="start($event,part,'move')"/><rect v-if="selected===part.id" :data-grid-resize="part.id" :x="cell.x+part.x+part.width-0.8" :y="cell.y+part.y+part.height-0.8" width="1.6" height="1.6" fill="#226abb" @pointerdown.stop="start($event,part,'resize')"/></g></g></PageScene></div></div>
+<aside><fieldset :disabled="disabled"><h3>Оформление</h3><label v-for="field in [{key:'width',label:'Ширина сетки, мм'},{key:'height',label:'Высота сетки, мм'}]" :key="field.key">{{field.label}}<input :value="modelValue[field.key as 'width'|'height']" type="number" min="20" max="600" @change="change(field.key as 'width'|'height',Math.max(20,Math.min(600,Number(($event.target as HTMLInputElement).value))))" /></label>
+<label>Строк недель<select :value="modelValue.weekRows" @change="change('weekRows',Number(($event.target as HTMLSelectElement).value))"><option v-for="n in [4,5,6]" :value="n">{{n}}</option></select></label><label>Линии сетки<select :value="modelValue.gridStyle" @change="change('gridStyle',($event.target as HTMLSelectElement).value)"><option value="editorial">Пунктир</option><option value="boxed">Клетки</option><option value="minimal">Без линий</option></select></label>
+<label v-for="field in [{key:'showWeekdayHeader',label:'Дни недели'},{key:'showOldStyleDate',label:'Старый стиль'},{key:'showFoodIcons',label:'Картинки поста'},{key:'showFastingColors',label:'Пост цветом'},{key:'showTypikonIcons',label:'Знаки Типикона'},{key:'showFeastColors',label:'Цвета праздников'},{key:'showFastingText',label:'Текст поста'},{key:'showScriptureReadings',label:'Чтения'},{key:'autoFitText',label:'Подбор размера текста'}]" :key="field.key"><input type="checkbox" :checked="!!modelValue[field.key as keyof CalendarGridElement]" @change="change(field.key as keyof CalendarGridElement,($event.target as HTMLInputElement).checked)" />{{field.label}}</label>
+<template v-for="field in [{font:'dayNumberFontFamily',size:'dayNumberFontSizePt',label:'Числа'},{font:'eventFontFamily',size:'eventFontSizePt',label:'События'},{font:'weekdayFontFamily',size:'weekdayFontSizePt',label:'Дни недели'},{font:'oldStyleFontFamily',size:'oldStyleFontSizePt',label:'Старый стиль'}]" :key="field.font"><h4>{{field.label}}</h4><select :aria-label="'Шрифт: '+field.label" :value="modelValue[field.font as keyof CalendarGridElement]" @change="change(field.font as keyof CalendarGridElement,($event.target as HTMLSelectElement).value)"><option v-for="font in FONT_OPTIONS" :key="font.family" :value="font.family">{{font.label}}</option></select><label>Размер, pt<input type="number" min="1" max="150" step="0.5" :value="modelValue[field.size as keyof CalendarGridElement]" @change="change(field.size as keyof CalendarGridElement,Math.max(1,Math.min(150,Number(($event.target as HTMLInputElement).value))))" /></label></template>
+<label>Максимум событий<input type="number" min="1" max="20" :value="modelValue.maxVisibleEvents" @change="change('maxVisibleEvents',Number(($event.target as HTMLInputElement).value))" /></label><p v-if="active">Выбранный объект: {{active.label}}</p></fieldset></aside></div><p v-else>Загрузка календарной сетки…</p></section></template>
+<style scoped>.grid-designer-layout{display:grid;grid-template-columns:minmax(450px,1fr) 260px;gap:20px}.month-preview{max-height:560px;overflow:auto;background:white}.month-preview :deep(svg){width:100%!important;height:auto!important;pointer-events:none}.cell-zoom{display:block;background:white;width:100%;height:360px;touch-action:none}.cell-zoom [data-grid-part]{cursor:move}.cell-zoom [data-grid-resize]{cursor:nwse-resize}nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}label{display:block;margin:8px 0}input:not([type=checkbox]),select{max-width:100%;padding:6px;box-sizing:border-box}aside{max-height:1100px;overflow:auto}aside select{width:100%}fieldset{border:0;padding:0}button{padding:7px;color:inherit;background:#304738;border:1px solid #8a784e;border-radius:4px}button[aria-pressed=true]{background:#75603a}@media(max-width:1050px){.grid-designer-layout{grid-template-columns:1fr}aside{max-height:none}}
+</style>
