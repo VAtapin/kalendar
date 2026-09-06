@@ -3114,6 +3114,16 @@ input {
   line-height: 1.6;
 }
 
+.welcome-hero p.welcome-hero__blessing {
+  margin: 0 0 24px;
+  padding-left: 14px;
+  border-left: 2px solid #88733e;
+  color: #c8b678;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(18px, 1.4vw, 21px);
+  line-height: 1.4;
+}
+
 .welcome-hero__art {
   width: 100%;
   border: 1px solid #947b3d;
