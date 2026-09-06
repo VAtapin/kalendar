@@ -75,6 +75,9 @@ try {
     await page.keyboard.press('Delete');
   }
   await page.reload();
+  await expect(page).toHaveURL(new RegExp(`/calendar/${id}$`));
+  await photoPanel.getByRole('button',{name:'Поместить фото: photo.png'}).waitFor();
+  await page.getByRole('button',{name:/alice@example.org.*Мои календари/}).click();
   await cabinet.getByText('alice@example.org',{exact:true}).waitFor();
   await page.screenshot({path:'tmp/account-dashboard.png'});
   await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
@@ -147,7 +150,7 @@ try {
   await expect.poll(()=>page.locator('[data-element-type="image"]').count()).toBe(beforeDrop);
   await expect.poll(()=>page.evaluate(async id=>{const v=await(await fetch(`/api/v1/account/calendars/${id}`)).json();return v.project.document.pages[0].elements.length;},id)).toBe(await page.locator('[data-element-id]').count());
   await page.reload();
-  await cabinet.getByRole('button',{name:'Открыть',exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`/calendar/${id}$`));
   const frameNode = page.locator('[data-element-id="test-frame"]');
   await frameNode.click();
   await page.keyboard.press('Delete');

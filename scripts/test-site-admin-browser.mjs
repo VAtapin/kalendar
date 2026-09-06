@@ -15,7 +15,7 @@ try{
  await context.route('**/api/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`http://127.0.0.1:18993${u.pathname}${u.search}`})});});
  const page=await context.newPage();page.on('dialog',d=>d.accept());page.on('pageerror',e=>console.error('PAGE ERROR',e.message));
  await page.goto('http://127.0.0.1:5178/');
- await expect(page.locator('.welcome-page__footer a[href="/?page=impressum"]')).toBeVisible();
+ await expect(page.locator('.welcome-page__footer a[href="/impressum"]')).toBeVisible();
  await page.getByRole('button',{name:'Администратор',exact:true}).click();
  const login=page.getByRole('dialog',{name:'Вход администратора'});
  await login.getByLabel('Логин',{exact:true}).fill('admin');await login.getByLabel('Пароль',{exact:true}).fill('local-test-password-123');await login.getByRole('button',{name:'Войти',exact:true}).click();
@@ -29,7 +29,7 @@ try{
  await expect(admin.getByText('Черновик сохранён; опубликованный текст не изменён',{exact:true})).toBeVisible();
  let publicPages=await (await fetch('http://127.0.0.1:18993/api/v1/site-pages')).json();expect(publicPages.items[0].translations.ru.title).not.toBe('Наш Impressum');
  await admin.getByLabel('Я проверил тексты и переводы перед публикацией').check();await admin.getByRole('button',{name:'Опубликовать',exact:true}).click();await expect(admin.getByText('Страница опубликована',{exact:true})).toBeVisible();
- const legal=await context.newPage();await legal.goto('http://127.0.0.1:5178/?page=impressum');await expect(legal.getByRole('heading',{name:'Наш Impressum',exact:true})).toBeVisible();await expect(legal.getByText('Проверенный оператор <script>alert(1)</script>',{exact:true})).toBeVisible();expect(await legal.locator('article script').count()).toBe(0);
+ const legal=await context.newPage();await legal.goto('http://127.0.0.1:5178/impressum');await expect(legal.getByRole('heading',{name:'Наш Impressum',exact:true})).toBeVisible();await expect(legal.getByText('Проверенный оператор <script>alert(1)</script>',{exact:true})).toBeVisible();expect(await legal.locator('article script').count()).toBe(0);
  await legal.getByLabel('Язык',{exact:true}).selectOption('de');await expect(legal.getByRole('heading',{name:'Impressum',exact:true})).toBeVisible();await legal.screenshot({path:'tmp/site-page-de.png'});await legal.close();
  await page.screenshot({path:'tmp/admin-site-pages.png'});
  await admin.getByRole('button',{name:'ИИ-помощник',exact:true}).click();await expect(admin.getByLabel('Новый API-ключ')).toHaveAttribute('type','password');

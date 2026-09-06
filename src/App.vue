@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
+import { routePath, navigate, isPublicPath } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
 import { emptyPhotoFrameAt, clearPhotoFrameImage } from './document/photo-drop';
@@ -351,6 +352,7 @@ async function openAccountCabinet(): Promise<void> {
   if (serverCalendarId.value) {
     try { await saveServerCalendar(); } catch { if (!confirmInterface('Изменения не сохранены на сервере. Открыть кабинет? Перед загрузкой другой версии скачайте копию через меню «Файл».')) return; }
   }
+  navigate('/account');
   accountOpen.value = true;
 }
 async function openAccountCalendar(id: string): Promise<void> {
@@ -371,6 +373,7 @@ async function openAccountCalendar(id: string): Promise<void> {
     projectBackups.value = []; accountOpen.value = false; welcomeVisible.value = false;
     await registerProjectFonts(project.value); await loadCalendarData();
     operationNotice.value = 'Календарь открыт с сервера';
+    if (!applyingRoute) navigate(`/calendar/${id}`);
   } catch (error) { if (request === calendarOpenRequest) { operationNotice.value = String(error); accountError.value = String(error); } } finally { if (request === calendarOpenRequest) switchingCalendar = false; }
 }
 function accountAuthenticated(user: AccountUser): void {
@@ -389,7 +392,7 @@ function accountAuthenticated(user: AccountUser): void {
   accountUser.value = user; resetServerCalendar();
   savedServerAssets.clear();
   project.value = createBlankCalendarProject(); clearProjectHistory(); resetPageTabs(); projectBackups.value = [];
-  accountToken.value = undefined; history.replaceState(null, '', location.pathname);
+  accountToken.value = undefined; history.replaceState(history.state, '', location.pathname);
 }
 function accountLoggedOut(): void {
   accountReauthenticate.value = false; savedServerSnapshot = undefined;
@@ -1503,9 +1506,9 @@ async function openAdministrator(): Promise<void> {
 }
 
 async function adminAuthenticated(): Promise<void> {
-  adminLoginOpen.value = false;
   await refreshGlobalCalendarGridTemplates();
   if (!canManageGlobalGridTemplates.value) { operationNotice.value = "Сессия администратора не сохранилась. Проверьте, разрешены ли cookie сайта."; return; }
+  adminLoginOpen.value = false;
   if (adminLoginTarget.value === "templates") activateDockPanel("templates");
   else adminOpen.value = true;
 }
@@ -3678,6 +3681,7 @@ function handlePageHide(): void {
 }
 
 function handleKeydown(event: KeyboardEvent): void {
+  if (isPublicPath(routePath.value)) return;
   if (accountOpen.value) return;
   if (adminLoginOpen.value || verificationLanding.value || adminOpen.value || helpDialogPage.value || recoveryDialogOpen.value || programSettingsOpen.value || emailVerificationOpen.value || sharedAccessMode.value === "locked" || sharedAccessMode.value === "waiting" || sharedAccessMode.value === "loading") {
     if (event.key === "Escape") {
@@ -3784,6 +3788,54 @@ function handleKeydown(event: KeyboardEvent): void {
   if (tool && !event.ctrlKey && !event.metaKey && !event.altKey) selectTool(tool);
 }
 
+let navigationReady = false;
+let applyingRoute = false;
+let routeRequest = 0;
+async function applyBrowserRoute(): Promise<void> {
+  if (!navigationReady) return;
+  calendarOpenRequest++; switchingCalendar = false;
+  const request = ++routeRequest;
+  const path = routePath.value;
+  applyingRoute = true;
+  try {
+    accountOpen.value = false; adminOpen.value = false; adminLoginOpen.value = false;
+    if (isPublicPath(path)) return;
+    if (path === '/') { welcomeVisible.value = true; return; }
+    if (path === '/account' || path === '/login') { accountOpen.value = true; return; }
+    if (/^\/admin(?:\/|$)/.test(path)) {
+      await refreshGlobalCalendarGridTemplates();
+      if (request !== routeRequest) return;
+      if (canManageGlobalGridTemplates.value) adminOpen.value = true;
+      else { adminLoginTarget.value = 'administrator'; adminLoginOpen.value = true; }
+      return;
+    }
+    const calendar = /^\/calendar\/([a-zA-Z0-9-]+)$/.exec(path);
+    if (calendar) {
+      if (!accountUser.value) { accountOpen.value = true; return; }
+      if (serverCalendarId.value !== calendar[1]) await openAccountCalendar(calendar[1]!);
+      else welcomeVisible.value = false;
+      if (accountError.value) accountOpen.value = true;
+    }
+  } finally { await nextTick(); if (request === routeRequest) applyingRoute = false; }
+}
+function editorAddress(): string { return serverCalendarId.value ? `/calendar/${serverCalendarId.value}` : '/'; }
+watch(routePath, () => {
+  // Keep an open admin component alive while navigating its sections.
+  if (adminOpen.value && routePath.value.startsWith('/admin/')) return;
+  void applyBrowserRoute();
+}, { flush: 'sync' });
+watch([accountOpen, adminOpen, adminLoginOpen], ([account, admin, login]) => {
+  if (!navigationReady || applyingRoute || isPublicPath(routePath.value)) return;
+  if (admin || login) { if (!routePath.value.startsWith('/admin')) navigate('/admin'); }
+  else if (account) { if (!routePath.value.startsWith('/calendar/') && routePath.value !== '/login') navigate('/account'); }
+  else if (routePath.value === '/account' || routePath.value === '/login' || routePath.value.startsWith('/admin') || (routePath.value.startsWith('/calendar/') && !accountUser.value)) navigate(editorAddress());
+});
+watch(accountUser, user => {
+  if (navigationReady && user && routePath.value.startsWith('/calendar/')) void applyBrowserRoute();
+});
+watch(serverCalendarId, id => {
+  if (navigationReady && !applyingRoute && id && !accountOpen.value && !adminOpen.value && !isPublicPath(routePath.value)) navigate(`/calendar/${id}`, true);
+});
 onMounted(() => {
   window.addEventListener("focus", startBrowserVerificationPolling);
   window.addEventListener("storage", handleIdentityStorage);
@@ -3792,7 +3844,11 @@ onMounted(() => {
   window.addEventListener('calendar-account-expired', accountSessionExpired);
   window.addEventListener("pagehide", handlePageHide);
   window.addEventListener("resize", handleViewportResize);
-  void initializeApplication().then(initializeAccount);
+  void initializeApplication().then(initializeAccount).then(() => {
+    navigationReady = true;
+    if (routePath.value === '/' && accountOpen.value) navigate('/account', true);
+    else void applyBrowserRoute();
+  });
   void refreshCatalog().catch(() => { operationNotice.value = 'Серверный каталог недоступен. Показаны встроенные материалы.'; });
 });
 watch(project, () => {

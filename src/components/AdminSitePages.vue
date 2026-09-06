@@ -8,14 +8,14 @@ import AiDraftAssistant from './AiDraftAssistant.vue';
 const items=ref<SitePage[]>([]),revision=ref(0),selected=ref<SitePage>(),lang=ref<InterfaceLanguage>('ru'),busy=ref(false),error=ref(''),notice=ref(''),reviewed=ref(false),dirty=ref(false);
 const tr=computed(()=>selected.value?.translations[lang.value]);
 const emit=defineEmits<{dirty:[boolean]}>();
-watch(dirty,value=>emit('dirty',value));
+watch(dirty,value=>emit('dirty',value),{flush:'sync'});
 function beforeUnload(event:BeforeUnloadEvent){if(dirty.value&&selected.value){event.preventDefault();event.returnValue='';}}
 onMounted(()=>window.addEventListener('beforeunload',beforeUnload));
 onBeforeUnmount(()=>{window.removeEventListener('beforeunload',beforeUnload);emit('dirty',false);});
-watch(selected,()=>{reviewed.value=false;dirty.value=true;},{deep:true});
+watch(selected,()=>{reviewed.value=false;dirty.value=true;},{deep:true,flush:'sync'});
 function ensureLanguage(){if(selected.value && !selected.value.translations[lang.value])selected.value.translations[lang.value]={title:'',blocks:[]};}
 const clone=(p:SitePage):SitePage=>JSON.parse(JSON.stringify(p));
-function select(page:SitePage){if(dirty.value && selected.value && !window.confirm('Оставить несохранённые изменения?'))return;selected.value=clone(page);ensureLanguage();setTimeout(()=>dirty.value=false,0);}
+function select(page:SitePage){if(dirty.value && selected.value && !window.confirm('Оставить несохранённые изменения?'))return;selected.value=clone(page);ensureLanguage();dirty.value=false;}
 function add(){if(dirty.value && selected.value && !window.confirm('Оставить несохранённые изменения?'))return;selected.value={id:crypto.randomUUID(),slug:'page-'+Date.now(),order:items.value.length*10+10,published:false,translations:{ru:{title:'Новая страница',blocks:[]},de:{title:'',blocks:[]}}};ensureLanguage();}
 async function load(){if(dirty.value&&selected.value&&!window.confirm('Перезагрузить страницы и отменить несохранённые изменения?'))return;busy.value=true;try{const r=await catalogRequest<{items:SitePage[];revision:number}>('admin/site-pages');items.value=r.items;revision.value=r.revision;selected.value=undefined;setTimeout(()=>dirty.value=false,0);}catch(e){error.value=String(e);}finally{busy.value=false;}}
 async function save(action:'draft'|'publish'|'unpublish'|'delete'){if(!selected.value)return;if(['unpublish','delete'].includes(action)&&!window.confirm(action==='delete'?'Удалить страницу и её черновик?':'Убрать страницу с сайта?'))return;busy.value=true;error.value='';

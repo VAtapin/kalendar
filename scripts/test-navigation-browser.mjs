@@ -1,0 +1,47 @@
+import { chromium, expect } from '@playwright/test';
+import { spawn, execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync } from 'node:fs';
+import { resolve } from 'node:path';
+mkdirSync('tmp', { recursive:true });
+const data = mkdtempSync(resolve('tmp/navigation-'));
+const hash = execFileSync('php', ['-r','echo password_hash("route-password-123", PASSWORD_DEFAULT);'], {encoding:'utf8'});
+const server = spawn('php', ['-S','127.0.0.1:18994','scripts/php-dev-router.php'], {env:{...process.env,CALENDAR_DATA_DIR:data,APP_PUBLIC_URL:'http://127.0.0.1:5178',ADMIN_LOGIN:'admin',ADMIN_PASSWORD_HASH:hash,MAIL_TRANSPORT:'disabled-test'},stdio:'ignore',windowsHide:true});
+const browser = await chromium.launch({channel:'msedge'});
+try {
+  for(let i=0;i<50;i++){try{await fetch('http://127.0.0.1:18994/api/health');break;}catch{await new Promise(r=>setTimeout(r,100));}}
+  const context = await browser.newContext({viewport:{width:1550,height:1050}});
+  await context.route('**/api/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`http://127.0.0.1:18994${u.pathname}${u.search}`})});});
+  const page = await context.newPage();
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:5178/impressum');
+  await expect(page.locator('.public-site-page article')).toBeVisible();
+  await page.locator('.public-site-page a[href="/datenschutz"]').click();
+  await expect(page).toHaveURL(/\/datenschutz$/);
+  await page.goBack();await expect(page).toHaveURL(/\/impressum$/);
+  await page.goForward();await expect(page).toHaveURL(/\/datenschutz$/);
+  await page.reload();await expect(page.locator('.public-site-page article')).toBeVisible();
+  await page.goto('http://127.0.0.1:5178/agb');await expect(page).toHaveURL(/\/agb$/);
+  await expect(page.locator('.public-site-page article')).toBeVisible();
+  await page.goto('http://127.0.0.1:5178/admin/pages');
+  const login=page.getByRole('dialog',{name:'Вход администратора'});
+  await login.getByLabel('Логин',{exact:true}).fill('admin');await login.getByLabel('Пароль',{exact:true}).fill('route-password-123');await login.getByRole('button',{name:'Войти',exact:true}).click();
+  const admin=page.getByRole('dialog',{name:'Администратор',exact:true});
+  await expect(admin.getByRole('button',{name:/Impressum — правовая информация/})).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\/pages$/);
+  await admin.getByRole('button',{name:'Макеты сеток',exact:true}).click();await expect(page).toHaveURL(/\/admin\/templates$/);
+  await page.goBack();await expect(page).toHaveURL(/\/admin\/pages$/);
+  await expect(admin.getByRole('button',{name:/Impressum — правовая информация/})).toBeVisible();
+  await page.goForward();await expect(page).toHaveURL(/\/admin\/templates$/);
+  await page.reload();await expect(admin.getByRole('button',{name:'Редактировать визуально',exact:true}).first()).toBeVisible();
+  await admin.getByRole('button',{name:'Страницы сайта',exact:true}).click();
+  await admin.getByRole('button',{name:/Impressum — правовая информация/}).click();
+  await admin.getByLabel('Название',{exact:true}).fill('Не сохранено');
+  page.once('dialog',d=>d.dismiss());await page.goBack();
+  await expect(page).toHaveURL(/\/admin\/pages$/);await expect(admin.getByLabel('Название',{exact:true})).toHaveValue('Не сохранено');
+  page.once('dialog',d=>d.accept());await page.goBack();await expect(page).toHaveURL(/\/admin\/templates$/);
+  await page.goto('http://127.0.0.1:5178/calendar/00000000-0000-4000-8000-000000000000');
+  await expect(page.locator('.account-panel')).toBeVisible();
+  await expect(page).toHaveURL(/\/calendar\/00000000-0000-4000-8000-000000000000$/);
+  expect(errors).toEqual([]);
+  console.log('PASS: public paths, reload, back/forward, direct admin login return, section history, unsaved-page cancellation, private calendar login gate.');
+} finally { await browser.close();server.kill(); }

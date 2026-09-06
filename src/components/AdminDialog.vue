@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { routePath, navigate, beforeNavigate } from '../navigation';
 import { adminRequest } from "../collaboration/shared-project-client";
 import PageScene from "./PageScene.vue";
 import NewsletterEditor from "./NewsletterEditor.vue";
@@ -18,7 +19,7 @@ import { mergeMonasteryEvents } from "../calendar/engine/merge-monastery-events"
 const props = defineProps<{ accessToken: string }>();
 const emit = defineEmits<{ close: []; logout: [] }>();
 const pageDirty=ref(false);
-function canLeavePages(){return !pageDirty.value || window.confirm('Оставить несохранённые изменения страницы?');}
+function canLeavePages(){if(!pageDirty.value)return true;if(!window.confirm('Оставить несохранённые изменения страницы?'))return false;pageDirty.value=false;return true;}
 function closeAdmin(){if(canLeavePages())emit('close');}
 async function logout() {
   if(!canLeavePages())return;
@@ -27,7 +28,12 @@ async function logout() {
 }
 type Row = { id?: string; name?: string; year?: number; ownerEmail?: string; pages?: number; bytes?: number;
   email?: string; status?: string; at?: string; kind?: string; confirmedAt?: string; consentVersion?: string; consentText?: string };
-const tab = ref("calendars");
+const routeTabs: Record<string,string> = { calendars:'calendars',trash:'trash',accounts:'accounts',subscribers:'subscribers',catalog:'catalog',templates:'templates',pages:'pages',ai:'ai','mail-log':'mail-log',newsletter:'campaigns' };
+function routeTab() { return routeTabs[routePath.value.split('/')[2] ?? 'calendars'] ?? 'calendars'; }
+const tab = ref(routeTab());
+const removeNavigationGuard = beforeNavigate(() => !sending.value && canLeavePages());
+onBeforeUnmount(removeNavigationGuard);
+watch(routePath, path => { if (path.startsWith('/admin') && routeTab() !== tab.value) void load(routeTab()); });
 const items = ref<Row[]>([]);
 const total = ref(0);
 const offset = ref(0);
@@ -86,6 +92,8 @@ async function restoreTrash(id: string) {
 async function load(nextTab = tab.value, nextOffset = 0) {
   if(nextTab!==tab.value && !canLeavePages())return;
   tab.value = nextTab; offset.value = nextOffset; preview.value = undefined;
+  const segment = nextTab === 'campaigns' ? 'newsletter' : nextTab;
+  if (routeTab() !== nextTab || routePath.value === '/admin') navigate(`/admin/${segment}`);
   const version = ++requestVersion;
   if (nextTab === 'campaigns' && !draftLoaded) { await loadDraft(); return; }
   if (['campaigns', 'templates', 'catalog', 'accounts', 'pages', 'ai'].includes(nextTab)) { busy.value = false; error.value = ""; return; }
