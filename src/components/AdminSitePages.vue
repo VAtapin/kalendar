@@ -9,9 +9,7 @@ const items=ref<SitePage[]>([]),revision=ref(0),selected=ref<SitePage>(),lang=re
 const tr=computed(()=>selected.value?.translations[lang.value]);
 const emit=defineEmits<{dirty:[boolean]}>();
 watch(dirty,value=>emit('dirty',value),{flush:'sync'});
-function beforeUnload(event:BeforeUnloadEvent){if(dirty.value&&selected.value){event.preventDefault();event.returnValue='';}}
-onMounted(()=>window.addEventListener('beforeunload',beforeUnload));
-onBeforeUnmount(()=>{window.removeEventListener('beforeunload',beforeUnload);emit('dirty',false);});
+onBeforeUnmount(()=>{emit('dirty',false);});
 watch(selected,()=>{reviewed.value=false;dirty.value=true;},{deep:true,flush:'sync'});
 function ensureLanguage(){if(selected.value && !selected.value.translations[lang.value])selected.value.translations[lang.value]={title:'',blocks:[]};}
 const clone=(p:SitePage):SitePage=>JSON.parse(JSON.stringify(p));

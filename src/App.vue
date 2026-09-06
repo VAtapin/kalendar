@@ -3668,14 +3668,6 @@ function isTypingTarget(target: EventTarget | null): boolean {
   );
 }
 
-function handleBeforeUnload(event: BeforeUnloadEvent): void {
-  if (accountUser.value && serverCalendarId.value && savedServerSnapshot === serializeEditableProject()) return;
-  if (sharedLease.value && sharedLastSavedSnapshot === serializeEditableProject()) return;
-  if (savedProjectFileSnapshot.value === serializeEditableProject()) return;
-  event.preventDefault();
-  event.returnValue = "";
-}
-
 function handlePageHide(): void {
   if (sharedLease.value) void releaseSharedProject(sharedLease.value).catch(() => undefined);
 }
@@ -3840,7 +3832,6 @@ onMounted(() => {
   window.addEventListener("focus", startBrowserVerificationPolling);
   window.addEventListener("storage", handleIdentityStorage);
   window.addEventListener("keydown", handleKeydown);
-  window.addEventListener("beforeunload", handleBeforeUnload);
   window.addEventListener('calendar-account-expired', accountSessionExpired);
   window.addEventListener("pagehide", handlePageHide);
   window.addEventListener("resize", handleViewportResize);
@@ -3903,7 +3894,6 @@ onBeforeUnmount(() => {
   window.removeEventListener("focus", startBrowserVerificationPolling);
   window.removeEventListener("storage", handleIdentityStorage);
   window.removeEventListener("keydown", handleKeydown);
-  window.removeEventListener("beforeunload", handleBeforeUnload);
   window.removeEventListener('calendar-account-expired', accountSessionExpired);
   window.removeEventListener("pagehide", handlePageHide);
   window.removeEventListener("resize", handleViewportResize);

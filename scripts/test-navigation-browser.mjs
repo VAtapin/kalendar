@@ -14,6 +14,7 @@ try {
   const page = await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:5178/impressum');
+  expect(await page.evaluate(() => window.dispatchEvent(new Event('beforeunload', {cancelable:true})))).toBe(true);
   await expect(page.locator('.public-site-page article')).toBeVisible();
   await page.locator('.public-site-page a[href="/datenschutz"]').click();
   await expect(page).toHaveURL(/\/datenschutz$/);
@@ -36,6 +37,7 @@ try {
   await admin.getByRole('button',{name:'Страницы сайта',exact:true}).click();
   await admin.getByRole('button',{name:/Impressum — правовая информация/}).click();
   await admin.getByLabel('Название',{exact:true}).fill('Не сохранено');
+  expect(await page.evaluate(() => window.dispatchEvent(new Event('beforeunload', {cancelable:true})))).toBe(true);
   page.once('dialog',d=>d.dismiss());await page.goBack();
   await expect(page).toHaveURL(/\/admin\/pages$/);await expect(admin.getByLabel('Название',{exact:true})).toHaveValue('Не сохранено');
   page.once('dialog',d=>d.accept());await page.goBack();await expect(page).toHaveURL(/\/admin\/templates$/);
