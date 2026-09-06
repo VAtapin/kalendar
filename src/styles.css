@@ -3081,6 +3081,12 @@ input {
   padding: 56px 0 42px;
 }
 
+.welcome-hero a,
+.help-guide a {
+  color: #e6cd8e;
+  text-underline-offset: 3px;
+}
+
 .welcome-hero__eyebrow,
 .welcome-section-title span {
   color: #c9aa59;

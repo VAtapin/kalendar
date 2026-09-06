@@ -8,6 +8,7 @@ const AdminTemplates = defineAsyncComponent(() => import('./AdminTemplates.vue')
 const AdminCatalog = defineAsyncComponent(() => import('./AdminCatalog.vue'));
 const AdminAccounts = defineAsyncComponent(() => import('./AdminAccounts.vue'));
 const AdminSitePages = defineAsyncComponent(() => import('./AdminSitePages.vue'));
+const AdminVideoLessons = defineAsyncComponent(() => import('./AdminVideoLessons.vue'));
 const AdminAiSettings = defineAsyncComponent(() => import('./AdminAiSettings.vue'));
 const AiDraftAssistant = defineAsyncComponent(() => import('./AiDraftAssistant.vue'));
 import type { PageTranslation } from '../content/site-pages';
@@ -28,7 +29,7 @@ async function logout() {
 }
 type Row = { id?: string; name?: string; year?: number; ownerEmail?: string; pages?: number; bytes?: number;
   email?: string; status?: string; at?: string; kind?: string; confirmedAt?: string; consentVersion?: string; consentText?: string };
-const routeTabs: Record<string,string> = { calendars:'calendars',trash:'trash',accounts:'accounts',subscribers:'subscribers',catalog:'catalog',templates:'templates',pages:'pages',ai:'ai','mail-log':'mail-log',newsletter:'campaigns' };
+const routeTabs: Record<string,string> = { videos:'videos',calendars:'calendars',trash:'trash',accounts:'accounts',subscribers:'subscribers',catalog:'catalog',templates:'templates',pages:'pages',ai:'ai','mail-log':'mail-log',newsletter:'campaigns' };
 function routeTab() { return routeTabs[routePath.value.split('/')[2] ?? 'calendars'] ?? 'calendars'; }
 const tab = ref(routeTab());
 const removeNavigationGuard = beforeNavigate(() => !sending.value && canLeavePages());
@@ -96,7 +97,7 @@ async function load(nextTab = tab.value, nextOffset = 0) {
   if (routeTab() !== nextTab || routePath.value === '/admin') navigate(`/admin/${segment}`);
   const version = ++requestVersion;
   if (nextTab === 'campaigns' && !draftLoaded) { await loadDraft(); return; }
-  if (['campaigns', 'templates', 'catalog', 'accounts', 'pages', 'ai'].includes(nextTab)) { busy.value = false; error.value = ""; return; }
+  if (['videos','campaigns', 'templates', 'catalog', 'accounts', 'pages', 'ai'].includes(nextTab)) { busy.value = false; error.value = ""; return; }
   busy.value = true; error.value = "";
   try {
     const data = nextTab === 'calendars' || nextTab === 'trash'
@@ -144,6 +145,7 @@ onMounted(() => void load());
       <div class="application-dialog__content">
         <nav class="admin-nav">
           <button :disabled="busy || sending" @click="load('pages')">Страницы сайта</button>
+          <button :disabled="busy || sending" @click="load('videos')">Видеоуроки</button>
           <button :disabled="busy || sending" @click="load('ai')">ИИ-помощник</button>
           <button v-for="entry in [['calendars','Календари'],['trash','Корзина'],['accounts','Аккаунты'],['subscribers','Подписки'],['catalog','Ресурсы: шрифты, SVG, изображения'],['templates','Макеты сеток'],['mail-log','Журнал писем'],['campaigns','Рассылка']]" :key="entry[0]" :disabled="busy || sending" :aria-pressed="tab === entry[0]" @click="load(entry[0])">{{ entry[1] }}</button>
         </nav>
@@ -165,6 +167,7 @@ onMounted(() => void load());
         <AdminCatalog v-else-if="tab === 'catalog'" />
         <AdminAccounts v-else-if="tab === 'accounts'" />
         <AdminSitePages v-else-if="tab === 'pages'" @dirty="pageDirty=$event" />
+        <AdminVideoLessons v-else-if="tab === 'videos'" @dirty="pageDirty=$event" />
         <AdminAiSettings v-else-if="tab === 'ai'" />
         <template v-else>
           <p v-if="tab === 'calendars'">Личные календари пользователей на сервере. Администратор может просматривать их без изменения оригинала.</p>

@@ -6,6 +6,7 @@ const Account = defineAsyncComponent(() => import('./components/AccountRoute.vue
 const Admin = defineAsyncComponent(() => import('./components/AdminRoute.vue'));
 const PublicPage = defineAsyncComponent(() => import('./components/PublicSitePage.vue'));
 const Help = defineAsyncComponent(() => import('./components/ApplicationHelpDialog.vue'));
+const VideoLessons = defineAsyncComponent(() => import('./components/VideoLessonsPage.vue'));
 const path = ref(routePath.value);
 const account = ref<{ saveBeforeLeave?: () => Promise<void> }>();
 const error = ref('');
@@ -34,6 +35,7 @@ if (new URLSearchParams(location.search).has('account-token')) {
   <div class="route-shell">
     <p v-if="error" role="alert">{{ error }}</p>
     <Home v-if="path === '/'" />
+    <VideoLessons v-else-if="path === '/videos'" />
     <Help v-else-if="path === '/help'" page="guide" @close="navigate('/')" />
     <PublicPage v-else-if="isPublicPath(path)" :key="path" />
     <Admin v-else-if="path.startsWith('/admin')" />

@@ -47,6 +47,32 @@ function calendar_content_blocks(mixed $blocks): array {
 }
 
 trait CalendarSitePages {
+    public function videoLessons(bool $admin=false): array {
+        $data=calendar_read_json_file($this->dataDirectory.'/video-lessons.json',['revision'=>0,'items'=>[]]);
+        if(!$admin)$data['items']=array_values(array_filter($data['items'],fn($item)=>$item['enabled']));
+        return $data;
+    }
+    public function saveVideoLessons(array $body): array {
+        return calendar_with_lock($this->locksDirectory,'video-lessons',function()use($body){
+            $data=$this->videoLessons(true);
+            if(($body['revision']??null)!==$data['revision'])calendar_fail('revision_conflict',409,'Список изменён в другом окне. Перезагрузите страницу.');
+            if(!is_array($body['items']??null)||!array_is_list($body['items'])||count($body['items'])>50)calendar_fail('invalid_videos',400);
+            $items=[];$ids=[];
+            foreach($body['items'] as $item){
+                if(!is_array($item)||!is_string($item['id']??null)||!calendar_valid_uuid($item['id'])||isset($ids[$item['id']])||!is_string($item['title']??null)||trim($item['title'])===''||strlen($item['title'])>640||!is_string($item['url']??null)||strlen($item['url'])>2048||!is_string($item['duration']??null)||strlen($item['duration'])>80||!is_bool($item['enabled']??null))calendar_fail('invalid_video',400,'Заполните название и ссылку YouTube.');
+                $url=parse_url(trim($item['url']));$id=null;$host=strtolower($url['host']??'');
+                if(($url['scheme']??'')!=='https'||isset($url['user'])||isset($url['pass']))calendar_fail('invalid_video_url',400,'Нужна HTTPS-ссылка YouTube.');
+                if($host==='youtu.be')$id=ltrim($url['path']??'','/');
+                elseif(in_array($host,['youtube.com','www.youtube.com','m.youtube.com'],true)){
+                    if(($url['path']??'')==='/watch'){parse_str($url['query']??'',$query);$id=$query['v']??null;}
+                    elseif(preg_match('~^/(?:shorts|embed)/([^/]+)$~',$url['path']??'',$match))$id=$match[1];
+                }
+                if(!is_string($id)||!preg_match('/^[a-zA-Z0-9_-]{11}$/D',$id))calendar_fail('invalid_video_url',400,'Проверьте ссылку YouTube.');
+                $ids[$item['id']]=true;$items[]=['id'=>$item['id'],'title'=>trim($item['title']),'url'=>'https://www.youtube.com/watch?v='.$id,'duration'=>trim($item['duration']),'enabled'=>$item['enabled']];
+            }
+            $data=['revision'=>$data['revision']+1,'items'=>$items];calendar_atomic_json_write($this->dataDirectory.'/video-lessons.json',$data);return $data;
+        });
+    }
     public function sitePages(bool $admin = false): array {
         $state = calendar_read_json_file($this->dataDirectory.'/site-pages.json', null);
         if ($state === null) $state = ['revision'=>0, 'items'=>calendar_default_site_pages()];
@@ -63,6 +89,7 @@ trait CalendarSitePages {
             $state = $this->sitePages(true);
             if (($body['revision'] ?? null) !== $state['revision']) calendar_fail('revision_conflict',409,'Страницы изменены в другом окне. Перезагрузите список.');
             $page = $body['page'] ?? null;
+            if(is_array($page)&&in_array($page['slug']??'',['videos','help'],true))calendar_fail('reserved_slug',400,'Этот адрес занят разделом сайта.');
             if (!is_array($page) || !is_string($page['id'] ?? null) || !calendar_valid_uuid($page['id']) || !is_string($page['slug'] ?? null)
                 || !preg_match('/^[a-z][a-z0-9-]{0,79}$/D', $page['slug']) || in_array($page['slug'], ['ru','de','en','uk','account','login','admin','calendar','api','assets'], true) || !is_int($page['order'] ?? null) || abs($page['order']) > 10000) calendar_fail('invalid_page',400);
             $index = null;
@@ -151,6 +178,13 @@ trait CalendarSitePages {
 }
 
 function calendar_site_routes(CalendarStore $store,string $method,string $path): void {
+    if($path==='/v1/video-lessons'&&$method==='GET')api_response(200,$store->videoLessons());
+    if($path==='/v1/admin/video-lessons'){
+        if(!api_owner($store))calendar_fail('admin_required',403);
+        if($method==='GET')api_response(200,$store->videoLessons(true));
+        if($method==='PUT'){calendar_admin_check_origin();api_response(200,$store->saveVideoLessons(api_request_json(150000)));}
+        calendar_fail('method_not_allowed',405);
+    }
     if($path==='/v1/site-pages' && $method==='GET') api_response(200,$store->sitePages());
     if(!in_array($path,['/v1/admin/site-pages','/v1/admin/ai-settings','/v1/admin/ai-draft'],true)) return;
     if(!api_owner($store)) calendar_fail('admin_required',403);

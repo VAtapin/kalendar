@@ -243,7 +243,7 @@ type MenuCommandId =
   | "bold" | "italic" | "align-left" | "align-center" | "align-right"
   | "toggle-guides" | "zoom-in" | "zoom-out" | "fit-page"
   | "toggle-tools" | "toggle-properties" | "toggle-library" | "toggle-layers" | "toggle-templates" | "toggle-pages" | "toggle-events" | "toggle-preflight" | "toggle-all-panels"
-  | "help-guide" | "shortcuts" | "about";
+  | "help-guide" | "video-lessons" | "shortcuts" | "about";
 
 interface WritableProjectFile {
   write(data: Blob): Promise<void>;
@@ -849,6 +849,7 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
       label: "Помощь",
       items: [
         { command: "help-guide", label: "Как пользоваться?" },
+        { command: "video-lessons", label: "Видеоуроки" },
         { command: "shortcuts", label: "Горячие клавиши…" },
         { separator: true },
         { command: "about", label: "О программе" },
@@ -3571,6 +3572,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "toggle-preflight": toggleDockPanel("preflight"); break;
     case "toggle-all-panels": toggleAllPanels(); break;
     case "help-guide": helpDialogPage.value = "guide"; break;
+    case "video-lessons": navigate('/videos'); break;
     case "shortcuts": helpDialogPage.value = "shortcuts"; break;
     case "about": helpDialogPage.value = "about"; break;
   }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from "vue";
 import LegalLinks from './LegalLinks.vue';
+import {localizedPath} from '../navigation';
 
 export type HelpDialogPage = "guide" | "shortcuts" | "about";
 
@@ -46,6 +47,7 @@ onMounted(async () => {
       </header>
 
       <div v-if="page === 'guide'" class="application-dialog__content help-guide">
+        <p><a :href="localizedPath('/videos')">Видеоуроки</a></p>
         <section>
           <h3>Начало работы</h3>
           <ol>

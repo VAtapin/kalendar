@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref } from "vue";
 import LegalLinks from './LegalLinks.vue';
+import {localizedPath} from '../navigation';
 import type { InterfaceLanguage } from "../document/types";
 import {
   INTERFACE_LANGUAGE_OPTIONS,
@@ -85,6 +86,7 @@ function changeInterfaceLanguage(event: Event): void {
           <button v-if="currentProjectName" type="button" @click="requestContinue">Продолжить последний</button>
           <button type="button" @click="requestOpen">Импортировать календарь…</button>
         </div>
+        <p><a :href="localizedPath('/videos')">Как пользоваться? Видеоуроки</a></p>
       </div>
       <img class="welcome-hero__art" src="/brand/share-card-preview.webp" alt="Календарная мастерская Свято-Георгиевского монастыря" />
     </section>
