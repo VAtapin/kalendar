@@ -1,4 +1,10 @@
 const REPLACEMENTS: ReadonlyArray<[RegExp, string]> = [
+  [/Священномученик(?:ов|и|ам|ами|ах)/giu, "Сщмчч."],
+  [/Преподобномученик(?:ов|и|ам|ами|ах)/giu, "Прмчч."],
+  [/Новомученик(?:ов|и|ам|ами|ах)/giu, "Новомчч."],
+  [/Святител(?:и|ей|ям|ями|ях)/giu, "Свтт."],
+  [/Мученик(?:ов|и|ам|ами|ах)/giu, "Мчч."],
+  [/Апостол(?:ов|ы|ам|ами|ах)/giu, "Апп."],
   [/Пресвят(?:ой|ую|ая) Владычиц(?:ы|у|а) нашей Богородиц(?:ы|у|а) и Приснодев(?:ы|у|а) Марии/giu, "Пресвятой Богородицы"],
   [/Господа Бога и Спаса нашего Иисуса Христа/giu, "Господа Иисуса Христа"],
   [/Иконы Божией Матери/giu, "иконы Божией Матери"],
@@ -25,8 +31,10 @@ const REPLACEMENTS: ReadonlyArray<[RegExp, string]> = [
 const VERY_SHORT_REPLACEMENTS: ReadonlyArray<[RegExp, string]> = [
   [/\s*\((?:ок\.\s*)?\d{1,4}(?:[—–-]\d{1,4})?(?:\s*гг?\.?)?\)/giu, ""],
   [/\s*\([^)]*(?:век|вв?\.|год|лет|обретен|перенес)[^)]*\)/giu, ""],
-  [/,?\s+(?:архиеп\.|еп\.|митр\.|патр\.)\s+[^,;]+(?:ской|ского|ский|ской и [^,;]+)?(?=,|;|$)/giu, ""],
-  [/,?\s+(?:учителя|настоятельницы?|игумении?|диакона|пресвитера|архимандрита|инокини?|монаха)\s+[^,;]+/giu, ""],
+  // Only remove a comma-separated secondary description. Without the comma
+  // this can be the subject itself: "День кончины Святейшего патр. Пимена".
+  [/,\s+(?:архиеп\.|еп\.|митр\.|патр\.)\s+[^,;]+(?:ской|ского|ский|ской и [^,;]+)?(?=,|;|$)/giu, ""],
+  [/,\s+(?:учителя|настоятельницы?|игумении?|диакона|пресвитера|архимандрита|инокини?|монаха)\s+[^,;]+/giu, ""],
   [/,?\s+(?:и\s+)?всея\s+России\s+чудотв\./giu, ""],
   [/,?\s+чудотв\./giu, ""],
   [/Собор\s+(?:новомучеников и исповедников|святых)\s+/giu, "Собор "],
@@ -45,7 +53,10 @@ function cleanPunctuation(value: string): string {
 
 export function createShortCalendarTitle(title: string): string {
   return cleanPunctuation(REPLACEMENTS.reduce(
-    (value, [pattern, replacement]) => value.replace(pattern, replacement),
+    // Match whole Unicode words, not suffixes inside новомучеников or святителей.
+    (value, [pattern, replacement]) => value.replace(
+      new RegExp(`(?<![\\p{L}\\p{M}])(?:${pattern.source})(?![\\p{L}\\p{M}])`, pattern.flags), replacement,
+    ),
     title,
   ));
 }

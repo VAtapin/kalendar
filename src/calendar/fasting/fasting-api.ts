@@ -95,6 +95,9 @@ export const FASTING_PROFILE_ID = "typikon-strict" as const;
 export const FASTING_RULE_SOURCE_URLS = [
   "https://otrada-i-uteshenie.ru/kalendar/",
   "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+  "https://azbyka.ru/otechnik/Spravochniki/spravochnik-pravoslavnogo-cheloveka-chast-4-pravoslavnye-posty-i-prazdniki/1",
+  "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49_19",
+  "https://patriarchia.ru/bu/2024-05-04",
 ] as const;
 
 export const FASTING_PROFILES: Readonly<Record<FastingProfileId, FastingProfile>> = {
@@ -102,14 +105,14 @@ export const FASTING_PROFILES: Readonly<Record<FastingProfileId, FastingProfile>
     id: "typikon-strict",
     label: "Строгий устав",
     description: "Монастырская мера с сухоядением и днями полного воздержания.",
-    rulesVersion: "2026.09",
+    rulesVersion: "2026.09.08",
     sourceUrls: FASTING_RULE_SOURCE_URLS,
   },
   parish: {
     id: "parish",
     label: "Приходская практика",
     description: "Смягчённое отображение для мирян без назначения личной меры поста.",
-    rulesVersion: "2026.09",
+    rulesVersion: "2026.09.08",
     sourceUrls: FASTING_RULE_SOURCE_URLS,
   },
 } as const;
@@ -175,11 +178,11 @@ function weeklyGreatFastRule(
   if (majorSaint && (weekday === 1 || weekday === 3 || weekday === 5)) {
     return result(input, "boiled-no-oil", "Великий или полиелейный праздник: горячая пища без масла", period);
   }
-  if (weekday === 3 || weekday === 5) {
-    return result(input, "dry-eating", "Среда или пятница строгой седмичной меры", period);
+  if (weekday === 1 || weekday === 3 || weekday === 5) {
+    return result(input, "dry-eating", "Понедельник, среда или пятница строгой седмичной меры", period);
   }
-  if (weekday === 1 || weekday === 2 || weekday === 4) {
-    return result(input, "boiled-no-oil", "Понедельник, вторник или четверг: горячая пища без масла", period);
+  if (weekday === 2 || weekday === 4) {
+    return result(input, "boiled-no-oil", "Вторник или четверг: горячая пища без масла", period);
   }
   return result(input, "oil", "Суббота или воскресенье: пища с растительным маслом", period);
 }
@@ -223,7 +226,7 @@ function nativityFastRule(input: FastingDayInput): FastingDayResolution {
     return result(input, "fish", "Введение Богородицы или память святителя Николая: разрешается рыба", "nativity-fast");
   }
 
-  if (hasMajorSaint(input) && (weekday === 1 || weekday === 3 || weekday === 5)) {
+  if (oldOrdinal < 1220 && hasMajorSaint(input) && (weekday === 1 || weekday === 3 || weekday === 5)) {
     return result(input, "oil", "Великий или полиелейный праздник: пища с маслом", "nativity-fast");
   }
 
@@ -345,6 +348,19 @@ function calculateStrictFastingDay(input: FastingDayInput): FastingDayResolution
 
   const period = fastingPeriodForDate(input.date);
   if (period?.id === "great-lent") {
+    // The feast overrides the ordinary weekday and Lazarus-Saturday rules.
+    // Holy Week has its own allowances; it is not a normal fish day.
+    if (sameOldStyleDate(input.date, 3, 25) || hasTitle(input, /Благовещение/i)) {
+      if (offset >= -6 && offset <= -3) {
+        return result(input, "oil", "Благовещение в первые четыре дня Страстной седмицы: пища с маслом", "great-lent");
+      }
+      if (offset === -2) {
+        return result(input, "boiled-no-oil", "Благовещение в Великую пятницу: горячая пища без масла", "great-lent");
+      }
+      if (offset < -6) {
+        return result(input, "fish", "Благовещение вне Страстной седмицы: разрешается рыба", "great-lent");
+      }
+    }
     if (offset === -48 || offset === -47 || offset === -2) {
       return result(input, "strict-fast", "Первые два дня поста или Великая пятница: полное воздержание", "great-lent");
     }
@@ -354,8 +370,10 @@ function calculateStrictFastingDay(input: FastingDayInput): FastingDayResolution
     if (offset === -7) {
       return result(input, "fish", "Вход Господень в Иерусалим: разрешается рыба", "great-lent");
     }
-    if ((sameOldStyleDate(input.date, 3, 25) || hasTitle(input, /Благовещение/i)) && !(offset >= -6 && offset <= -1)) {
-      return result(input, "fish", "Благовещение вне Страстной седмицы: разрешается рыба", "great-lent");
+    if (offset === -1) {
+      // Typikon ch. 49: bread, figs/dates and wine, not the ordinary Saturday oil.
+      // Annunciation on Holy Saturday does not permit fish or oil either.
+      return result(input, "dry-eating", "Великая суббота: сухоядение без масла; разрешается вино", "great-lent");
     }
     return weeklyGreatFastRule(input, "great-lent");
   }
@@ -426,9 +444,19 @@ function applyParishProfile(
   const oldStyle = gregorianToJulian(input.date);
   const oldOrdinal = oldStyle.month * 100 + oldStyle.day;
   let foodRule = strict.foodRule;
+  let explanation = strict.reason;
   let qualification = "; приходская таблица";
 
-  if (strict.period === "apostles-fast") {
+  if (foodRule.id === "fish") {
+    // A milder profile must never erase the feast's explicit fish allowance.
+    // E.g. John the Baptist on a Wednesday and Entrance on a Friday.
+  } else if (strict.period === "great-lent" && paschaOffset(input.date) === -1) {
+    // Preserve this profile's existing general parish-table Saturday measure.
+    // Do not silently migrate it to the separately corrected strict Typikon rule.
+    foodRule = FOOD_RULES.oil;
+    explanation = "Великая суббота";
+    qualification = "; приходской профиль: сохранена общая субботняя мера с маслом";
+  } else if (strict.period === "apostles-fast") {
     foodRule = weekday === 3 || weekday === 5 ? FOOD_RULES.oil : FOOD_RULES.fish;
   } else if (strict.period === "nativity-fast" && oldOrdinal <= 1206) {
     foodRule = weekday === 3 || weekday === 5 ? FOOD_RULES.oil : FOOD_RULES.fish;
@@ -441,12 +469,18 @@ function applyParishProfile(
   } else if (foodRule.id === "strict-fast") {
     foodRule = FOOD_RULES["dry-eating"];
     qualification = "; приходской профиль: без полного воздержания";
+  } else if (weekday === 1 && foodRule.id === "dry-eating" && (
+    strict.period === "great-lent" || strict.period === "dormition-fast" ||
+    (strict.period === "nativity-fast" && oldOrdinal >= 1220)
+  )) {
+    foodRule = FOOD_RULES["boiled-no-oil"];
+    qualification = "; приходская таблица: в понедельник горячая пища без масла";
   }
   return {
     ...strict,
     profileId: "parish",
     foodRule,
-    reason: `${strict.reason}${qualification}`,
+    reason: `${explanation}${qualification}`,
   };
 }
 

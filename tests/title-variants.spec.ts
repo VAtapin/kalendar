@@ -5,6 +5,20 @@ import {
 } from "../src/calendar/presentation/title-variants";
 
 describe("calendar title variants", () => {
+  it("preserves a name following its primary rank", () => {
+    expect(createVeryShortCalendarTitle("День кончины Святейшего Патриарха Пимена"))
+      .toBe("День кончины Святейшего патр. Пимена");
+    expect(createVeryShortCalendarTitle("Память игумении Марии"))
+      .toBe("Память игумении Марии");
+  });
+  it("does not corrupt plural ranks or match inside longer words", () => {
+    expect(createShortCalendarTitle("Собор Вселенских учителей и святителей"))
+      .toBe("Собор Вселенских учителей и Свтт.");
+    expect(createShortCalendarTitle("Собор новомучеников и исповедников Церкви Русской"))
+      .toBe("Собор Новомчч. и Исп. Церкви Русской");
+    expect(createShortCalendarTitle("Священномучеников и преподобномучеников"))
+      .toBe("Сщмчч. и Прмчч.");
+  });
   it("creates deterministic church-calendar abbreviations", () => {
     expect(createShortCalendarTitle("Священномученика Петра, епископа Воронежского"))
       .toBe("Сщмч. Петра, еп. Воронежского");

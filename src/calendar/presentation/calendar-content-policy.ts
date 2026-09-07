@@ -71,7 +71,12 @@ function isGeneratedLiturgicalEvent(event: ResolvedCalendarEvent): boolean {
 }
 
 function isLegacyLiturgicalCycleLabel(event: ResolvedCalendarEvent): boolean {
-  return /^(?:седмица|неделя\b)/iu.test(event.title.trim());
+  return /^(?:седмица\s|неделя\s+\d)/iu.test(event.title.trim());
+}
+
+/** Fixed-season Sundays/Saturdays are not interchangeable with a numbered week. */
+function isSeasonalWeekend(event: ResolvedCalendarEvent): boolean {
+  return event.typeCode === 8 && /^(?:Неделя|Суббота)\s+(?:перед\s|по\s|святых праотец)/iu.test(event.title);
 }
 
 function isAfterfeastOrLeaveTaking(event: ResolvedCalendarEvent): boolean {
@@ -97,7 +102,7 @@ export function calendarContentCategory(event: ResolvedCalendarEvent): CalendarC
 }
 
 export function isMinorCommemorationEvent(event: ResolvedCalendarEvent): boolean {
-  return event.typeCode >= 6 && event.typeCode <= 19 && event.typeCode !== 9 && event.typeCode !== 10;
+  return event.typeCode >= 6 && event.typeCode <= 19 && event.typeCode !== 9 && event.typeCode !== 10 && !isSeasonalWeekend(event);
 }
 
 /**
@@ -111,7 +116,7 @@ export function isRequiredCalendarEvent(event: ResolvedCalendarEvent): boolean {
 function eventPrintRank(event: ResolvedCalendarEvent): number {
   if (isPascha(event)) return 0;
   if (isTwelveGreatFeast(event)) return 1;
-  if (isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event)) return 2;
+  if (isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event) || isSeasonalWeekend(event)) return 2;
   if (event.typeCode < 0) return 3;
   if (event.typeCode === 2) return 4;
   if (event.typeCode >= 3 && event.typeCode <= 5) return 5;
@@ -134,7 +139,7 @@ export function isCalendarCellEvent(
   if (category === "fasting-rule" || category === "fast-free-rule") {
     return element.showFastingText === true;
   }
-  if (isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event)) return true;
+  if (isGeneratedLiturgicalEvent(event) || isAfterfeastOrLeaveTaking(event) || isSeasonalWeekend(event)) return true;
   if (event.typeCode < 0) return true;
   if (isLegacyLiturgicalCycleLabel(event)) return false;
   const filter = commemorationFilterForElement(element);

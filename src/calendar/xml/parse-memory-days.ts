@@ -130,6 +130,7 @@ export function parseMemoryDaysXml(
     const title = normalizedText(input.name);
 
     for (const field of Object.keys(input)) {
+      if (field === "#text" && !normalizedText(input[field])) continue;
       if (!EXPECTED_FIELDS.has(field)) {
         diagnostics.push({
           severity: "warning",
@@ -203,4 +204,3 @@ export function parseMemoryDaysXml(
     },
   };
 }
-

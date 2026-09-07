@@ -82,7 +82,7 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 3, day: 15 }).foodRule.id).toBe("strict-fast");
     expect(rule({ year: 2027, month: 3, day: 17 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 3, day: 18 }).foodRule.id).toBe("boiled-no-oil");
-    expect(rule({ year: 2027, month: 3, day: 22 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 3, day: 22 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 3, day: 20 }).foodRule.id).toBe("oil");
     expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("fast");
     expect(rule({ year: 2027, month: 4, day: 25 }).foodRule.id).toBe("fish");
@@ -93,7 +93,7 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 6, day: 28 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 6, day: 29 }).foodRule.id).toBe("fish");
     expect(rule({ year: 2027, month: 6, day: 30 }).foodRule.id).toBe("dry-eating");
-    expect(rule({ year: 2027, month: 8, day: 16 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 8, day: 16 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 8, day: 17 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 8, day: 19 }).foodRule.id).toBe("fish");
   });
@@ -104,7 +104,7 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 12, day: 20 }).foodRule.id).toBe("boiled-no-oil");
     expect(rule({ year: 2027, month: 12, day: 22 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 12, day: 25 }).foodRule.id).toBe("fish");
-    expect(rule({ year: 2027, month: 1, day: 4 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 1, day: 4 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 1, day: 6 }).foodRule.id).toBe("strict-fast");
   });
 
@@ -164,5 +164,55 @@ describe("fasting calculation API", () => {
     expect(parishRule({ year: 2027, month: 12, day: 1 })).toBe("oil");
     expect(parishRule({ year: 2027, month: 12, day: 20 })).toBe("oil");
     expect(parishRule({ year: 2027, month: 12, day: 22 })).toBe("boiled-no-oil");
+  });
+
+  it.each([
+    { year: 2027, month: 3, day: 22 },
+    { year: 2027, month: 8, day: 16 },
+    { year: 2027, month: 1, day: 4 },
+  ])("separates the published strict/parish Monday measures for $year-$month-$day", (date) => {
+    expect(calculateFastingDay(calendarDay(date), "typikon-strict").foodRule.id).toBe("dry-eating");
+    expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("boiled-no-oil");
+    // Explicit high-rank commemorations already have a different strict rule.
+    expect(rule(date, [{ title: "Полиелейная память", typeCode: 4 }]).foodRule.id).toBe("boiled-no-oil");
+  });
+
+  it.each([
+    { year: 2027, month: 7, day: 7 },
+    { year: 2026, month: 12, day: 4 },
+    { year: 2025, month: 12, day: 19 },
+  ])("does not make an explicit fish allowance stricter in parish mode on $year-$month-$day", (date) => {
+    expect(calculateFastingDay(calendarDay(date), "typikon-strict").foodRule.id).toBe("fish");
+    expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("fish");
+  });
+
+  it("applies Annunciation exceptions before the ordinary Holy Week rule", () => {
+    // Published 2026-04-07 (Holy Tuesday): oil, not the normal Tuesday rule.
+    expect(rule({ year: 2026, month: 4, day: 7 }).foodRule.id).toBe("oil");
+    // Friday in ordinary Lent still permits fish.
+    expect(rule({ year: 2023, month: 4, day: 7 }).foodRule.id).toBe("fish");
+    // The same feast on Holy Friday is not a complete food abstinence day.
+    expect(rule({ year: 2034, month: 4, day: 7 }).foodRule.id).toBe("boiled-no-oil");
+    // Annunciation on Lazarus Saturday still has the feast's fish allowance.
+    expect(rule({ year: 2001, month: 4, day: 7 }).foodRule.id).toBe("fish");
+  });
+
+  it.each([
+    { year: 2027, month: 5, day: 1 },
+    { year: 2026, month: 4, day: 11 },
+    // Annunciation on Holy Saturday does not allow fish or oil.
+    { year: 2018, month: 4, day: 7 },
+  ])("does not apply the ordinary strict Saturday oil rule on Holy Saturday $year-$month-$day", (date) => {
+    const strict = calculateFastingDay(calendarDay(date), "typikon-strict");
+    expect(strict.foodRule.id).toBe("dry-eating");
+    expect(strict.reason).toContain("разрешается вино");
+    // The existing general parish-table measure is an independent profile.
+    expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("oil");
+  });
+
+  it("keeps other Saturday allowances and Pascha unchanged", () => {
+    expect(rule({ year: 2027, month: 4, day: 17 }).foodRule.id).toBe("oil");
+    expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("fast");
+    expect(rule({ year: 2027, month: 5, day: 2 }).foodRule.id).toBe("no-fast");
   });
 });

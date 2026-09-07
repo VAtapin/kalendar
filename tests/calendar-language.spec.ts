@@ -24,7 +24,7 @@ describe("calendar content language", () => {
     expect(calendarWeekdayLabels("uk", true)[6]).toBe("Нд");
   });
 
-  it("uses verified Orthodox terminology for feasts and fasting legends", () => {
+  it("uses the editorial dictionary for feasts and fasting legends", () => {
     const pascha = "Светлое Христово Воскресение. Пасха";
     expect(localizeCalendarEventTitle(pascha, "uk")).toBe("Світле Христове Воскресіння. Пасха");
     expect(localizeCalendarEventTitle("Вознесение Господне", "de")).toBe("Christi Himmelfahrt");
@@ -42,7 +42,9 @@ describe("calendar content language", () => {
       id: "test",
       sourceId: "test",
       sourceIndex: 1,
-      title: "Перенесение мощей Свт. Николая",
+      title: "Светлое Христово Воскресение. Пасха",
+      shortTitle: "Светлое Христово Воскресение",
+      veryShortTitle: "Пасха Христова",
       typeCode: 2,
       occurrenceDate: { year: 2027, month: 5, day: 22 },
       spanStart: { year: 2027, month: 5, day: 22 },
@@ -52,9 +54,19 @@ describe("calendar content language", () => {
       priority: 900,
     };
     const polish = localizeCalendarEvent(event, "pl");
-    expect(event.title).toBe("Перенесение мощей Свт. Николая");
-    expect(polish.title).toContain("Przeniesienie relikwii");
+    expect(event.title).toBe("Светлое Христово Воскресение. Пасха");
+    expect(polish.title).toBe("Święte Zmartwychwstanie Chrystusa. Pascha");
     expect(polish.title).not.toMatch(/[А-Яа-яЁё]/u);
+    expect(polish.shortTitle).toBeUndefined();
+    expect(polish.veryShortTitle).toBeUndefined();
+    expect(event.shortTitle).toBe("Светлое Христово Воскресение");
+    expect(event.veryShortTitle).toBe("Пасха Христова");
+
+    const unknown = { ...event, title: "Перенесение мощей Свт. Николая", shortTitle: "Свт. Николая", veryShortTitle: "Свт. Николай" };
+    expect(localizeCalendarEvent(unknown, "pl")).toEqual(unknown);
+
+    const known = { ...event, title: "Святое Богоявление. Крещение Господа Бога и Спаса нашего Иисуса Христа", shortTitle: "Богоявление", veryShortTitle: undefined };
+    expect(localizeCalendarEvent(known, "de").shortTitle).toBe("Theophanie");
   });
 
   it("marks generated month headings and saves the calendar language in the project", () => {

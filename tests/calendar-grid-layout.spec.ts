@@ -50,6 +50,26 @@ const calendar: OrthodoxCalendarYear = {
 };
 
 describe("calendar grid layout", () => {
+  it("flags an already shortened title even when the text box fits", () => {
+    const day = {
+      ...days[0]!,
+      events: [{
+        id: "shortened-feast", sourceId: "source", sourceIndex: 0,
+        title: "Важный праздник…", typeCode: 3, priority: 100,
+        occurrenceDate: days[0]!.date, spanStart: days[0]!.date, spanFinish: days[0]!.date,
+        dayIndexInSpan: 0, ruleKind: "fixed-julian" as const,
+      }],
+    };
+    const fitted = layoutCalendarCellTextAutoFit(
+      { ...element, eventFontSizePt: 8, minimumEventFontSizePt: 8 },
+      { key: "0-0", column: 0, row: 0, x: 0, y: 0, width: 80, height: 40, day },
+      (text, fontSizeMm) => text.length * fontSizeMm * 0.2,
+    );
+    expect(fitted.lines.map(line => line.text).join(" ")).toContain("…");
+    expect(fitted.truncatedRequiredEventCount).toBe(1);
+    expect(fitted.hiddenRequiredEventCount).toBe(0);
+  });
+
   it("maps a Monday-first month into physical millimetre cells", () => {
     const layout = buildCalendarGridLayout(element, calendar);
 
@@ -101,6 +121,27 @@ describe("calendar grid layout", () => {
 
     expect(fitted.usedFontSizePt).toBeLessThan(8);
     expect(fitted.truncatedEventCount).toBe(0);
+  });
+
+  it("tries smaller type before leaving a day with only optional memories blank", () => {
+    const day = {
+      ...days[0]!,
+      events: [{
+        id: "optional-memory", sourceId: "source", sourceIndex: 0,
+        title: "Память святого, которая должна уместиться после уменьшения шрифта",
+        typeCode: 18, priority: 1,
+        occurrenceDate: days[0]!.date, spanStart: days[0]!.date, spanFinish: days[0]!.date,
+        dayIndexInSpan: 0, ruleKind: "fixed-julian" as const,
+      }],
+    };
+    const fitted = layoutCalendarCellTextAutoFit(
+      { ...element, eventFontSizePt: 18, minimumEventFontSizePt: 4, autoFitText: true },
+      { key: "0-0", column: 0, row: 0, x: 0, y: 0, width: 40, height: 16, day },
+      (text, fontSizeMm) => text.length * fontSizeMm * 0.45,
+    );
+    expect(fitted.usedFontSizePt).toBeLessThan(18);
+    expect(fitted.lines.length).toBeGreaterThan(0);
+    expect(fitted.omittedMinorEventCount).toBe(0);
   });
 
   it("omits an overflowing lesser fallback without printing a web-style more label", () => {

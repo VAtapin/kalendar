@@ -12,6 +12,8 @@ describe("MemoryDays XML parser", () => {
   it("imports the complete source file without losing its raw fields", () => {
     const dataset = parseMemoryDaysXml(sourceXml);
 
+    expect(dataset.diagnostics.filter(item => item.code === "unknown-field")).toEqual([]);
+
     expect(dataset.statistics).toMatchObject({
       recordCount: 3811,
       recordsWithDescription: 138,

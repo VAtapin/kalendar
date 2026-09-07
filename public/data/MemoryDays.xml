@@ -2404,7 +2404,7 @@
 		<s_month>1</s_month>
 		<s_date>2</s_date>
 		<f_month>1</f_month>
-		<f_date>2</f_date>
+		<f_date>5</f_date>
 		<name>Предпразднство Богоявления</name>
 		<type>7</type>
 	</event>
@@ -5812,7 +5812,7 @@
 		<s_month>12</s_month>
 		<s_date>20</s_date>
 		<f_month>12</f_month>
-		<f_date>20</f_date>
+		<f_date>24</f_date>
 		<name>Предпразднство Рождества Христова</name>
 		<type>7</type>
 	</event>

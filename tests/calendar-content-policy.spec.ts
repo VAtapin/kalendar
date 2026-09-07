@@ -39,6 +39,11 @@ const grid = {
 } as CalendarGridElement;
 
 describe("calendar cell content policy", () => {
+  it("preserves named Sundays before and after fixed feasts", () => {
+    const seasonal = event(8, "Неделя перед Рождеством Христовым, святых отец", "seasonal");
+    const numbered = event(-20, "Неделя 31-я по Пятидесятнице", "numbered", "liturgical-sunday");
+    expect(selectCalendarCellEvents(grid, [numbered, seasonal, event(4)])).toContain(seasonal);
+  });
   it("keeps feasts and commemorations but hides service data by default", () => {
     expect(isCalendarCellEvent(grid, event(1))).toBe(true);
     expect(isCalendarCellEvent(grid, event(3))).toBe(true);

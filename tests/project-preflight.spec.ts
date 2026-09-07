@@ -11,6 +11,42 @@ const xml = `<MemoryDays><event>
 </event></MemoryDays>`;
 
 describe("project preflight", () => {
+  it("warns when overflow removes all optional text from a day", () => {
+    const project = createBlankCalendarProject(2027);
+    const page = createMonthTemplatePage("A3", "portrait", 1, 2027, () => crypto.randomUUID());
+    const grid = page.elements.find(element => element.type === "calendar-grid");
+    if (!grid || grid.type !== "calendar-grid") throw new Error("grid expected");
+    grid.height = 10;
+    grid.width = 30;
+    grid.eventFontSizePt = 12;
+    grid.minimumEventFontSizePt = 12;
+    project.document.pages = [page];
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml
+      .replace("<type>1</type>", "<type>18</type>")
+      .replace("Праздник", "Очень длинная малая память, которая не помещается в оставшуюся строку")));
+    expect(checkCalendarProject(project, calendar).some(item => item.code === "calendar-empty-cell")).toBe(true);
+  });
+
+  it("warns when a calendar name has no complete translation", () => {
+    const project = createBlankCalendarProject(2027);
+    project.calendarLanguage = "cu";
+    project.document.pages = [createMonthTemplatePage("A3", "portrait", 1, 2027, () => crypto.randomUUID())];
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
+    expect(checkCalendarProject(project, calendar).some(item => item.code === "calendar-untranslated-events")).toBe(true);
+    project.calendarLanguage = "ru";
+    expect(checkCalendarProject(project, calendar).some(item => item.code === "calendar-untranslated-events")).toBe(false);
+  });
+  it("does not call a user-authored German event untranslated Russian", () => {
+    const project = createBlankCalendarProject(2027);
+    project.calendarLanguage = "de";
+    project.document.pages = [createMonthTemplatePage("A3", "portrait", 1, 2027, () => crypto.randomUUID())];
+    const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
+    calendar.days = calendar.days.filter(day => day.isoDate === "2027-01-14");
+    calendar.days[0]!.events = calendar.days[0]!.events.filter(event => event.title === "Праздник")
+      .map(event => ({ ...event, title: "Gemeindefest", shortTitle: undefined, veryShortTitle: undefined, ruleKind: "project-event" }));
+    expect(calendar.days[0]!.events).toHaveLength(1);
+    expect(checkCalendarProject(project, calendar).some(item => item.code === "calendar-untranslated-events")).toBe(false);
+  });
   it("reports an empty photo slot while accepting built-in food markers", () => {
     const project = createBlankCalendarProject(2027);
     project.document.pages = [createMonthTemplatePage("A3", "portrait", 1, 2027, () => crypto.randomUUID())];

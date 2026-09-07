@@ -282,6 +282,13 @@ function pushFixedAfterfeasts(year: number, definitions: GeneratedDefinition[]):
   for (const feast of FIXED_AFTERFEASTS) {
     for (const julianYear of [year - 1, year]) {
       const feastDate = fixedJulianDate(julianYear, feast.julianMonth, feast.julianDay);
+      // Annunciation has no leave-taking when the feast falls on Lazarus
+      // Saturday or later in the Paschal cycle (Typikon March 26 rubrics).
+      // It must not create an ordinary afterfeast on Holy/Bright Week.
+      if (feast.julianMonth === 3 && feast.julianDay === 25 &&
+        compareDates(feastDate, addDays(calculateOrthodoxPascha(feastDate.year), -8)) >= 0) {
+        continue;
+      }
       const leaveTaking = feast.variableLeaveTaking === "meeting-of-the-lord"
         ? meetingLeaveTakingDate(feastDate)
         : addDays(feastDate, feast.leaveTakingOffset);

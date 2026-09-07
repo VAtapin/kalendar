@@ -11,6 +11,8 @@ export interface TextBlockLayout {
 
 export type MeasureTextWidth = (text: string) => number;
 
+const textGraphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
 function breakLongWord(
   word: string,
   maxWidth: number,
@@ -18,7 +20,7 @@ function breakLongWord(
 ): string[] {
   const parts: string[] = [];
   let part = "";
-  for (const character of word) {
+  for (const { segment: character } of textGraphemes.segment(word)) {
     const candidate = part + character;
     if (part && measure(candidate) > maxWidth) {
       parts.push(part);

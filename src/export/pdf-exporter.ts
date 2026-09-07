@@ -101,6 +101,9 @@ import { buildCropMarkSegments } from "./print-marks";
 import { calculateImagePlacement } from "../document/image-placement";
 import { findLayerLocation } from "../document/layer-operations";
 import { hasRoundedCorners, resolvedCornerRadii } from "../document/corner-radii";
+import {
+  drawCombiningPdfText, drawPdfText, embedShapingFont, pdfTextWidth, positionedPdfTextOperators,
+} from "./pdf-text-shaping";
 
 export const MM_TO_PT = 72 / 25.4;
 
@@ -374,7 +377,7 @@ function alignedX(
 }
 
 function trackedTextWidth(font: PDFFont, text: string, size: number, spacing: number): number {
-  return font.widthOfTextAtSize(text, size) + Math.max(0, Array.from(text).length - 1) * spacing;
+  return pdfTextWidth(font, text, size, spacing);
 }
 
 function drawAxialGradient(
@@ -444,6 +447,7 @@ function drawTrackedText(
   spacing: number,
   opacity = 1,
 ): void {
+  if (drawCombiningPdfText(page, text, { x, y, size, font, color: fill, opacity }, spacing)) return;
   if (!spacing) {
     page.drawText(text, { x, y, size, font, color: fill, opacity });
     return;
@@ -485,8 +489,13 @@ function drawGradientTrackedText(
     setTextRenderingMode(TextRenderingMode.Clip),
     setTextMatrix(1, 0, 0, 1, x, y),
   ];
-  if (spacing) operators.push(setCharacterSpacing(spacing));
-  operators.push(showText(newFont.encodeText(text)), endText());
+  const positioned = positionedPdfTextOperators(newFont, text, x, y, size, spacing);
+  if (positioned) operators.push(...positioned);
+  else {
+    if (spacing) operators.push(setCharacterSpacing(spacing));
+    operators.push(showText(newFont.encodeText(text)));
+  }
+  operators.push(endText());
   page.pushOperators(...operators);
   const bottom = y - size * 0.28;
   const height = size * 1.35;
@@ -742,8 +751,8 @@ function drawMissingAsset(context: PageContext, element: ImageElement | SvgEleme
   context.pdfPage.drawLine({ start: { x, y }, end: { x: x + width, y: y + height }, thickness: mm(0.2), color: color("#a3aaa6") });
   context.pdfPage.drawLine({ start: { x: x + width, y }, end: { x, y: y + height }, thickness: mm(0.2), color: color("#a3aaa6") });
   const size = Math.min(12, Math.max(6, height * 0.09));
-  const textWidth = context.fonts.regular.widthOfTextAtSize(label, size);
-  context.pdfPage.drawText(label, {
+  const textWidth = pdfTextWidth(context.fonts.regular, label, size);
+  drawPdfText(context.pdfPage, label, {
     x: x + (width - textWidth) / 2,
     y: y + (height - size) / 2,
     size,
@@ -868,7 +877,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
   const availableLabelWidth = Math.max(1, mm(layout.columnWidth - 2));
   const widestRequestedLabel = Math.max(
     1,
-    ...labels.map((label) => headingFont.widthOfTextAtSize(label, headingFontSize)),
+    ...labels.map((label) => pdfTextWidth(headingFont, label, headingFontSize)),
   );
   const fittedHeadingSize = Math.max(
     0.1,
@@ -888,7 +897,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
           borderWidth: mm(0.3),
         });
       }
-      const labelWidth = headingFont.widthOfTextAtSize(label, fittedHeadingSize);
+      const labelWidth = pdfTextWidth(headingFont, label, fittedHeadingSize);
       drawLargeTrackedText(
         context.pdfPage,
         label,
@@ -978,7 +987,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
         verticalAlign: "top",
         paddingMm: 0,
       });
-      context.pdfPage.drawText(oldStyle, {
+      drawPdfText(context.pdfPage, oldStyle, {
         x: cellX + mm(typography.oldStyleXOffsetMm),
         y: bottomPt(context, cell.y + typography.oldStyleYOffsetMm + typography.oldStyleFontSizeMm) - oldStyleSize * 0.15,
         size: oldStyleSize,
@@ -1010,7 +1019,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
     const eventTextLayout = layoutCalendarCellTextAutoFit(
       element,
       cell,
-      (value, fontSizeMm) => eventMeasureFont.widthOfTextAtSize(value, mm(fontSizeMm)) / MM_TO_PT,
+      (value, fontSizeMm) => pdfTextWidth(eventMeasureFont, value, mm(fontSizeMm)) / MM_TO_PT,
       context.calendarLanguage,
     );
     const rankedEvent = primaryTypikonEvent(cell.day?.events ?? []);
@@ -1036,7 +1045,7 @@ function drawCalendarGrid(context: PageContext, element: CalendarGridElement): v
         paddingMm: 0,
       });
       const eventSize = mm(line.fontSizeMm);
-      context.pdfPage.drawText(line.text, {
+      drawPdfText(context.pdfPage, line.text, {
         x: cellX + mm(line.x),
         y: bottomPt(context, cell.y + line.baselineY) - eventSize * 0.15,
         size: eventSize,
@@ -1124,7 +1133,7 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
     element.width,
     rowHeightMm,
     items,
-    (value, fontSizeMm) => legendFont.widthOfTextAtSize(value, mm(fontSizeMm)) / MM_TO_PT,
+    (value, fontSizeMm) => pdfTextWidth(legendFont, value, mm(fontSizeMm)) / MM_TO_PT,
   );
   const markerSize = layout.markerSizeMm;
   const fontSize = mm(layout.fontSizeMm);
@@ -1144,7 +1153,7 @@ function drawLegend(context: PageContext, element: Extract<LayoutElementNode, { 
     }
     else if (item.colorSwatch) context.pdfPage.drawRectangle({ x, y: bottomPt(context, rowTopMm + (rowHeightMm + markerSize) / 2), width: mm(markerSize), height: mm(markerSize), color: color(item.fill), borderColor: color('#68736d'), borderWidth: mm(0.15) });
     else context.pdfPage.drawCircle({ x: x + mm(markerSize / 2), y: bottomPt(context, rowTopMm + rowHeightMm / 2), size: mm(2.1), color: color(item.fill) });
-    context.pdfPage.drawText(item.label, { x: x + mm(itemLayout.labelOffsetMm), y, size: fontSize, font: legendFont, color: color("#34413b") });
+    drawPdfText(context.pdfPage, item.label, { x: x + mm(itemLayout.labelOffsetMm), y, size: fontSize, font: legendFont, color: color("#34413b") });
   });
 }
 
@@ -1279,15 +1288,15 @@ async function embedFontFamily(
   pdfDocument: PDFDocument,
   files: PdfFontFamilyFiles,
 ): Promise<EmbeddedFontFamily> {
-  const regular = await pdfDocument.embedFont(files.regular, { subset: true });
+  const regular = await embedShapingFont(pdfDocument, files.regular);
   const bold = files.bold
-    ? await pdfDocument.embedFont(files.bold, { subset: true })
+    ? await embedShapingFont(pdfDocument, files.bold)
     : regular;
   const italic = files.italic
-    ? await pdfDocument.embedFont(files.italic, { subset: true })
+    ? await embedShapingFont(pdfDocument, files.italic)
     : regular;
   const boldItalic = files.boldItalic
-    ? await pdfDocument.embedFont(files.boldItalic, { subset: true })
+    ? await embedShapingFont(pdfDocument, files.boldItalic)
     : files.bold
       ? bold
       : files.italic
@@ -1366,10 +1375,10 @@ export async function exportCalendarProjectPdf(
   const warnings: PdfExportWarning[] = [];
   const assets = new Map(project.assets.map((asset) => [asset.id, asset]));
 
-  const regular = await pdfDocument.embedFont(fontFiles.regular, { subset: true });
-  const bold = await pdfDocument.embedFont(fontFiles.bold, { subset: true });
-  const italic = await pdfDocument.embedFont(fontFiles.italic, { subset: true });
-  const boldItalic = await pdfDocument.embedFont(fontFiles.boldItalic, { subset: true });
+  const regular = await embedShapingFont(pdfDocument, fontFiles.regular);
+  const bold = await embedShapingFont(pdfDocument, fontFiles.bold);
+  const italic = await embedShapingFont(pdfDocument, fontFiles.italic);
+  const boldItalic = await embedShapingFont(pdfDocument, fontFiles.boldItalic);
   const bundled = new Map<string, EmbeddedFontFamily>();
   for (const [family, files] of Object.entries(fontFiles.bundled ?? {})) {
     if (!files) continue;
@@ -1406,10 +1415,10 @@ export async function exportCalendarProjectPdf(
     bold,
     italic,
     boldItalic,
-    serifRegular: fontFiles.serifRegular ? await pdfDocument.embedFont(fontFiles.serifRegular, { subset: true }) : regular,
-    serifBold: fontFiles.serifBold ? await pdfDocument.embedFont(fontFiles.serifBold, { subset: true }) : bold,
-    serifItalic: fontFiles.serifItalic ? await pdfDocument.embedFont(fontFiles.serifItalic, { subset: true }) : italic,
-    serifBoldItalic: fontFiles.serifBoldItalic ? await pdfDocument.embedFont(fontFiles.serifBoldItalic, { subset: true }) : boldItalic,
+    serifRegular: fontFiles.serifRegular ? await embedShapingFont(pdfDocument, fontFiles.serifRegular) : regular,
+    serifBold: fontFiles.serifBold ? await embedShapingFont(pdfDocument, fontFiles.serifBold) : bold,
+    serifItalic: fontFiles.serifItalic ? await embedShapingFont(pdfDocument, fontFiles.serifItalic) : italic,
+    serifBoldItalic: fontFiles.serifBoldItalic ? await embedShapingFont(pdfDocument, fontFiles.serifBoldItalic) : boldItalic,
     bundled,
   };
   const foodImages = new Map<FoodRuleId, PDFImage>();

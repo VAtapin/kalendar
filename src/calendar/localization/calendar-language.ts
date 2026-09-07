@@ -1,9 +1,11 @@
 import type { CalendarLanguage, PageModel, TextElement } from "../../document/types";
 import type { ResolvedCalendarEvent } from "../types";
 import type { FoodRuleId } from "../fasting/fasting-api";
+import { CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
 
 /**
- * Editorial sources for ecclesiastical terminology (checked 2026-09-05):
+ * Editorial vocabulary, not a fully translated or independently verified menologion.
+ * Actual source access and bounded checks: docs/AUDIT-LANGUAGES-2026-09-08.md.
  * - cu: Ponomar language packs, https://github.com/typiconman/ponomar
  * - de: Orthodoxer Kirchenkalender and Menaion, orthodox-verlag.de / orthodoxe-kirche.de
  * - uk: Православний церковний календар ПЦУ, pomisna.info
@@ -34,7 +36,7 @@ const MONTHS: Record<CalendarLanguage, readonly string[]> = {
 
 const WEEKDAYS: Record<CalendarLanguage, { full: readonly string[]; short: readonly string[] }> = {
   ru: { full: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"], short: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"] },
-  cu: { full: ["понедѣ́льникъ", "вто́рникъ", "сре́да", "четверто́къ", "пѧто́къ", "сꙋббѡ́та", "недѣ́лѧ"], short: ["пн҃", "вт҃", "ср҃", "чт҃", "пт҃", "сб҃", "нд҃"] },
+  cu: { full: ["понедѣ́льникъ", "вто́рникъ", "сре́да", "четверто́къ", "пѧто́къ", "сꙋббѡ́та", "недѣ́лѧ"], short: CHURCH_SLAVONIC_SHORT_WEEKDAYS },
   de: { full: ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"], short: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"] },
   uk: { full: ["Понеділок", "Вівторок", "Середа", "Четвер", "П’ятниця", "Субота", "Неділя"], short: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"] },
   pl: { full: ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"], short: ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"] },
@@ -42,7 +44,7 @@ const WEEKDAYS: Record<CalendarLanguage, { full: readonly string[]; short: reado
 
 const FOOD_LABELS: Record<CalendarLanguage, Record<FoodRuleId, string>> = {
   ru: { "no-fast": "", fast: "постный день", fish: "разрешается рыба", oil: "пища с маслом", "boiled-no-oil": "пища без масла", "dry-eating": "сухоядение", "strict-fast": "строгий пост", "dairy-eggs": "молочное и яйца", memorial: "поминовение усопших" },
-  cu: { "no-fast": "", fast: "де́нь по́стный", fish: "ры́ба разреша́етсѧ", oil: "пи́ща съ є҆ле́емъ", "boiled-no-oil": "варе́нїе безъ є҆ле́а", "dry-eating": "сꙋхояде́нїе", "strict-fast": "стро́гїй по́стъ", "dairy-eggs": "мле́чнаѧ пи́ща и҆ ѧ҆́йца", memorial: "помина́нїе ѹ҆со́пшихъ" },
+  cu: { "no-fast": "", fast: "де́нь по́стный", fish: "ры́ба разреша́етсѧ", oil: "пи́ща съ є҆ле́емъ", "boiled-no-oil": "варе́нїе безъ є҆ле́а", "dry-eating": "сꙋхояде́нїе", "strict-fast": "стро́гїй по́стъ", "dairy-eggs": "мле́чнаѧ пи́ща и҆ ѧ҆́йца", memorial: "помина́нїе ѹ҆со́пшихъ", ...CHURCH_SLAVONIC_FOOD_CORRECTIONS },
   de: { "no-fast": "", fast: "Fasttag", fish: "Fisch erlaubt", oil: "Speise mit Öl", "boiled-no-oil": "gekochte Speise ohne Öl", "dry-eating": "Trockenkost", "strict-fast": "strenges Fasten", "dairy-eggs": "Milchprodukte und Eier", memorial: "Totengedenken" },
   uk: { "no-fast": "", fast: "пісний день", fish: "дозволяється риба", oil: "їжа з олією", "boiled-no-oil": "варена їжа без олії", "dry-eating": "сухоїдіння", "strict-fast": "суворий піст", "dairy-eggs": "молочні продукти та яйця", memorial: "поминання спочилих" },
   pl: { "no-fast": "", fast: "dzień postny", fish: "ryba dozwolona", oil: "pokarm z olejem", "boiled-no-oil": "potrawa gotowana bez oleju", "dry-eating": "suche pokarmy", "strict-fast": "ścisły post", "dairy-eggs": "nabiał i jajka", memorial: "wspomnienie zmarłych" },
@@ -94,7 +96,7 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "Светлое Христово Воскресение. Пасха": "Світле Христове Воскресіння. Пасха",
     "Вход Господень в Иерусалим": "Вхід Господній в Єрусалим",
     "Вознесение Господне": "Вознесіння Господнє",
-    "День Святой Троицы. Пятидесятница": "День Святої Тройці. П’ятидесятниця",
+    "День Святой Троицы. Пятидесятница": "День Святої Тройці. П’ятдесятниця",
     "Святое Богоявление. Крещение Господа Бога и Спаса нашего Иисуса Христа": "Святе Богоявлення. Хрещення Господа Бога і Спаса нашого Ісуса Христа",
     "Сретение Господа Нашего Иисуса Христа": "Стрітення Господа нашого Ісуса Христа",
     "Благовещение Пресвятой Богородицы": "Благовіщення Пресвятої Богородиці",
@@ -105,6 +107,10 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "Введение во храм Пресвятой Владычицы нашей Богородицы и Приснодевы Марии": "Введення у храм Пресвятої Владичиці нашої Богородиці і Приснодіви Марії",
     "Рождество Господа и Спаса нашего Иисуса Христа": "Різдво Господа і Спаса нашого Ісуса Христа",
     "Обрезание Господне": "Обрізання Господнє",
+    "Рождество честного славного Пророка, Предтечи и Крестителя Господня Иоанна": "Різдво чесного славного пророка, Предтечі і Хрестителя Господнього Іоана",
+    "Славных и всехвальных первоверховных апостолов Петра и Павла (67)": "Славних і всехвальних першоверховних апостолів Петра і Павла (67)",
+    "Усекновение главы Пророка, Предтечи и Крестителя Господня Иоанна": "Усікновення голови пророка, Предтечі і Хрестителя Господнього Іоана",
+    "Покров Пресвятой Владычицы нашей Богородицы и Приснодевы Марии": "Покрова Пресвятої Владичиці нашої Богородиці і Приснодіви Марії",
     "Рождество Христово": "Різдво Христове",
     "Богоявление": "Богоявлення",
     "Собор Пресвятой Богородицы": "Собор Пресвятої Богородиці",
@@ -120,7 +126,7 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "Великая Суббота": "Велика субота",
     "Торжество Православия": "Торжество Православ’я",
     "Прощеное воскресенье": "Прощена неділя",
-    "Преполовение Пятидесятницы": "Переполовення П’ятидесятниці",
+    "Преполовение Пятидесятницы": "Переполовення П’ятдесятниці",
     "День Святого Духа": "День Святого Духа",
     "Крестопоклонная": "Хрестопоклонна",
     "Свт. Григория Паламы": "Свт. Григорія Палами",
@@ -147,6 +153,10 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "Введение во храм Пресвятой Владычицы нашей Богородицы и Приснодевы Марии": "Einführung unserer allheiligen Gebieterin, der Gottesgebärerin und Immerjungfrau Maria, in den Tempel",
     "Рождество Господа и Спаса нашего Иисуса Христа": "Geburt unseres Herrn und Gottes und Erlösers Jesus Christus",
     "Обрезание Господне": "Beschneidung des Herrn",
+    "Рождество честного славного Пророка, Предтечи и Крестителя Господня Иоанна": "Geburt des heiligen Propheten, Vorläufers und Täufers Johannes",
+    "Славных и всехвальных первоверховных апостолов Петра и Павла (67)": "Heilige ruhmreiche Apostelfürsten Petrus und Paulus (67)",
+    "Усекновение главы Пророка, Предтечи и Крестителя Господня Иоанна": "Enthauptung des Propheten, Vorläufers und Täufers Johannes",
+    "Покров Пресвятой Владычицы нашей Богородицы и Приснодевы Марии": "Schutzfest der allheiligen Gottesgebärerin und Immerjungfrau Maria",
     "Рождество Христово": "Geburt Christi",
     "Богоявление": "Theophanie",
     "Собор Пресвятой Богородицы": "Synaxis der Allheiligen Gottesgebärerin",
@@ -189,6 +199,10 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "Введение во храм Пресвятой Владычицы нашей Богородицы и Приснодевы Марии": "Wprowadzenie Przenajświętszej Bogurodzicy do Świątyni",
     "Рождество Господа и Спаса нашего Иисуса Христа": "Narodzenie Chrystusa",
     "Обрезание Господне": "Obrzezanie Pańskie",
+    "Рождество честного славного Пророка, Предтечи и Крестителя Господня Иоанна": "Narodzenie świętego proroka, Poprzednika i Chrzciciela Pańskiego Jana",
+    "Славных и всехвальных первоверховных апостолов Петра и Павла (67)": "Świętych chwalebnych apostołów Piotra i Pawła (67)",
+    "Усекновение главы Пророка, Предтечи и Крестителя Господня Иоанна": "Ścięcie głowy świętego proroka, Poprzednika i Chrzciciela Pańskiego Jana",
+    "Покров Пресвятой Владычицы нашей Богородицы и Приснодевы Марии": "Opieka Przenajświętszej Bogurodzicy i zawsze Dziewicy Marii",
     "Рождество Христово": "Narodzenie Chrystusa",
     "Богоявление": "Objawienie Pańskie",
     "Собор Пресвятой Богородицы": "Sobór Przenajświętszej Bogurodzicy",
@@ -204,7 +218,7 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "Великая Суббота": "Wielka Sobota",
     "Торжество Православия": "Triumf Prawosławia",
     "Прощеное воскресенье": "Niedziela przebaczenia win",
-    "Преполовение Пятидесятницы": "Połowa Pięćdziesiątnicy",
+    "Преполовение Пятидесятницы": "Połowa okresu Pięćdziesiątnicy",
     "День Святого Духа": "Dzień Świętego Ducha",
     "Крестопоклонная": "Adoracji Krzyża",
     "Свт. Григория Паламы": "św. Grzegorza Palamasa",
@@ -229,7 +243,7 @@ const FEAST_FORMS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     Богоявления: "Богоявлення", "Сретения Господня": "Стрітення Господнього", "Благовещения Пресвятой Богородицы": "Благовіщення Пресвятої Богородиці",
     "Преображения Господня": "Преображення Господнього", "Успения Пресвятой Богородицы": "Успіння Пресвятої Богородиці", "Рождества Пресвятой Богородицы": "Різдва Пресвятої Богородиці",
     "Воздвижения Креста Господня": "Воздвиження Хреста Господнього", "Введения во храм Пресвятой Богородицы": "Введення у храм Пресвятої Богородиці", "Рождества Христова": "Різдва Христового",
-    "Преполовения Пятидесятницы": "Переполовення П’ятидесятниці", "Вознесения Господня": "Вознесіння Господнього", Пятидесятницы: "П’ятидесятниці", Пасхи: "Пасхи",
+    "Преполовения Пятидесятницы": "Переполовення П’ятдесятниці", "Вознесения Господня": "Вознесіння Господнього", Пятидесятницы: "П’ятдесятниці", Пасхи: "Пасхи",
   },
   de: {
     Богоявления: "der Theophanie", "Сретения Господня": "der Begegnung des Herrn", "Благовещения Пресвятой Богородицы": "der Verkündigung an die Allheilige Gottesgebärerin",
@@ -241,7 +255,7 @@ const FEAST_FORMS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     Богоявления: "Objawienia Pańskiego", "Сретения Господня": "Spotkania Pańskiego", "Благовещения Пресвятой Богородицы": "Zwiastowania Przenajświętszej Bogurodzicy",
     "Преображения Господня": "Przemienienia Pańskiego", "Успения Пресвятой Богородицы": "Zaśnięcia Przenajświętszej Bogurodzicy", "Рождества Пресвятой Богородицы": "Narodzenia Przenajświętszej Bogurodzicy",
     "Воздвижения Креста Господня": "Podwyższenia Krzyża Pańskiego", "Введения во храм Пресвятой Богородицы": "Wprowadzenia Przenajświętszej Bogurodzicy do Świątyni", "Рождества Христова": "Narodzenia Chrystusa",
-    "Преполовения Пятидесятницы": "Połowy Pięćdziesiątnicy", "Вознесения Господня": "Wniebowstąpienia Pańskiego", Пятидесятницы: "Pięćdziesiątnicy", Пасхи: "Paschy",
+    "Преполовения Пятидесятницы": "Połowy okresu Pięćdziesiątnicy", "Вознесения Господня": "Wniebowstąpienia Pańskiego", Пятидесятницы: "Pięćdziesiątnicy", Пасхи: "Paschy",
   },
 };
 
@@ -252,52 +266,13 @@ const LITURGICAL_PREFIXES: Record<Exclude<CalendarLanguage, "ru">, Record<string
   pl: { Предпразднство: "Przedświęcie", Попразднство: "Poświęcie", "Отдание праздника": "Zakończenie święta" },
 };
 
-const TERM_REPLACEMENTS: Record<Exclude<CalendarLanguage, "ru">, readonly [RegExp, string][]> = {
-  cu: [
-    [/Предпразднство/gu, "Предпра́зднство"], [/Попразднство/gu, "Попра́зднство"], [/Отдание праздника/gu, "Ѿда́нїе пра́здника"],
-    [/Неделя/gu, "Недѣ́лѧ"], [/Пасхи/gu, "Па́схи"], [/Пятидесятнице/gu, "Пѧтдесѧ́тницѣ"], [/Великого поста/gu, "Вели́кагѡ поста̀"],
-    [/Преподобн(?:ого|ой)/gu, "Преподо́бнагѡ"], [/Прп\./gu, "Прпⷣб."], [/Свт\./gu, "Ст҃и́телѧ"], [/Мч\./gu, "Мч҃."], [/Мц\./gu, "Мч҃цы"], [/Ап\./gu, "А҆п."],
-    [/Святых/gu, "Ст҃ы́хъ"], [/святых/gu, "ст҃ы́хъ"], [/Господня/gu, "Гдⷭ҇нѧ"], [/Господне/gu, "Гдⷭ҇не"], [/Богородицы/gu, "Бцⷣы"],
-  ],
-  uk: [
-    [/Предпразднство/gu, "Передсвято"], [/Попразднство/gu, "Післясвято"], [/Отдание праздника/gu, "Віддання свята"],
-    [/Неделя/gu, "Неділя"], [/Великого поста/gu, "Великого посту"], [/Пятидесятнице/gu, "П’ятидесятниці"], [/Пасхи/gu, "Пасхи"],
-    [/Прп\./gu, "Прп."], [/Свт\./gu, "Свт."], [/Мчч\./gu, "Мчч."], [/Мч\./gu, "Мч."], [/Мц\./gu, "Мц."], [/Ап\./gu, "Ап."],
-    [/Иконы Божией Матери/gu, "Ікони Божої Матері"], [/Божией Матери/gu, "Божої Матері"], [/Господня/gu, "Господнього"], [/Господне/gu, "Господнє"],
-    [/Рождеств/gu, "Різдв"], [/Успени/gu, "Успін"], [/Сретени/gu, "Стрітен"], [/Крещени/gu, "Хрещен"], [/Обретение/gu, "Знайдення"], [/Перенесение/gu, "Перенесення"],
-  ],
-  de: [
-    [/Предпразднство/gu, "Vorfest"], [/Попразднство/gu, "Nachfest"], [/Отдание праздника/gu, "Festabschluss"],
-    [/Неделя/gu, "Sonntag"], [/Великого поста/gu, "der Großen Fastenzeit"], [/по Пятидесятнице/gu, "nach Pfingsten"], [/по Пасхе/gu, "nach Pascha"],
-    [/Сщмчч\./gu, "Hll. Priestermärt."], [/Сщмч\./gu, "Hl. Priestermärt."], [/Прпп\./gu, "Hll."], [/Прп\./gu, "Hl."], [/Свтт\./gu, "Hll. Hierarchen"], [/Свт\./gu, "Hl. Hierarch"], [/Мчч\./gu, "Hll. Märt."], [/Мч\./gu, "Märt."], [/Мцц\./gu, "Märtt."], [/Мц\./gu, "Märt."], [/Вмч\./gu, "Großmärt."], [/Вмц\./gu, "Großmärt."], [/Прмч\./gu, "Mönchsmärt."], [/Прмц\./gu, "Nonnenmärt."], [/Апп\./gu, "Apostel"], [/Ап\./gu, "Apostel"],
-    [/Прав\./gu, "Gerechter"], [/Прор\./gu, "Prophet"], [/Равноап\./gu, "Apostelgleicher"], [/Блгв\./gu, "Rechtgläubiger"], [/Блж\./gu, "Seliger"], [/Св\./gu, "Hl."],
-    [/архиеп\./giu, "Erzbischof"], [/еп\./giu, "Bischof"], [/митр\./giu, "Metropolit"], [/чудотв\./giu, "Wundertäter"],
-    [/Иконы Божией Матери/gu, "Ikone der Gottesmutter"], [/Божией Матери/gu, "der Gottesmutter"], [/Обретение мощей/gu, "Auffindung der Reliquien"], [/Перенесение мощей/gu, "Überführung der Reliquien"],
-  ],
-  pl: [
-    [/Предпразднство/gu, "Przedświęcie"], [/Попразднство/gu, "Poświęcie"], [/Отдание праздника/gu, "Zakończenie święta"],
-    [/Неделя/gu, "Niedziela"], [/Великого поста/gu, "Wielkiego Postu"], [/по Пятидесятнице/gu, "po Pięćdziesiątnicy"], [/по Пасхе/gu, "po Passze"],
-    [/Сщмчч\./gu, "Św. kapł. męcz."], [/Сщмч\./gu, "Św. kapł. męcz."], [/Прпп\./gu, "Św."], [/Прп\./gu, "Św."], [/Свтт\./gu, "Św. hierarch."], [/Свт\./gu, "Św. hierarch."], [/Мчч\./gu, "Św. męcz."], [/Мч\./gu, "Męcz."], [/Мцц\./gu, "Męcz."], [/Мц\./gu, "Męcz."], [/Вмч\./gu, "Wielki męcz."], [/Вмц\./gu, "Wielka męcz."], [/Прмч\./gu, "Mnich męcz."], [/Прмц\./gu, "Mniszka męcz."], [/Апп\./gu, "Apostołów"], [/Ап\./gu, "Apostoła"],
-    [/Прав\./gu, "Sprawiedliwego"], [/Прор\./gu, "Proroka"], [/Равноап\./gu, "Równego Apostołom"], [/Блгв\./gu, "Prawowiernego"], [/Блж\./gu, "Bł."], [/Св\./gu, "Św."],
-    [/архиеп\./giu, "abpa"], [/еп\./giu, "bpa"], [/митр\./giu, "metr."], [/чудотв\./giu, "cudotwórcy"],
-    [/Иконы Божией Матери/gu, "Ikony Matki Bożej"], [/Божией Матери/gu, "Matki Bożej"], [/Обретение мощей/gu, "Odnalezienie relikwii"], [/Перенесение мощей/gu, "Przeniesienie relikwii"],
-  ],
-};
-
-const CYRILLIC_LATIN: Record<string, string> = {
-  А: "A", Б: "B", В: "W", Г: "G", Д: "D", Е: "E", Ё: "Jo", Ж: "Ż", З: "Z", И: "I", Й: "J", К: "K", Л: "L", М: "M", Н: "N", О: "O", П: "P", Р: "R", С: "S", Т: "T", У: "U", Ф: "F", Х: "Ch", Ц: "C", Ч: "Cz", Ш: "Sz", Щ: "Szcz", Ъ: "", Ы: "Y", Ь: "", Э: "E", Ю: "Ju", Я: "Ja",
-};
-
-function transliterateRemainingCyrillic(value: string, language: "de" | "pl"): string {
-  return Array.from(value).map((character) => {
-    const upper = character.toLocaleUpperCase("ru");
-    const mapped = CYRILLIC_LATIN[upper];
-    if (mapped === undefined) return character;
-    const resolved = language === "de"
-      ? mapped.replaceAll("W", "V").replaceAll("Ż", "Sch").replaceAll("Cz", "Tsch").replaceAll("Sz", "Sch").replaceAll("Szcz", "Schtsch")
-      : mapped;
-    return character === upper ? resolved : resolved.charAt(0).toLocaleLowerCase(language) + resolved.slice(1);
-  }).join("");
+/** Ukrainian ordinal endings for feminine «неділя», attested in the 2026 OCU calendar. */
+function ukrainianSundayOrdinal(value: string): string {
+  const number = Number(value);
+  const lastTwo = number % 100;
+  if (lastTwo >= 11 && lastTwo <= 19) return `${value}-та`;
+  const ending: Record<number, string> = { 1: "ша", 2: "га", 3: "тя", 7: "ма", 8: "ма" };
+  return `${value}-${ending[number % 10] ?? "та"}`;
 }
 
 function localizeStructuredLiturgicalTitle(
@@ -313,36 +288,44 @@ function localizeStructuredLiturgicalTitle(
     if (sourceFeast) {
       const feast = FEAST_FORMS[language][sourceFeast]!;
       const suffix = sourceBody.slice(sourceFeast.length);
-      const localizedSuffix = suffix.startsWith(". ")
-        ? `. ${localizeCalendarEventTitle(suffix.slice(2), language)}`
-        : suffix;
+      const suffixResult = suffix.startsWith(". ")
+        ? localizeCalendarEventTitleWithStatus(suffix.slice(2), language)
+        : undefined;
+      // Never label a translated feast plus an untranslated saint name as localized.
+      if (suffixResult?.status === "source-fallback") return undefined;
+      if (suffix && suffix !== "." && !suffixResult) return undefined;
+      const localizedSuffix = suffixResult ? `. ${suffixResult.title}` : suffix;
       return `${LITURGICAL_PREFIXES[language][period[1]!]!} ${feast}${localizedSuffix}`;
     }
   }
   const pentecostSunday = /^Неделя (\d+)-я по Пятидесятнице$/u.exec(title);
   if (pentecostSunday) {
-    const number = pentecostSunday[1];
+    const number = pentecostSunday[1]!;
     if (language === "cu") return `Недѣ́лѧ ${number}-ѧ по Пѧтдесѧ́тницѣ`;
     if (language === "de") return `${number}. Sonntag nach Pfingsten`;
-    if (language === "uk") return `Неділя ${number}-га після П’ятидесятниці`;
+    if (language === "uk") return `Неділя ${ukrainianSundayOrdinal(number)} після П’ятдесятниці`;
     return `Niedziela ${number}. po Pięćdziesiątnicy`;
   }
   const greatLentSunday = /^Неделя (\d+)-я Великого поста(?:[.,] (.+))?$/u.exec(title);
   if (greatLentSunday) {
-    const number = greatLentSunday[1];
-    const suffix = greatLentSunday[2] ? `. ${localizeCalendarEventTitle(greatLentSunday[2], language)}` : "";
+    const number = greatLentSunday[1]!;
+    const suffixResult = greatLentSunday[2] ? localizeCalendarEventTitleWithStatus(greatLentSunday[2], language) : undefined;
+    if (suffixResult?.status === "source-fallback") return undefined;
+    const suffix = suffixResult ? `. ${suffixResult.title}` : "";
     if (language === "cu") return `Недѣ́лѧ ${number}-ѧ Вели́кагѡ поста̀${suffix}`;
     if (language === "de") return `${number}. Sonntag der Großen Fastenzeit${suffix}`;
-    if (language === "uk") return `Неділя ${number}-га Великого посту${suffix}`;
+    if (language === "uk") return `Неділя ${ukrainianSundayOrdinal(number)} Великого посту${suffix}`;
     return `${number}. Niedziela Wielkiego Postu${suffix}`;
   }
   const paschaSunday = /^Неделя (\d+)-я по Пасхе(?:, (.+))?$/u.exec(title);
   if (paschaSunday) {
-    const number = paschaSunday[1];
-    const suffix = paschaSunday[2] ? `, ${localizeCalendarEventTitle(paschaSunday[2], language)}` : "";
+    const number = paschaSunday[1]!;
+    const suffixResult = paschaSunday[2] ? localizeCalendarEventTitleWithStatus(paschaSunday[2], language) : undefined;
+    if (suffixResult?.status === "source-fallback") return undefined;
+    const suffix = suffixResult ? `, ${suffixResult.title}` : "";
     if (language === "cu") return `Недѣ́лѧ ${number}-ѧ по Па́сцѣ${suffix}`;
     if (language === "de") return `${number}. Sonntag nach Pascha${suffix}`;
-    if (language === "uk") return `Неділя ${number}-га після Пасхи${suffix}`;
+    if (language === "uk") return `Неділя ${ukrainianSundayOrdinal(number)} після Пасхи${suffix}`;
     return `${number}. Niedziela po Passze${suffix}`;
   }
   return undefined;
@@ -377,28 +360,46 @@ export function calendarOldStylePrefix(language: CalendarLanguage = "ru"): strin
   return ({ ru: "ст. ст.", cu: "по ста́ромꙋ ст.", de: "alter Stil", uk: "ст. ст.", pl: "stary styl" } as const)[normalizeCalendarLanguage(language)];
 }
 
-export function localizeCalendarEventTitle(title: string, language: CalendarLanguage = "ru"): string {
+/** Coverage describes the code path, not independent scholarly verification of every dictionary entry. */
+export type CalendarTitleLocalizationStatus = "source" | "exact" | "structured" | "source-fallback";
+
+export function localizeCalendarEventTitleWithStatus(title: string, language: CalendarLanguage = "ru"): { title: string; status: CalendarTitleLocalizationStatus } {
   const resolvedLanguage = normalizeCalendarLanguage(language);
-  if (resolvedLanguage === "ru" || !title.trim()) return title;
-  const exact = CORE_EVENTS[resolvedLanguage][title];
-  if (exact) return exact;
+  if (resolvedLanguage === "ru" || !title.trim()) return { title, status: "source" };
+  const dictionary = CORE_EVENTS[resolvedLanguage];
+  const exact = (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
+    ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined);
+  if (exact) return { title: exact, status: "exact" };
   const structured = localizeStructuredLiturgicalTitle(title, resolvedLanguage);
-  if (structured) return structured;
-  let result = title;
-  for (const [pattern, replacement] of TERM_REPLACEMENTS[resolvedLanguage]) result = result.replace(pattern, replacement);
-  if (resolvedLanguage === "de" || resolvedLanguage === "pl") result = transliterateRemainingCyrillic(result, resolvedLanguage);
-  return result;
+  if (structured) return { title: structured, status: "structured" };
+  // Substituting letters, titles or Russian inflections is not a translation.
+  // Retain the entire source record until an exact localized form is reviewed.
+  return { title, status: "source-fallback" };
+}
+
+export function calendarEventTitleLocalizationStatus(title: string, language: CalendarLanguage = "ru"): CalendarTitleLocalizationStatus {
+  return localizeCalendarEventTitleWithStatus(title, language).status;
+}
+
+export function localizeCalendarEventTitle(title: string, language: CalendarLanguage = "ru"): string {
+  return localizeCalendarEventTitleWithStatus(title, language).title;
 }
 
 export function localizeCalendarEvent(event: ResolvedCalendarEvent, language: CalendarLanguage = "ru"): ResolvedCalendarEvent {
   const resolvedLanguage = normalizeCalendarLanguage(language);
   if (resolvedLanguage === "ru") return event;
-  return {
-    ...event,
-    title: localizeCalendarEventTitle(event.title, resolvedLanguage),
-    ...(event.shortTitle ? { shortTitle: localizeCalendarEventTitle(event.shortTitle, resolvedLanguage) } : {}),
-    ...(event.veryShortTitle ? { veryShortTitle: localizeCalendarEventTitle(event.veryShortTitle, resolvedLanguage) } : {}),
-  };
+  const full = localizeCalendarEventTitleWithStatus(event.title, resolvedLanguage);
+  if (full.status === "source-fallback") return { ...event };
+  const localized = { ...event, title: full.title };
+  // The layout selects a shorter variant when space is tight. An untranslated
+  // short form must not silently replace a translated full title on the page.
+  for (const key of ["shortTitle", "veryShortTitle"] as const) {
+    if (!event[key]) continue;
+    const candidate = localizeCalendarEventTitleWithStatus(event[key], resolvedLanguage);
+    if (candidate.status === "source-fallback") delete localized[key];
+    else localized[key] = candidate.title;
+  }
+  return localized;
 }
 
 export function localizedTextTitle(

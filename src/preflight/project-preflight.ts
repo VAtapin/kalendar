@@ -14,6 +14,7 @@ import {
 import { layoutTextBlock } from "../layout/text-layout";
 import { cropMarksFitBleed } from "../export/print-marks";
 import { unsupportedGlyphs } from "../typography/glyph-coverage";
+import { calendarEventTitleLocalizationStatus } from "../calendar/localization/calendar-language";
 
 export type PreflightSeverity = "warning" | "error";
 
@@ -26,6 +27,8 @@ export interface PreflightIssue {
     | "calendar-row-overflow"
     | "calendar-text-overflow"
     | "calendar-required-event-hidden"
+    | "calendar-untranslated-events"
+    | "calendar-empty-cell"
     | "text-overflow"
     | "outside-page"
     | "outside-safe-area"
@@ -173,6 +176,8 @@ function checkCalendarGrid(
   }
   let overflowingDays = 0;
   let daysWithHiddenRequiredEvents = 0;
+  const untranslated = new Set<string>();
+  let emptyDays = 0;
   for (const cell of layout.cells) {
     if (!cell.day) continue;
     const text = layoutCalendarCellTextAutoFit(
@@ -183,7 +188,20 @@ function checkCalendarGrid(
     );
     if (text.truncatedRequiredEventCount > 0) overflowingDays += 1;
     if (text.hiddenRequiredEventCount > 0) daysWithHiddenRequiredEvents += 1;
+    if (!text.lines.length && text.omittedMinorEventCount > 0 && (element.maxVisibleEvents ?? 3) > 0) emptyDays += 1;
+    for (const line of text.lines) {
+      // User-authored monastery text can already be in the chosen language;
+      // the Russian source dictionary cannot establish its translation status.
+      if (line.event.ruleKind !== "project-event"
+        && calendarEventTitleLocalizationStatus(line.event.title, calendarLanguage ?? "ru") === "source-fallback") {
+        untranslated.add(line.event.sourceId);
+      }
+    }
   }
+  if (untranslated.size) issues.push(issue(page, element, "calendar-untranslated-events", "warning",
+    `Для ${untranslated.size} названий нет полного перевода на язык календаря. Сохранён исходный русский текст; требуется редакционная проверка.`));
+  if (emptyDays) issues.push(issue(page, element, "calendar-empty-cell", "warning",
+    `На ${emptyDays} днях все выбранные памяти не поместились: ячейки остались без текста. Увеличьте область текста или уменьшите шрифт.`));
   if (daysWithHiddenRequiredEvents > 0) {
     issues.push(issue(
       page,

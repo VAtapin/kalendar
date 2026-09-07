@@ -226,9 +226,11 @@ export function layoutCalendarCellText(
       omittedMinorEventCount += 1;
       return;
     }
-    if (eventLayout.overflow) {
+    // A pre-shortened candidate may already contain an ellipsis even when its
+    // measured box fits. Do not silently call that a complete printed title.
+    if (eventLayout.overflow || eventLayout.lines.some(line => line.text.includes("…"))) {
       truncatedEventCount += 1;
-      truncatedRequiredEventCount += 1;
+      if (isRequiredCalendarEvent(event)) truncatedRequiredEventCount += 1;
     }
     if (renderedEventCount > 0) cursor += typography.eventGapMm;
     eventLayout.lines.forEach((line, lineIndex) => {
@@ -287,7 +289,11 @@ export function layoutCalendarCellTextAutoFit(
     best = candidate;
     // A deliberate event-count limit cannot be solved by shrinking the type.
     // Keep the requested print size whenever every selected visible item fits.
-    if (candidate.hiddenRequiredEventCount === 0 && candidate.truncatedRequiredEventCount === 0) break;
+    // A blank day caused by optional-text overflow is not a successful fit.
+    // Still respect an explicit zero event limit and all visibility filters.
+    const emptyFromOverflow = candidate.lines.length === 0
+      && candidate.omittedMinorEventCount > 0 && (element.maxVisibleEvents ?? 3) > 0;
+    if (candidate.hiddenRequiredEventCount === 0 && candidate.truncatedRequiredEventCount === 0 && !emptyFromOverflow) break;
   }
   return best ?? {
     lines: [],
