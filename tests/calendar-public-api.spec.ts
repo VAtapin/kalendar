@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from 'node:fs';
+import { localizeCalendarEvent } from '../src/calendar/localization/calendar-language';
+import { installSlavonicCorpus } from '../src/calendar/localization/slavonic-corpus';
 import {
   createCalendarPublicApi,
   createOrthodoxCalendarApiFromXml,
@@ -12,6 +14,23 @@ const xml = `<MemoryDays><event>
 </event></MemoryDays>`;
 
 describe("public calendar API contract", () => {
+  it('uses the same titles as the editor in every language, including loaded Slavonic texts', () => {
+    installSlavonicCorpus(JSON.parse(readFileSync('public/data/church-slavonic/catalogue.json','utf8')));
+    const engine = createOrthodoxCalendarApiFromXml(readFileSync('public/data/MemoryDays.xml','utf8'));
+    const year = engine.getYear(2027);
+    for (const language of ['de','uk','pl','cu'] as const) {
+      const api = createCalendarPublicApi(engine, language);
+      let translated = 0;
+      for (const day of year.days) {
+        const exposed = api.getDay(day.date)!;
+        for (let i = 0; i < day.events.length; i++) {
+          expect(exposed.events[i]!.title).toBe(localizeCalendarEvent(day.events[i]!, language).title);
+          if (exposed.events[i]!.localization !== 'source-fallback') translated++;
+        }
+      }
+      expect(translated).toBeGreaterThan(0);
+    }
+  });
   it("validates civil ISO dates", () => {
     expect(parseCalendarApiDate("2027-02-28")).toEqual({ year: 2027, month: 2, day: 28 });
     expect(parseCalendarApiDate("2027-02-29")).toBeUndefined();

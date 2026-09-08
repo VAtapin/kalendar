@@ -37,6 +37,26 @@
   const now = new Date();
   $('date').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   let lastResponse = null;
+  let slavonicFontUrl = '';
+  let slavonicFontFace;
+  async function loadCalendarFont(language, endpoint) {
+    if (language !== 'cu') return;
+    const url = safeUrl('/calendar-api-font.php', endpoint).href;
+    if (slavonicFontUrl === url) return;
+    const face = new FontFace('Calendar API Slavonic', `url(${JSON.stringify(url)})`, {weight:'400',style:'normal'});
+    await face.load();
+    if (slavonicFontFace) document.fonts.delete(slavonicFontFace);
+    document.fonts.add(face); slavonicFontFace = face; slavonicFontUrl = url;
+  }
+  function calendarText(element, language) {
+    element.lang = language;
+    if (language === 'cu') {
+      element.style.fontFamily = '"Calendar API Slavonic", serif';
+      element.style.fontWeight = '400';
+      element.style.lineHeight = '1.9';
+    }
+    return element;
+  }
   const categories = {'commemoration':'Память / праздник','scripture-reading':'Библейское чтение','fasting-rule':'Правило поста','fast-free-rule':'Сплошная седмица','marriage-rule':'Правило венчания'};
   function node(tag, text, parent, className) {
     const element = document.createElement(tag); element.textContent = text;
@@ -57,7 +77,8 @@
     const day = value.day;
     if (!day || !Array.isArray(day.events) || !day.fasting) throw new Error('Ответ не соответствует формату календарного API. Проверьте адрес.');
     $('day').replaceChildren(); $('events').replaceChildren();
-    node('h2',`${day.date} — ${day.weekdayName}`,$('day'));
+    const language = value.metadata?.language || 'ru';
+    calendarText(node('h2',`${day.date} — ${day.weekdayName}`,$('day')), language);
     line($('day'),'Старый стиль',day.oldStyleDate);
     line($('day'),'Пасха этого года',day.pascha);
     line($('day'),'Дней относительно Пасхи',day.daysFromPascha);
@@ -83,7 +104,7 @@
           image.alt=event.typikonMark.label; heading.append(image);
         }
       }
-      node('span',event.title,heading);
+      calendarText(node('span',event.title,heading), event.localization === 'source-fallback' ? 'ru' : language);
       node('span',categories[event.category] ?? event.category,card,'tag');
       node('span',`Тип ${event.typeCode}`,card,'tag');
       node('span',event.typikonMark?.label ?? 'Без знака Типикона',card,'tag');
@@ -115,7 +136,10 @@
         await new Promise(resolve=>setTimeout(resolve,2000));
       }
       if(!response.ok) throw new Error(`HTTP ${response.status}: ${value.message || value.error || 'Ошибка API'}`);
-      render(value,url); lastResponse=value; $('status').textContent=`Получено ${value.day.events.length} событий. Ничего не сокращено.`;
+      let fontWarning = '';
+      try { await loadCalendarFont(value.metadata?.language, url); }
+      catch { fontWarning = ' Шрифт Monomakh Unicode не загрузился: проверьте публикацию /calendar-api-font.php.'; }
+      render(value,url); lastResponse=value; $('status').textContent=`Получено ${value.day.events.length} событий. Ничего не сокращено.${fontWarning}`;
     } catch(error) {
       $('status').className='error';
       $('status').textContent=error.name==='AbortError' ? 'Сервер не ответил за 30 секунд. Повторите запрос.' : `${error.message}\nЕсли запрос не дошёл: проверьте адрес API, интернет и разрешение CORS на сервере. Файл работает локально, но данные получает по сети.`;
