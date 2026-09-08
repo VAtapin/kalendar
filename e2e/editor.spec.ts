@@ -7,6 +7,55 @@ async function openEditor(page: import("@playwright/test").Page): Promise<void> 
   await expect(page.locator(".workspace")).toBeVisible();
 }
 
+test("opens calendar properties from an object and resizes every page with one undo", async ({ page }) => {
+  // Keep this editor regression independent of account and PHP services.
+  await page.route("**/api/v1/calendar-grid-templates", (route) => route.fulfill({
+    json: { templates: [], canManage: false },
+  }));
+  await page.route("**/api/v1/account/session", (route) => route.fulfill({
+    json: { user: { id: "calendar-properties-test", email: "editor@example.com", createdAt: "2026-01-01", blocked: false } },
+  }));
+  await page.route("**/api/v1/account/library", (route) => route.fulfill({
+    json: { revision: 0, templates: [], grids: [] },
+  }));
+  await page.route("**/api/v1/account/calendars**", (route) => route.fulfill({
+    json: { id: "calendar-properties-test", revision: 1, calendars: [] },
+  }));
+  await page.goto("/calendar/new");
+  await expect(page.locator(".workspace")).toBeVisible();
+  await page.getByRole("button", { name: "Шаблоны календаря" }).click();
+  await page.getByRole("button", { name: "Создать обложку и 12 месяцев" }).click();
+  await page.getByRole("tab", { name: "Страницы", exact: true }).click();
+  await page.locator(".page-card").nth(5).click();
+  await page.locator('.page-element[data-element-type="text"]').first().click();
+  await expect(page.getByRole("heading", { name: "Объект", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Свойства календаря", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Свойства календаря", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Название страницы", { exact: true })).toBeHidden();
+
+  // The menu must reopen even a collapsed inspector, without switching to the cover.
+  await page.locator(".inspector-group > summary").click();
+  await page.getByRole("button", { name: "Правка", exact: true }).click();
+  await page.getByTestId("menu-command-calendar-properties").click();
+  await page.getByTestId("calendar-format-select").selectOption("A4");
+  await page.getByRole("tab", { name: "Страницы", exact: true }).click();
+  await expect(page.locator(".page-card--active")).toContainText("Май 2027");
+  await expect(page.locator(".page-card small")).toHaveText(Array(13).fill("210 × 297 мм"));
+
+  await page.getByRole("button", { name: "Правка", exact: true }).click();
+  await page.getByTestId("menu-command-undo").click();
+  await expect(page.locator(".page-card small")).toHaveText(Array(13).fill("297 × 420 мм"));
+  await page.getByRole("button", { name: "Правка", exact: true }).click();
+  await page.getByTestId("menu-command-redo").click();
+  await expect(page.locator(".page-card small")).toHaveText(Array(13).fill("210 × 297 мм"));
+
+  await page.getByRole("button", { name: "Правка", exact: true }).click();
+  await page.getByTestId("menu-command-calendar-properties").click();
+  await page.getByRole("button", { name: "Альбомная", exact: true }).click();
+  await page.getByRole("tab", { name: "Страницы", exact: true }).click();
+  await expect(page.locator(".page-card small")).toHaveText(Array(13).fill("297 × 210 мм"));
+});
+
 test("shows a readable mobile welcome page and keeps the editor on a large screen", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?shared=mobile-link-must-not-lock");

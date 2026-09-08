@@ -187,6 +187,16 @@ const selectedLayerIds = ref(["layer-1"]);
 const selectedPageId = ref(project.value.document.pages[0]?.id ?? "");
 const openPageIds = ref<string[]>(selectedPageId.value ? [selectedPageId.value] : []);
 const selectedElementId = ref<string>();
+const propertiesRevision = ref(0);
+const inspectorPanel = ref<HTMLElement>();
+const calendarFormat = computed(() => {
+  const pages = project.value.document.pages;
+  return pages.every((page) => page.formatId === pages[0]?.formatId) ? pages[0]?.formatId : "";
+});
+const calendarOrientation = computed(() => {
+  const pages = project.value.document.pages;
+  return pages.every((page) => page.orientation === pages[0]?.orientation) ? pages[0]?.orientation : "";
+});
 const assetFileInput = ref<HTMLInputElement>();
 const layerMaskFileInput = ref<HTMLInputElement>();
 const pendingLayerMaskTarget = ref<{ pageId: string; layerId: string }>();
@@ -242,7 +252,7 @@ type MenuCommandId =
   | "distribute-horizontal" | "distribute-vertical"
   | "bold" | "italic" | "align-left" | "align-center" | "align-right"
   | "toggle-guides" | "zoom-in" | "zoom-out" | "fit-page"
-  | "toggle-tools" | "toggle-properties" | "toggle-library" | "toggle-layers" | "toggle-templates" | "toggle-pages" | "toggle-events" | "toggle-preflight" | "toggle-all-panels"
+  | "calendar-properties" | "toggle-tools" | "toggle-properties" | "toggle-library" | "toggle-layers" | "toggle-templates" | "toggle-pages" | "toggle-events" | "toggle-preflight" | "toggle-all-panels"
   | "help-guide" | "video-lessons" | "shortcuts" | "about";
 
 interface WritableProjectFile {
@@ -760,6 +770,8 @@ const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
       id: "edit",
       label: "Правка",
       items: [
+        { command: "calendar-properties", label: "Свойства календаря" },
+        { separator: true },
         { command: "undo", label: "Отменить", shortcut: "Ctrl+Z", disabled: undoStack.value.length === 0 },
         { command: "redo", label: "Повторить", shortcut: "Ctrl+Y", disabled: redoStack.value.length === 0 },
         { separator: true },
@@ -2063,15 +2075,15 @@ async function loadCalendarData(): Promise<void> {
 }
 
 function updateFormat(formatId: PageFormatId): void {
-  mutateProject("Изменение формата страницы", () =>
-    changePageFormat(selectedPage.value, formatId, selectedPage.value.orientation),
+  mutateProject("Изменение формата календаря", () =>
+    project.value.document.pages.forEach((page) => changePageFormat(page, formatId, page.orientation)),
   );
-  operationNotice.value = `Формат страницы: ${formatId}`;
+  operationNotice.value = `Формат календаря: ${formatId} — все страницы`;
 }
 
 function updateOrientation(orientation: PageOrientation): void {
-  mutateProject("Изменение ориентации страницы", () =>
-    changePageFormat(selectedPage.value, selectedPage.value.formatId, orientation),
+  mutateProject("Изменение ориентации календаря", () =>
+    project.value.document.pages.forEach((page) => changePageFormat(page, page.formatId, orientation)),
   );
   operationNotice.value = `Ориентация: ${orientation === "portrait" ? "книжная" : "альбомная"}`;
 }
@@ -3440,6 +3452,14 @@ function activateDockPanel(panelId: DockPanelId): void {
   chromePanelsHidden.value = false;
 }
 
+function openCalendarProperties(): void {
+  selectedElementId.value = undefined;
+  selectedLayerIds.value = [];
+  propertiesRevision.value += 1;
+  activateDockPanel("properties");
+  void nextTick(() => inspectorPanel.value?.scrollTo({ top: 0 }));
+}
+
 function toggleDockPanel(panelId: DockPanelId): void {
   panelVisibility.value[panelId] = !panelVisibility.value[panelId];
   if (panelVisibility.value[panelId]) {
@@ -3563,6 +3583,7 @@ function executeMenuCommand(command: MenuCommandId | undefined): void {
     case "zoom-out": zoomPercent.value = Math.max(15, zoomPercent.value - 10); break;
     case "fit-page": zoomPercent.value = 55; break;
     case "toggle-tools": toggleToolsPanel(); break;
+    case "calendar-properties": openCalendarProperties(); break;
     case "toggle-properties": toggleDockPanel("properties"); break;
     case "toggle-library": toggleDockPanel("library"); break;
     case "toggle-layers": toggleDockPanel("layers"); break;
@@ -4130,7 +4151,7 @@ onBeforeUnmount(() => {
         @dblclick="resetDockPanelWidth"
       ></div>
 
-      <aside v-if="showDock" class="inspector-panel">
+      <aside v-if="showDock" ref="inspectorPanel" class="inspector-panel">
         <div class="dock-tabs" role="tablist" aria-label="Панели документа">
           <button
             v-for="panel in visibleDockPanels"
@@ -4147,10 +4168,11 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-if="activeDockPanel === 'properties'" class="dock-content">
-          <details class="inspector-group" open>
+          <button type="button" class="primary-action" @click="openCalendarProperties">Свойства календаря</button>
+          <details :key="propertiesRevision" class="inspector-group" open>
             <summary>Свойства</summary>
             <section class="inspector-section">
-              <h2>{{ selectedElement ? "Объект" : "Страница" }}</h2>
+              <h2>{{ selectedElement ? "Объект" : "Свойства календаря" }}</h2>
               <template v-if="selectedElement">
                 <details class="inspector-subgroup" data-testid="geometry-section" open>
                   <summary>Геометрия</summary>
@@ -4444,37 +4466,43 @@ onBeforeUnmount(() => {
                 <span>{{ font.family }}</span>
                 <button type="button" title="Удалить шрифт" @click="removeProjectFont(font.assetId)">×</button>
               </div>
-              <label class="field-stack"><span>Название страницы</span><input v-model="selectedPage.name" type="text" /></label>
               <button class="primary-action" type="button" @click="activateDockPanel('events')">Дополнительные даты и события…</button>
               <div class="inspector-divider"></div>
               <label class="field-control">
                 <span>Формат</span>
                 <select
-                  :value="selectedPage.formatId"
+                  data-testid="calendar-format-select"
+                  :value="calendarFormat"
                   @change="updateFormat(($event.target as HTMLSelectElement).value as PageFormatId)"
                 >
+                  <option v-if="!calendarFormat" disabled value="">Разные форматы</option>
                   <option v-for="format in Object.keys(PAGE_FORMATS)" :key="format" :value="format">
                     {{ format }}
                   </option>
                 </select>
               </label>
-              <div class="segmented-control" aria-label="Ориентация страницы">
+              <p class="property-help">Формат и ориентация применяются ко всем страницам календаря, включая обложку.</p>
+              <div class="segmented-control" aria-label="Ориентация календаря">
                 <button
                   type="button"
-                  :class="{ active: selectedPage.orientation === 'portrait' }"
+                  :class="{ active: calendarOrientation === 'portrait' }"
                   @click="updateOrientation('portrait')"
                 >
                   Книжная
                 </button>
                 <button
                   type="button"
-                  :class="{ active: selectedPage.orientation === 'landscape' }"
+                  :class="{ active: calendarOrientation === 'landscape' }"
                   @click="updateOrientation('landscape')"
                 >
                   Альбомная
                 </button>
               </div>
               <div class="inspector-divider"></div>
+              <details class="inspector-subgroup">
+              <summary>Текущая страница: {{ selectedPage.name }}</summary>
+              <div class="inspector-subgroup__body">
+              <label class="field-stack"><span>Название страницы</span><input v-model="selectedPage.name" type="text" /></label>
               <h2>Размер и служебные зоны</h2>
               <dl class="property-list">
                 <div><dt>Единицы</dt><dd>{{ project.document.unit }}</dd></div>
@@ -4495,6 +4523,8 @@ onBeforeUnmount(() => {
                 <label><span>Низ</span><input v-model.number="selectedPage.safeArea.bottom" type="number" min="0" step="0.5" /></label>
                 <label><span>Лево</span><input v-model.number="selectedPage.safeArea.left" type="number" min="0" step="0.5" /></label>
               </div>
+              </div>
+              </details>
               <h2 class="property-subheading">Метки реза</h2>
               <label class="checkbox-field"><input v-model="cropMarksEnabled" type="checkbox" /><span>Добавлять в печатный PDF</span></label>
               <div v-if="cropMarksEnabled" class="insets-editor insets-editor--two">
