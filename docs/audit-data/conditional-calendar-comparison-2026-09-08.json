@@ -1,0 +1,3930 @@
+{
+  "summary": {
+    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
+    "records": 148,
+    "statuses": {
+      "2026-occurrence-matches-not-all-years-proof": 76,
+      "requires-editorial-rule-review": 57,
+      "date-disagreement-requires-review": 4,
+      "not-active-in-source-year-requires-rule-review": 11
+    },
+    "note": "All conditional/range non-scripture records included. One annual source is not proof of a rule in all years. Approximate candidates are never approval."
+  },
+  "source": "https://rop.ru/d/3000/d/calendar_2026_0.doc",
+  "rows": [
+    {
+      "sourceIndex": 1,
+      "title": "Светлое Христово Воскресение. Пасха",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 0,
+        "finishMonth": 0,
+        "finishDate": 0
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-12",
+          "finish": "2026-04-12"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-12"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2,
+      "title": "Вход Господень в Иерусалим",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -7,
+        "finishMonth": 0,
+        "finishDate": -7
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-05",
+          "finish": "2026-04-05"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-05"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 3,
+      "title": "Вознесение Господне",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 39,
+        "finishMonth": 0,
+        "finishDate": 39
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-21",
+          "finish": "2026-05-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 4,
+      "title": "День Святой Троицы. Пятидесятница",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 49,
+        "finishMonth": 0,
+        "finishDate": 49
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-31",
+          "finish": "2026-05-31"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-31"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 21,
+      "title": "Собор новомучеников и исповедников Церкви Русской",
+      "rule": {
+        "startMonth": -4,
+        "startDate": 0,
+        "finishMonth": 1,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-08",
+          "finish": "2026-02-08"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-08"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 34,
+      "title": "Собор всех преподобных и Богоносных отцев, во Святой Горе Афонской просиявших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 63,
+        "finishMonth": 0,
+        "finishDate": 63
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-14",
+          "finish": "2026-06-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-06-13",
+          "oldStyleDate": "5-31",
+          "paragraph": 5,
+          "score": 0.8181818181818182
+        },
+        {
+          "date": "2026-06-14",
+          "oldStyleDate": "6-1",
+          "paragraph": 3,
+          "score": 0.8181818181818182
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 130,
+      "title": "Воскрешение праведного Лазаря",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -8,
+        "finishMonth": 0,
+        "finishDate": -8
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-04",
+          "finish": "2026-04-04"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-04",
+          "oldStyleDate": "3-22",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-03-21",
+          "oldStyleDate": "3-8",
+          "paragraph": 2,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 288,
+      "title": "Всех преподобных отцев в подвиге просиявших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -50,
+        "finishMonth": 0,
+        "finishDate": -50
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-21",
+          "finish": "2026-02-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-21",
+          "oldStyleDate": "2-8",
+          "paragraph": 1,
+          "score": 0.8333333333333334
+        },
+        {
+          "date": "2026-06-14",
+          "oldStyleDate": "6-1",
+          "paragraph": 3,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 289,
+      "title": "Вмч. Феодора Тирона (ок. 306)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -43,
+        "finishMonth": 0,
+        "finishDate": -43
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-28",
+          "finish": "2026-02-28"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-28",
+        "2026-03-02"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 290,
+      "title": "Свт. Григория Паламы, архиеп. Солунского",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -35,
+        "finishMonth": 0,
+        "finishDate": -35
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-08",
+          "finish": "2026-03-08"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-08",
+          "oldStyleDate": "2-23",
+          "paragraph": 2,
+          "score": 0.8
+        },
+        {
+          "date": "2026-11-27",
+          "oldStyleDate": "11-14",
+          "paragraph": 2,
+          "score": 0.8
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 291,
+      "title": "Прп. Иоанна Лествичника (649)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -21,
+        "finishMonth": 0,
+        "finishDate": -21
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-22",
+          "finish": "2026-03-22"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-12"
+      ],
+      "status": "date-disagreement-requires-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 292,
+      "title": "Иверской иконы Божией Матери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 2,
+        "finishMonth": 0,
+        "finishDate": 2
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-14",
+          "finish": "2026-04-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-25",
+        "2026-02-28",
+        "2026-04-14",
+        "2026-05-06",
+        "2026-10-26"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 293,
+      "title": "Святых жен-мироносиц: Марии Магдалины, Марии Клеоповой, Саломии, Иоанны, Марфы и Марии, Сусанны и иных; праведных Иосифа Аримафейского и Никодима",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 14,
+        "finishMonth": 0,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-26",
+          "finish": "2026-04-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-26"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 294,
+      "title": "Праведных Иосифа Аримафейского и Никодима",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 14,
+        "finishMonth": 0,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-26",
+          "finish": "2026-04-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-26"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 295,
+      "title": "Блгв. Тамары, царицы Грузинской (XIII)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 14,
+        "finishMonth": 0,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-26",
+          "finish": "2026-04-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-26",
+          "oldStyleDate": "4-13",
+          "paragraph": 4,
+          "score": 0.8
+        },
+        {
+          "date": "2026-05-14",
+          "oldStyleDate": "5-1",
+          "paragraph": 2,
+          "score": 0.8
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 296,
+      "title": "Прав. Тавифы (I)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 21,
+        "finishMonth": 0,
+        "finishDate": 21
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-03",
+          "finish": "2026-05-03"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-03",
+        "2026-11-07"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 297,
+      "title": "Перенесение мощей мч. Авраамия Болгарского (1230)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 21,
+        "finishMonth": 0,
+        "finishDate": 21
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-03",
+          "finish": "2026-05-03"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-03"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 298,
+      "title": "Прп. Додо Давидо-Гареджийского, Грузинского (596)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 45,
+        "finishMonth": 0,
+        "finishDate": 45
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-27",
+          "finish": "2026-05-27"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-27",
+          "oldStyleDate": "5-14",
+          "paragraph": 2,
+          "score": 0.5
+        },
+        {
+          "date": "2026-04-14",
+          "oldStyleDate": "4-1",
+          "paragraph": 2,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 299,
+      "title": "Прп. Давида Гареджийского (VI-VII)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 46,
+        "finishMonth": 0,
+        "finishDate": 46
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-28",
+          "finish": "2026-05-28"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-20",
+          "oldStyleDate": "5-7",
+          "paragraph": 3,
+          "score": 0.8
+        },
+        {
+          "date": "2026-05-28",
+          "oldStyleDate": "5-15",
+          "paragraph": 2,
+          "score": 0.8
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 301,
+      "title": "Предпразднство Богоявления",
+      "rule": {
+        "startMonth": 1,
+        "startDate": 2,
+        "finishMonth": 1,
+        "finishDate": 5
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-15",
+          "finish": "2026-01-18"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-01-15"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 319,
+      "title": "Прп. Пахомия Кенского (XVI)",
+      "rule": {
+        "startMonth": -5,
+        "startDate": 6,
+        "finishMonth": 1,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-24",
+          "finish": "2026-01-24"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-01-24"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 727,
+      "title": "Предпразднство Рождества Христова",
+      "rule": {
+        "startMonth": 12,
+        "startDate": 20,
+        "finishMonth": 12,
+        "finishDate": 24
+      },
+      "engineSpans": [
+        {
+          "start": "2027-01-02",
+          "finish": "2027-01-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2027-01-02"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 733,
+      "title": "Правв. Иосифа Обручника, Давида царя и Иакова, брата Господня",
+      "rule": {
+        "startMonth": -6,
+        "startDate": 0,
+        "finishMonth": 12,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2027-01-10",
+          "finish": "2027-01-10"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2027-01-10"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 735,
+      "title": "Правв. Иосифа Обручника, Давида царя и Иакова, брата Господня",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 1,
+        "finishMonth": 12,
+        "finishDate": 26
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [
+        "2027-01-10"
+      ],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 745,
+      "title": "Торжество Православия",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -42,
+        "finishMonth": 0,
+        "finishDate": -42
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-01",
+          "finish": "2026-03-01"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-03-01"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 746,
+      "title": "Крестопоклонная",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -28,
+        "finishMonth": 0,
+        "finishDate": -28
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-15",
+          "finish": "2026-03-15"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-03-15",
+        "2026-03-16"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 747,
+      "title": "Четверток Великого канона",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -17,
+        "finishMonth": 0,
+        "finishDate": -17
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-26",
+          "finish": "2026-03-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-03-26"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 748,
+      "title": "Похвала Пресвятой Богородицы (Суббота Акафиста)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -15,
+        "finishMonth": 0,
+        "finishDate": -15
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-28",
+          "finish": "2026-03-28"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-03-28"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 749,
+      "title": "Прп. Марии Египетской",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -14,
+        "finishMonth": 0,
+        "finishDate": -14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-29",
+          "finish": "2026-03-29"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-03-25",
+        "2026-03-29",
+        "2026-04-14"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 750,
+      "title": "Лазарева Суббота",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -8,
+        "finishMonth": 0,
+        "finishDate": -8
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-04",
+          "finish": "2026-04-04"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-04"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 751,
+      "title": "Великий Понедельник",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -6,
+        "finishMonth": 0,
+        "finishDate": -6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-06",
+          "finish": "2026-04-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-06"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 752,
+      "title": "Великий Вторник",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -5,
+        "finishMonth": 0,
+        "finishDate": -5
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-07",
+          "finish": "2026-04-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-07"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 753,
+      "title": "Великая Среда",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -4,
+        "finishMonth": 0,
+        "finishDate": -4
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-08",
+          "finish": "2026-04-08"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-08"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 754,
+      "title": "Великий Четверток. Воспоминание Тайной Вечери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -3,
+        "finishMonth": 0,
+        "finishDate": -3
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-09",
+          "finish": "2026-04-09"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-09"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 755,
+      "title": "Великий Пяток. Воспоминание Святых спасительных Страстей Господа нашего Иисуса Христа",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -2,
+        "finishMonth": 0,
+        "finishDate": -2
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-10",
+          "finish": "2026-04-10"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-10"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 756,
+      "title": "Великая Суббота",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -1,
+        "finishMonth": 0,
+        "finishDate": -1
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-11",
+          "finish": "2026-04-11"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-11"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 757,
+      "title": "Последование в честь Пресвятой Богородицы ради Ее «Живоносного Источника»",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 5,
+        "finishMonth": 0,
+        "finishDate": 5
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-17",
+          "finish": "2026-04-17"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-17"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 758,
+      "title": "Антипасха. Воспоминание уверения апостола Фомы",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 7,
+        "finishMonth": 0,
+        "finishDate": 7
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-19",
+          "finish": "2026-04-19"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-19",
+          "oldStyleDate": "4-6",
+          "paragraph": 1,
+          "score": 0.6
+        },
+        {
+          "date": "2026-10-19",
+          "oldStyleDate": "10-6",
+          "paragraph": 1,
+          "score": 0.4
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 759,
+      "title": "Неделя свв. жен-мироносиц",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 14,
+        "finishMonth": 0,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-26",
+          "finish": "2026-04-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-26",
+          "oldStyleDate": "4-13",
+          "paragraph": 1,
+          "score": 0.75
+        },
+        {
+          "date": "2026-04-26",
+          "oldStyleDate": "4-13",
+          "paragraph": 2,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 760,
+      "title": "Неделя о расслабленном",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 21,
+        "finishMonth": 0,
+        "finishDate": 21
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-03",
+          "finish": "2026-05-03"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-03",
+          "oldStyleDate": "4-20",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-02-01",
+          "oldStyleDate": "1-19",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 761,
+      "title": "Преполовение Пятидесятницы",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 24,
+        "finishMonth": 0,
+        "finishDate": 24
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-06",
+          "finish": "2026-05-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-06"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 762,
+      "title": "Неделя о самаряныне",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 28,
+        "finishMonth": 0,
+        "finishDate": 28
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-10",
+          "finish": "2026-05-10"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-10",
+          "oldStyleDate": "4-27",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-02-01",
+          "oldStyleDate": "1-19",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 763,
+      "title": "Отдание праздника Преполовения Пятидесятницы",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 31,
+        "finishMonth": 0,
+        "finishDate": 31
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-13",
+          "finish": "2026-05-13"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-13"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 764,
+      "title": "Неделя о слепом",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 35,
+        "finishMonth": 0,
+        "finishDate": 35
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-17",
+          "finish": "2026-05-17"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-17",
+          "oldStyleDate": "5-4",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-02-01",
+          "oldStyleDate": "1-19",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 765,
+      "title": "Отдание праздника Пасхи",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 38,
+        "finishMonth": 0,
+        "finishDate": 38
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-20",
+          "finish": "2026-05-20"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-20"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 766,
+      "title": "Предпразднство Вознесения Господня",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 38,
+        "finishMonth": 0,
+        "finishDate": 38
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-20",
+          "finish": "2026-05-20"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-20"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 767,
+      "title": "Попразднство Вознесения Господня",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 40,
+        "finishMonth": 0,
+        "finishDate": 40
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-22",
+          "finish": "2026-05-22"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-22"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 768,
+      "title": "Неделя святых отцев I Вселенского Собора",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 42,
+        "finishMonth": 0,
+        "finishDate": 42
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-24",
+          "finish": "2026-05-24"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-24",
+          "oldStyleDate": "5-11",
+          "paragraph": 1,
+          "score": 0.8333333333333334
+        },
+        {
+          "date": "2026-06-11",
+          "oldStyleDate": "5-29",
+          "paragraph": 2,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 769,
+      "title": "Отдание праздника Вознесения Господня",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 47,
+        "finishMonth": 0,
+        "finishDate": 47
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-29",
+          "finish": "2026-05-29"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-29"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 770,
+      "title": "День Святого Духа",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 50,
+        "finishMonth": 0,
+        "finishDate": 50
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-01",
+          "finish": "2026-06-01"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-01"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 771,
+      "title": "Отдание праздника Пятидесятницы",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 55,
+        "finishMonth": 0,
+        "finishDate": 55
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-06",
+          "finish": "2026-06-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-06"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 772,
+      "title": "Всех святых",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 56,
+        "finishMonth": 0,
+        "finishDate": 56
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-07",
+          "finish": "2026-06-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-07",
+        "2026-06-14",
+        "2026-07-26",
+        "2026-10-24"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 773,
+      "title": "Всех святых, в земле Русской просиявших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 63,
+        "finishMonth": 0,
+        "finishDate": 63
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-14",
+          "finish": "2026-06-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-14"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 774,
+      "title": "Суббота перед Богоявлением",
+      "rule": {
+        "startMonth": -1,
+        "startDate": -1,
+        "finishMonth": 1,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-17",
+          "finish": "2026-01-17"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-01-17",
+          "oldStyleDate": "1-4",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-01-17",
+          "oldStyleDate": "1-4",
+          "paragraph": 4,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 775,
+      "title": "Неделя перед Богоявлением",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 1,
+        "finishDate": 5
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-18",
+          "finish": "2026-01-18"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-01-18",
+          "oldStyleDate": "1-5",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-01-17",
+          "oldStyleDate": "1-4",
+          "paragraph": 1,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 776,
+      "title": "Суббота по Богоявлении",
+      "rule": {
+        "startMonth": -5,
+        "startDate": 6,
+        "finishMonth": 1,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-24",
+          "finish": "2026-01-24"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-01-24"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 777,
+      "title": "Неделя по Богоявлении",
+      "rule": {
+        "startMonth": -1,
+        "startDate": 7,
+        "finishMonth": 1,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-25",
+          "finish": "2026-01-25"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-01-25",
+          "oldStyleDate": "1-12",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-01-18",
+          "oldStyleDate": "1-5",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 785,
+      "title": "Память святых отцев шести Вселенских Соборов",
+      "rule": {
+        "startMonth": -4,
+        "startDate": 0,
+        "finishMonth": 7,
+        "finishDate": 16
+      },
+      "engineSpans": [
+        {
+          "start": "2026-07-26",
+          "finish": "2026-07-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-07-26",
+          "oldStyleDate": "7-13",
+          "paragraph": 2,
+          "score": 0.8333333333333334
+        },
+        {
+          "date": "2026-05-31",
+          "oldStyleDate": "5-18",
+          "paragraph": 3,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 787,
+      "title": "Суббота перед Воздвижением",
+      "rule": {
+        "startMonth": -1,
+        "startDate": -1,
+        "finishMonth": 9,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-26",
+          "finish": "2026-09-26"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-09-26",
+          "oldStyleDate": "9-13",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-01-17",
+          "oldStyleDate": "1-4",
+          "paragraph": 1,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 788,
+      "title": "Неделя перед Воздвижением",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 9,
+        "finishDate": 13
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-20",
+          "finish": "2026-09-20"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-09-20",
+          "oldStyleDate": "9-7",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-01-18",
+          "oldStyleDate": "1-5",
+          "paragraph": 1,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 789,
+      "title": "Суббота по Воздвижении",
+      "rule": {
+        "startMonth": -5,
+        "startDate": 6,
+        "finishMonth": 9,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-10-03",
+          "finish": "2026-10-03"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-10-03"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 790,
+      "title": "Неделя по Воздвижении",
+      "rule": {
+        "startMonth": -1,
+        "startDate": 7,
+        "finishMonth": 9,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-10-04",
+          "finish": "2026-10-04"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-10-04",
+          "oldStyleDate": "9-21",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-01-18",
+          "oldStyleDate": "1-5",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 791,
+      "title": "Память святых отцев VII Вселенского собора",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 10,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-10-25",
+          "finish": "2026-10-25"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-07-29",
+          "oldStyleDate": "7-16",
+          "paragraph": 2,
+          "score": 0.8333333333333334
+        },
+        {
+          "date": "2026-10-25",
+          "oldStyleDate": "10-12",
+          "paragraph": 2,
+          "score": 0.8333333333333334
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 793,
+      "title": "Неделя святых праотец",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 12,
+        "finishDate": 17
+      },
+      "engineSpans": [
+        {
+          "start": "2026-12-27",
+          "finish": "2026-12-27"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-12-27",
+          "oldStyleDate": "12-14",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-04-26",
+          "oldStyleDate": "4-13",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 794,
+      "title": "Суббота перед Рождеством Христовым",
+      "rule": {
+        "startMonth": -1,
+        "startDate": -1,
+        "finishMonth": 12,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2027-01-02",
+          "finish": "2027-01-02"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2027-01-02",
+          "oldStyleDate": "12-20",
+          "paragraph": 1,
+          "score": 0.75
+        },
+        {
+          "date": "2027-01-02",
+          "oldStyleDate": "12-20",
+          "paragraph": 5,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 795,
+      "title": "Неделя перед Рождеством Христовым, святых отец",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 12,
+        "finishDate": 24
+      },
+      "engineSpans": [
+        {
+          "start": "2027-01-03",
+          "finish": "2027-01-03"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2027-01-03",
+          "oldStyleDate": "12-21",
+          "paragraph": 1,
+          "score": 0.8333333333333334
+        },
+        {
+          "date": "2027-01-03",
+          "oldStyleDate": "12-21",
+          "paragraph": 6,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 796,
+      "title": "Суббота по Рождестве Христовом",
+      "rule": {
+        "startMonth": -1,
+        "startDate": 6,
+        "finishMonth": 12,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2027-01-09",
+          "finish": "2027-01-09"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2027-01-09"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 797,
+      "title": "Неделя по Рождестве Христовом",
+      "rule": {
+        "startMonth": -6,
+        "startDate": 0,
+        "finishMonth": 12,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2027-01-10",
+          "finish": "2027-01-10"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2027-01-10",
+          "oldStyleDate": "12-28",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2027-01-09",
+          "oldStyleDate": "12-27",
+          "paragraph": 1,
+          "score": 0.75
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 798,
+      "title": "Вселенская родительская (мясопустная) суббота",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -57,
+        "finishMonth": 0,
+        "finishDate": -57
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-14",
+          "finish": "2026-02-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-14"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 799,
+      "title": "Суббота 2-й седмицы Великого поста. Поминовение усопших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -36,
+        "finishMonth": 0,
+        "finishDate": -36
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-07",
+          "finish": "2026-03-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-28",
+          "oldStyleDate": "2-15",
+          "paragraph": 1,
+          "score": 0.5
+        },
+        {
+          "date": "2026-03-02",
+          "oldStyleDate": "2-17",
+          "paragraph": 1,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 800,
+      "title": "Суббота 3-й седмицы Великого поста. Поминовение усопших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -29,
+        "finishMonth": 0,
+        "finishDate": -29
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-14",
+          "finish": "2026-03-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-28",
+          "oldStyleDate": "2-15",
+          "paragraph": 1,
+          "score": 0.5
+        },
+        {
+          "date": "2026-03-09",
+          "oldStyleDate": "2-24",
+          "paragraph": 1,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 801,
+      "title": "Суббота 4-й седмицы Великого поста. Поминовение усопших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -22,
+        "finishMonth": 0,
+        "finishDate": -22
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-21",
+          "finish": "2026-03-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-28",
+          "oldStyleDate": "2-15",
+          "paragraph": 1,
+          "score": 0.5
+        },
+        {
+          "date": "2026-03-16",
+          "oldStyleDate": "3-3",
+          "paragraph": 1,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 802,
+      "title": "Радоница. Поминовение усопших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 9,
+        "finishMonth": 0,
+        "finishDate": 9
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-21",
+          "finish": "2026-04-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 803,
+      "title": "Троицкая родительская суббота",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 48,
+        "finishMonth": 0,
+        "finishDate": 48
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-30",
+          "finish": "2026-05-30"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-30"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 804,
+      "title": "Поминовение всех усопших, пострадавших в годину гонений за веру Христову",
+      "rule": {
+        "startMonth": -4,
+        "startDate": 0,
+        "finishMonth": 1,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-08",
+          "finish": "2026-02-08"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-08"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 806,
+      "title": "Димитриевская родительская суббота",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 25
+      },
+      "engineSpans": [
+        {
+          "start": "2026-11-07",
+          "finish": "2026-11-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-11-07"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 807,
+      "title": "Димитриевская родительская суббота",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 24
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [
+        "2026-11-07"
+      ],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 808,
+      "title": "Димитриевская родительская суббота",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 23
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [
+        "2026-11-07"
+      ],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 809,
+      "title": "Димитриевская родительская суббота (перенесена с 22 октября по ст.ст.)",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 15
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-11-15",
+          "oldStyleDate": "11-2",
+          "paragraph": 7,
+          "score": 0.4
+        },
+        {
+          "date": "2026-06-13",
+          "oldStyleDate": "5-31",
+          "paragraph": 5,
+          "score": 0.3
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 810,
+      "title": "Димитриевская родительская суббота",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 21
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [
+        "2026-11-07"
+      ],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 811,
+      "title": "Димитриевская родительская суббота",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 20
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [
+        "2026-11-07"
+      ],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 812,
+      "title": "Димитриевская родительская суббота",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 6,
+        "finishMonth": 10,
+        "finishDate": 19
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [
+        "2026-11-07"
+      ],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 813,
+      "title": "Великий пост",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -48,
+        "finishMonth": 0,
+        "finishDate": -1
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-23",
+          "finish": "2026-04-11"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-22"
+      ],
+      "status": "date-disagreement-requires-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 815,
+      "title": "Петров (Апостольский) пост",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 57,
+        "finishMonth": 6,
+        "finishDate": 28
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-08",
+          "finish": "2026-07-11"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-06-07",
+          "oldStyleDate": "5-25",
+          "paragraph": 7,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-02-22",
+          "oldStyleDate": "2-9",
+          "paragraph": 6,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 816,
+      "title": "Успенский пост",
+      "rule": {
+        "startMonth": 8,
+        "startDate": 1,
+        "finishMonth": 8,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-08-14",
+          "finish": "2026-08-27"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-08-13"
+      ],
+      "status": "date-disagreement-requires-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 819,
+      "title": "Рождественский (Филиппов) пост",
+      "rule": {
+        "startMonth": 11,
+        "startDate": 15,
+        "finishMonth": 12,
+        "finishDate": 24
+      },
+      "engineSpans": [
+        {
+          "start": "2026-11-28",
+          "finish": "2026-12-31"
+        },
+        {
+          "start": "2027-01-01",
+          "finish": "2027-01-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-11-26"
+      ],
+      "status": "date-disagreement-requires-review",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 820,
+      "title": "Собор всех преподобных отцев Киево-Печерских",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -35,
+        "finishMonth": 0,
+        "finishDate": -35
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-08",
+          "finish": "2026-03-08"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-08",
+          "oldStyleDate": "2-23",
+          "paragraph": 3,
+          "score": 0.8333333333333334
+        },
+        {
+          "date": "2026-09-10",
+          "oldStyleDate": "8-28",
+          "paragraph": 2,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 821,
+      "title": "Собор преподобных отцев, на Богошественной горе Синай подвизавшихся",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 3,
+        "finishMonth": 0,
+        "finishDate": 3
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-15",
+          "finish": "2026-04-15"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-15",
+          "oldStyleDate": "4-2",
+          "paragraph": 2,
+          "score": 0.875
+        },
+        {
+          "date": "2026-05-20",
+          "oldStyleDate": "5-7",
+          "paragraph": 3,
+          "score": 0.375
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 822,
+      "title": "Собор новомучеников в Бутове пострадавших",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 27,
+        "finishMonth": 0,
+        "finishDate": 27
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-09",
+          "finish": "2026-05-09"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-09"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 823,
+      "title": "Празднество в Вологде всем преподобным отцам Вологодским",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 70,
+        "finishMonth": 0,
+        "finishDate": 70
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-21",
+          "finish": "2026-06-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 824,
+      "title": "Собор Новгородских святых",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 70,
+        "finishMonth": 0,
+        "finishDate": 70
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-21",
+          "finish": "2026-06-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 825,
+      "title": "Собор Белорусских святых",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 70,
+        "finishMonth": 0,
+        "finishDate": 70
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-21",
+          "finish": "2026-06-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 826,
+      "title": "Собор Псковских святых",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 70,
+        "finishMonth": 0,
+        "finishDate": 70
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-21",
+          "finish": "2026-06-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 827,
+      "title": "Собор Санкт-Петербургских святых",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 70,
+        "finishMonth": 0,
+        "finishDate": 70
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-21",
+          "finish": "2026-06-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-06-21",
+          "oldStyleDate": "6-8",
+          "paragraph": 3,
+          "score": 0.75
+        },
+        {
+          "date": "2026-02-05",
+          "oldStyleDate": "1-23",
+          "paragraph": 2,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 829,
+      "title": "Собор святых Пермской митрополии",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 1,
+        "finishDate": 29
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-15",
+          "finish": "2026-02-15"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-15"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 834,
+      "title": "Собор мучеников Холмских и Подляшских",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 5,
+        "finishDate": 19
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-07",
+          "finish": "2026-06-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-07"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 841,
+      "title": "Собор Тверских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 6,
+        "finishDate": 29
+      },
+      "engineSpans": [
+        {
+          "start": "2026-07-19",
+          "finish": "2026-07-19"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-07-19"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 844,
+      "title": "Собор Смоленских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 7,
+        "finishDate": 27
+      },
+      "engineSpans": [
+        {
+          "start": "2026-08-09",
+          "finish": "2026-08-09"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-08-09"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 846,
+      "title": "Собор Валаамских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 8,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-08-23",
+          "finish": "2026-08-23"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-08-23"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 848,
+      "title": "Собор Кемеровских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 8,
+        "finishDate": 18
+      },
+      "engineSpans": [
+        {
+          "start": "2026-08-30",
+          "finish": "2026-08-30"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-05",
+          "oldStyleDate": "1-23",
+          "paragraph": 2,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-02-11",
+          "oldStyleDate": "1-29",
+          "paragraph": 2,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 849,
+      "title": "Собор Московских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 8,
+        "finishDate": 28
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-06",
+          "finish": "2026-09-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-09-06"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 850,
+      "title": "Собор Нижегородских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 8,
+        "finishDate": 26
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-13",
+          "finish": "2026-09-13"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-05",
+          "oldStyleDate": "1-23",
+          "paragraph": 2,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-02-11",
+          "oldStyleDate": "1-29",
+          "paragraph": 2,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 853,
+      "title": "Собор новомучеников и исповедников Казахстанских",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 9,
+        "finishDate": 3
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-20",
+          "finish": "2026-09-20"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-09-20"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 855,
+      "title": "Алтайских святых",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 9,
+        "finishDate": 13
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-20",
+          "finish": "2026-09-20"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-09-20"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 868,
+      "title": "Шуйской иконы Божией Матери \"Одигитрия\"",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 2,
+        "finishMonth": 0,
+        "finishDate": 2
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-14",
+          "finish": "2026-04-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-14",
+          "oldStyleDate": "4-1",
+          "paragraph": 4,
+          "score": 0.8
+        },
+        {
+          "date": "2026-08-10",
+          "oldStyleDate": "7-28",
+          "paragraph": 1,
+          "score": 0.8
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 869,
+      "title": "Касперовской иконы Божией Матери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 3,
+        "finishMonth": 0,
+        "finishDate": 3
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-15",
+          "finish": "2026-04-15"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-15",
+        "2026-07-12"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 870,
+      "title": "Иконы Божией Матери \"Живоносный Источник\"",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 5,
+        "finishMonth": 0,
+        "finishDate": 5
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-17",
+          "finish": "2026-04-17"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-04-17"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 871,
+      "title": "Моздокской и Дубенской-Красногорской (XVII) икон Божией Матери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 24,
+        "finishMonth": 0,
+        "finishDate": 24
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-06",
+          "finish": "2026-05-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-06"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 872,
+      "title": "Челнской и Псково-Печерской, именуемой Умиление, икон Божией Матери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 42,
+        "finishMonth": 0,
+        "finishDate": 42
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-24",
+          "finish": "2026-05-24"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-24"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 873,
+      "title": "Тупичевской и Кипрской икон Божией Матери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 50,
+        "finishMonth": 0,
+        "finishDate": 50
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-01",
+          "finish": "2026-06-01"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-01"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 874,
+      "title": "Иконы Божией Матери именуемой \"Споручница грешных\", Корецкой (1622)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 53,
+        "finishMonth": 0,
+        "finishDate": 53
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-04",
+          "finish": "2026-06-04"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-04"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 875,
+      "title": "Икон Божией Матери, именуемых ''Умягчение злых сердец'' и ''Нерушимая стена''",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 56,
+        "finishMonth": 0,
+        "finishDate": 56
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-07",
+          "finish": "2026-06-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-06-07",
+          "oldStyleDate": "5-25",
+          "paragraph": 5,
+          "score": 0.9
+        },
+        {
+          "date": "2026-01-25",
+          "oldStyleDate": "1-12",
+          "paragraph": 4,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 876,
+      "title": "Табынской и \"Знамение\" Курской-Коренной икон Божией Матери",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 61,
+        "finishMonth": 0,
+        "finishDate": 61
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-12",
+          "finish": "2026-06-12"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-12"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 885,
+      "title": "Кипрской иконы Божией Матери в с. Стромыни Московской области",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -42,
+        "finishMonth": 0,
+        "finishDate": -42
+      },
+      "engineSpans": [
+        {
+          "start": "2026-03-01",
+          "finish": "2026-03-01"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-01",
+          "oldStyleDate": "2-16",
+          "paragraph": 5,
+          "score": 0.7777777777777778
+        },
+        {
+          "date": "2026-07-01",
+          "oldStyleDate": "6-18",
+          "paragraph": 4,
+          "score": 0.5555555555555556
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 925,
+      "title": "Коробейниковской-Казанской иконы Божией Матери",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 6,
+        "finishDate": 18
+      },
+      "engineSpans": [
+        {
+          "start": "2026-07-05",
+          "finish": "2026-07-05"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-07-05"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1003,
+      "title": "Преподобномучеников 600 отцев Давидо-Гареджийских (XVII)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 2,
+        "finishMonth": 0,
+        "finishDate": 2
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-14",
+          "finish": "2026-04-14"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-14",
+          "oldStyleDate": "4-1",
+          "paragraph": 2,
+          "score": 0.5
+        },
+        {
+          "date": "2026-01-24",
+          "oldStyleDate": "1-11",
+          "paragraph": 5,
+          "score": 0.16666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1004,
+      "title": "Мучеников, в долине Ферейдан (Иран) от персов пострадавших (XVII) (Груз.)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 39,
+        "finishMonth": 0,
+        "finishDate": 39
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-21",
+          "finish": "2026-05-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-05-21"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1005,
+      "title": "День Святого Духа",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 50,
+        "finishMonth": 0,
+        "finishDate": 50
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-01",
+          "finish": "2026-06-01"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-01"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1006,
+      "title": "Прп. Варлаама Хутынского (1192)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 61,
+        "finishMonth": 0,
+        "finishDate": 61
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-12",
+          "finish": "2026-06-12"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-06-12",
+        "2026-11-19"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1007,
+      "title": "Собор преподобных отцев Псково-Печерских",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 77,
+        "finishMonth": 0,
+        "finishDate": 77
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-28",
+          "finish": "2026-06-28"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-06-28",
+          "oldStyleDate": "6-15",
+          "paragraph": 3,
+          "score": 0.8
+        },
+        {
+          "date": "2026-03-08",
+          "oldStyleDate": "2-23",
+          "paragraph": 3,
+          "score": 0.6
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1141,
+      "title": "Прп. Шио Мгвимского (VI)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -52,
+        "finishMonth": 0,
+        "finishDate": -52
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-19",
+          "finish": "2026-02-19"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-02-19",
+        "2026-05-22"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1642,
+      "title": "Прпп. Тихона, Василия и Никона Соколовских (XVI)",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 6,
+        "finishDate": 29
+      },
+      "engineSpans": [
+        {
+          "start": "2026-07-19",
+          "finish": "2026-07-19"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-07-19"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1643,
+      "title": "Перенесение мощей свт. Арсения, еп. Тверского (1483)",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 7,
+        "finishMonth": 6,
+        "finishDate": 29
+      },
+      "engineSpans": [
+        {
+          "start": "2026-07-19",
+          "finish": "2026-07-19"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-07-19",
+          "oldStyleDate": "7-6",
+          "paragraph": 3,
+          "score": 0.7142857142857143
+        },
+        {
+          "date": "2026-02-05",
+          "oldStyleDate": "1-23",
+          "paragraph": 2,
+          "score": 0.5714285714285714
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1662,
+      "title": "Прмчч. Неофита, Ионы, Неофита, Ионы и Парфения Липсийских",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 7,
+        "finishDate": 3
+      },
+      "engineSpans": [
+        {
+          "start": "2026-07-12",
+          "finish": "2026-07-12"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-07-12"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1837,
+      "title": "Собор Саратовских святых",
+      "rule": {
+        "startMonth": -4,
+        "startDate": 0,
+        "finishMonth": 8,
+        "finishDate": 31
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-13",
+          "finish": "2026-09-13"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-09-13"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 1862,
+      "title": "Перенесение мощей блгвв. кн. Петра, в иночестве Давида, и кн. Февронии, в иночестве Евфросинии, Муромских чудотворцев (1992)",
+      "rule": {
+        "startMonth": -2,
+        "startDate": 0,
+        "finishMonth": 9,
+        "finishDate": 5
+      },
+      "engineSpans": [
+        {
+          "start": "2026-09-13",
+          "finish": "2026-09-13"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2026-09-13"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2569,
+      "title": "Браковенчание не совершается в Неделю мясопустную",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -56,
+        "finishMonth": 0,
+        "finishDate": -56
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-15",
+          "finish": "2026-02-15"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.5
+        },
+        {
+          "date": "2026-04-20",
+          "oldStyleDate": "4-7",
+          "paragraph": 5,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2570,
+      "title": "Браковенчание не совершается в течение Сырной седмицы (масленицы)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -55,
+        "finishMonth": 0,
+        "finishDate": -50
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-16",
+          "finish": "2026-02-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.375
+        },
+        {
+          "date": "2026-02-16",
+          "oldStyleDate": "2-3",
+          "paragraph": 5,
+          "score": 0.375
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2571,
+      "title": "Браковенчание не совершается в Неделю сыропустную",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -49,
+        "finishMonth": 0,
+        "finishDate": -49
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-22",
+          "finish": "2026-02-22"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.5
+        },
+        {
+          "date": "2026-04-20",
+          "oldStyleDate": "4-7",
+          "paragraph": 5,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2572,
+      "title": "Браковенчание не совершается накануне праздника Входа Господня в Иерусалим",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -8,
+        "finishMonth": 0,
+        "finishDate": -8
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-04",
+          "finish": "2026-04-04"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.3333333333333333
+        },
+        {
+          "date": "2026-04-20",
+          "oldStyleDate": "4-7",
+          "paragraph": 5,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2573,
+      "title": "Браковенчание не совершается в продолжение Великого поста",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -48,
+        "finishMonth": 0,
+        "finishDate": -1
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-23",
+          "finish": "2026-04-11"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-28",
+          "oldStyleDate": "2-15",
+          "paragraph": 1,
+          "score": 0.42857142857142855
+        },
+        {
+          "date": "2026-03-01",
+          "oldStyleDate": "2-16",
+          "paragraph": 5,
+          "score": 0.42857142857142855
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2574,
+      "title": "Браковенчание не совершается накануне Светлого Христова Воскресения (Пасхи)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -1,
+        "finishMonth": 0,
+        "finishDate": -1
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-11",
+          "finish": "2026-04-11"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-20",
+          "oldStyleDate": "4-7",
+          "paragraph": 5,
+          "score": 0.375
+        },
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.25
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2575,
+      "title": "Браковенчание не совершается в течение Пасхальной (Светлой) седмицы",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 0,
+        "finishMonth": 0,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-12",
+          "finish": "2026-04-18"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.375
+        },
+        {
+          "date": "2026-02-16",
+          "oldStyleDate": "2-3",
+          "paragraph": 5,
+          "score": 0.375
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2576,
+      "title": "Браковенчание не совершается накануне праздника Вознесения Господня",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 38,
+        "finishMonth": 0,
+        "finishDate": 38
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-20",
+          "finish": "2026-05-20"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-05-20",
+          "oldStyleDate": "5-7",
+          "paragraph": 1,
+          "score": 0.42857142857142855
+        },
+        {
+          "date": "2026-05-29",
+          "oldStyleDate": "5-16",
+          "paragraph": 1,
+          "score": 0.42857142857142855
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2577,
+      "title": "Браковенчание не совершается накануне праздника Дня Святой Троицы (Пятидесятницы)",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 48,
+        "finishMonth": 0,
+        "finishDate": 48
+      },
+      "engineSpans": [
+        {
+          "start": "2026-05-30",
+          "finish": "2026-05-30"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-08",
+          "oldStyleDate": "3-26",
+          "paragraph": 5,
+          "score": 0.3333333333333333
+        },
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.2222222222222222
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2578,
+      "title": "Браковенчание не совершается в продолжение Святок",
+      "rule": {
+        "startMonth": 12,
+        "startDate": 25,
+        "finishMonth": 1,
+        "finishDate": 4
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-07",
+          "finish": "2026-01-17"
+        },
+        {
+          "start": "2027-01-07",
+          "finish": "2027-01-17"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.5
+        },
+        {
+          "date": "2026-02-22",
+          "oldStyleDate": "2-9",
+          "paragraph": 7,
+          "score": 0.3333333333333333
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2583,
+      "title": "Браковенчание не совершается в продолжение Петрова (Апостольского) поста",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 57,
+        "finishMonth": 6,
+        "finishDate": 28
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-08",
+          "finish": "2026-07-11"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.375
+        },
+        {
+          "date": "2026-06-12",
+          "oldStyleDate": "5-30",
+          "paragraph": 1,
+          "score": 0.375
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2586,
+      "title": "Браковенчание не совершается в продолжение Успенского поста",
+      "rule": {
+        "startMonth": 8,
+        "startDate": 1,
+        "finishMonth": 8,
+        "finishDate": 14
+      },
+      "engineSpans": [
+        {
+          "start": "2026-08-14",
+          "finish": "2026-08-27"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.42857142857142855
+        },
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.2857142857142857
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2595,
+      "title": "Браковенчание не совершается в продолжение Рождественского (Филиппова) поста",
+      "rule": {
+        "startMonth": 11,
+        "startDate": 15,
+        "finishMonth": 12,
+        "finishDate": 24
+      },
+      "engineSpans": [
+        {
+          "start": "2026-11-28",
+          "finish": "2026-12-31"
+        },
+        {
+          "start": "2027-01-01",
+          "finish": "2027-01-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-03-22",
+          "oldStyleDate": "3-9",
+          "paragraph": 8,
+          "score": 0.375
+        },
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.25
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2598,
+      "title": "Седмица о мытаре и фарисее - сплошная",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -69,
+        "finishMonth": 0,
+        "finishDate": -64
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-02",
+          "finish": "2026-02-07"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-01",
+          "oldStyleDate": "1-19",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-02-16",
+          "oldStyleDate": "2-3",
+          "paragraph": 1,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2599,
+      "title": "Сырная седмица (масленица) - сплошная",
+      "rule": {
+        "startMonth": 0,
+        "startDate": -55,
+        "finishMonth": 0,
+        "finishDate": -50
+      },
+      "engineSpans": [
+        {
+          "start": "2026-02-16",
+          "finish": "2026-02-21"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-16",
+          "oldStyleDate": "2-3",
+          "paragraph": 1,
+          "score": 1
+        },
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 1,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2600,
+      "title": "Пасхальная (Светлая) седмица - сплошная",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 0,
+        "finishMonth": 0,
+        "finishDate": 6
+      },
+      "engineSpans": [
+        {
+          "start": "2026-04-12",
+          "finish": "2026-04-18"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-04-13",
+          "oldStyleDate": "3-31",
+          "paragraph": 1,
+          "score": 0.75
+        },
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 1,
+          "score": 0.5
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2601,
+      "title": "Троицкая седмица - сплошная",
+      "rule": {
+        "startMonth": 0,
+        "startDate": 50,
+        "finishMonth": 0,
+        "finishDate": 55
+      },
+      "engineSpans": [
+        {
+          "start": "2026-06-01",
+          "finish": "2026-06-06"
+        }
+      ],
+      "sourceDatesWithFullTitle": [],
+      "status": "requires-editorial-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-02-16",
+          "oldStyleDate": "2-3",
+          "paragraph": 1,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2602,
+      "title": "Святки",
+      "rule": {
+        "startMonth": 12,
+        "startDate": 25,
+        "finishMonth": 1,
+        "finishDate": 4
+      },
+      "engineSpans": [
+        {
+          "start": "2026-01-07",
+          "finish": "2026-01-17"
+        },
+        {
+          "start": "2027-01-07",
+          "finish": "2027-01-17"
+        }
+      ],
+      "sourceDatesWithFullTitle": [
+        "2027-01-07"
+      ],
+      "status": "2026-occurrence-matches-not-all-years-proof",
+      "reviewCandidates": [],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2603,
+      "title": "на Богоявление в среду поста нет",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 3,
+        "finishMonth": 1,
+        "finishDate": 6
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-06-01",
+          "oldStyleDate": "5-19",
+          "paragraph": 9,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2604,
+      "title": "на Богоявление в пятницу поста нет",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 5,
+        "finishMonth": 1,
+        "finishDate": 6
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-06-01",
+          "oldStyleDate": "5-19",
+          "paragraph": 9,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2605,
+      "title": "на Рождество в среду поста нет",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 3,
+        "finishMonth": 12,
+        "finishDate": 25
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-06-01",
+          "oldStyleDate": "5-19",
+          "paragraph": 9,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    },
+    {
+      "sourceIndex": 2606,
+      "title": "на Рождество в пятницу поста нет",
+      "rule": {
+        "startMonth": -3,
+        "startDate": 5,
+        "finishMonth": 12,
+        "finishDate": 25
+      },
+      "engineSpans": [],
+      "sourceDatesWithFullTitle": [],
+      "status": "not-active-in-source-year-requires-rule-review",
+      "reviewCandidates": [
+        {
+          "date": "2026-02-02",
+          "oldStyleDate": "1-20",
+          "paragraph": 5,
+          "score": 0.6666666666666666
+        },
+        {
+          "date": "2026-06-01",
+          "oldStyleDate": "5-19",
+          "paragraph": 9,
+          "score": 0.6666666666666666
+        }
+      ],
+      "editorialApproval": false
+    }
+  ]
+}

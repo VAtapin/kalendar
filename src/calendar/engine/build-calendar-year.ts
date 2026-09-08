@@ -66,6 +66,14 @@ export function buildOrthodoxCalendarYear(
     for (const span of resolveMemoryDayRecord(record, year)) {
       const spanDates = enumerateDates(span.start, span.finish);
       spanDates.forEach((date, dayIndexInSpan) => {
+        // Typikon, March 24/26: the forefeast is not observed on Lazarus
+        // Saturday, Palm Sunday, Holy Week or Bright Week. Its hymns are
+        // transferred to earlier Compline, not printed as a feast that day.
+        // https://azbyka.ru/bogosluzhebnye-ukazaniya?date=2026-04-06
+        if (/^предпразднство благовещения(?:\s|$)/iu.test(record.title.trim())) {
+          const offset = compareDates(date, calculateOrthodoxPascha(date.year));
+          if (offset >= -8 && offset <= 6) return;
+        }
         const occurrenceDate = adjustedFixedFeastDate(record.title, date);
         const isoDate = toIsoDate(occurrenceDate);
         const day = dayMap.get(isoDate);

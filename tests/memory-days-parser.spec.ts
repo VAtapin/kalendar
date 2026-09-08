@@ -15,7 +15,7 @@ describe("MemoryDays XML parser", () => {
     expect(dataset.diagnostics.filter(item => item.code === "unknown-field")).toEqual([]);
 
     expect(dataset.statistics).toMatchObject({
-      recordCount: 3811,
+      recordCount: 3815,
       recordsWithDescription: 138,
       recordsWithLink: 0,
       exactDuplicateCount: 4,

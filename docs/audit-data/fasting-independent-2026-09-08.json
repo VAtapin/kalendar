@@ -1,7 +1,7 @@
 {
   "summary": {
     "dates": 366,
-    "xmlSha256": "4ab4bebccd6e065a288f91ab862ed9bcb93eab396d6a803eca66c5f4c6813b06",
+    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
     "fastingEngineSha256": "3a0d254589e3324d84669c6b7051487e8e9f462c99f4ded142e0f48022cccf3b",
     "strict": {
       "same-food-category": 289,

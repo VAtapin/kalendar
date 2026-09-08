@@ -1,21 +1,21 @@
 {
   "summary": {
     "date": "2026-09-08",
-    "xmlSha256": "4ab4bebccd6e065a288f91ab862ed9bcb93eab396d6a803eca66c5f4c6813b06",
-    "uniqueTextPayloads": 5621,
-    "xmlRecords": 3811,
+    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
+    "uniqueTextPayloads": 5630,
+    "xmlRecords": 3815,
     "generatedYearRange": [
       1900,
       2199
     ],
     "localizationStatuses": {
-      "exact": 1257,
-      "source-fallback": 4303,
+      "exact": 1242,
+      "source-fallback": 4327,
       "structured": 61
     },
     "commemorationFullTitles": {
-      "exact": 1212,
-      "source-fallback": 1305,
+      "exact": 1198,
+      "source-fallback": 1323,
       "structured": 11
     },
     "currentPayloadsWithMissingGlyphs": 0,
@@ -3976,22 +3976,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свтт. Петра, Алексия, Ионы, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотворцев",
+      "source": "Свтт. Петра, Феогноста, Алексия, Киприана, Фотия, Ионы, Геронтия, Иоасафа, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотворцев",
       "origins": [
         "memory-day-0104:title"
       ],
-      "currentCu": "Ст҃и́телѧ петра̀, а҆леѯі́а, і҆ѡ́ны, мака́рїа, фїлі́ппа, і҆́ѡва, є҆рмоге́на, тѵ́хѡна, петра̀, фїларе́та, і҆нноке́нтїа и҆ мака́рїа, моско́вскихъ и҆ всеѧ̀ рѡссі́и чꙋдотво́рцєвъ",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
-      "missingGlyphs": [],
-      "independentPhilologicalApproval": false
-    },
-    {
-      "source": "Свтт. Петра, Алексия, Ионы, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотв.",
-      "origins": [
-        "memory-day-0104:shortTitle"
-      ],
-      "currentCu": "Свтт. Петра, Алексия, Ионы, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотв.",
+      "currentCu": "Свтт. Петра, Феогноста, Алексия, Киприана, Фотия, Ионы, Геронтия, Иоасафа, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотворцев",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -4000,11 +3989,24 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свтт. Петра, Алексия, Ионы, Макария, Филиппа, Иова, Ермогена…",
+      "source": "Свтт. Петра, Феогноста, Алексия, Киприана, Фотия, Ионы, Геронтия, Иоасафа, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотв.",
+      "origins": [
+        "memory-day-0104:shortTitle"
+      ],
+      "currentCu": "Свтт. Петра, Феогноста, Алексия, Киприана, Фотия, Ионы, Геронтия, Иоасафа, Макария, Филиппа, Иова, Ермогена, Тихона, Петра, Филарета, Иннокентия и Макария, Московских и всея России чудотв.",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Свтт. Петра, Феогноста, Алексия, Киприана, Фотия, Ионы, Геронтия…",
       "origins": [
         "memory-day-0104:veryShortTitle"
       ],
-      "currentCu": "Свтт. Петра, Алексия, Ионы, Макария, Филиппа, Иова, Ермогена…",
+      "currentCu": "Свтт. Петра, Феогноста, Алексия, Киприана, Фотия, Ионы, Геронтия…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -10803,14 +10805,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прп. Герасима, иже на Иордане (451)",
+      "source": "Прп. Герасима, иже на Иордане (475)",
       "origins": [
         "memory-day-0381:title",
         "memory-day-0381:shortTitle"
       ],
-      "currentCu": "Прпⷣбнагѡ гера́сїма, и҆́же на і҆ѻрда́нѣ (451)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Прп. Герасима, иже на Иордане (475)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -11123,11 +11127,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мч. Агапия и с ним семи мучеников: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (1,2) (303)",
+      "source": "Мч. Агапия и с ним семи мучеников: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (303)",
       "origins": [
         "memory-day-0392:title"
       ],
-      "currentCu": "Мч. Агапия и с ним семи мучеников: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (1,2) (303)",
+      "currentCu": "Мч. Агапия и с ним семи мучеников: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (303)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -11136,11 +11140,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мч. Агапия и с ним семи Мчч.: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (1,2) (303)",
+      "source": "Мч. Агапия и с ним семи Мчч.: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (303)",
       "origins": [
         "memory-day-0392:shortTitle"
       ],
-      "currentCu": "Мч. Агапия и с ним семи Мчч.: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (1,2) (303)",
+      "currentCu": "Мч. Агапия и с ним семи Мчч.: Пуплия, Тимолая, Ромила, двух Александров и двух Дионисиев (303)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -12126,12 +12130,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Симеона, еп. Персидского, и с ним мчч. Авделая и Анании пресвитеров, Хусдазата евнуха, Фусика, Азата, мч. Аскитреи и иных многих (344)",
+      "source": "Сщмч. Симеона, еп. Персидского, и с ним мчч. Авделая и Анании пресвитеров, Хусдазата евнуха, Фусика, Азата, мц. Аскитреи и иных многих (344)",
       "origins": [
         "memory-day-0433:title",
         "memory-day-0433:shortTitle"
       ],
-      "currentCu": "Сщмч. Симеона, еп. Персидского, и с ним мчч. Авделая и Анании пресвитеров, Хусдазата евнуха, Фусика, Азата, мч. Аскитреи и иных многих (344)",
+      "currentCu": "Сщмч. Симеона, еп. Персидского, и с ним мчч. Авделая и Анании пресвитеров, Хусдазата евнуха, Фусика, Азата, мц. Аскитреи и иных многих (344)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -13728,22 +13732,24 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Мефодия, патриарха Константинопольского (846)",
+      "source": "Свт. Мефодия, патриарха Константинопольского (847)",
       "origins": [
         "memory-day-0499:title"
       ],
-      "currentCu": "Ст҃а́гѡ меѳо́дїа, патрїа́рха кѡнстанті́нѧ гра́да (846)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Свт. Мефодия, патриарха Константинопольского (847)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Мефодия, патр. Константинопольского (846)",
+      "source": "Свт. Мефодия, патр. Константинопольского (847)",
       "origins": [
         "memory-day-0499:shortTitle"
       ],
-      "currentCu": "Свт. Мефодия, патр. Константинопольского (846)",
+      "currentCu": "Свт. Мефодия, патр. Константинопольского (847)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -17224,14 +17230,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прп. Евфимия Нового, Солунского (889)",
+      "source": "Прп. Евфимия Нового, Солунского (898)",
       "origins": [
         "memory-day-0648:title",
         "memory-day-0648:shortTitle"
       ],
-      "currentCu": "Прпⷣбнагѡ є҆ѵѳѵ́мїа но́вагѡ, ѳессалоні́тскагѡ (889)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Прп. Евфимия Нового, Солунского (898)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -17325,22 +17333,24 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотворца (1515)",
+      "source": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотворца (2001)",
       "origins": [
         "memory-day-0653:title"
       ],
-      "currentCu": "Ѡ҆брѣ́тенїе моще́й прпⷣбнагѡ і҆ѡ́сифа, и҆гꙋ́мена волоцка́гѡ, чꙋдотво́рца (1515)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотворца (2001)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотв. (1515)",
+      "source": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотв. (2001)",
       "origins": [
         "memory-day-0653:shortTitle"
       ],
-      "currentCu": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотв. (1515)",
+      "currentCu": "Обретение мощей прп. Иосифа, игумена Волоцкого, чудотв. (2001)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -18784,14 +18794,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прп. Даниила Столпника (489-490)",
+      "source": "Прп. Даниила Столпника (493)",
       "origins": [
         "memory-day-0717:title",
         "memory-day-0717:shortTitle"
       ],
-      "currentCu": "Прпⷣбнагѡ данїи́ла сто́лпника (489-490)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Прп. Даниила Столпника (493)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -19661,17 +19673,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Неделя о расслабленом",
+      "source": "Неделя о расслабленном",
       "origins": [
         "memory-day-0760:title",
         "memory-day-0760:shortTitle",
-        "memory-day-0760:veryShortTitle"
+        "memory-day-0760:veryShortTitle",
+        "liturgical-cycle:shortTitle:1900-2199"
       ],
-      "currentCu": "Неделя о расслабленом",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Недѣ́лѧ разсла́бленнагѡ",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -19897,16 +19908,15 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Суббота пo Богоявлении",
+      "source": "Суббота по Богоявлении",
       "origins": [
         "memory-day-0776:title",
         "memory-day-0776:shortTitle",
         "memory-day-0776:veryShortTitle"
       ],
-      "currentCu": "Суббота пo Богоявлении",
+      "currentCu": "Суббота по Богоявлении",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
-        "latin-letters",
         "no-combining-marks"
       ],
       "missingGlyphs": [],
@@ -20140,7 +20150,9 @@
       "origins": [
         "memory-day-0788:title",
         "memory-day-0788:shortTitle",
-        "memory-day-0788:veryShortTitle"
+        "memory-day-0788:veryShortTitle",
+        "memory-day-3571:description-not-currently-printed-by-grid",
+        "memory-day-3574:description-not-currently-printed-by-grid"
       ],
       "currentCu": "Неделя перед Воздвижением",
       "localizationStatus": "source-fallback",
@@ -20957,13 +20969,25 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Собор Иваново-Вознесенских святых",
+      "source": "Собор святых Ивановской митрополии",
       "origins": [
         "memory-day-0839:title",
-        "memory-day-0839:shortTitle",
+        "memory-day-0839:shortTitle"
+      ],
+      "currentCu": "Собор святых Ивановской митрополии",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Собор Ивановской митрополии",
+      "origins": [
         "memory-day-0839:veryShortTitle"
       ],
-      "currentCu": "Собор Иваново-Вознесенских святых",
+      "currentCu": "Собор Ивановской митрополии",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -21430,11 +21454,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Собор преподобных Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона исповедника (1931), Исаакия священномученика (1938)",
+      "source": "Собор всех святых, в Оптиной пустыни просиявших, в том числе преподобных Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона исповедника (1931), Исаакия священномученика (1938)",
       "origins": [
         "memory-day-0864:title"
       ],
-      "currentCu": "Собор преподобных Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона исповедника (1931), Исаакия священномученика (1938)",
+      "currentCu": "Собор всех святых, в Оптиной пустыни просиявших, в том числе преподобных Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона исповедника (1931), Исаакия священномученика (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -21443,11 +21467,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Собор Прп. Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона Исп. (1931), Исаакия Сщмч. (1938)",
+      "source": "Собор всех святых, в Оптиной пустыни просиявших, в том числе Прп. Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона Исп. (1931), Исаакия Сщмч. (1938)",
       "origins": [
         "memory-day-0864:shortTitle"
       ],
-      "currentCu": "Собор Прп. Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона Исп. (1931), Исаакия Сщмч. (1938)",
+      "currentCu": "Собор всех святых, в Оптиной пустыни просиявших, в том числе Прп. Оптинских старцев: Льва (1841), Макария (1860), Моисея (1862), Антония (1865), Илариона (1873), Амвросия (1891), Анатолия (1894), Исаакия (1894), Иосифа (1911), Варсонофия (1913), Анатолия (1922), Нектария (1928), Никона Исп. (1931), Исаакия Сщмч. (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -21456,11 +21480,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Собор Прп. Оптинских старцев: Льва, Макария, Моисея, Антония…",
+      "source": "Собор всех святых, в Оптиной пустыни просиявших, в том числе Прп…",
       "origins": [
         "memory-day-0864:veryShortTitle"
       ],
-      "currentCu": "Собор Прп. Оптинских старцев: Льва, Макария, Моисея, Антония…",
+      "currentCu": "Собор всех святых, в Оптиной пустыни просиявших, в том числе Прп…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -22045,12 +22069,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Икон Божией Матери: Ченстоховской (I) \"Благодатное Небо\" (XIV) и Шестоковской (XVIII)",
+      "source": "Икон Божией Матери: Ченстоховской (I), \"Благодатное Небо\" (XIV) и Шестоковской (XVIII)",
       "origins": [
         "memory-day-0890:title",
         "memory-day-0890:shortTitle"
       ],
-      "currentCu": "Икон Божией Матери: Ченстоховской (I) \"Благодатное Небо\" (XIV) и Шестоковской (XVIII)",
+      "currentCu": "Икон Божией Матери: Ченстоховской (I), \"Благодатное Небо\" (XIV) и Шестоковской (XVIII)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -22059,11 +22083,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Икон Божией Матери: Ченстоховской (I) \"Благодатное Небо\" (XIV) и…",
+      "source": "Икон Божией Матери: Ченстоховской (I), \"Благодатное Небо\" (XIV) и…",
       "origins": [
         "memory-day-0890:veryShortTitle"
       ],
-      "currentCu": "Икон Божией Матери: Ченстоховской (I) \"Благодатное Небо\" (XIV) и…",
+      "currentCu": "Икон Божией Матери: Ченстоховской (I), \"Благодатное Небо\" (XIV) и…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -22072,11 +22096,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Орловск. обл.) (1843) и в Москве (1848)",
+      "source": "Иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Брянск. обл.) (1843) и в Москве (1848)",
       "origins": [
         "memory-day-0891:title"
       ],
-      "currentCu": "Иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Орловск. обл.) (1843) и в Москве (1848)",
+      "currentCu": "Иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Брянск. обл.) (1843) и в Москве (1848)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -22085,11 +22109,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Орловск. обл.) (1843) и в Москве (1848)",
+      "source": "иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Брянск. обл.) (1843) и в Москве (1848)",
       "origins": [
         "memory-day-0891:shortTitle"
       ],
-      "currentCu": "иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Орловск. обл.) (1843) и в Москве (1848)",
+      "currentCu": "иконы Божией Матери \"Споручница грешных\", в Корце (Ровенск. обл.) (1622) в Одрине (Брянск. обл.) (1843) и в Москве (1848)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -22882,12 +22906,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Ярославской (XIII) и Урюпинской (1821) икон Божией Матери",
+      "source": "Ярославской (XIII) и Урюпинской (1827) икон Божией Матери",
       "origins": [
         "memory-day-0923:title",
         "memory-day-0923:shortTitle"
       ],
-      "currentCu": "Ярославской (XIII) и Урюпинской (1821) икон Божией Матери",
+      "currentCu": "Ярославской (XIII) и Урюпинской (1827) икон Божией Матери",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -23299,12 +23323,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Чтимые списки с Казанской иконы Божией Матери: в Москве (1612), Казани (1579), и Петербурге (1721); Ярославская (1588), Вязниковская (1624), Нижнеломовская (1643), Витебская (1655) Тобольская (1661), Каплуновская (1689), Тамбовская (1895), Пензенская (1717), Песчанская (1754), Чимеевская (1770), в Высочиновская (XVIII), в Вышенская (1812)",
+      "source": "Чтимые списки с Казанской иконы Божией Матери: в Москве (1612), Казани (1579), и Петербурге (1721); Ярославская (1588), Вязниковская (1624), Нижнеломовская (1643), Витебская (1655), Тобольская (1661), Каплуновская (1689), Тамбовская (1695), Пензенская (1717), Песчанская (1754), Чимеевская (1770), Высочиновская (XVIII), Вышенская (1812)",
       "origins": [
         "memory-day-0941:title",
         "memory-day-0941:shortTitle"
       ],
-      "currentCu": "Чтимые списки с Казанской иконы Божией Матери: в Москве (1612), Казани (1579), и Петербурге (1721); Ярославская (1588), Вязниковская (1624), Нижнеломовская (1643), Витебская (1655) Тобольская (1661), Каплуновская (1689), Тамбовская (1895), Пензенская (1717), Песчанская (1754), Чимеевская (1770), в Высочиновская (XVIII), в Вышенская (1812)",
+      "currentCu": "Чтимые списки с Казанской иконы Божией Матери: в Москве (1612), Казани (1579), и Петербурге (1721); Ярославская (1588), Вязниковская (1624), Нижнеломовская (1643), Витебская (1655), Тобольская (1661), Каплуновская (1689), Тамбовская (1695), Пензенская (1717), Песчанская (1754), Чимеевская (1770), Высочиновская (XVIII), Вышенская (1812)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -23462,12 +23486,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Оршанской (1631) Чухломской, или Галичской (1350), и Абалацкой (\"Знамение\") (1637) икон Божией Матери",
+      "source": "Оршанской (1631), Чухломской, или Галичской (1350), и Абалакской (\"Знамение\") (1637) икон Божией Матери",
       "origins": [
         "memory-day-0948:title",
         "memory-day-0948:shortTitle"
       ],
-      "currentCu": "Оршанской (1631) Чухломской, или Галичской (1350), и Абалацкой (\"Знамение\") (1637) икон Божией Матери",
+      "currentCu": "Оршанской (1631), Чухломской, или Галичской (1350), и Абалакской (\"Знамение\") (1637) икон Божией Матери",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -23476,11 +23500,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Оршанской Чухломской, или Галичской, и Абалацкой (\"Знамение\") икон…",
+      "source": "Оршанской, Чухломской, или Галичской, и Абалакской (\"Знамение\") икон…",
       "origins": [
         "memory-day-0948:veryShortTitle"
       ],
-      "currentCu": "Оршанской Чухломской, или Галичской, и Абалацкой (\"Знамение\") икон…",
+      "currentCu": "Оршанской, Чухломской, или Галичской, и Абалакской (\"Знамение\") икон…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -23555,12 +23579,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Чтимые списки со Смоленской иконы Божией Матери: Устюженская (1290), Выдропусская (XV), Воронинская (1624), Христофоровская (XVI), Супрасльская (XVI), Югская (1615), Игрицкая (1624), Шуйская (1654-1655), Седмиезерная (XVII), Сергиевская (в Троице-Сергиевой Лавре) (1730)",
+      "source": "Чтимые списки со Смоленской иконы Божией Матери: Устюженская (1290), Выдропусская (XV), Христофоровская (XVI), Супрасльская (XVI), Югская (1615), Игрицкая (ок. 1622), Шуйская (1654-1655), Седмиезерная (XVII), Сергиевская (в Троице-Сергиевой Лавре) (1730)",
       "origins": [
         "memory-day-0951:title",
         "memory-day-0951:shortTitle"
       ],
-      "currentCu": "Чтимые списки со Смоленской иконы Божией Матери: Устюженская (1290), Выдропусская (XV), Воронинская (1624), Христофоровская (XVI), Супрасльская (XVI), Югская (1615), Игрицкая (1624), Шуйская (1654-1655), Седмиезерная (XVII), Сергиевская (в Троице-Сергиевой Лавре) (1730)",
+      "currentCu": "Чтимые списки со Смоленской иконы Божией Матери: Устюженская (1290), Выдропусская (XV), Христофоровская (XVI), Супрасльская (XVI), Югская (1615), Игрицкая (ок. 1622), Шуйская (1654-1655), Седмиезерная (XVII), Сергиевская (в Троице-Сергиевой Лавре) (1730)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -23732,12 +23756,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свенской (Печерской) икон Божией Матери (1288)",
+      "source": "Свенской (Печерской) иконы Божией Матери (1288)",
       "origins": [
         "memory-day-0958:title",
         "memory-day-0958:shortTitle"
       ],
-      "currentCu": "Свенской (Печерской) икон Божией Матери (1288)",
+      "currentCu": "Свенской (Печерской) иконы Божией Матери (1288)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -23746,11 +23770,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свенской (Печерской) икон Божией Матери",
+      "source": "Свенской (Печерской) иконы Божией Матери",
       "origins": [
         "memory-day-0958:veryShortTitle"
       ],
-      "currentCu": "Свенской (Печерской) икон Божией Матери",
+      "currentCu": "Свенской (Печерской) иконы Божией Матери",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -24724,12 +24748,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Купятицкой иконы Божией Матери (1180)",
+      "source": "Купятицкой иконы Божией Матери (1182)",
       "origins": [
         "memory-day-0996:title",
         "memory-day-0996:shortTitle"
       ],
-      "currentCu": "Купятицкой иконы Божией Матери (1180)",
+      "currentCu": "Купятицкой иконы Божией Матери (1182)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -24790,12 +24814,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Икон Божией Матери \"Знамение\": Курской-Коренной (1295), Абалацкой (1637), Царскосельской, Верхнетагильской (1753), именуемой \"Корчемная\" (XVIII), Серафимо-Понетаевской (1879)",
+      "source": "Икон Божией Матери \"Знамение\": Курской-Коренной (1295), Абалакской (1637), Царскосельской, Верхнетагильской (1753), именуемой \"Корчемная\" (XVIII), Серафимо-Понетаевской (1879)",
       "origins": [
         "memory-day-0998:title",
         "memory-day-0998:shortTitle"
       ],
-      "currentCu": "Икон Божией Матери \"Знамение\": Курской-Коренной (1295), Абалацкой (1637), Царскосельской, Верхнетагильской (1753), именуемой \"Корчемная\" (XVIII), Серафимо-Понетаевской (1879)",
+      "currentCu": "Икон Божией Матери \"Знамение\": Курской-Коренной (1295), Абалакской (1637), Царскосельской, Верхнетагильской (1753), именуемой \"Корчемная\" (XVIII), Серафимо-Понетаевской (1879)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -24804,11 +24828,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Икон Божией Матери \"Знамение\": Курской-Коренной, Абалацкой…",
+      "source": "Икон Божией Матери \"Знамение\": Курской-Коренной, Абалакской…",
       "origins": [
         "memory-day-0998:veryShortTitle"
       ],
-      "currentCu": "Икон Божией Матери \"Знамение\": Курской-Коренной, Абалацкой…",
+      "currentCu": "Икон Божией Матери \"Знамение\": Курской-Коренной, Абалакской…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -26201,13 +26225,25 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прп. Евфимия исп (XX) (Груз.)",
+      "source": "Прп. Евфимия исп. (1944) (Груз.)",
       "origins": [
         "memory-day-1064:title",
-        "memory-day-1064:shortTitle",
+        "memory-day-1064:shortTitle"
+      ],
+      "currentCu": "Прп. Евфимия исп. (1944) (Груз.)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Прп. Евфимия исп. (Груз.)",
+      "origins": [
         "memory-day-1064:veryShortTitle"
       ],
-      "currentCu": "Прп. Евфимия исп (XX) (Груз.)",
+      "currentCu": "Прп. Евфимия исп. (Груз.)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -26689,14 +26725,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Герасима Великопермского, Устьвымского (ок. 1449)",
+      "source": "Свт. Герасима Великопермского, Устьвымского (1441)",
       "origins": [
         "memory-day-1086:title",
         "memory-day-1086:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ гера́сїма пе́рмскагѡ (ок. 1449)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Свт. Герасима Великопермского, Устьвымского (1441)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -27961,12 +27999,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мчч. дев Еннафы, Валентины и Павлы (308)",
+      "source": "Мцц. дев Еннафы, Валентины и Павлы (308)",
       "origins": [
         "memory-day-1139:title",
         "memory-day-1139:shortTitle"
       ],
-      "currentCu": "Мчч. дев Еннафы, Валентины и Павлы (308)",
+      "currentCu": "Мцц. дев Еннафы, Валентины и Павлы (308)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -27975,11 +28013,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мчч. дев Еннафы, Валентины и Павлы",
+      "source": "Мцц. дев Еннафы, Валентины и Павлы",
       "origins": [
         "memory-day-1139:veryShortTitle"
       ],
-      "currentCu": "Мчч. дев Еннафы, Валентины и Павлы",
+      "currentCu": "Мцц. дев Еннафы, Валентины и Павлы",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -30693,12 +30731,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Александра, иерея в Сиде (279-275)",
+      "source": "Сщмч. Александра, иерея в Сиде (270-275)",
       "origins": [
         "memory-day-1264:title",
         "memory-day-1264:shortTitle"
       ],
-      "currentCu": "Сщмч. Александра, иерея в Сиде (279-275)",
+      "currentCu": "Сщмч. Александра, иерея в Сиде (270-275)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -32799,14 +32837,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Зинона, еп. Веронийского (ок. 260)",
+      "source": "Сщмч. Зинона, еп. Веронийского (ок. 370)",
       "origins": [
         "memory-day-1358:title",
         "memory-day-1358:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ сщ҃енномч҃ника зинѡ́на, є҆пі́скопа вероні́йскагѡ (ок. 260)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Сщмч. Зинона, еп. Веронийского (ок. 370)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -34488,12 +34528,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Блгв. и равноап. царя Бориса, во св. Крещении Михаила (ок. 908), принявшего Крещение со своим народом в IX веке (Болг.)",
+      "source": "Блгв. и равноап. царя Бориса, во св. Крещении Михаила (907), принявшего Крещение со своим народом в IX веке (Болг.)",
       "origins": [
         "memory-day-1428:title",
         "memory-day-1428:shortTitle"
       ],
-      "currentCu": "Блгв. и равноап. царя Бориса, во св. Крещении Михаила (ок. 908), принявшего Крещение со своим народом в IX веке (Болг.)",
+      "currentCu": "Блгв. и равноап. царя Бориса, во св. Крещении Михаила (907), принявшего Крещение со своим народом в IX веке (Болг.)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -35184,16 +35224,14 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Иосифа, митр. Астраханского (1672)",
+      "source": "Сщмч. Иосифа, митр. Астраханского (1671)",
       "origins": [
         "memory-day-1457:title",
         "memory-day-1457:shortTitle"
       ],
-      "currentCu": "Сщмч. Иосифа, митр. Астраханского (1672)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ сщ҃енномч҃ника і҆ѡ́сифа, митрополі́та а҆страха́нскагѡ (1671)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -35315,14 +35353,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Второе обретение мощей прав. Симеона Верхотурского (1992)",
+      "source": "Второе обретение мощей прав. Симеона Верхотурского (1989)",
       "origins": [
         "memory-day-1462:title",
         "memory-day-1462:shortTitle"
       ],
-      "currentCu": "Второ́е ѡ҆брѣ́тенїе моще́й прпⷣбнагѡ сѷмеѡ́на верхотꙋ́рскагѡ (1992)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Второе обретение мощей прав. Симеона Верхотурского (1989)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -36013,12 +36053,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мчч. Давида и Таричана (683) (Груз.)",
+      "source": "Мчч. Давида и Таричана (693) (Груз.)",
       "origins": [
         "memory-day-1490:title",
         "memory-day-1490:shortTitle"
       ],
-      "currentCu": "Мчч. Давида и Таричана (683) (Груз.)",
+      "currentCu": "Мчч. Давида и Таричана (693) (Груз.)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -37016,12 +37056,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прп. Иустина Поповича, Челийского (1978) (Серб.)",
+      "source": "Прп. Иустина Поповича, Челийского (1979) (Серб.)",
       "origins": [
         "memory-day-1532:title",
         "memory-day-1532:shortTitle"
       ],
-      "currentCu": "Прп. Иустина Поповича, Челийского (1978) (Серб.)",
+      "currentCu": "Прп. Иустина Поповича, Челийского (1979) (Серб.)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -40225,12 +40265,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мцц. Анны и Кириллы (304)",
+      "source": "Мцц. Анны (ок. 304) и Кириллы (310)",
       "origins": [
         "memory-day-1668:title",
         "memory-day-1668:shortTitle"
       ],
-      "currentCu": "Мцц. Анны и Кириллы (304)",
+      "currentCu": "Мцц. Анны (ок. 304) и Кириллы (310)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -43331,14 +43371,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Питирима, еп. Великопермского (1456)",
+      "source": "Свт. Питирима, еп. Великопермского (1455)",
       "origins": [
         "memory-day-1806:title",
         "memory-day-1806:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ питири́ма, є҆пі́скопа пе́рмскагѡ (1456)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Свт. Питирима, еп. Великопермского (1455)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -44353,22 +44395,24 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Иоанникия II, патриарха Сербского (1349)",
+      "source": "Свт. Иоанникия II, патриарха Сербского (1354)",
       "origins": [
         "memory-day-1849:title"
       ],
-      "currentCu": "Ст҃а́гѡ і҆ѡанні́кїа в҃, патрїа́рха се́рбскагѡ (1349)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Свт. Иоанникия II, патриарха Сербского (1354)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Иоанникия II, патр. Сербского (1349)",
+      "source": "Свт. Иоанникия II, патр. Сербского (1354)",
       "origins": [
         "memory-day-1849:shortTitle"
       ],
-      "currentCu": "Свт. Иоанникия II, патр. Сербского (1349)",
+      "currentCu": "Свт. Иоанникия II, патр. Сербского (1354)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -44390,14 +44434,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Парфения, игумена Кизилташского (1867)",
+      "source": "Прмч. Парфения, игумена Кизилташского (1866)",
       "origins": [
         "memory-day-1850:title",
         "memory-day-1850:shortTitle"
       ],
-      "currentCu": "Прпⷣбномч҃ника парѳе́нїа, и҆гꙋ́мена кизилта́шскагѡ (1867)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Прмч. Парфения, игумена Кизилташского (1866)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -46541,23 +46587,25 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Св. царя Стефана Сербского (1224) и сына его св. царя Владислава Сербского (1230-1239)",
+      "source": "Св. короля Стефана Первовенчанного, в монашестве Симона, Сербского (1228) и сына его св. короля Владислава Сербского (после 1264)",
       "origins": [
         "memory-day-1946:title",
         "memory-day-1946:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ царѧ̀ стефа́на се́рбскагѡ (1224) и҆ сы́на є҆гѡ̀ ст҃а́гѡ царѧ̀ владисла́ва се́рбскагѡ (1230-1239)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Св. короля Стефана Первовенчанного, в монашестве Симона, Сербского (1228) и сына его св. короля Владислава Сербского (после 1264)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Св. царя Стефана Сербского и сына его св. царя Владислава Сербского",
+      "source": "Св. короля Стефана Первовенчанного, в монашестве Симона, Сербского и…",
       "origins": [
         "memory-day-1946:veryShortTitle"
       ],
-      "currentCu": "Св. царя Стефана Сербского и сына его св. царя Владислава Сербского",
+      "currentCu": "Св. короля Стефана Первовенчанного, в монашестве Симона, Сербского и…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -46682,14 +46730,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Перенесение мощей свт. Германа, архиеп. Казанского (1595)",
+      "source": "Перенесение мощей свт. Германа, архиеп. Казанского (1592)",
       "origins": [
         "memory-day-1951:title",
         "memory-day-1951:shortTitle"
       ],
-      "currentCu": "Пренесе́нїе моще́й ст҃а́гѡ ге́рмана, а҆рхїепⷭ҇копа каза́нскагѡ (1595)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Перенесение мощей свт. Германа, архиеп. Казанского (1592)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -51633,14 +51683,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Свт. Геннадия, архиеп. Новгородского (1504)",
+      "source": "Свт. Геннадия, архиеп. Новгородского (1505)",
       "origins": [
         "memory-day-2177:title",
         "memory-day-2177:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ генна́дїѧ, а҆рхїепⷭ҇копа новгоро́дскагѡ (1504)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Свт. Геннадия, архиеп. Новгородского (1505)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -51948,12 +52000,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Блж. Иоанна (1503) и родителей его блжж. Стефана (1446) и Ангелины, Бранковичей, правителей Сербских",
+      "source": "Блж. Иоанна (1503) и родителей его блжж. Стефана (1476) и Ангелины, Бранковичей, правителей Сербских",
       "origins": [
         "memory-day-2193:title",
         "memory-day-2193:shortTitle"
       ],
-      "currentCu": "Блж. Иоанна (1503) и родителей его блжж. Стефана (1446) и Ангелины, Бранковичей, правителей Сербских",
+      "currentCu": "Блж. Иоанна (1503) и родителей его блжж. Стефана (1476) и Ангелины, Бранковичей, правителей Сербских",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -53710,12 +53762,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мч. Николая Цикуры (1918)",
+      "source": "Прмч. Николая Цикуры (1918)",
       "origins": [
         "memory-day-2271:title",
         "memory-day-2271:shortTitle"
       ],
-      "currentCu": "Мч. Николая Цикуры (1918)",
+      "currentCu": "Прмч. Николая Цикуры (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -53724,11 +53776,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мч. Николая Цикуры",
+      "source": "Прмч. Николая Цикуры",
       "origins": [
         "memory-day-2271:veryShortTitle"
       ],
-      "currentCu": "Мч. Николая Цикуры",
+      "currentCu": "Прмч. Николая Цикуры",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -53884,12 +53936,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Николая Мезенцева пресвитера (1938)",
+      "source": "Сщмч. Николая Мезенцева пресвитера (1938); сщмч. Михаила Белороссова пресвитера (1920)",
       "origins": [
         "memory-day-2277:title",
         "memory-day-2277:shortTitle"
       ],
-      "currentCu": "Сщмч. Николая Мезенцева пресвитера (1938)",
+      "currentCu": "Сщмч. Николая Мезенцева пресвитера (1938); сщмч. Михаила Белороссова пресвитера (1920)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -53898,11 +53950,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Николая Мезенцева пресвитера",
+      "source": "Сщмч. Николая Мезенцева пресвитера; сщмч. Михаила Белороссова пресвитера",
       "origins": [
         "memory-day-2277:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Николая Мезенцева пресвитера",
+      "currentCu": "Сщмч. Николая Мезенцева пресвитера; сщмч. Михаила Белороссова пресвитера",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54046,12 +54098,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Симеона Кульгавца, Андрея Добрынина, Сергия Любомудрова и Петра Маркова пресвитеров (1938); сщмч. Александра Абиссова пресвитера (1942",
+      "source": "Сщмчч. Симеона Кульгавца, Андрея Добрынина, Сергия Любомудрова и Петра Маркова пресвитеров (1938); сщмч. Александра Абиссова пресвитера (1942)",
       "origins": [
         "memory-day-2283:title",
         "memory-day-2283:shortTitle"
       ],
-      "currentCu": "Сщмчч. Симеона Кульгавца, Андрея Добрынина, Сергия Любомудрова и Петра Маркова пресвитеров (1938); сщмч. Александра Абиссова пресвитера (1942",
+      "currentCu": "Сщмчч. Симеона Кульгавца, Андрея Добрынина, Сергия Любомудрова и Петра Маркова пресвитеров (1938); сщмч. Александра Абиссова пресвитера (1942)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54127,12 +54179,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Василия Триумфова и Гавриила Преображенского пресвитеров (1919); сщмч. Сильвестра, архиеп. Омского (1920); сщмчч. Зосимы Трубачева, Николая Добролюбова, Василия Горбачева, Иоанна Покровского, Леонтия Гримальского, Владимира Покровского, Парфения Грузинова, Иоанна Калабухова, Иоанна Косинского, Михаила Попова пресвитеров и Евгения Никольского диакона, прмцц. Анны Корнеевой, Веры Морозовой и Ирины Хвостовой, мч. Павла Соколова (1938)",
+      "source": "Сщмчч. Василия Триумфова и Гавриила Преображенского пресвитеров (1919); сщмчч. Зосимы Трубачева, Николая Добролюбова, Василия Горбачева, Иоанна Покровского, Леонтия Гримальского, Владимира Покровского, Парфения Грузинова, Иоанна Калабухова, Иоанна Косинского, Михаила Попова пресвитеров и Евгения Никольского диакона, прмцц. Анны Корнеевой, Веры Морозовой и Ирины Хвостовой, мч. Павла Соколова (1938)",
       "origins": [
         "memory-day-2286:title",
         "memory-day-2286:shortTitle"
       ],
-      "currentCu": "Сщмчч. Василия Триумфова и Гавриила Преображенского пресвитеров (1919); сщмч. Сильвестра, архиеп. Омского (1920); сщмчч. Зосимы Трубачева, Николая Добролюбова, Василия Горбачева, Иоанна Покровского, Леонтия Гримальского, Владимира Покровского, Парфения Грузинова, Иоанна Калабухова, Иоанна Косинского, Михаила Попова пресвитеров и Евгения Никольского диакона, прмцц. Анны Корнеевой, Веры Морозовой и Ирины Хвостовой, мч. Павла Соколова (1938)",
+      "currentCu": "Сщмчч. Василия Триумфова и Гавриила Преображенского пресвитеров (1919); сщмчч. Зосимы Трубачева, Николая Добролюбова, Василия Горбачева, Иоанна Покровского, Леонтия Гримальского, Владимира Покровского, Парфения Грузинова, Иоанна Калабухова, Иоанна Косинского, Михаила Попова пресвитеров и Евгения Никольского диакона, прмцц. Анны Корнеевой, Веры Морозовой и Ирины Хвостовой, мч. Павла Соколова (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54154,12 +54206,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Онисима, еп. Тульского (1937); сщмч. Трифона Родонежского диакона (1938)",
+      "source": "Сщмч. Павла Дернова пресвитера и сыновей его мчч. Бориса, Григория и Симеона (1918); сщмч. Онисима, еп. Тульского (1938); сщмч. Трифона Родонежского диакона (1938)",
       "origins": [
         "memory-day-2287:title",
         "memory-day-2287:shortTitle"
       ],
-      "currentCu": "Сщмч. Онисима, еп. Тульского (1937); сщмч. Трифона Родонежского диакона (1938)",
+      "currentCu": "Сщмч. Павла Дернова пресвитера и сыновей его мчч. Бориса, Григория и Симеона (1918); сщмч. Онисима, еп. Тульского (1938); сщмч. Трифона Родонежского диакона (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54168,11 +54220,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Онисима; сщмч. Трифона Родонежского диакона",
+      "source": "Сщмч. Павла Дернова пресвитера и сыновей его мчч. Бориса, Григория и…",
       "origins": [
         "memory-day-2287:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Онисима; сщмч. Трифона Родонежского диакона",
+      "currentCu": "Сщмч. Павла Дернова пресвитера и сыновей его мчч. Бориса, Григория и…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54397,12 +54449,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Александра Виноградова пресвитера, прмц. Мстиславы Фокиной (1938); сщмч. Николая Троицкого пресвитера (1945)",
+      "source": "Сщмч. Александра Виноградова пресвитера, прмц. Мстиславы Фокиной (1938); сщмч. Николая Троицкого пресвитера (1945); свт. Сильвестра, архиеп. Омского, исп. (1920)",
       "origins": [
         "memory-day-2296:title",
         "memory-day-2296:shortTitle"
       ],
-      "currentCu": "Сщмч. Александра Виноградова пресвитера, прмц. Мстиславы Фокиной (1938); сщмч. Николая Троицкого пресвитера (1945)",
+      "currentCu": "Сщмч. Александра Виноградова пресвитера, прмц. Мстиславы Фокиной (1938); сщмч. Николая Троицкого пресвитера (1945); свт. Сильвестра, архиеп. Омского, исп. (1920)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54451,12 +54503,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия Увицкого пресвитера (1932). Сщмч. Петра пресвитера, мч. Михаила (1938)",
+      "source": "Мч. Михаила Маркова (1938)",
       "origins": [
         "memory-day-2298:title",
         "memory-day-2298:shortTitle"
       ],
-      "currentCu": "Сщмч. Сергия Увицкого пресвитера (1932). Сщмч. Петра пресвитера, мч. Михаила (1938)",
+      "currentCu": "Мч. Михаила Маркова (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54465,11 +54517,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия Увицкого пресвитера. Сщмч. Петра пресвитера, мч. Михаила",
+      "source": "Мч. Михаила Маркова",
       "origins": [
         "memory-day-2298:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Сергия Увицкого пресвитера. Сщмч. Петра пресвитера, мч. Михаила",
+      "currentCu": "Мч. Михаила Маркова",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54478,23 +54530,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия пресвитера (1932)",
+      "source": "Сщмч. Сергия Увицкого пресвитера (1932)",
       "origins": [
         "memory-day-2299:title",
         "memory-day-2299:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ сщ҃енномч҃ника се́ргїа пресвѵ́тера (1932)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
-      "missingGlyphs": [],
-      "independentPhilologicalApproval": false
-    },
-    {
-      "source": "Сщмч. Сергия пресвитера",
-      "origins": [
-        "memory-day-2299:veryShortTitle"
-      ],
-      "currentCu": "Сщмч. Сергия пресвитера",
+      "currentCu": "Сщмч. Сергия Увицкого пресвитера (1932)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54503,12 +54544,25 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Василия Никитского, Петра Любимова, Иоанна Стрельцова, Вениамина Фаминцева, Михаила Букринского пресвитеров, прмч. Антония Коржа, прмцц. Анны Макандиной, Дарии Зайцевой, Евдокии Архиповой, Ольги Жильцовой, Александры Дьячковой, Матроны Макандиной, мч. Василия Архипова, мц. Надежды Аббакумовой (1938); сщмч. Александра Ильенкова пресвитера (1942); сщмч. Василия Константинова-Гришина пресвитера (1943)",
+      "source": "Сщмч. Сергия Увицкого пресвитера",
+      "origins": [
+        "memory-day-2299:veryShortTitle"
+      ],
+      "currentCu": "Сщмч. Сергия Увицкого пресвитера",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Сщмчч. Василия Никитского, Петра Любимова, Иоанна Стрельцова, Вениамина Фаминцева, Михаила Букринского пресвитеров, прмч. Антония Коржа, прмцц. Анны Макандиной, Дарии Зайцевой, Евдокии Архиповой, Ольги Жильцовой, Александры Дьячковой, Матроны Макандиной, мч. Василия Архипова, мц. Надежды Абакумовой (1938); сщмч. Александра Ильенкова пресвитера (1942); сщмч. Василия Константинова-Гришина пресвитера (1943)",
       "origins": [
         "memory-day-2300:title",
         "memory-day-2300:shortTitle"
       ],
-      "currentCu": "Сщмчч. Василия Никитского, Петра Любимова, Иоанна Стрельцова, Вениамина Фаминцева, Михаила Букринского пресвитеров, прмч. Антония Коржа, прмцц. Анны Макандиной, Дарии Зайцевой, Евдокии Архиповой, Ольги Жильцовой, Александры Дьячковой, Матроны Макандиной, мч. Василия Архипова, мц. Надежды Аббакумовой (1938); сщмч. Александра Ильенкова пресвитера (1942); сщмч. Василия Константинова-Гришина пресвитера (1943)",
+      "currentCu": "Сщмчч. Василия Никитского, Петра Любимова, Иоанна Стрельцова, Вениамина Фаминцева, Михаила Букринского пресвитеров, прмч. Антония Коржа, прмцц. Анны Макандиной, Дарии Зайцевой, Евдокии Архиповой, Ольги Жильцовой, Александры Дьячковой, Матроны Макандиной, мч. Василия Архипова, мц. Надежды Абакумовой (1938); сщмч. Александра Ильенкова пресвитера (1942); сщмч. Василия Константинова-Гришина пресвитера (1943)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54773,12 +54827,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Николая Попова пресвитера (1919); сщмч. Григория Поспелова пресвитера (1921); сщмч. Михаила Околовича пресвитера (1938)",
+      "source": "Сщмч. Николая Попова пресвитера (1919); сщмч. Григория Поспелова пресвитера (1921)",
       "origins": [
         "memory-day-2310:title",
         "memory-day-2310:shortTitle"
       ],
-      "currentCu": "Сщмч. Николая Попова пресвитера (1919); сщмч. Григория Поспелова пресвитера (1921); сщмч. Михаила Околовича пресвитера (1938)",
+      "currentCu": "Сщмч. Николая Попова пресвитера (1919); сщмч. Григория Поспелова пресвитера (1921)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -54787,11 +54841,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Николая Попова пресвитера; сщмч. Григория Поспелова…",
+      "source": "Сщмч. Николая Попова пресвитера; сщмч. Григория Поспелова пресвитера",
       "origins": [
         "memory-day-2310:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Николая Попова пресвитера; сщмч. Григория Поспелова…",
+      "currentCu": "Сщмч. Николая Попова пресвитера; сщмч. Григория Поспелова пресвитера",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -55716,12 +55770,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия Рохлецова пресвитера (1938)",
+      "source": "Сщмч. Сергия Рохлецова пресвитера, св. Надежды Семеновой, исп. (1938)",
       "origins": [
         "memory-day-2345:title",
         "memory-day-2345:shortTitle"
       ],
-      "currentCu": "Сщмч. Сергия Рохлецова пресвитера (1938)",
+      "currentCu": "Сщмч. Сергия Рохлецова пресвитера, св. Надежды Семеновой, исп. (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -55730,11 +55784,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия Рохлецова пресвитера",
+      "source": "Сщмч. Сергия Рохлецова пресвитера, св. Надежды Семеновой, исп.",
       "origins": [
         "memory-day-2345:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Сергия Рохлецова пресвитера",
+      "currentCu": "Сщмч. Сергия Рохлецова пресвитера, св. Надежды Семеновой, исп.",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -55984,25 +56038,23 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Михаила Белороссова пресвитера (1920); сщмч. Александра, архиеп. Харьковского (1940)",
+      "source": "сщмч. Александра, архиеп. Харьковского (1940)",
       "origins": [
         "memory-day-2355:title",
         "memory-day-2355:shortTitle"
       ],
-      "currentCu": "Сщмч. Михаила Белороссова пресвитера (1920); сщмч. Александра, архиеп. Харьковского (1940)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ сщ҃енномч҃ника а҆леѯа́ндра, а҆рхїепⷭ҇копа ха́рьковскагѡ (1940)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Михаила Белороссова пресвитера; сщмч. Александра",
+      "source": "сщмч. Александра",
       "origins": [
         "memory-day-2355:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Михаила Белороссова пресвитера; сщмч. Александра",
+      "currentCu": "сщмч. Александра",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56505,12 +56557,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Андроника, архиеп. Пермского, Александра Осетрова, Валентина Белова, Вениамина Луканина, Виктора Никифорова, Александра Махетова, Павла Аношкина, Владимира Белозерова, Игнатия Якимова, Михаила Денисова, Николая Онянова, Павла Соколова, Александра Преображенского, Николая Рождественского, Николая Конюхова пресвитеров, Григория Смирнова диакона и мчч. Афанасия Жуланова и Александра Зуева (1918); сщмч. Петра Кузнецова пресвитера (1919)",
+      "source": "Сщмчч. Андроника, архиеп. Пермского, Александра Осетрова, Валентина Белова, Вениамина Луканина, Виктора Никифорова, Александра Махетова, Владимира Белозерова, Игнатия Якимова, Михаила Денисова, Николая Онянова, Павла Соколова, Александра Преображенского, Николая Рождественского, Николая Конюхова пресвитеров и мч. Александра Зуева (1918); сщмч. Петра Кузнецова пресвитера (1919)",
       "origins": [
         "memory-day-2374:title",
         "memory-day-2374:shortTitle"
       ],
-      "currentCu": "Сщмчч. Андроника, архиеп. Пермского, Александра Осетрова, Валентина Белова, Вениамина Луканина, Виктора Никифорова, Александра Махетова, Павла Аношкина, Владимира Белозерова, Игнатия Якимова, Михаила Денисова, Николая Онянова, Павла Соколова, Александра Преображенского, Николая Рождественского, Николая Конюхова пресвитеров, Григория Смирнова диакона и мчч. Афанасия Жуланова и Александра Зуева (1918); сщмч. Петра Кузнецова пресвитера (1919)",
+      "currentCu": "Сщмчч. Андроника, архиеп. Пермского, Александра Осетрова, Валентина Белова, Вениамина Луканина, Виктора Никифорова, Александра Махетова, Владимира Белозерова, Игнатия Якимова, Михаила Денисова, Николая Онянова, Павла Соколова, Александра Преображенского, Николая Рождественского, Николая Конюхова пресвитеров и мч. Александра Зуева (1918); сщмч. Петра Кузнецова пресвитера (1919)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56609,12 +56661,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Иосифа Сикова пресвитера (1918); сщмчч. Александра Парусникова, Павла Иванова пресвитеров и Николая Запольского диакона (1938)",
+      "source": "Сщмчч. Иосифа Сикова и Димитрия Семенова пресвитеров (1918); сщмчч. Александра Парусникова, Павла Иванова пресвитеров и Николая Запольского диакона (1938)",
       "origins": [
         "memory-day-2378:title",
         "memory-day-2378:shortTitle"
       ],
-      "currentCu": "Сщмч. Иосифа Сикова пресвитера (1918); сщмчч. Александра Парусникова, Павла Иванова пресвитеров и Николая Запольского диакона (1938)",
+      "currentCu": "Сщмчч. Иосифа Сикова и Димитрия Семенова пресвитеров (1918); сщмчч. Александра Парусникова, Павла Иванова пресвитеров и Николая Запольского диакона (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56623,11 +56675,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Иосифа Сикова пресвитера; сщмчч. Александра Парусникова, Павла…",
+      "source": "Сщмчч. Иосифа Сикова и Димитрия Семенова пресвитеров; сщмчч…",
       "origins": [
         "memory-day-2378:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Иосифа Сикова пресвитера; сщмчч. Александра Парусникова, Павла…",
+      "currentCu": "Сщмчч. Иосифа Сикова и Димитрия Семенова пресвитеров; сщмчч…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56821,12 +56873,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Миропольского, Алексия Введенского, Петра Смородинцева пресвитеров (1918); сщмч. Митрофана, архиеп. Астраханского (1919)",
+      "source": "Сщмчч. Александра Миропольского, Петра Смородинцева пресвитеров (1918); сщмч. Митрофана, архиеп. Астраханского (1919)",
       "origins": [
         "memory-day-2386:title",
         "memory-day-2386:shortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Миропольского, Алексия Введенского, Петра Смородинцева пресвитеров (1918); сщмч. Митрофана, архиеп. Астраханского (1919)",
+      "currentCu": "Сщмчч. Александра Миропольского, Петра Смородинцева пресвитеров (1918); сщмч. Митрофана, архиеп. Астраханского (1919)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56835,11 +56887,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Миропольского, Алексия Введенского, Петра…",
+      "source": "Сщмчч. Александра Миропольского, Петра Смородинцева пресвитеров…",
       "origins": [
         "memory-day-2386:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Миропольского, Алексия Введенского, Петра…",
+      "currentCu": "Сщмчч. Александра Миропольского, Петра Смородинцева пресвитеров…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56902,12 +56954,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Сидорова и Владимира Сергеева пресвитеров (1918); сщмч. Петра Остроумова пресвитера (1939)",
+      "source": "Сщмчч. Григория Никольского, Александра Сидорова и Владимира Сергеева пресвитеров (1918); сщмч. Петра Остроумова пресвитера (1939)",
       "origins": [
         "memory-day-2389:title",
         "memory-day-2389:shortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Сидорова и Владимира Сергеева пресвитеров (1918); сщмч. Петра Остроумова пресвитера (1939)",
+      "currentCu": "Сщмчч. Григория Никольского, Александра Сидорова и Владимира Сергеева пресвитеров (1918); сщмч. Петра Остроумова пресвитера (1939)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56916,11 +56968,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Сидорова и Владимира Сергеева пресвитеров; сщмч…",
+      "source": "Сщмчч. Григория Никольского, Александра Сидорова и Владимира…",
       "origins": [
         "memory-day-2389:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Сидорова и Владимира Сергеева пресвитеров; сщмч…",
+      "currentCu": "Сщмчч. Григория Никольского, Александра Сидорова и Владимира…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -56956,12 +57008,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Тимофея Петропавловского пресвитера, прмч. Никандра Прусака (1918); прмч. Феогена Козырева (1939); мч. Иоанна Демидова (1944)",
+      "source": "Сщмч. Тимофея Петропавловского пресвитера, прмч. Никандра Прусака (1918); прмч. Феогена Козырева (1939); мч. Иоанна Демидова (1944); сщмч. Алексия Введенского пресвитера (1918)",
       "origins": [
         "memory-day-2391:title",
         "memory-day-2391:shortTitle"
       ],
-      "currentCu": "Сщмч. Тимофея Петропавловского пресвитера, прмч. Никандра Прусака (1918); прмч. Феогена Козырева (1939); мч. Иоанна Демидова (1944)",
+      "currentCu": "Сщмч. Тимофея Петропавловского пресвитера, прмч. Никандра Прусака (1918); прмч. Феогена Козырева (1939); мч. Иоанна Демидова (1944); сщмч. Алексия Введенского пресвитера (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57037,23 +57089,23 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Обре́тение мощей сщмч. Сильвестра, архиеп. Омского (2005)",
+      "source": "Обре́тение мощей свт. Сильвестра, архиеп. Омского, исп. (2005)",
       "origins": [
         "memory-day-2394:title",
         "memory-day-2394:shortTitle"
       ],
-      "currentCu": "Обре́тение мощей сщмч. Сильвестра, архиеп. Омского (2005)",
+      "currentCu": "Обре́тение мощей свт. Сильвестра, архиеп. Омского, исп. (2005)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Обре́тение мощей сщмч. Сильвестра",
+      "source": "Обре́тение мощей свт. Сильвестра, исп.",
       "origins": [
         "memory-day-2394:veryShortTitle"
       ],
-      "currentCu": "Обре́тение мощей сщмч. Сильвестра",
+      "currentCu": "Обре́тение мощей свт. Сильвестра, исп.",
       "localizationStatus": "source-fallback",
       "technicalIssues": [],
       "missingGlyphs": [],
@@ -57195,12 +57247,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Попова, Феодора Распопова и Николая Брянцева пресвитеров (1918)",
+      "source": "Сщмчч. Феодора Распопова и Николая Брянцева пресвитеров (1918)",
       "origins": [
         "memory-day-2400:title",
         "memory-day-2400:shortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Попова, Феодора Распопова и Николая Брянцева пресвитеров (1918)",
+      "currentCu": "Сщмчч. Феодора Распопова и Николая Брянцева пресвитеров (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57209,11 +57261,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Попова, Феодора Распопова и Николая Брянцева…",
+      "source": "Сщмчч. Феодора Распопова и Николая Брянцева пресвитеров",
       "origins": [
         "memory-day-2400:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Попова, Феодора Распопова и Николая Брянцева…",
+      "currentCu": "Сщмчч. Феодора Распопова и Николая Брянцева пресвитеров",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57249,12 +57301,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Василия Победоносцева, Петра Зефирова и Стефана Луканина пресвитеров, Георгия Бегмы и Нестора Гудзовского диаконов (1918)",
+      "source": "Сщмчч. Василия Победоносцева, Петра Зефирова и Стефана Луканина пресвитеров, Георгия Бегмы и Нестора Гудзовского диаконов (1918); сщмч. Александра Попова пресвитера (1918)",
       "origins": [
         "memory-day-2402:title",
         "memory-day-2402:shortTitle"
       ],
-      "currentCu": "Сщмчч. Василия Победоносцева, Петра Зефирова и Стефана Луканина пресвитеров, Георгия Бегмы и Нестора Гудзовского диаконов (1918)",
+      "currentCu": "Сщмчч. Василия Победоносцева, Петра Зефирова и Стефана Луканина пресвитеров, Георгия Бегмы и Нестора Гудзовского диаконов (1918); сщмч. Александра Попова пресвитера (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57729,12 +57781,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Платона Колегова (1937)",
+      "source": "Мч. Афанасия Жуланова (1918); прмч. Платона Колегова (1937)",
       "origins": [
         "memory-day-2420:title",
         "memory-day-2420:shortTitle"
       ],
-      "currentCu": "Прмч. Платона Колегова (1937)",
+      "currentCu": "Мч. Афанасия Жуланова (1918); прмч. Платона Колегова (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57743,11 +57795,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Платона Колегова",
+      "source": "Мч. Афанасия Жуланова; прмч. Платона Колегова",
       "origins": [
         "memory-day-2420:veryShortTitle"
       ],
-      "currentCu": "Прмч. Платона Колегова",
+      "currentCu": "Мч. Афанасия Жуланова; прмч. Платона Колегова",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57810,12 +57862,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Стефана Хитрова пресвитера (1918); мцц. Евдокии Шейковой, Дарии Улыбиной, Дарии Тимагиной и Марии Неизвестной (1919); сщмч. Симона, еп. Уфимского (1921); сщмч. Иоанна Смирнова диакона (1939)",
+      "source": "Сщмч. Стефана Хитрова пресвитера (1920); мцц. Евдокии Шейковой, Дарии Улыбиной, Дарии Тимагиной и Марии Неизвестной (1919); сщмч. Симона, еп. Уфимского (1921); сщмч. Иоанна Смирнова диакона (1939)",
       "origins": [
         "memory-day-2423:title",
         "memory-day-2423:shortTitle"
       ],
-      "currentCu": "Сщмч. Стефана Хитрова пресвитера (1918); мцц. Евдокии Шейковой, Дарии Улыбиной, Дарии Тимагиной и Марии Неизвестной (1919); сщмч. Симона, еп. Уфимского (1921); сщмч. Иоанна Смирнова диакона (1939)",
+      "currentCu": "Сщмч. Стефана Хитрова пресвитера (1920); мцц. Евдокии Шейковой, Дарии Улыбиной, Дарии Тимагиной и Марии Неизвестной (1919); сщмч. Симона, еп. Уфимского (1921); сщмч. Иоанна Смирнова диакона (1939)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57864,12 +57916,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Иосифа Баранова (1918); сщмч. Николая Шумкова пресвитера (1937); сщмч. Никодима, архиеп. Костромского (1938)",
+      "source": "сщмч. Николая Шумкова пресвитера (1937); сщмч. Никодима, архиеп. Костромского (1938)",
       "origins": [
         "memory-day-2425:title",
         "memory-day-2425:shortTitle"
       ],
-      "currentCu": "Прмч. Иосифа Баранова (1918); сщмч. Николая Шумкова пресвитера (1937); сщмч. Никодима, архиеп. Костромского (1938)",
+      "currentCu": "сщмч. Николая Шумкова пресвитера (1937); сщмч. Никодима, архиеп. Костромского (1938)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57878,11 +57930,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Иосифа Баранова; сщмч. Николая Шумкова пресвитера; и др.",
+      "source": "сщмч. Николая Шумкова пресвитера; сщмч. Никодима",
       "origins": [
         "memory-day-2425:veryShortTitle"
       ],
-      "currentCu": "Прмч. Иосифа Баранова; сщмч. Николая Шумкова пресвитера; и др.",
+      "currentCu": "сщмч. Николая Шумкова пресвитера; сщмч. Никодима",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57918,12 +57970,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Вячеслава Закедского пресвитера (1918); сщмч. Афанасия Кислова пресвитера (1937)",
+      "source": "сщмч. Афанасия Кислова пресвитера (1937)",
       "origins": [
         "memory-day-2427:title",
         "memory-day-2427:shortTitle"
       ],
-      "currentCu": "Сщмч. Вячеслава Закедского пресвитера (1918); сщмч. Афанасия Кислова пресвитера (1937)",
+      "currentCu": "сщмч. Афанасия Кислова пресвитера (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57932,11 +57984,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Вячеслава Закедского пресвитера; сщмч. Афанасия Кислова пресвитера",
+      "source": "сщмч. Афанасия Кислова пресвитера",
       "origins": [
         "memory-day-2427:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Вячеслава Закедского пресвитера; сщмч. Афанасия Кислова пресвитера",
+      "currentCu": "сщмч. Афанасия Кислова пресвитера",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -57945,12 +57997,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмчч. Белогорских: Варлаама Коноплева, Антония Арапова, Сергия Вершинина, Илии Попова, Вячеслава Косожилина, Иоасафа Сабанцева, Иоанна Новоселова, Виссариона Окулова, Михея Подкорытова, Матфея Банникова, Евфимия Короткова, Варнавы Надеждина, Гермогена Боярышнева, Аркадия Носкова, Евфимия Шаршилова, Маркелла Шаврина, Иоанна Ротнова, Сергия Саматова, Димитрия Созинова, Саввы Колмогорова, Иакова Старцева, Петра Рочева, Иакова Данилова, Александра Арапова, Феодора Белкина, Алексия Короткова и Петра (1918); сщмч. Василия Инфантьева пресвитера (1918); сщмчч. Леонида Бирюковича, Иоанна Никольского и Николая Доброумова пресвитеров (1937)",
+      "source": "Прмчч. Белогорских: Варлаама Коноплева, Антония Арапова, Сергия Вершинина, Илии Попова, Вячеслава Косожихина, Иоасафа Сабанцева, Иоанна Новоселова, Виссариона Окулова, Михея Подкорытова, Матфея Банникова, Евфимия Короткова, Варнавы Надеждина, Гермогена Боярышнева, Аркадия Носкова, Евфимия Ширшилова, Маркелла Шиврина, Иоанна Ротнова, Сергия Саматова, Димитрия Созинова, Саввы Колмогорова, Иакова Старцева, Петра Рочева, Иакова Данилова, Александра Арапова, Феодора Белкина, Алексия Короткова и Петра (1918); сщмчч. Василия Инфантьева и Алексия Лопатина пресвитеров (1918); сщмчч. Леонида Бирюковича, Иоанна Никольского и Николая Доброумова пресвитеров (1937)",
       "origins": [
         "memory-day-2428:title",
         "memory-day-2428:shortTitle"
       ],
-      "currentCu": "Прмчч. Белогорских: Варлаама Коноплева, Антония Арапова, Сергия Вершинина, Илии Попова, Вячеслава Косожилина, Иоасафа Сабанцева, Иоанна Новоселова, Виссариона Окулова, Михея Подкорытова, Матфея Банникова, Евфимия Короткова, Варнавы Надеждина, Гермогена Боярышнева, Аркадия Носкова, Евфимия Шаршилова, Маркелла Шаврина, Иоанна Ротнова, Сергия Саматова, Димитрия Созинова, Саввы Колмогорова, Иакова Старцева, Петра Рочева, Иакова Данилова, Александра Арапова, Феодора Белкина, Алексия Короткова и Петра (1918); сщмч. Василия Инфантьева пресвитера (1918); сщмчч. Леонида Бирюковича, Иоанна Никольского и Николая Доброумова пресвитеров (1937)",
+      "currentCu": "Прмчч. Белогорских: Варлаама Коноплева, Антония Арапова, Сергия Вершинина, Илии Попова, Вячеслава Косожихина, Иоасафа Сабанцева, Иоанна Новоселова, Виссариона Окулова, Михея Подкорытова, Матфея Банникова, Евфимия Короткова, Варнавы Надеждина, Гермогена Боярышнева, Аркадия Носкова, Евфимия Ширшилова, Маркелла Шиврина, Иоанна Ротнова, Сергия Саматова, Димитрия Созинова, Саввы Колмогорова, Иакова Старцева, Петра Рочева, Иакова Данилова, Александра Арапова, Феодора Белкина, Алексия Короткова и Петра (1918); сщмчч. Василия Инфантьева и Алексия Лопатина пресвитеров (1918); сщмчч. Леонида Бирюковича, Иоанна Никольского и Николая Доброумова пресвитеров (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58053,12 +58105,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Алексия Великосельского пресвитера (1918); сщмч. Димитрия Остроумова пресвитера (1937)",
+      "source": "сщмч. Димитрия Остроумова пресвитера (1937)",
       "origins": [
         "memory-day-2432:title",
         "memory-day-2432:shortTitle"
       ],
-      "currentCu": "Сщмч. Алексия Великосельского пресвитера (1918); сщмч. Димитрия Остроумова пресвитера (1937)",
+      "currentCu": "сщмч. Димитрия Остроумова пресвитера (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58067,11 +58119,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Алексия Великосельского пресвитера; сщмч. Димитрия Остроумова…",
+      "source": "сщмч. Димитрия Остроумова пресвитера",
       "origins": [
         "memory-day-2432:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Алексия Великосельского пресвитера; сщмч. Димитрия Остроумова…",
+      "currentCu": "сщмч. Димитрия Остроумова пресвитера",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58080,12 +58132,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Григория Бронникова пресвитера и мчч. Евгения Дмитрева и Михаила Ерегодского (1937)",
+      "source": "Сщмч. Григория Бронникова пресвитера и мчч. Евгения Дмитрева и Михаила Ерогодского (1937)",
       "origins": [
         "memory-day-2433:title",
         "memory-day-2433:shortTitle"
       ],
-      "currentCu": "Сщмч. Григория Бронникова пресвитера и мчч. Евгения Дмитрева и Михаила Ерегодского (1937)",
+      "currentCu": "Сщмч. Григория Бронникова пресвитера и мчч. Евгения Дмитрева и Михаила Ерогодского (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58134,12 +58186,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Малиновского, Льва Ершова, Владимира Четверина пресвитеров (1918); сщмч. Николая Бирюкова пресвитера (1919)",
+      "source": "Сщмчч. Александра Малиновского, Льва Ершова, Владимира Четверина пресвитеров (1918); сщмч. Николая Бирюкова пресвитера (1919); прмч. Иосифа Баранова (1918)",
       "origins": [
         "memory-day-2435:title",
         "memory-day-2435:shortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Малиновского, Льва Ершова, Владимира Четверина пресвитеров (1918); сщмч. Николая Бирюкова пресвитера (1919)",
+      "currentCu": "Сщмчч. Александра Малиновского, Льва Ершова, Владимира Четверина пресвитеров (1918); сщмч. Николая Бирюкова пресвитера (1919); прмч. Иосифа Баранова (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58184,12 +58236,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Александра Елоховского пресвитера (1918); сщмч. Павла Ягодинского пресвитера (1937); прмч. Игнатия Даланова (1942)",
+      "source": "Сщмч. Александра Елоховского пресвитера (1918); сщмчч. Павла Ягодинского и Феодора Каллистова пресвитеров (1937); прмч. Игнатия Даланова (1942)",
       "origins": [
         "memory-day-2437:title",
         "memory-day-2437:shortTitle"
       ],
-      "currentCu": "Сщмч. Александра Елоховского пресвитера (1918); сщмч. Павла Ягодинского пресвитера (1937); прмч. Игнатия Даланова (1942)",
+      "currentCu": "Сщмч. Александра Елоховского пресвитера (1918); сщмчч. Павла Ягодинского и Феодора Каллистова пресвитеров (1937); прмч. Игнатия Даланова (1942)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58198,11 +58250,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Александра Елоховского пресвитера; сщмч. Павла Ягодинского…",
+      "source": "Сщмч. Александра Елоховского пресвитера; сщмчч. Павла Ягодинского и…",
       "origins": [
         "memory-day-2437:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Александра Елоховского пресвитера; сщмч. Павла Ягодинского…",
+      "currentCu": "Сщмч. Александра Елоховского пресвитера; сщмчч. Павла Ягодинского и…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58211,12 +58263,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Макария, еп. Орловского, Иоанна Бояршинова и Алексия Наумова пресвитеров (1918); сщмчч. Феодора, еп. Пензенского, и с ним Василия Смирнова и Гавриила Архангельского пресвитеров (1937); сщмчч. Иоанна, еп. Великолукского, Алексия, архиеп. Омского, Александра Ратьковского, Михаила Люберцева и Феодора Маляровского пресвитеров, прмчч. Илариона Цурикова, Иоанна Лабы и Иерофея Глазкова (1937)",
+      "source": "Сщмчч. Макария, еп. Вяземского, Иоанна Бояршинова и Алексия Наумова пресвитеров (1918); сщмчч. Феодора, еп. Пензенского, и с ним Василия Смирнова и Гавриила Архангельского пресвитеров (1937); сщмчч. Иоанна, еп. Великолукского, Алексия, архиеп. Омского, Александра Ратьковского, Михаила Люберцева и Феодора Маляровского пресвитеров, прмчч. Илариона Цурикова, Иоанна Лабы и Иерофея Глазкова (1937)",
       "origins": [
         "memory-day-2438:title",
         "memory-day-2438:shortTitle"
       ],
-      "currentCu": "Сщмчч. Макария, еп. Орловского, Иоанна Бояршинова и Алексия Наумова пресвитеров (1918); сщмчч. Феодора, еп. Пензенского, и с ним Василия Смирнова и Гавриила Архангельского пресвитеров (1937); сщмчч. Иоанна, еп. Великолукского, Алексия, архиеп. Омского, Александра Ратьковского, Михаила Люберцева и Феодора Маляровского пресвитеров, прмчч. Илариона Цурикова, Иоанна Лабы и Иерофея Глазкова (1937)",
+      "currentCu": "Сщмчч. Макария, еп. Вяземского, Иоанна Бояршинова и Алексия Наумова пресвитеров (1918); сщмчч. Феодора, еп. Пензенского, и с ним Василия Смирнова и Гавриила Архангельского пресвитеров (1937); сщмчч. Иоанна, еп. Великолукского, Алексия, архиеп. Омского, Александра Ратьковского, Михаила Люберцева и Феодора Маляровского пресвитеров, прмчч. Илариона Цурикова, Иоанна Лабы и Иерофея Глазкова (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58238,12 +58290,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Ефрема, еп. Селенгинского, Иоанна Восторгова пресвитера и мч. Николая Варжанского (1918); сщмчч. Павла Гайдая и Иоанна Карабанова пресвитеров (1937)",
+      "source": "Сщмчч. Ефрема, еп. Селенгинского, Иоанна Восторгова пресвитера и мч. Николая Варжанского (1918); сщмчч. Павла Гайдая и Иоанна Карабанова пресвитеров (1937); сщмч. Вячеслава Закедского пресвитера (1918)",
       "origins": [
         "memory-day-2439:title",
         "memory-day-2439:shortTitle"
       ],
-      "currentCu": "Сщмчч. Ефрема, еп. Селенгинского, Иоанна Восторгова пресвитера и мч. Николая Варжанского (1918); сщмчч. Павла Гайдая и Иоанна Карабанова пресвитеров (1937)",
+      "currentCu": "Сщмчч. Ефрема, еп. Селенгинского, Иоанна Восторгова пресвитера и мч. Николая Варжанского (1918); сщмчч. Павла Гайдая и Иоанна Карабанова пресвитеров (1937); сщмч. Вячеслава Закедского пресвитера (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58265,12 +58317,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Серафима (1946)",
+      "source": "Прмч. Серафима (1946); сщмч. Михаила Воскресенского пресвитера и с ним 28-ми мучеников (1918)",
       "origins": [
-        "memory-day-2440:title",
-        "memory-day-2440:shortTitle"
+        "memory-day-2440:title"
       ],
-      "currentCu": "Прмч. Серафима (1946)",
+      "currentCu": "Прмч. Серафима (1946); сщмч. Михаила Воскресенского пресвитера и с ним 28-ми мучеников (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58279,11 +58330,24 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Прмч. Серафима",
+      "source": "Прмч. Серафима (1946); сщмч. Михаила Воскресенского пресвитера и с ним 28-ми Мчч. (1918)",
+      "origins": [
+        "memory-day-2440:shortTitle"
+      ],
+      "currentCu": "Прмч. Серафима (1946); сщмч. Михаила Воскресенского пресвитера и с ним 28-ми Мчч. (1918)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Прмч. Серафима; сщмч. Михаила Воскресенского пресвитера и с ним…",
       "origins": [
         "memory-day-2440:veryShortTitle"
       ],
-      "currentCu": "Прмч. Серафима",
+      "currentCu": "Прмч. Серафима; сщмч. Михаила Воскресенского пресвитера и с ним…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58394,11 +58458,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Михаила Воскресенского пресвитера и с ним 28-ми мучеников (1918); сщмч. Стефана Немкова пресвитера и с ним 18-ти мучеников (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940); св. Димитрия Крючкова исп., пресвитера (1952)",
+      "source": "сщмч. Стефана Немкова пресвитера и с ним 18-ти мучеников (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940)",
       "origins": [
         "memory-day-2445:title"
       ],
-      "currentCu": "Сщмч. Михаила Воскресенского пресвитера и с ним 28-ми мучеников (1918); сщмч. Стефана Немкова пресвитера и с ним 18-ти мучеников (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940); св. Димитрия Крючкова исп., пресвитера (1952)",
+      "currentCu": "сщмч. Стефана Немкова пресвитера и с ним 18-ти мучеников (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58407,11 +58471,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Михаила Воскресенского пресвитера и с ним 28-ми Мчч. (1918); сщмч. Стефана Немкова пресвитера и с ним 18-ти Мчч. (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940); св. Димитрия Крючкова исп., пресвитера (1952)",
+      "source": "сщмч. Стефана Немкова пресвитера и с ним 18-ти Мчч. (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940)",
       "origins": [
         "memory-day-2445:shortTitle"
       ],
-      "currentCu": "Сщмч. Михаила Воскресенского пресвитера и с ним 28-ми Мчч. (1918); сщмч. Стефана Немкова пресвитера и с ним 18-ти Мчч. (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940); св. Димитрия Крючкова исп., пресвитера (1952)",
+      "currentCu": "сщмч. Стефана Немкова пресвитера и с ним 18-ти Мчч. (1918); сщмч. Павла Фокина пресвитера (1918); сщмчч. Иоанна Лебедева, Иоанна Смирнова пресвитеров и прмч. Мефодия Иванова (1937); сщмч. Александра Цицерова пресвитера (1939); сщмч. Владимира Соколова пресвитера (1940)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58420,11 +58484,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Михаила Воскресенского пресвитера и с ним 28-ми Мчч.; сщмч…",
+      "source": "сщмч. Стефана Немкова пресвитера и с ним 18-ти Мчч.; сщмч. Павла…",
       "origins": [
         "memory-day-2445:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Михаила Воскресенского пресвитера и с ним 28-ми Мчч.; сщмч…",
+      "currentCu": "сщмч. Стефана Немкова пресвитера и с ним 18-ти Мчч.; сщмч. Павла…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58460,12 +58524,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Петра Решетникова пресвитера (1918); прмч. Аполлинария Мосалитинова (1918); сщмч. Павла Малиновского пресвитера, прмц. Елисаветы Ярыгиной и мч. Феодора Иванова (1937); прмч. Игнатия Лебедева (1938); св. Петра Чельцова исп., пресвитера (1972)",
+      "source": "Сщмч. Петра Решетникова пресвитера (1918); прмч. Аполлинария Мосалитинова (1918); сщмч. Павла Малиновского пресвитера, прмц. Елисаветы Ярыгиной и мч. Феодора Иванова (1937); прмч. Игнатия Лебедева (1938); св. Петра Чельцова исп., пресвитера (1972); сщмч. Алексия Великосельского пресвитера (1918)",
       "origins": [
         "memory-day-2447:title",
         "memory-day-2447:shortTitle"
       ],
-      "currentCu": "Сщмч. Петра Решетникова пресвитера (1918); прмч. Аполлинария Мосалитинова (1918); сщмч. Павла Малиновского пресвитера, прмц. Елисаветы Ярыгиной и мч. Феодора Иванова (1937); прмч. Игнатия Лебедева (1938); св. Петра Чельцова исп., пресвитера (1972)",
+      "currentCu": "Сщмч. Петра Решетникова пресвитера (1918); прмч. Аполлинария Мосалитинова (1918); сщмч. Павла Малиновского пресвитера, прмц. Елисаветы Ярыгиной и мч. Феодора Иванова (1937); прмч. Игнатия Лебедева (1938); св. Петра Чельцова исп., пресвитера (1972); сщмч. Алексия Великосельского пресвитера (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58568,11 +58632,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шацкого, Владимира Дмитриевского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дальникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х мучеников (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
+      "source": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шатова, Владимира Дмитревского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дольникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х мучеников (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
       "origins": [
         "memory-day-2451:title"
       ],
-      "currentCu": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шацкого, Владимира Дмитриевского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дальникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х мучеников (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
+      "currentCu": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шатова, Владимира Дмитревского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дольникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х мучеников (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58581,11 +58645,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шацкого, Владимира Дмитриевского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дальникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х Мчч. (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
+      "source": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шатова, Владимира Дмитревского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дольникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х Мчч. (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
       "origins": [
         "memory-day-2451:shortTitle"
       ],
-      "currentCu": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шацкого, Владимира Дмитриевского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дальникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х Мчч. (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
+      "currentCu": "Сщмчч. Пимена, еп. Верненского, Сергия Феноменова, Василия Колмыкова, Филиппа Шатова, Владимира Дмитревского пресвитеров, прмч. Мелетия Голоколосова (1918); сщмчч. Василия Красивского, Парфения Красивского пресвитеров (1919); сщмчч. Андрея Дольникова, Феофана Соколова пресвитеров (1920); сщмчч. Владимира Садовского, Михаила Сушкова пресвитеров (1921); сщмч. Николая Сущевского пресвитера (1923); сщмч. Евфимия Круговых пресвитера и с ним 4-х Мчч. (1924); сщмч. Романа Марченко пресвитера (1929); сщмчч. Алексия Зиновьева, Илии Бажанова пресвитеров (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58594,11 +58658,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Пимена, Сергия Феноменова, Василия Колмыкова, Филиппа…",
+      "source": "Сщмчч. Пимена, Сергия Феноменова, Василия Колмыкова, Филиппа Шатова…",
       "origins": [
         "memory-day-2451:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Пимена, Сергия Феноменова, Василия Колмыкова, Филиппа…",
+      "currentCu": "Сщмчч. Пимена, Сергия Феноменова, Василия Колмыкова, Филиппа Шатова…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58607,12 +58671,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Григория, еп. Шлиссельбургского, Павла Васильевского, Иоанна Василевского, Николая Лебедева, Николая Сретенского, Иоанна Ромашкина, Николая Хвощева, Александра Никольского, Петра Лебединского, Михаила Богородского, Илии Измайлова пресвитеров, прмч. Стефана Кускова, мчч. Василия Ежова, Петра Лонскова, Стефана Митюшкина и Александра Блохина (1937); мц. Елены Черновой (1943)",
+      "source": "Сщмчч. Григория, еп. Шлиссельбургского, Сергия, еп. Нарвского, Павла Васильевского, Иоанна Василевского, Николая Лебедева, Николая Сретенского, Иоанна Ромашкина, Николая Хвощева, Петра Лебединского, Михаила Богородского, Илии Измайлова пресвитеров, прмч. Стефана Кускова, мчч. Василия Ежова, Петра Лонскова, Стефана Митюшкина и Александра Блохина (1937); мц. Елены Черновой (1943)",
       "origins": [
         "memory-day-2452:title",
         "memory-day-2452:shortTitle"
       ],
-      "currentCu": "Сщмчч. Григория, еп. Шлиссельбургского, Павла Васильевского, Иоанна Василевского, Николая Лебедева, Николая Сретенского, Иоанна Ромашкина, Николая Хвощева, Александра Никольского, Петра Лебединского, Михаила Богородского, Илии Измайлова пресвитеров, прмч. Стефана Кускова, мчч. Василия Ежова, Петра Лонскова, Стефана Митюшкина и Александра Блохина (1937); мц. Елены Черновой (1943)",
+      "currentCu": "Сщмчч. Григория, еп. Шлиссельбургского, Сергия, еп. Нарвского, Павла Васильевского, Иоанна Василевского, Николая Лебедева, Николая Сретенского, Иоанна Ромашкина, Николая Хвощева, Петра Лебединского, Михаила Богородского, Илии Измайлова пресвитеров, прмч. Стефана Кускова, мчч. Василия Ежова, Петра Лонскова, Стефана Митюшкина и Александра Блохина (1937); мц. Елены Черновой (1943)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58621,11 +58685,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Григория, Павла Васильевского, Иоанна Василевского, Николая…",
+      "source": "Сщмчч. Григория, Сергия, Павла Васильевского, Иоанна Василевского…",
       "origins": [
         "memory-day-2452:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Григория, Павла Васильевского, Иоанна Василевского, Николая…",
+      "currentCu": "Сщмчч. Григория, Сергия, Павла Васильевского, Иоанна Василевского…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58954,11 +59018,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Константина Голубева пресвитера и с ним двух мучеников (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938)",
+      "source": "Сщмч. Константина Голубева пресвитера и с ним двух мучеников (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938); сщмч. Никандра Гривского пресвитера (1939)",
       "origins": [
         "memory-day-2465:title"
       ],
-      "currentCu": "Сщмч. Константина Голубева пресвитера и с ним двух мучеников (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938)",
+      "currentCu": "Сщмч. Константина Голубева пресвитера и с ним двух мучеников (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938); сщмч. Никандра Гривского пресвитера (1939)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -58967,11 +59031,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Константина Голубева пресвитера и с ним двух Мчч. (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938)",
+      "source": "Сщмч. Константина Голубева пресвитера и с ним двух Мчч. (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938); сщмч. Никандра Гривского пресвитера (1939)",
       "origins": [
         "memory-day-2465:shortTitle"
       ],
-      "currentCu": "Сщмч. Константина Голубева пресвитера и с ним двух Мчч. (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938)",
+      "currentCu": "Сщмч. Константина Голубева пресвитера и с ним двух Мчч. (1918); сщмч. Николая Искровского пресвитера (1919); сщмч. Константина Богословского пресвитера (1937); сщмч. Нила Смирнова пресвитера, прмц. Марии Мамонтовой-Шашиной (1938); сщмч. Никандра Гривского пресвитера (1939)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59020,12 +59084,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Федосеева, Алексия Стабникова, Константина Широкинского, Иоанна Флерова пресвитеров (1918); прмч. Маврикия Полетаева и мч. Василия Кондратьева (1937); сщмчч. Валентина Никольского, Александра Белякова, Иоанна Лазарева, Андрея Бенедиктова, Петра Сахаровского, Иоанна Никольского пресвитеров (1937); сщмч. Иоанна Быстрова пресвитера (1938); сщмч. Василия Крымкина пресвитера (1942)",
+      "source": "Сщмчч. Александра Федосеева, Алексия Стабникова, Константина Широкинского, Иоанна Флерова пресвитеров (1918); прмч. Маврикия Полетаева и мч. Василия Кондратьева (1937); сщмчч. Валента Никольского, Александра Белякова, Иоанна Лазарева, Андрея Бенедиктова, Петра Сахаровского, Иоанна Никольского, Василия Носова пресвитеров (1937); сщмч. Иоанна Быстрова пресвитера (1938); сщмч. Василия Крымкина пресвитера (1942)",
       "origins": [
         "memory-day-2467:title",
         "memory-day-2467:shortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Федосеева, Алексия Стабникова, Константина Широкинского, Иоанна Флерова пресвитеров (1918); прмч. Маврикия Полетаева и мч. Василия Кондратьева (1937); сщмчч. Валентина Никольского, Александра Белякова, Иоанна Лазарева, Андрея Бенедиктова, Петра Сахаровского, Иоанна Никольского пресвитеров (1937); сщмч. Иоанна Быстрова пресвитера (1938); сщмч. Василия Крымкина пресвитера (1942)",
+      "currentCu": "Сщмчч. Александра Федосеева, Алексия Стабникова, Константина Широкинского, Иоанна Флерова пресвитеров (1918); прмч. Маврикия Полетаева и мч. Василия Кондратьева (1937); сщмчч. Валента Никольского, Александра Белякова, Иоанна Лазарева, Андрея Бенедиктова, Петра Сахаровского, Иоанна Никольского, Василия Носова пресвитеров (1937); сщмч. Иоанна Быстрова пресвитера (1938); сщмч. Василия Крымкина пресвитера (1942)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59047,14 +59111,16 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Вениамина, еп. Романовского (1930)",
+      "source": "Сщмч. Вениамина, еп. Романовского (1932)",
       "origins": [
         "memory-day-2468:title",
         "memory-day-2468:shortTitle"
       ],
-      "currentCu": "Ст҃а́гѡ сщ҃енномч҃ника венїамі́на, є҆пі́скопа рѡма́новскагѡ (1930)",
-      "localizationStatus": "exact",
-      "technicalIssues": [],
+      "currentCu": "Сщмч. Вениамина, еп. Романовского (1932)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -59099,12 +59165,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Василия Воскресенского диакона (1918); сщмчч. Андрея Быстрова и Павла Березина пресвитеров, прмч. Виталия Кокорева и мчч. Василия Виноградова, Сергия Михайлова и Спиридона Савельева (1937); сщмч. Никандра Гривского пресвитера (1939)",
+      "source": "Сщмч. Василия Воскресенского диакона (1918); сщмчч. Андрея Быстрова и Павла Березина пресвитеров, прмч. Виталия Кокорева и мчч. Василия Виноградова, Сергия Михайлова и Спиридона Савельева (1937)",
       "origins": [
         "memory-day-2470:title",
         "memory-day-2470:shortTitle"
       ],
-      "currentCu": "Сщмч. Василия Воскресенского диакона (1918); сщмчч. Андрея Быстрова и Павла Березина пресвитеров, прмч. Виталия Кокорева и мчч. Василия Виноградова, Сергия Михайлова и Спиридона Савельева (1937); сщмч. Никандра Гривского пресвитера (1939)",
+      "currentCu": "Сщмч. Василия Воскресенского диакона (1918); сщмчч. Андрея Быстрова и Павла Березина пресвитеров, прмч. Виталия Кокорева и мчч. Василия Виноградова, Сергия Михайлова и Спиридона Савельева (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59126,12 +59192,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Св. Николая Розова исп., пресвитера (1941). Обре́тение мощей сщмчч. Александра Смирнова и Феодора Ремизова пресвитеров (1985)",
+      "source": "Св. Николая Розова исп., пресвитера (1941). Обре́тение мощей сщмчч. Александра Смирнова и Феодора Лебедева пресвитеров (1985)",
       "origins": [
         "memory-day-2471:title",
         "memory-day-2471:shortTitle"
       ],
-      "currentCu": "Св. Николая Розова исп., пресвитера (1941). Обре́тение мощей сщмчч. Александра Смирнова и Феодора Ремизова пресвитеров (1985)",
+      "currentCu": "Св. Николая Розова исп., пресвитера (1941). Обре́тение мощей сщмчч. Александра Смирнова и Феодора Лебедева пресвитеров (1985)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [],
       "missingGlyphs": [],
@@ -59149,12 +59215,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Афанасия Докукина, Александра Левитского и Димитрия Розанова пресвитеров, мчч. Иоанна Золотова и Николая Гусева (1937); сщмч. Владимира Вятского пресвитера (1939)",
+      "source": "Сщмчч. Афанасия Докукина, Александра Левитского и Димитрия Розанова пресвитеров, мчч. Иоанна Золотова и Николая Гусева (1937); сщмч. Владимира Вятского пресвитера (1939); св. Димитрия Крючкова исп., пресвитера (1952)",
       "origins": [
         "memory-day-2472:title",
         "memory-day-2472:shortTitle"
       ],
-      "currentCu": "Сщмчч. Афанасия Докукина, Александра Левитского и Димитрия Розанова пресвитеров, мчч. Иоанна Золотова и Николая Гусева (1937); сщмч. Владимира Вятского пресвитера (1939)",
+      "currentCu": "Сщмчч. Афанасия Докукина, Александра Левитского и Димитрия Розанова пресвитеров, мчч. Иоанна Золотова и Николая Гусева (1937); сщмч. Владимира Вятского пресвитера (1939); св. Димитрия Крючкова исп., пресвитера (1952)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59284,12 +59350,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Алексия Ставровского пресвитера (1918); сщмч. Михаила Вологодского пресвитера (1920); сщмчч. Александра Агафоникова, Георгия Архангельского, Николая Кулигина пресвитеров, мч. Иоанна Артемова (1937)",
+      "source": "Сщмч. Алексия Ставровского пресвитера (1918); сщмч. Михаила Вологодского пресвитера (1920); сщмчч. Александра Агафонникова, Георгия Архангельского, Николая Кулигина пресвитеров, мч. Иоанна Артемова (1937)",
       "origins": [
         "memory-day-2477:title",
         "memory-day-2477:shortTitle"
       ],
-      "currentCu": "Сщмч. Алексия Ставровского пресвитера (1918); сщмч. Михаила Вологодского пресвитера (1920); сщмчч. Александра Агафоникова, Георгия Архангельского, Николая Кулигина пресвитеров, мч. Иоанна Артемова (1937)",
+      "currentCu": "Сщмч. Алексия Ставровского пресвитера (1918); сщмч. Михаила Вологодского пресвитера (1920); сщмчч. Александра Агафонникова, Георгия Архангельского, Николая Кулигина пресвитеров, мч. Иоанна Артемова (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59363,12 +59429,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Димитрия Вознесенского пресвитера (1918); сщмчч. Николая Верещагина, Михаила Твердовского, Иакова Бобырева и Тихона Архангельского пресвитеров, прмч. Василия Цветкова (1937); св. Хионии Архангельской исп. (1945)",
+      "source": "сщмчч. Николая Верещагина, Михаила Твердовского, Иакова Бобырева и Тихона Архангельского пресвитеров, прмч. Василия Цветкова (1937); св. Хионии Архангельской исп. (1945)",
       "origins": [
         "memory-day-2480:title",
         "memory-day-2480:shortTitle"
       ],
-      "currentCu": "Сщмч. Димитрия Вознесенского пресвитера (1918); сщмчч. Николая Верещагина, Михаила Твердовского, Иакова Бобырева и Тихона Архангельского пресвитеров, прмч. Василия Цветкова (1937); св. Хионии Архангельской исп. (1945)",
+      "currentCu": "сщмчч. Николая Верещагина, Михаила Твердовского, Иакова Бобырева и Тихона Архангельского пресвитеров, прмч. Василия Цветкова (1937); св. Хионии Архангельской исп. (1945)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59377,11 +59443,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Димитрия Вознесенского пресвитера; сщмчч. Николая Верещагина…",
+      "source": "сщмчч. Николая Верещагина, Михаила Твердовского, Иакова Бобырева и…",
       "origins": [
         "memory-day-2480:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Димитрия Вознесенского пресвитера; сщмчч. Николая Верещагина…",
+      "currentCu": "сщмчч. Николая Верещагина, Михаила Твердовского, Иакова Бобырева и…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59764,12 +59830,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Андрея Воскресенского, Сергия Бажанова, Николая Соколова и Сергия Гусева пресвитеров, мц. Елисаветы Крымовой (1937)",
+      "source": "Сщмчч. Андрея Воскресенского, Сергия Бажанова, Николая Соколова и Сергия Гусева пресвитеров, мц. Елисаветы Крымовой (1937); сщмч. Димитрия Вознесенского пресвитера (1918)",
       "origins": [
         "memory-day-2495:title",
         "memory-day-2495:shortTitle"
       ],
-      "currentCu": "Сщмчч. Андрея Воскресенского, Сергия Бажанова, Николая Соколова и Сергия Гусева пресвитеров, мц. Елисаветы Крымовой (1937)",
+      "currentCu": "Сщмчч. Андрея Воскресенского, Сергия Бажанова, Николая Соколова и Сергия Гусева пресвитеров, мц. Елисаветы Крымовой (1937); сщмч. Димитрия Вознесенского пресвитера (1918)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59791,12 +59857,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия Покровского пресвитера (1937)",
+      "source": "Сщмч. Сергия Покровского пресвитера (1937); сщмч. Александра Никольского пресвитера (1937)",
       "origins": [
         "memory-day-2496:title",
         "memory-day-2496:shortTitle"
       ],
-      "currentCu": "Сщмч. Сергия Покровского пресвитера (1937)",
+      "currentCu": "Сщмч. Сергия Покровского пресвитера (1937); сщмч. Александра Никольского пресвитера (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59805,11 +59871,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Сергия Покровского пресвитера",
+      "source": "Сщмч. Сергия Покровского пресвитера; сщмч. Александра Никольского…",
       "origins": [
         "memory-day-2496:veryShortTitle"
       ],
-      "currentCu": "Сщмч. Сергия Покровского пресвитера",
+      "currentCu": "Сщмч. Сергия Покровского пресвитера; сщмч. Александра Никольского…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59922,12 +59988,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Николая Агафоникова, Владимира Амбарцумова, Александра Соловьева, Николая Архангельского, Емилиана Гончарова и Созонта Решетилова пресвитеров (1937); прмц. Евфросинии Тимофеевой (1942)",
+      "source": "Сщмчч. Николая Агафонникова, Владимира Амбарцумова, Александра Соловьева, Николая Архангельского, Емилиана Гончарова и Созонта Решетилова пресвитеров (1937); прмц. Антонии Тимофеевой (1942)",
       "origins": [
         "memory-day-2501:title",
         "memory-day-2501:shortTitle"
       ],
-      "currentCu": "Сщмчч. Николая Агафоникова, Владимира Амбарцумова, Александра Соловьева, Николая Архангельского, Емилиана Гончарова и Созонта Решетилова пресвитеров (1937); прмц. Евфросинии Тимофеевой (1942)",
+      "currentCu": "Сщмчч. Николая Агафонникова, Владимира Амбарцумова, Александра Соловьева, Николая Архангельского, Емилиана Гончарова и Созонта Решетилова пресвитеров (1937); прмц. Антонии Тимофеевой (1942)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -59936,11 +60002,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Николая Агафоникова, Владимира Амбарцумова, Александра…",
+      "source": "Сщмчч. Николая Агафонникова, Владимира Амбарцумова, Александра…",
       "origins": [
         "memory-day-2501:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Николая Агафоникова, Владимира Амбарцумова, Александра…",
+      "currentCu": "Сщмчч. Николая Агафонникова, Владимира Амбарцумова, Александра…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60215,12 +60281,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Смирнова и Феодора Ремизова пресвитеров (1918); сщмчч. Александра Шалая и Димитрия Овечкина пресвитеров, мц. Елисаветы Самовской (1937); мч. Петра Игнатова (1941)",
+      "source": "Сщмчч. Александра Смирнова и Феодора Лебедева пресвитеров (1918); сщмчч. Александра Шалая и Димитрия Овечкина пресвитеров, мц. Елисаветы Самосской (1937); мч. Петра Игнатова (1941)",
       "origins": [
         "memory-day-2512:title",
         "memory-day-2512:shortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Смирнова и Феодора Ремизова пресвитеров (1918); сщмчч. Александра Шалая и Димитрия Овечкина пресвитеров, мц. Елисаветы Самовской (1937); мч. Петра Игнатова (1941)",
+      "currentCu": "Сщмчч. Александра Смирнова и Феодора Лебедева пресвитеров (1918); сщмчч. Александра Шалая и Димитрия Овечкина пресвитеров, мц. Елисаветы Самосской (1937); мч. Петра Игнатова (1941)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60229,11 +60295,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Александра Смирнова и Феодора Ремизова пресвитеров; сщмчч…",
+      "source": "Сщмчч. Александра Смирнова и Феодора Лебедева пресвитеров; сщмчч…",
       "origins": [
         "memory-day-2512:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Александра Смирнова и Феодора Ремизова пресвитеров; сщмчч…",
+      "currentCu": "Сщмчч. Александра Смирнова и Феодора Лебедева пресвитеров; сщмчч…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60269,12 +60335,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Николая Динариева пресвитера и мч. Павла Парфенова (1918); сщмчч. Василия Архангельского, Петра Орленкова, Василия Покровского, Александра Зверева, Владимира Писарева, Сергия Кедрова, Николая Пятницкого, Викентия Смирнова, Иоанна Кесарийского, Петра Косминкова, Александра Парусникова, Павла Андреева, Космы Петриченко пресвитеров и Симеона Кречкова диакона (1937); мц. Евдокии Сафроновой (1938); сщмч. Сергия Станиславлева диакона (1942)",
+      "source": "Сщмч. Николая Динариева пресвитера и мч. Павла Парфенова (1918); сщмчч. Василия Архангельского, Петра Орленкова, Василия Покровского, Александра Зверева, Владимира Писарева, Сергия Кедрова, Николая Пятницкого, Викентия Смирнова, Иоанна Кесарийского, Александра Парусникова, Павла Андреева, Космы Петриченко пресвитеров (1937); мц. Евдокии Сафроновой (1938); сщмч. Сергия Станиславлева диакона (1942)",
       "origins": [
         "memory-day-2514:title",
         "memory-day-2514:shortTitle"
       ],
-      "currentCu": "Сщмч. Николая Динариева пресвитера и мч. Павла Парфенова (1918); сщмчч. Василия Архангельского, Петра Орленкова, Василия Покровского, Александра Зверева, Владимира Писарева, Сергия Кедрова, Николая Пятницкого, Викентия Смирнова, Иоанна Кесарийского, Петра Косминкова, Александра Парусникова, Павла Андреева, Космы Петриченко пресвитеров и Симеона Кречкова диакона (1937); мц. Евдокии Сафроновой (1938); сщмч. Сергия Станиславлева диакона (1942)",
+      "currentCu": "Сщмч. Николая Динариева пресвитера и мч. Павла Парфенова (1918); сщмчч. Василия Архангельского, Петра Орленкова, Василия Покровского, Александра Зверева, Владимира Писарева, Сергия Кедрова, Николая Пятницкого, Викентия Смирнова, Иоанна Кесарийского, Александра Парусникова, Павла Андреева, Космы Петриченко пресвитеров (1937); мц. Евдокии Сафроновой (1938); сщмч. Сергия Станиславлева диакона (1942)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60545,12 +60611,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Константина Успенского, Владимира Красновского, Александра Архангельского, Матфея Алоина, Димитрия Розанова пресвитеров (1937)",
+      "source": "Сщмчч. Константина Успенского, Владимира Красновского, Александра Архангельского, Матфея Алоина, Димитрия Розанова, Петра Косминкова пресвитеров и Симеона Кречкова диакона (1937)",
       "origins": [
         "memory-day-2524:title",
         "memory-day-2524:shortTitle"
       ],
-      "currentCu": "Сщмчч. Константина Успенского, Владимира Красновского, Александра Архангельского, Матфея Алоина, Димитрия Розанова пресвитеров (1937)",
+      "currentCu": "Сщмчч. Константина Успенского, Владимира Красновского, Александра Архангельского, Матфея Алоина, Димитрия Розанова, Петра Косминкова пресвитеров и Симеона Кречкова диакона (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60600,12 +60666,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Николая Щербакова и Петра Конардова пресвитеров, Никиты Алмазова диакона и мч. Григория Долинина (1937)",
+      "source": "Сщмчч. Николая Щербакова и Петра Канардова пресвитеров, Никиты Алмазова диакона и мч. Григория Долинина (1937)",
       "origins": [
         "memory-day-2526:title",
         "memory-day-2526:shortTitle"
       ],
-      "currentCu": "Сщмчч. Николая Щербакова и Петра Конардова пресвитеров, Никиты Алмазова диакона и мч. Григория Долинина (1937)",
+      "currentCu": "Сщмчч. Николая Щербакова и Петра Канардова пресвитеров, Никиты Алмазова диакона и мч. Григория Долинина (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60614,11 +60680,11 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Николая Щербакова и Петра Конардова пресвитеров, Никиты…",
+      "source": "Сщмчч. Николая Щербакова и Петра Канардова пресвитеров, Никиты…",
       "origins": [
         "memory-day-2526:veryShortTitle"
       ],
-      "currentCu": "Сщмчч. Николая Щербакова и Петра Конардова пресвитеров, Никиты…",
+      "currentCu": "Сщмчч. Николая Щербакова и Петра Канардова пресвитеров, Никиты…",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60681,12 +60747,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Иоанна Вишневского пресвитера (1920). Сщмчч. Порфирия, еп. Симферопольского, Иоасафа, еп. Чистопольского, Сергия Махаева, Михаила Дмитрева, Александра Мишутина, Иоанна Малиновского, Константина Михайловского, Александра Сереброва, Игнатия Теслина, Иоанна Пирамидина, Симеона Кривошеева, Иоанна Флоровского, Иакова Бриллиантова, Димитрия Куклина, Иакова Передерия пресвитеров, прмчч. Иоасафа Крымзина, Геннадия Ребезы, Петра Мамонтова, Герасима Сухова, Михаила Кванина, мчч. Валентина Корниенко, Петра Антонова, Леонида Салькова и Тимофея Кучерова (1937)",
+      "source": "Сщмч. Иоанна Вишневского пресвитера (1920). Сщмчч. Порфирия, еп. Симферопольского, Иоасафа, еп. Чистопольского, Сергия Махаева, Михаила Дмитрева, Александра Мишутина, Иоанна Малиновского, Константина Михайловского, Александра Сереброва, Игнатия Теслина, Иоанна Пирамидина, Симеона Кривошеева, Иоанна Флоровского, Иакова Бриллиантова, Димитрия Куклина, Иакова Передерия пресвитеров, прмчч. Иоасафа Крымзина, Геннадия Ребезы, Петра Мамонтова, Герасима Сухова, Митрофана Кванина, мчч. Валентина Корниенко, Петра Антонова, Леонида Салькова и Тимофея Кучерова (1937)",
       "origins": [
         "memory-day-2529:title",
         "memory-day-2529:shortTitle"
       ],
-      "currentCu": "Сщмч. Иоанна Вишневского пресвитера (1920). Сщмчч. Порфирия, еп. Симферопольского, Иоасафа, еп. Чистопольского, Сергия Махаева, Михаила Дмитрева, Александра Мишутина, Иоанна Малиновского, Константина Михайловского, Александра Сереброва, Игнатия Теслина, Иоанна Пирамидина, Симеона Кривошеева, Иоанна Флоровского, Иакова Бриллиантова, Димитрия Куклина, Иакова Передерия пресвитеров, прмчч. Иоасафа Крымзина, Геннадия Ребезы, Петра Мамонтова, Герасима Сухова, Михаила Кванина, мчч. Валентина Корниенко, Петра Антонова, Леонида Салькова и Тимофея Кучерова (1937)",
+      "currentCu": "Сщмч. Иоанна Вишневского пресвитера (1920). Сщмчч. Порфирия, еп. Симферопольского, Иоасафа, еп. Чистопольского, Сергия Махаева, Михаила Дмитрева, Александра Мишутина, Иоанна Малиновского, Константина Михайловского, Александра Сереброва, Игнатия Теслина, Иоанна Пирамидина, Симеона Кривошеева, Иоанна Флоровского, Иакова Бриллиантова, Димитрия Куклина, Иакова Передерия пресвитеров, прмчч. Иоасафа Крымзина, Геннадия Ребезы, Петра Мамонтова, Герасима Сухова, Митрофана Кванина, мчч. Валентина Корниенко, Петра Антонова, Леонида Салькова и Тимофея Кучерова (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60708,12 +60774,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Алексия Аманова, Александра Сахарова, Владимира Медведюка, Иоанна Заболотного, Алексия Никатова, Василия Канделяброва, Николая Зеленова, Иоанна Сарва, Емилиана Панасевича, Николая Покровского пресвитеров, прмчч. Арсения Дмитриева, Евтихия Качура и Илариона Писарца, прмц. Иоанникии Кожевниковой игумении (1937); прмц. Татианы Фомичевой (после 1937)",
+      "source": "Сщмчч. Алексия Аманова, Александра Сахарова, Владимира Медведюка, Алексия Никатова, Василия Канделяброва, Николая Зеленова, Иоанна Сарва, Емилиана Панасевича, Николая Покровского пресвитеров, прмчч. Иоанна Заболотного, Арсения Дмитриева, Евтихия Качура и Илариона Писарца, прмц. Иоанникии Кожевниковой игумении (1937); прмц. Татианы Фомичевой (после 1937)",
       "origins": [
         "memory-day-2530:title",
         "memory-day-2530:shortTitle"
       ],
-      "currentCu": "Сщмчч. Алексия Аманова, Александра Сахарова, Владимира Медведюка, Иоанна Заболотного, Алексия Никатова, Василия Канделяброва, Николая Зеленова, Иоанна Сарва, Емилиана Панасевича, Николая Покровского пресвитеров, прмчч. Арсения Дмитриева, Евтихия Качура и Илариона Писарца, прмц. Иоанникии Кожевниковой игумении (1937); прмц. Татианы Фомичевой (после 1937)",
+      "currentCu": "Сщмчч. Алексия Аманова, Александра Сахарова, Владимира Медведюка, Алексия Никатова, Василия Канделяброва, Николая Зеленова, Иоанна Сарва, Емилиана Панасевича, Николая Покровского пресвитеров, прмчч. Иоанна Заболотного, Арсения Дмитриева, Евтихия Качура и Илариона Писарца, прмц. Иоанникии Кожевниковой игумении (1937); прмц. Татианы Фомичевой (после 1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60735,12 +60801,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Владимира Рясенского пресвитера (1932); сщмчч. Иоасафа, еп. Могилевского, Иоанна Баранова, Василия Бовы, Павла Евдокимова, Иакова Соколова, Феодора Гусева, Иоанна Смирнова, Илии Громогласова, Алексия Бенеманского, Афанасия Милова пресвитеров, прмчч. Герасима Мочалова, Евтихия Диденко, Авенира Синицына, Саввы Суслова, Марка Махрова и мч. Бориса Козлова (1937); прп. Параскевы Матиешиной исп. (1953)",
+      "source": "Сщмч. Владимира Рясенского пресвитера (1932); сщмчч. Иоасафа, еп. Могилевского, Иоанна Баранова, Василия Бовы, Иакова Соколова, Феодора Гусева, Илии Громогласова, Алексия Бенеманского, Афанасия Милова пресвитеров и Иоанна Смирнова диакона, прмчч. Герасима Мочалова, Павла Евдокимова, Евтихия Диденко, Авенира Синицына, Саввы Суслова, Марка Махрова и мч. Бориса Козлова (1937); прп. Параскевы Матиешиной исп. (1953)",
       "origins": [
         "memory-day-2531:title",
         "memory-day-2531:shortTitle"
       ],
-      "currentCu": "Сщмч. Владимира Рясенского пресвитера (1932); сщмчч. Иоасафа, еп. Могилевского, Иоанна Баранова, Василия Бовы, Павла Евдокимова, Иакова Соколова, Феодора Гусева, Иоанна Смирнова, Илии Громогласова, Алексия Бенеманского, Афанасия Милова пресвитеров, прмчч. Герасима Мочалова, Евтихия Диденко, Авенира Синицына, Саввы Суслова, Марка Махрова и мч. Бориса Козлова (1937); прп. Параскевы Матиешиной исп. (1953)",
+      "currentCu": "Сщмч. Владимира Рясенского пресвитера (1932); сщмчч. Иоасафа, еп. Могилевского, Иоанна Баранова, Василия Бовы, Иакова Соколова, Феодора Гусева, Илии Громогласова, Алексия Бенеманского, Афанасия Милова пресвитеров и Иоанна Смирнова диакона, прмчч. Герасима Мочалова, Павла Евдокимова, Евтихия Диденко, Авенира Синицына, Саввы Суслова, Марка Махрова и мч. Бориса Козлова (1937); прп. Параскевы Матиешиной исп. (1953)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -60843,12 +60909,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмчч. Николая Замараева, Иоанна Виноградова, Георгия Колоколова, Назария Грибкова, Василия Агафоникова, Василия Колосова, Илии Зачатейского, Василия Студницына, Даниила Мещанинова, Михаила Зеленцовского пресвитеров, прмч. Тихона Бузова (1937); мч. Петра Царапкина (после 1937)",
+      "source": "Сщмчч. Николая Замараева, Иоанна Виноградова, Георгия Колоколова, Назария Грибкова, Василия Агафонникова, Василия Колосова, Илии Зачатейского, Василия Студницына, Даниила Мещанинова, Михаила Зеленцовского пресвитеров, прмч. Тихона Бузова (1937); мч. Петра Царапкина (после 1937)",
       "origins": [
         "memory-day-2535:title",
         "memory-day-2535:shortTitle"
       ],
-      "currentCu": "Сщмчч. Николая Замараева, Иоанна Виноградова, Георгия Колоколова, Назария Грибкова, Василия Агафоникова, Василия Колосова, Илии Зачатейского, Василия Студницына, Даниила Мещанинова, Михаила Зеленцовского пресвитеров, прмч. Тихона Бузова (1937); мч. Петра Царапкина (после 1937)",
+      "currentCu": "Сщмчч. Николая Замараева, Иоанна Виноградова, Георгия Колоколова, Назария Грибкова, Василия Агафонникова, Василия Колосова, Илии Зачатейского, Василия Студницына, Даниила Мещанинова, Михаила Зеленцовского пресвитеров, прмч. Тихона Бузова (1937); мч. Петра Царапкина (после 1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -61001,12 +61067,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Матфея Александрова пресвитера (1921); сщмч. Димитрия Благовещенского пресвитера и прп. Веры Графовой исп. (1932); сщмч. Алексия, архиеп. Великоустюжского, сщмчч. Константина Некрасова, Николая Заболотского, Сергия Кудрявцева, Владимира Проферансова, Иоанна Державина, Феодора Алексинского, Николая Виноградского, Иоанна Днепровского, Николая Сафонова, Павла Понятского, Сергия Фелицына пресвитеров, прмчч. Данакта Калашникова, Космы Магды, прмцц. Маргариты Закачуриной, Тамары Проворкиной, Антонины Степановой и Марии Журавлевой, мц. Матроны Конюховой (1937); прмц. Марии Цейтлин (1938); мч. Бориса Успенского (1942)",
+      "source": "Сщмч. Матфея Александрова пресвитера (1921); сщмч. Димитрия Благовещенского пресвитера и прп. Веры Графовой исп. (1932); сщмч. Алексия, архиеп. Великоустюжского, сщмчч. Константина Некрасова, Николая Заболотского, Сергия Кудрявцева, Владимира Проферансова, Иоанна Державина, Феодора Алексинского, Николая Виноградского, Иоанна Днепровского, Николая Сафонова, Павла Понятского, Сергия Фелицына пресвитеров, прмчч. Данакта Калашникова, Космы Магды, прмцц. Маргариты Закачуриной, Тамары Проворкиной, Антонины Степановой и Нимфодоры Журавлевой, мц. Матроны Конюховой (1937); прмц. Мариониллы Цейтлин (1938); мч. Бориса Успенского (1942)",
       "origins": [
         "memory-day-2541:title",
         "memory-day-2541:shortTitle"
       ],
-      "currentCu": "Сщмч. Матфея Александрова пресвитера (1921); сщмч. Димитрия Благовещенского пресвитера и прп. Веры Графовой исп. (1932); сщмч. Алексия, архиеп. Великоустюжского, сщмчч. Константина Некрасова, Николая Заболотского, Сергия Кудрявцева, Владимира Проферансова, Иоанна Державина, Феодора Алексинского, Николая Виноградского, Иоанна Днепровского, Николая Сафонова, Павла Понятского, Сергия Фелицына пресвитеров, прмчч. Данакта Калашникова, Космы Магды, прмцц. Маргариты Закачуриной, Тамары Проворкиной, Антонины Степановой и Марии Журавлевой, мц. Матроны Конюховой (1937); прмц. Марии Цейтлин (1938); мч. Бориса Успенского (1942)",
+      "currentCu": "Сщмч. Матфея Александрова пресвитера (1921); сщмч. Димитрия Благовещенского пресвитера и прп. Веры Графовой исп. (1932); сщмч. Алексия, архиеп. Великоустюжского, сщмчч. Константина Некрасова, Николая Заболотского, Сергия Кудрявцева, Владимира Проферансова, Иоанна Державина, Феодора Алексинского, Николая Виноградского, Иоанна Днепровского, Николая Сафонова, Павла Понятского, Сергия Фелицына пресвитеров, прмчч. Данакта Калашникова, Космы Магды, прмцц. Маргариты Закачуриной, Тамары Проворкиной, Антонины Степановой и Нимфодоры Журавлевой, мц. Матроны Конюховой (1937); прмц. Мариониллы Цейтлин (1938); мч. Бориса Успенского (1942)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -61268,12 +61334,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Александра Юзефовича пресвитера и мч. Иоанна Менькова (1920); сщмчч. Владимира Лозины-Лозинского, Александра Поспелова, Иакова Гусева, Алексия Рождественского, Григория Фаддеева пресвитеров (1937); сщмч. Николая Амассийского пресвитера (1938); сщмчч. Емилиана Киреева, Василия Покровского пресвитеров (1941)",
+      "source": "Сщмч. Александра Юзефовича пресвитера и мч. Иоанна Менькова (1920); сщмчч. Владимира Лозины-Лозинского, Александра Поспелова, Иакова Гусева, Алексия Рождественского, Григория Фаддеева пресвитеров (1937); сщмч. Николая Амасийского пресвитера (1938); сщмчч. Емилиана Киреева, Василия Покровского пресвитеров (1941)",
       "origins": [
         "memory-day-2550:title",
         "memory-day-2550:shortTitle"
       ],
-      "currentCu": "Сщмч. Александра Юзефовича пресвитера и мч. Иоанна Менькова (1920); сщмчч. Владимира Лозины-Лозинского, Александра Поспелова, Иакова Гусева, Алексия Рождественского, Григория Фаддеева пресвитеров (1937); сщмч. Николая Амассийского пресвитера (1938); сщмчч. Емилиана Киреева, Василия Покровского пресвитеров (1941)",
+      "currentCu": "Сщмч. Александра Юзефовича пресвитера и мч. Иоанна Менькова (1920); сщмчч. Владимира Лозины-Лозинского, Александра Поспелова, Иакова Гусева, Алексия Рождественского, Григория Фаддеева пресвитеров (1937); сщмч. Николая Амасийского пресвитера (1938); сщмчч. Емилиана Киреева, Василия Покровского пресвитеров (1941)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -61349,12 +61415,12 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Сщмч. Владимира Алексеева пресвитера (1918); сщмчч. Аркадия, еп. Бежецкого, Илии Чередеева, Павла Фаворитова, Феодосия Болдырева, Владимира Дамаскина, Александра Колоколова, Петра Зиновьева пресвитеров, прмч. Макария Смирнова (1937)",
+      "source": "Сщмч. Владимира Алексеева пресвитера (1918); сщмчч. Аркадия, еп. Бежецкого, Илии Чередеева, Павла Фаворитова, Владимира Дамаскина, Александра Колоколова, Петра Зиновьева пресвитеров, прмчч. Макария Смирнова, Феодосия Болдырева (1937)",
       "origins": [
         "memory-day-2553:title",
         "memory-day-2553:shortTitle"
       ],
-      "currentCu": "Сщмч. Владимира Алексеева пресвитера (1918); сщмчч. Аркадия, еп. Бежецкого, Илии Чередеева, Павла Фаворитова, Феодосия Болдырева, Владимира Дамаскина, Александра Колоколова, Петра Зиновьева пресвитеров, прмч. Макария Смирнова (1937)",
+      "currentCu": "Сщмч. Владимира Алексеева пресвитера (1918); сщмчч. Аркадия, еп. Бежецкого, Илии Чередеева, Павла Фаворитова, Владимира Дамаскина, Александра Колоколова, Петра Зиновьева пресвитеров, прмчч. Макария Смирнова, Феодосия Болдырева (1937)",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -62487,13 +62553,13 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Браковенчание не совершается накануне праздника Обрезания Господне",
+      "source": "Браковенчание не совершается накануне праздника Обрезания Господня",
       "origins": [
         "memory-day-2597:title",
         "memory-day-2597:shortTitle",
         "memory-day-2597:veryShortTitle"
       ],
-      "currentCu": "Браковенчание не совершается накануне праздника Обрезания Господне",
+      "currentCu": "Браковенчание не совершается накануне праздника Обрезания Господня",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -74761,13 +74827,13 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Престваление Иоанна Богослова",
+      "source": "Преставление Иоанна Богослова",
       "origins": [
         "memory-day-3514:description-not-currently-printed-by-grid",
         "memory-day-3531:description-not-currently-printed-by-grid",
         "memory-day-3548:description-not-currently-printed-by-grid"
       ],
-      "currentCu": "Престваление Иоанна Богослова",
+      "currentCu": "Преставление Иоанна Богослова",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -75401,20 +75467,6 @@
         "memory-day-3570:veryShortTitle"
       ],
       "currentCu": "Мф.2:13-23",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
-      "missingGlyphs": [],
-      "independentPhilologicalApproval": false
-    },
-    {
-      "source": "Неделя перед Воздвиженеем",
-      "origins": [
-        "memory-day-3571:description-not-currently-printed-by-grid",
-        "memory-day-3574:description-not-currently-printed-by-grid"
-      ],
-      "currentCu": "Неделя перед Воздвиженеем",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -76759,6 +76811,114 @@
       "independentPhilologicalApproval": false
     },
     {
+      "source": "Сщмч. Михаила Околовича пресвитера (1938)",
+      "origins": [
+        "memory-day-3812:title",
+        "memory-day-3812:shortTitle"
+      ],
+      "currentCu": "Сщмч. Михаила Околовича пресвитера (1938)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Сщмч. Михаила Околовича пресвитера",
+      "origins": [
+        "memory-day-3812:veryShortTitle"
+      ],
+      "currentCu": "Сщмч. Михаила Околовича пресвитера",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Сщмчч. Павла Аношкина пресвитера и Григория Смирнова диакона (1918)",
+      "origins": [
+        "memory-day-3813:title",
+        "memory-day-3813:shortTitle"
+      ],
+      "currentCu": "Сщмчч. Павла Аношкина пресвитера и Григория Смирнова диакона (1918)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Сщмчч. Павла Аношкина пресвитера и Григория Смирнова диакона",
+      "origins": [
+        "memory-day-3813:veryShortTitle"
+      ],
+      "currentCu": "Сщмчч. Павла Аношкина пресвитера и Григория Смирнова диакона",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Воронинской иконы Божией Матери (1518)",
+      "origins": [
+        "memory-day-3814:title",
+        "memory-day-3814:shortTitle"
+      ],
+      "currentCu": "Воронинской иконы Божией Матери (1518)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Воронинской иконы Божией Матери",
+      "origins": [
+        "memory-day-3814:veryShortTitle"
+      ],
+      "currentCu": "Воронинской иконы Божией Матери",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Сщмч. Петра Успенского пресвитера (1938)",
+      "origins": [
+        "memory-day-3815:title",
+        "memory-day-3815:shortTitle"
+      ],
+      "currentCu": "Сщмч. Петра Успенского пресвитера (1938)",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
+      "source": "Сщмч. Петра Успенского пресвитера",
+      "origins": [
+        "memory-day-3815:veryShortTitle"
+      ],
+      "currentCu": "Сщмч. Петра Успенского пресвитера",
+      "localizationStatus": "source-fallback",
+      "technicalIssues": [
+        "no-combining-marks"
+      ],
+      "missingGlyphs": [],
+      "independentPhilologicalApproval": false
+    },
+    {
       "source": "Неделя 29-я по Пятидесятнице",
       "origins": [
         "liturgical-cycle:title:1900-2199"
@@ -77183,17 +77343,6 @@
       ],
       "currentCu": "Недѣ́лѧ 4-ѧ по Па́сцѣ, ѡ҆ разсла́бленнѣмъ",
       "localizationStatus": "structured",
-      "technicalIssues": [],
-      "missingGlyphs": [],
-      "independentPhilologicalApproval": false
-    },
-    {
-      "source": "Неделя о расслабленном",
-      "origins": [
-        "liturgical-cycle:shortTitle:1900-2199"
-      ],
-      "currentCu": "Недѣ́лѧ разсла́бленнагѡ",
-      "localizationStatus": "exact",
       "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false

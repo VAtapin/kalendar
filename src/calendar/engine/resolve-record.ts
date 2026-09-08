@@ -9,6 +9,7 @@ import {
   compareDates,
   dayOfWeek,
   endOfYear,
+  gregorianToJulian,
   julianToGregorian,
   startOfYear,
   toIsoDate,
@@ -55,6 +56,26 @@ function fixedSpanForSourceYear(record: MemoryDayRecord, sourceYear: number) {
 
 function resolveSpecialDate(record: MemoryDayRecord, anchor: CalendarDate): CalendarDate | undefined {
   const weekday = dayOfWeek(anchor);
+
+  // Explicit Typikon exceptions for Nativity/Theophany lections. These are
+  // separate XML modes, never changes to the legacy same-week arithmetic.
+  if (record.startMonth === -7) {
+    if (record.startDate !== 0 || record.finishMonth !== 12 || record.finishDate !== 25) return undefined;
+    // Holy Kinsmen: Sunday after Nativity, or Monday when Nativity is Sunday.
+    return addDays(anchor, weekday === 0 ? 1 : 7 - weekday);
+  }
+  if (record.startMonth === -8) {
+    if (record.startDate !== 6 || record.finishMonth !== 12 || record.finishDate !== 25) return undefined;
+    // A Saturday Nativity leaves Circumcision on the next Saturday: lections
+    // of the Saturday after Nativity are read on Friday, Julian December 31.
+    return addDays(anchor, weekday === 6 ? 6 : 6 - weekday);
+  }
+  if (record.startMonth === -9) {
+    if (record.startDate !== 6 || record.finishMonth !== 1 || record.finishDate !== 6) return undefined;
+    const saturday = addDays(anchor, -(positiveModulo(weekday - 6 - 1, 7) + 1));
+    const oldStyle = gregorianToJulian(saturday);
+    return oldStyle.month === 1 && oldStyle.day === 1 ? addDays(saturday, -1) : saturday;
+  }
 
   // Following weekday only when the anchor itself is a different weekday.
   // E.g. the Sunday of the Holy Kinsmen after Nativity: if Nativity is
