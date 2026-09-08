@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import LegalLinks from './LegalLinks.vue';
-import { accountRequest, type AccountUser, type AccountCalendar } from '../collaboration/account-client';
+import { accountRequest, type AccountUser, type AccountCalendar, type AccountTrashCalendar } from '../collaboration/account-client';
+import { interfaceLanguage, INTERFACE_LANGUAGE_LOCALES } from '../i18n/interface-language';
 const props = defineProps<{ user: AccountUser | null; token?: string; externalError?: string; reauthenticate?: boolean }>();
 const emit = defineEmits<{ close: []; authenticated: [user: AccountUser]; logout: []; open: [id: string]; create: []; import: []; deleted: [id: string] }>();
 const email = ref(''); const password = ref(''); const repeatPassword = ref(''); const subscribe = ref(false);
@@ -9,7 +10,16 @@ const mode = ref(props.token ? 'password' : 'login'); const error = ref(''); con
 const calendars = ref<AccountCalendar[]>([]); const pendingDelete = ref('');
 const search = ref('');
 const visibleCalendars = computed(() => calendars.value.filter(item => `${item.name} ${item.year}`.toLocaleLowerCase().includes(search.value.toLocaleLowerCase())));
-const trash = ref<{id: string; name: string; year: number}[]>([]); const showingTrash = ref(false);
+const trash = ref<AccountTrashCalendar[]>([]); const showingTrash = ref(false);
+const trashWithDates = computed(() => {
+  const formatter = new Intl.DateTimeFormat(INTERFACE_LANGUAGE_LOCALES[interfaceLanguage.value], {
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+  });
+  return trash.value.map(item => {
+    const date = item.deletedAt ? new Date(item.deletedAt) : null;
+    return { ...item, deletionDateLabel: date && Number.isFinite(date.getTime()) ? formatter.format(date) : null };
+  });
+});
 async function openTrash() {
   busy.value = true; error.value = '';
   try { trash.value = (await accountRequest<{items: typeof trash.value}>('trash')).items; showingTrash.value = true; }
@@ -102,7 +112,20 @@ onMounted(async () => { try { await load(); } catch (e) { error.value = String(e
         <p>Календари и фотографии сохраняются на сервере. Скачать копию на компьютер можно из меню «Файл» в редакторе.</p>
         <label>Поиск календаря<input v-model="search" type="search" placeholder="Название или год" /></label>
         <button :disabled="busy" @click="openTrash">Корзина</button>
-        <section v-if="showingTrash"><h2>Моя корзина</h2><p v-if="!trash.length">Корзина пуста.</p><p v-for="item in trash" :key="item.id">{{ item.name }} · {{ item.year }} <button :disabled="busy" @click="restoreTrash(item.id)">Вернуть календарь</button></p><button @click="showingTrash = false">Закрыть корзину</button></section>
+        <section v-if="showingTrash">
+          <h2>Моя корзина</h2><p v-if="!trash.length">Корзина пуста.</p>
+          <div v-for="item in trashWithDates" :key="item.id" class="trash-entry">
+            <div class="trash-entry__details">
+              <div>{{ item.name }} · {{ item.year }}</div>
+              <div class="trash-entry__date">
+                <template v-if="item.deletionDateLabel"><span>Дата удаления:</span> <time :datetime="item.deletedAt!">{{ item.deletionDateLabel }}</time></template>
+                <span v-else>Дата удаления неизвестна</span>
+              </div>
+            </div>
+            <button :disabled="busy" @click="restoreTrash(item.id)">Вернуть календарь</button>
+          </div>
+          <button @click="showingTrash = false">Закрыть корзину</button>
+        </section>
         <p v-if="!calendars.length">Календарей пока нет. Создайте первый.</p>
         <p v-if="calendars.length && !visibleCalendars.length">По этому запросу ничего не найдено.</p>
         <div class="account-cards"><article v-for="calendar in visibleCalendars" :key="calendar.id"><h2>{{ calendar.name }}</h2><p>{{ calendar.year }} · {{ new Date(calendar.updatedAt).toLocaleString() }}</p>
@@ -127,5 +150,6 @@ onMounted(async () => { try { await load(); } catch (e) { error.value = String(e
   </div>
 </template>
 <style scoped>
+.trash-entry{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;margin:16px 0}.trash-entry__details{min-width:0;overflow-wrap:anywhere}.trash-entry__date{margin-top:6px;color:#b6c2bb;font-size:.875em}
 .account-overlay{position:fixed;inset:0;background:#17251f;z-index:5000;overflow:auto;color:#e8ece5;padding:32px}.account-panel{max-width:1200px;margin:auto}header{display:flex;justify-content:space-between;align-items:start}small{color:#c4a55f;letter-spacing:2px}h1,h2{font-family:Georgia}button,input{font:inherit;background:#283b30;border:1px solid #69735e;border-radius:5px;color:inherit;padding:10px 16px}button{cursor:pointer;margin:4px}button:disabled{opacity:.5}form{max-width:480px;margin:40px auto}label{display:block;margin:16px 0}input:not([type=checkbox]){display:block;box-sizing:border-box;width:100%;margin-top:8px}.account-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}article{padding:24px;border:1px solid #526451;border-radius:8px}[role=alert]{color:#ffa6a6}button:focus-visible,input:focus-visible{outline:2px solid #d3b05e}
 </style>

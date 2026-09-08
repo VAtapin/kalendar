@@ -113,7 +113,12 @@ trait CalendarAccounts
         $result = [];
         foreach (glob($this->dataDirectory . '/calendar-trash/*.json') ?: [] as $file) {
             $value = calendar_read_json_file($file, null);
-            if ($value && ($owner === null || $value['owner'] === $owner)) $result[] = ['id' => basename($file), 'name' => $value['project']['name'], 'year' => $value['project']['year'], 'owner' => $value['owner']];
+            if (!$value || ($owner !== null && $value['owner'] !== $owner)) continue;
+            // Deletion time is recorded by accountDeleteCalendar in the filename.
+            // File mtime/updatedAt refer to the last save, not the move to trash.
+            $deletedAt = preg_match('/^[0-9a-f-]{36}-([0-9]+)\.json$/', basename($file), $matches)
+                ? gmdate('Y-m-d\TH:i:s.000\Z', (int)$matches[1]) : null;
+            $result[] = ['id' => basename($file), 'name' => $value['project']['name'], 'year' => $value['project']['year'], 'owner' => $value['owner'], 'deletedAt' => $deletedAt];
         }
         return $result;
     }

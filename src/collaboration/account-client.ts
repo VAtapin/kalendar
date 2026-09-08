@@ -1,5 +1,6 @@
 export interface AccountUser { id: string; email: string; createdAt: string; blocked: boolean }
 export interface AccountCalendar { id: string; name: string; year: number; revision: number; updatedAt: string; owner: string }
+export interface AccountTrashCalendar { id: string; name: string; year: number; owner: string; deletedAt: string | null }
 export class AccountRequestError extends Error {
   constructor(message: string, public status: number, public code: string) { super(message); this.name = 'AccountRequestError'; }
 }
