@@ -73,6 +73,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/18601.xml"
     },
     {
+      "ru": "Апостола и евангелиста Иоанна Богослова (98-117)",
+      "cu": "А҆пⷭ҇ла и҆ є҆ѵⷢ҇лі́ста і҆ѡа́нна бг҃осло́ва (98-117)",
+      "sourceId": "962",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/962.xml"
+    },
+    {
       "ru": "Апостола и евангелиста Луки (I)",
       "cu": "А҆пⷭла и҆ є҆ѵⷢ҇лі́ста лꙋкѝ (а҃)",
       "sourceId": "176401",
@@ -125,6 +131,12 @@
       "cu": "Ст҃а́гѡ а҆пⷭ҇ла ѳѡмы̀ (а҃)",
       "sourceId": "2323",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2323.xml"
+    },
+    {
+      "ru": "Апостолов Варфоломея и Варнавы (I)",
+      "cu": "А҆по́столѡвъ варѳоломе́а и҆ варна́вы (I)",
+      "sourceId": "365",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/365.xml"
     },
     {
       "ru": "Апп. Сосфена, Аполлоса, Кифы, Кесаря и Епафродита (I)",
@@ -709,6 +721,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2858.xml"
     },
     {
+      "ru": "Иверской иконы Божией Матери (второе обретение списка иконы 2012)",
+      "cu": "І҆́верскїѧ і҆кѡ́ны бж҃їѧ мт҃ри (второ́е ѡ҆брѣ́тенїе спи́ска і҆кѡ́ны 2012)",
+      "sourceId": "2858",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2858.xml"
+    },
+    {
       "ru": "Иверской иконы Божией Матери (IX)",
       "cu": "І҆́верскїѧ і҆кѡ́ны бж҃їѧ мт҃ри (ѳ҃)",
       "sourceId": "2858",
@@ -779,6 +797,12 @@
       "cu": "Пра́зднованїе прест҃ѣ́й бцⷣѣ ра́ди чꙋдотво́рныѧ і҆кѡ́ны въ коне́вской ѻ҆би́тели",
       "sourceId": "4212",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4212.xml"
+    },
+    {
+      "ru": "Мефодия (885) и Кирилла (869), учителей Словенских",
+      "cu": "Меѳо́дїа (885) и҆ кѷрі́лла (869), ѹ҆чи́телей слове́нскихъ",
+      "sourceId": "152501",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/152501.xml"
     },
     {
       "ru": "Мироносицы равноап. Марии Магдалины (I)",
@@ -2419,6 +2443,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4306.xml"
     },
     {
+      "ru": "Первое (IV) и второе (452) обретение главы Иоанна Предтечи",
+      "cu": "Пе́рвое (IV) и҆ второ́е (452) ѡ҆брѣ́тенїе главы̀ і҆ѡа́нна прⷣте́чи",
+      "sourceId": "09107",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09107.xml"
+    },
+    {
       "ru": "Первомц. равноап. Феклы (I)",
       "cu": "Ст҃ы́ѧ первомч҃ницы равноапⷭ҇льнагѡ ѳе́клы (а҃)",
       "sourceId": "1594",
@@ -2605,6 +2635,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1209.xml"
     },
     {
+      "ru": "Перенесение мощей святителя и чудотворца Николая из Мир Ликийских в Бар (1087)",
+      "cu": "Пренесе́нїе моще́й ст҃и́телѧ и҆ чꙋдотво́рца нїкола́ѧ и҆з̾ мѷрлѷкі́йскихъ въ ба́ръ гра́дъ (1087)",
+      "sourceId": "163501",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/163501.xml"
+    },
+    {
       "ru": "Перенесение мощей сщмч. Фоки (403-404)",
       "cu": "Пренесе́нїе моще́й сщ҃енномч҃ника фѡ́ки (403-404)",
       "sourceId": "2321",
@@ -2749,6 +2785,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/868.xml"
     },
     {
+      "ru": "Прав. Иоанна Кронштадского, чудотворца (1908)",
+      "cu": "Пра́веднагѡ і҆ѡа́нна кроншта́дтскагѡ, чꙋдотво́рца (1908)",
+      "sourceId": "6616",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6616.xml"
+    },
+    {
       "ru": "Прав. Иоанна Русского, исп (1730)",
       "cu": "Пра́веднагѡ і҆ѡа́нна рꙋ́сскагѡ, и҆сповѣ́дника (1730)",
       "sourceId": "101001",
@@ -2833,6 +2875,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2537.xml"
     },
     {
+      "ru": "Празднование в честь Казанской иконы Божией Матери",
+      "cu": "Пра́зднованїе въ че́сть каза́нскїѧ і҆кѡ́ны бж҃їѧ мт҃ри",
+      "sourceId": "286501",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/286501.xml"
+    },
+    {
       "ru": "Предпразднство Богоявления",
       "cu": "Предпра́зднство просвѣще́нїѧ",
       "sourceId": "010201",
@@ -2897,6 +2945,12 @@
       "cu": "Преставле́нїе (662), пренесе́нїе моще́й прпⷣбнагѡ маѯі́ма и҆сповѣ́дника",
       "sourceId": "26701",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/26701.xml"
+    },
+    {
+      "ru": "Преставление апостола и евангелиста Иоанна Богослова (начало II)",
+      "cu": "Преставле́нїе а҆пⷭ҇ла и҆ є҆ѵⷢ҇лі́ста і҆ѡа́нна бг҃осло́ва (нача́ло II)",
+      "sourceId": "962",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/962.xml"
     },
     {
       "ru": "Преставление блж. Прокопия, Христа ради юродивого, Вятского (1627)",
@@ -4207,6 +4261,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6649.xml"
     },
     {
+      "ru": "Прп. Иова, игумена Почаевского (1651)",
+      "cu": "Прпⷣбнагѡ і҆́ѡва, и҆гꙋ́мена поча́евскагѡ (1651)",
+      "sourceId": "1037",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1037.xml"
+    },
+    {
       "ru": "Прп. Ионы Яшезерского (1589-1592)",
       "cu": "Прпⷣбнагѡ і҆ѡ́ны ꙗ҆шезе́рскагѡ (1589-1592)",
       "sourceId": "1584",
@@ -5389,6 +5449,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2210.xml"
     },
     {
+      "ru": "Прп. Феодосия Печерского (1074)",
+      "cu": "Прпⷣбнагѡ ѳеодо́сїа пече́рскагѡ (1074)",
+      "sourceId": "2211",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2211.xml"
+    },
+    {
       "ru": "Прп. Феодосия Тотемского (1568)",
       "cu": "Прпⷣбнагѡ ѳеодо́сїа то́темскагѡ, сп҃сосꙋмо́рина монастырѧ̀ нача́льника и҆ ѡ҆снова́телѧ, новоѧвле́ннагѡ чꙋдотво́рца (1568)",
       "sourceId": "2213",
@@ -6183,6 +6249,12 @@
     {
       "ru": "Свт. Ионы, митр. Московского и всея России, чудотворца (1461)",
       "cu": "Ст҃а́гѡ і҆ѡ́ны, митрополі́та моско́вскагѡ и҆ всеѧ̀ рѡссі́и, чꙋдотво́рца († 1461)",
+      "sourceId": "1042",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1042.xml"
+    },
+    {
+      "ru": "Свт. Ионы, митр. Московского, всея России чудотворца (1461)",
+      "cu": "Ст҃а́гѡ і҆ѡ́ны, митрополі́та моско́вскагѡ, всеѧ̀ рѡссі́и чꙋдотво́рца (1461)",
       "sourceId": "1042",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1042.xml"
     },

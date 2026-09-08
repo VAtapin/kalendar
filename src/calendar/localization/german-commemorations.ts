@@ -4,7 +4,9 @@
  * Historical annotations are retained from our XML, not independently re-dated.
  * Exact complete keys only; no transliteration of arbitrary unknown records.
  */
+import additions from './german-additions.json';
 export const GERMAN_COMMEMORATIONS: Readonly<Record<string, string>> = {
+  ...additions,
   'Прп. Антония Великого (356)': 'Ehrwürdiger Antonios der Große (356)',
   'Прп. Евфимия Великого (473)': 'Ehrwürdiger Euthymios der Große (473)',
   'Собор новомучеников и исповедников Церкви Русской': 'Synaxis der Neumärtyrer und Bekenner der Russischen Kirche',
