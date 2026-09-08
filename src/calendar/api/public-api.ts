@@ -14,6 +14,7 @@ import { typikonMarkForEvent, dayNumberTypikonStyle } from '../presentation/typi
 import { TYPIKON_MARKERS } from '../presentation/typikon-markers';
 import { FASTING_COLORS } from '../presentation/fasting-colors';
 import { FOOD_MARKER_PACKS } from '../presentation/marker-packs';
+import { parseScriptureReading, type ScriptureReading } from './scripture-reading';
 
 export const ORTHODOX_CALENDAR_API_VERSION = "1.0.0" as const;
 
@@ -51,6 +52,7 @@ export interface CalendarApiEvent {
   localization: ReturnType<typeof localizeCalendarEventTitleWithStatus>['status'];
   typikonMark: (typeof TYPIKON_MARKERS)[keyof typeof TYPIKON_MARKERS] | null;
   isIconCommemoration: boolean;
+  reading: ScriptureReading | null;
 }
 
 export interface CalendarApiDay {
@@ -96,6 +98,7 @@ function serializeEvent(event: ResolvedCalendarEvent, api: OrthodoxCalendarApi, 
     spanFinish: toIsoDate(event.spanFinish),
     dayIndexInSpan: event.dayIndexInSpan,
     category: calendarContentCategory(event),
+    reading: calendarContentCategory(event) === 'scripture-reading' ? parseScriptureReading(event.title) : null,
     localization: localized.status,
     typikonMark: mark ? TYPIKON_MARKERS[mark] : null,
     isIconCommemoration: /икон[а-яё]*\s+(?:Божией|Божьей)\s+Матери/iu.test(event.title),
