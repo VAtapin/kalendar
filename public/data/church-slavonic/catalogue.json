@@ -181,6 +181,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09253.xml"
     },
     {
+      "ru": "Апп. От 70-ти Архиппа и Филимона и мц. равноап. Апфии (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти а҆рхі́ппа и҆ фїлимѡ́на и҆ ст҃ы́ѧ мꙋ́ченицы равноапⷭ҇льныѧ а҆пфі́и (а҃)",
+      "sourceId": "09279",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09279.xml"
+    },
+    {
       "ru": "Апп. от 70-ти Карпа и Алфея (I)",
       "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти ка́рпа и҆ а҆лфе́ѧ (а҃)",
       "sourceId": "1141",
@@ -815,6 +821,12 @@
       "cu": "І҆кѡ́ны бж҃їѧ мт҃ри, нарече́нныѧ досто́йно е҆́сть (ми́лꙋющая) (і҃)",
       "sourceId": "1285",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1285.xml"
+    },
+    {
+      "ru": "Иконы Божией Матери, именуемой \"Знамение\"",
+      "cu": "І҆кѡ́ны бж҃їѧ мт҃ри, нарица́емыѧ «Зна́менїе»",
+      "sourceId": "3233",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/3233.xml"
     },
     {
       "ru": "Иконы Божией Матери, именуемой \"Неопалимая Купина\" (1680)",
@@ -1667,6 +1679,12 @@
       "cu": "Ст҃а́гѡ мч҃ника са́ввы го́тѳскагѡ (372)",
       "sourceId": "862",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/862.xml"
+    },
+    {
+      "ru": "Мч. Саввы Стратилата и с ним 70-ти воинов (272)",
+      "cu": "Ст҃а́гѡ мч҃ника са́ввы стратила́та и҆ съ ни́мъ 70-ти во́инѡвъ (272)",
+      "sourceId": "922",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/922.xml"
     },
     {
       "ru": "Мч. Савина (287)",
@@ -2893,6 +2911,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6616.xml"
     },
     {
+      "ru": "Прав. Иоанна Кронштадтского (прославление 1990)",
+      "cu": "Пра́веднагѡ і҆ѡа́нна кроншта́дтскагѡ (просла́вленїе 1990)",
+      "sourceId": "06010198",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/06010198.xml"
+    },
+    {
       "ru": "Прав. Иоанна Русского, исп (1730)",
       "cu": "Пра́веднагѡ і҆ѡа́нна рꙋ́сскагѡ, и҆сповѣ́дника (1730)",
       "sourceId": "101001",
@@ -3199,6 +3223,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/582.xml"
     },
     {
+      "ru": "Прмчч. Мины, Давида и Иоанна (после 636)",
+      "cu": "Прпⷣбномꙋ́ченикѡвъ ми́ны, даві́да и҆ і҆ѡа́нна (по 636)",
+      "sourceId": "841",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/841.xml"
+    },
+    {
       "ru": "Прмчч. Патермуфия, Коприя и мч. Александра (361-363)",
       "cu": "Прпⷣбномꙋ́ченикѡвъ патермꙋ́ѳїѧ, ко́прїя и҆ мч҃ника а҆леѯа́ндра (361-363)",
       "sourceId": "4200",
@@ -3365,6 +3395,24 @@
       "cu": "Прⷪ҇ро́чицы а҆́нны, ма́тере прⷪ҇ро́ка самꙋи́ла (1100 до Р.Х.)",
       "sourceId": "2397",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2397.xml"
+    },
+    {
+      "ru": "Прославление свт. Иннокентия, митр. Московского (1977)",
+      "cu": "Просла́вленїе ст҃а́гѡ і҆нноке́нтїа, митрополі́та моско́вскагѡ (1977)",
+      "sourceId": "95302",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/95302.xml"
+    },
+    {
+      "ru": "Прославление свт. Софрония, еп. Иркутского (1918)",
+      "cu": "Просла́вленїе ст҃а́гѡ сѡфро́нїа, є҆пі́скопа і҆ркꙋ́тскагѡ (1918)",
+      "sourceId": "204301",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/204301.xml"
+    },
+    {
+      "ru": "Прославление сщмч. Ермогена, патриарха Московского и всея России, чудотворца (1913)",
+      "cu": "Просла́вленїе сщ҃енномч҃ника є҆рмоге́на, патрїа́рха моско́вскагѡ и҆ всеѧ̀ рѡссі́и, чꙋдотво́рца (1913)",
+      "sourceId": "80401",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/80401.xml"
     },
     {
       "ru": "Прп Феодора молчаливого, Печерского (XIII)",
@@ -3749,6 +3797,12 @@
       "cu": "Прпⷣбнагѡ васїлі́ска сиби́рскагѡ (1824)",
       "sourceId": "122908",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/122908.xml"
+    },
+    {
+      "ru": "Прп. Василия исп., еп. Парийского (после 754)",
+      "cu": "Прпⷣбнагѡ васі́лїа и҆сповѣ́дника, є҆пі́скопа парі́йскагѡ (по 754)",
+      "sourceId": "837",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/837.xml"
     },
     {
       "ru": "Прп. Василия Нового (X)",
@@ -4621,6 +4675,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/136601.xml"
     },
     {
+      "ru": "Прп. Луки (после 975)",
+      "cu": "Прпⷣбнагѡ лꙋкѝ (по 975)",
+      "sourceId": "1477",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1477.xml"
+    },
+    {
       "ru": "Прп. Луки Елладского (ок. 946)",
       "cu": "Прпⷣбнагѡ лꙋкѝ, и҆́же во є҆лла́дѣ (ок. 946)",
       "sourceId": "410",
@@ -4949,6 +5009,12 @@
       "cu": "Прпⷣбнагѡ нїкола́ѧ и҆сповѣ́дника, и҆гꙋ́мена стꙋді́йскагѡ (868)",
       "sourceId": "389",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/389.xml"
+    },
+    {
+      "ru": "Прп. Николая монаха (IX)",
+      "cu": "Прпⷣбнагѡ нїкола́ѧ мона́ха (ѳ҃)",
+      "sourceId": "3173",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/3173.xml"
     },
     {
       "ru": "Прп. Николы Святоши (Святослава), кн. Черниговского, Печерского чудотворца (1143)",
@@ -5335,6 +5401,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1961.xml"
     },
     {
+      "ru": "Прп. Серапиона монаха",
+      "cu": "Прпⷣбнагѡ серапїѡ́на мона́ха",
+      "sourceId": "1064",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1064.xml"
+    },
+    {
       "ru": "Прп. Серапиона Спасоелезаровского, Псковского (1480)",
       "cu": "Прпⷣбнагѡ серапїѡ́на псковска́гѡ (1480)",
       "sourceId": "1965",
@@ -5477,6 +5549,12 @@
       "cu": "Прпⷣбнагѡ ті́та чꙋдотво́рца (ѳ҃)",
       "sourceId": "762",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/762.xml"
+    },
+    {
+      "ru": "Прп. Тита, пресвитера Печерского (после 1196)",
+      "cu": "Прпⷣбнагѡ ті́та, пресвѵ́тера пече́рскагѡ (по 1196)",
+      "sourceId": "2113",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2113.xml"
     },
     {
       "ru": "Прп. Тихона Луховского, Костромского чудотворца (1503)",
@@ -5881,6 +5959,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4342.xml"
     },
     {
+      "ru": "Прпп. Ксенофонта, супруги его Марии и сыновей их Аркадия и Иоанна (V-VI)",
+      "cu": "Прпⷣбныхъ ѯенофѡ́нта, дрꙋжи́ны є҆гѡ̀ марі́и и҆ сынѡ́въ и҆х̾ а҆рка́дїѧ и҆ і҆ѡа́нна (е҃-ѕ҃)",
+      "sourceId": "312",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/312.xml"
+    },
+    {
       "ru": "Прпп. Лазаря (1391) и Афанасия (XV) Мурманских (Муромских), Олонецких",
       "cu": "Прпⷣбныхъ ла́зарѧ (1391) и҆ а҆ѳана́сїа (еі҃) мꙋ́ромскихъ",
       "sourceId": "1326",
@@ -5933,6 +6017,18 @@
       "cu": "Прпⷣбныхъ спѷрїдѡ́на и҆ нїкоди́ма, просфо́рникѡвъ пече́рскихъ (ві҃)",
       "sourceId": "4621",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4621.xml"
+    },
+    {
+      "ru": "Прпп. схимонаха Кирилла и схимонахини Марии (ок. 1337), родителей прп. Сергия Радонежского",
+      "cu": "Прпⷣбныхъ схимона́ха кѷрі́лла и҆ схимона́хини марі́и (ѻ҆́кѡлѡ 1337), роди́телей прпⷣбнагѡ се́ргїа ра́донежскагѡ",
+      "sourceId": "6670",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6670.xml"
+    },
+    {
+      "ru": "Прпп. схимонаха Кирилла и схимонахини Марии, родителей прп. Сергия Радонежского (ок. 1337)",
+      "cu": "Прпⷣбныхъ схимона́ха кѷрі́лла и҆ схимона́хини марі́и, роди́телей прпⷣбнагѡ се́ргїа ра́донежскагѡ (ѻ҆́кѡлѡ 1337)",
+      "sourceId": "6670",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6670.xml"
     },
     {
       "ru": "Равноап. Аверкия, еп. Иерапольского, чудотворца (ок. 167)",
@@ -6071,6 +6167,12 @@
       "cu": "Ст҃а́гѡ а҆мфїло́хїа, є҆пі́скопа владимїроволы́нскагѡ (1122)",
       "sourceId": "15501",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/15501.xml"
+    },
+    {
+      "ru": "Свт. Амфилохия, еп. Иконийского (после 394)",
+      "cu": "Ст҃а́гѡ а҆мфїло́хїа, є҆пі́скопа і҆коні́йскагѡ (по 394)",
+      "sourceId": "3209",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/3209.xml"
     },
     {
       "ru": "Свт. Анатолия, Патриарха Константинопольского (458)",
@@ -6499,6 +6601,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6711.xml"
     },
     {
+      "ru": "Свт. Марка Евгеника, архиеп. Ефесского (1444)",
+      "cu": "Ст҃а́гѡ ма́рка є҆ѵге́ника, а҆рхїепⷭ҇копа є҆фе́сскагѡ (1444)",
+      "sourceId": "256",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/256.xml"
+    },
+    {
       "ru": "Свт. Мартина исп., папы Римского (655)",
       "cu": "Ст҃а́гѡ марті́на и҆сповѣ́дника, па́пы ри́мскагѡ (655)",
       "sourceId": "853",
@@ -6743,6 +6851,12 @@
       "cu": "Ст҃а́гѡ тѵ́хѡна, є҆пі́скопа а҆маѳꙋ́нтскагѡ (425)",
       "sourceId": "1322",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1322.xml"
+    },
+    {
+      "ru": "Свт. Тихона, патриарха Московского и всея Руси (прославление, 1989)",
+      "cu": "Ст҃а́гѡ тѵ́хѡна, патрїа́рха моско́вскагѡ и҆ всеѧ̀ рꙋсѝ (просла́вленїе, 1989)",
+      "sourceId": "464401",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/464401.xml"
     },
     {
       "ru": "Свт. Трифиллия, еп. Левкусии Кипрской (ок. 370)",
@@ -7015,6 +7129,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/06100100.xml"
     },
     {
+      "ru": "Собор славных и всехвальных 12-ти апостолов: Петра, Андрея, брата его, Иакова Зеведеева, Иоанна, брата его, Филиппа, Варфоломея, Фомы, Матфея, Иакова Алфеева, Иуды Иаковля, или Фаддея, Симона Зилота и Матфия",
+      "cu": "Собо́ръ ст҃ы́хъ сла́вныхъ и҆ всехва́льныхъ 12-ти а҆пⷭ҇тѡлъ: петра̀, а҆ндре́а, бра́та є҆гѡ̀, і҆а́кѡва зеведе́ева, і҆ѡа́нна, бра́та є҆гѡ̀, фїлі́ппа, варѳоломе́а, ѳѡмы̀, матѳе́а, і҆а́кѡва а҆лфе́ева, і҆ꙋ́ды і҆а́кѡвлѧ, и҆лѝ ѳадде́а, сі́мѡна зилѡ́та и҆ матѳі́а",
+      "sourceId": "1419",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1419.xml"
+    },
+    {
       "ru": "Сретение Владимирской иконы Пресвятой Богородицы",
       "cu": "Срѣ́тенїе влади́мїрскїѧ і҆кѡ́ны прест҃ы́ѧ бг҃оро́дицы",
       "sourceId": "281201",
@@ -7097,6 +7217,12 @@
       "cu": "Ст҃а́гѡ сщ҃енномч҃ника влади́мїра, митрополі́та кі́евскагѡ (1918)",
       "sourceId": "430",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/430.xml"
+    },
+    {
+      "ru": "Сщмч. Власия, еп. Севастийского, и с ним двух отроков и 7 жен (ок. 316)",
+      "cu": "Ст҃а́гѡ сщ҃енномч҃ника вла́сїа, є҆пі́скопа севасті́йскагѡ, и҆ съ ни́мъ двꙋ́хъ ѻ҆трокѡ́въ и҆ 7 жє́нъ (ѻ҆́кѡлѡ 316)",
+      "sourceId": "435",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/435.xml"
     },
     {
       "ru": "Сщмч. Григория еп., просветителя Великой Армении (ок. 335)",
@@ -7445,6 +7571,12 @@
       "cu": "Шꙋ́йскосмоле́нскїѧ і҆кѡ́ны бж҃їѧ мт҃ри (1654-1655)",
       "sourceId": "293501",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/293501.xml"
+    },
+    {
+      "ru": "Явление иконы Пресвятой Богородицы во граде Казани (1579)",
+      "cu": "Ꙗ҆вле́нїе і҆кѡ́ны прест҃ы́ѧ бцⷣы во гра́дѣ каза́ни (1579)",
+      "sourceId": "2865",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2865.xml"
     },
     {
       "ru": "Яхромской иконы Божией Матери (XV)",

@@ -54,7 +54,7 @@ export function sourceAttestedSlavonicTitle(title: string): string | undefined {
 export async function loadSlavonicCorpus(fetcher: typeof fetch = fetch): Promise<void> {
   if (ready) return;
   pending ??= (async () => {
-    const response = await fetcher("/data/church-slavonic/catalogue.json?v=2026-09-09-2");
+    const response = await fetcher("/data/church-slavonic/catalogue.json?v=2026-09-09-3");
     if (!response.ok) throw new Error(`Церковнославянский словарь: HTTP ${response.status}`);
     installSlavonicCorpus(await response.json());
   })().catch(error => { pending = undefined; throw error; });
