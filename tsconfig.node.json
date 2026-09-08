@@ -12,6 +12,5 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "scripts/build-production.ts", "scripts/publish-build.ts", "scripts/test-build-update.ts"]
 }
-

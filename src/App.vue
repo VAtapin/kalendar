@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
+import { loadPdfExporter } from './export/load-pdf-exporter';
 import { setManualTextTitle } from './document/text-title';
 import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
@@ -1712,6 +1713,7 @@ async function saveProjectNow(): Promise<void> {
 }
 
 async function exportPrintPdf(): Promise<void> {
+  if (pdfExportState.value === "exporting") return;
   if (!requestVerifiedAction("export")) return;
   if (!displayedCalendarYear.value) {
     operationNotice.value = "PDF пока не создан: календарные данные ещё загружаются";
@@ -1719,11 +1721,14 @@ async function exportPrintPdf(): Promise<void> {
   }
   pdfExportState.value = "exporting";
   operationNotice.value = `Формируется PDF: ${project.value.document.pages.length} стр.`;
+  let phase = "load-module";
   try {
     ensureCalendarWorkshopBranding(project.value);
-    const { collectBundledFontFamilies, exportCalendarProjectPdf, loadPdfFontFiles } = await import("./export/pdf-exporter");
+    const { collectBundledFontFamilies, exportCalendarProjectPdf, loadPdfFontFiles } = await loadPdfExporter();
     const snapshot = createPersistentProjectSnapshot(project.value);
+    phase = "load-fonts";
     const fonts = await loadPdfFontFiles("/fonts", collectBundledFontFamilies(snapshot));
+    phase = "render-pdf";
     const result = await exportCalendarProjectPdf(
       snapshot,
       displayedCalendarYear.value,
@@ -1735,6 +1740,7 @@ async function exportPrintPdf(): Promise<void> {
     // another full in-memory copy, which was particularly costly for 100+ MB PDFs.
     const pdfBlob = new Blob([result.bytes as BlobPart], { type: "application/pdf" });
     operationNotice.value = `PDF сформирован; передаём на сервер: 0%`;
+    phase = "upload-pdf";
     const ready: PdfExportReady = await uploadPdfExport(
       pdfBlob,
       fileName,
@@ -1750,6 +1756,9 @@ async function exportPrintPdf(): Promise<void> {
     operationNotice.value = "PDF сохранён на сервере; ссылка на скачивание готова";
   } catch (error) {
     pdfExportState.value = "error";
+    // Browser-local diagnostics only: no calendar contents or credentials sent
+    // to a logging service. Error.cause preserves the failing module URL/stack.
+    console.error(`[Calendar PDF: ${phase}]`, error);
     if (error instanceof SharedProjectApiError && error.code === "email_required") {
       localStorage.removeItem(EMAIL_ACCESS_TOKEN_KEY);
       requestVerifiedAction("export");
