@@ -14,6 +14,9 @@ for(const [index,cu] of batch.entries) {
   // Roman centuries are retained from XML; all other Latin letters are mistakes.
   const nonRoman = cu.replace(/\b[IVXLCDM]+\b/g, '');
   if(/\p{Script=Latin}/u.test(nonRoman)) throw new Error(`Latin letter in editorial CU translation ${index}`);
+  for(const word of cu.match(/[\p{L}\p{M}]+/gu)??[]) {
+    if((word.match(/[\u0300\u0301\u0311]/g)??[]).length>1) throw new Error(`Multiple stress marks in editorial CU translation ${index}: ${word}`);
+  }
   if(JSON.stringify(record.title.match(/\b[IVXLCDM]+\b/g)??[])!==JSON.stringify(cu.match(/\b[IVXLCDM]+\b/g)??[])) throw new Error(`Roman century changed in editorial CU translation ${index}`);
   if(Object.hasOwn(dictionary,record.title)&&dictionary[record.title]!==cu) throw new Error(`Conflicting editorial CU title ${index}`);
   dictionary[record.title]=cu;

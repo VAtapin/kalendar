@@ -17,6 +17,9 @@ describe('editorial German and Church Slavonic additions', () => {
       expect(cu,ru).toMatch(/\p{M}/u);
       expect(cu,ru).not.toMatch(/(?:^|\s|[.,;:()])\p{M}/u);
       expect(cu.replace(/\b[IVXLCDM]+\b/g,''),ru).not.toMatch(/\p{Script=Latin}/u);
+      for(const word of cu.match(/[\p{L}\p{M}]+/gu)??[]) {
+        expect((word.match(/[\u0300\u0301\u0311]/g)??[]).length,`${ru}: ${word}`).toBeLessThanOrEqual(1);
+      }
       expect(cu.match(/\b[IVXLCDM]+\b/g)??[],ru).toEqual(ru.match(/\b[IVXLCDM]+\b/g)??[]);
       // Original editorial titles are a separate layer, not a claim of source quotation.
       expect(localizeCalendarEventTitleWithStatus(ru,'cu'),ru).toEqual({title:cu,status:'exact'});
