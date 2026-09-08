@@ -3,6 +3,7 @@ import type { ResolvedCalendarEvent } from "../types";
 import type { FoodRuleId } from "../fasting/fasting-api";
 import { CHURCH_SLAVONIC_CYCLE_TITLES, CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
 import { sourceAttestedSlavonicTitle } from "./slavonic-corpus";
+import slavonicEditorialTitles from "./slavonic-editorial-titles.json";
 import { GERMAN_COMMEMORATIONS } from "./german-commemorations";
 import { localizeScriptureTitle } from './scripture-titles';
 import { localizeFastingTitle } from './fasting-titles';
@@ -382,7 +383,9 @@ export function localizeCalendarEventTitleWithStatus(title: string, language: Ca
     ?? (resolvedLanguage === "de" && Object.hasOwn(GERMAN_COMMEMORATIONS, title) ? GERMAN_COMMEMORATIONS[title] : undefined)
     ?? (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
     ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined)
-    ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined);
+    ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined)
+    ?? (resolvedLanguage === "cu" && Object.hasOwn(slavonicEditorialTitles, title)
+      ? (slavonicEditorialTitles as Readonly<Record<string, string>>)[title] : undefined);
   if (exact) return { title: exact, status: "exact" };
   const structured = localizeMarriageTitle(title, resolvedLanguage)
     ?? localizeScriptureTitle(title, resolvedLanguage)

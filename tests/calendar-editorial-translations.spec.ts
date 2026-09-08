@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { GERMAN_COMMEMORATIONS } from '../src/calendar/localization/german-commemorations';
+import slavonicEditorialTitles from '../src/calendar/localization/slavonic-editorial-titles.json';
 import { localizeCalendarEventTitleWithStatus } from '../src/calendar/localization/calendar-language';
 import { installSlavonicCorpus } from '../src/calendar/localization/slavonic-corpus';
 import { parseMemoryDaysXml } from '../src/calendar/xml/parse-memory-days';
@@ -8,6 +9,19 @@ const records = parseMemoryDaysXml(readFileSync('public/data/MemoryDays.xml','ut
 const titles = new Set(records.map(r => r.title));
 const additions = JSON.parse(readFileSync('public/data/church-slavonic/editorial-additions.json','utf8')).entries as {ru:string;cu:string;note:string;sourceId:string}[];
 describe('editorial German and Church Slavonic additions', () => {
+  it('uses original CU translations only for exact full XML keys and preserves numbers', () => {
+    installSlavonicCorpus(JSON.parse(readFileSync('public/data/church-slavonic/catalogue.json','utf8')));
+    for(const [ru,cu] of Object.entries(slavonicEditorialTitles)) {
+      expect(titles.has(ru),ru).toBe(true);
+      expect(cu.match(/\d+/g)??[],ru).toEqual(ru.match(/\d+/g)??[]);
+      expect(cu,ru).toMatch(/\p{M}/u);
+      expect(cu,ru).not.toMatch(/(?:^|\s|[.,;:()])\p{M}/u);
+      expect(cu.replace(/\b[IVXLCDM]+\b/g,''),ru).not.toMatch(/\p{Script=Latin}/u);
+      expect(cu.match(/\b[IVXLCDM]+\b/g)??[],ru).toEqual(ru.match(/\b[IVXLCDM]+\b/g)??[]);
+      // Original editorial titles are a separate layer, not a claim of source quotation.
+      expect(localizeCalendarEventTitleWithStatus(ru,'cu'),ru).toEqual({title:cu,status:'exact'});
+    }
+  });
   it('translates real full XML titles, preserving every Arabic historical number', () => {
     for (const [ru,de] of Object.entries(GERMAN_COMMEMORATIONS)) {
       expect(titles.has(ru), ru).toBe(true);
