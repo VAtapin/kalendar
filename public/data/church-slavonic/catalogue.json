@@ -10,6 +10,7 @@
   "sourceFile": "sources.json",
   "correctionFile": "editorial-corrections.json",
   "alignmentFile": "source-alignments.json",
+  "editorialAdditionFile": "editorial-additions.json",
   "entries": [
     {
       "ru": "Августина Блаженного, еп. Иппонийского (430)",
@@ -492,6 +493,18 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/9806.xml"
     },
     {
+      "ru": "Владимирской иконы Божией Матери",
+      "cu": "Влади́мїрскїѧ і҆кѡ́ны бж҃їѧ мт҃ри",
+      "sourceId": "2812",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2812.xml"
+    },
+    {
+      "ru": "Владимирской иконы Божией Матери (1521)",
+      "cu": "Влади́мїрскїѧ і҆кѡ́ны бж҃їѧ мт҃ри (1521)",
+      "sourceId": "2812",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2812.xml"
+    },
+    {
       "ru": "Вмц. Анастасии Узорешительницы (ок. 304)",
       "cu": "Ст҃ы́ѧ великомꙋ́ченицы а҆настасі́и фармаколѵ́трїи, є҆́же є҆́сть ѹ҆зорѣши́тельницы (ок. 304)",
       "sourceId": "2384",
@@ -688,6 +701,12 @@
       "cu": "Пра́зднꙋемъ по бз҃ѣ зна́менїе, бы́вшее пречⷭ҇тою бцⷣею въ вели́комъ новѣ́градѣ (1170)",
       "sourceId": "3233",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/3233.xml"
+    },
+    {
+      "ru": "Иверской иконы Божией Матери",
+      "cu": "І҆́верскїѧ і҆кѡ́ны бж҃їѧ мт҃ри",
+      "sourceId": "2858",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2858.xml"
     },
     {
       "ru": "Иверской иконы Божией Матери (IX)",
@@ -3382,6 +3401,12 @@
       "cu": "Прпⷣбнагѡ а҆нтѡ́нїа ѻ҆́птинскагѡ (1865)",
       "sourceId": "4632",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4632.xml"
+    },
+    {
+      "ru": "Прп. Антония Печерского (1073)",
+      "cu": "Прпⷣбнагѡ а҆нтѡ́нїа пече́рскагѡ (1073)",
+      "sourceId": "21801",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/21801.xml"
     },
     {
       "ru": "Прп. Антония Печерского, Киевского, начальника всех русских монахов (1073)",
@@ -6654,6 +6679,12 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4375.xml"
     },
     {
+      "ru": "Славных и всехвальных первоверховных апостолов Петра и Павла (67)",
+      "cu": "Ст҃ы́хъ сла́вныхъ и҆ всехва́льныхъ и҆ первоверхо́вныхъ а҆пⷭ҇лъ, петра̀ и҆ па́ѵла (67)",
+      "sourceId": "09785",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09785.xml"
+    },
+    {
       "ru": "Собор Архангела Гавриила",
       "cu": "Собо́ръ а҆рха́гг҃ла гаврїи́ла",
       "sourceId": "446",
@@ -6676,6 +6707,12 @@
       "cu": "Собо́ръ волы́нскихъ ст҃ы́хъ",
       "sourceId": "10100000",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/10100000.xml"
+    },
+    {
+      "ru": "Собор Вселенских учителей и святителей Василия Великого, Григория Богослова и Иоанна Златоустого",
+      "cu": "Собо́ръ вселе́нскихъ ꙋ҆чи́телей и҆ ст҃и́телей васі́лїа вели́кагѡ, григо́рїа бг҃осло́ва и҆ і҆ѡа́нна златоꙋ́стагѡ",
+      "sourceId": "09030",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09030.xml"
     },
     {
       "ru": "Собор Вятских святых",
@@ -6706,6 +6743,18 @@
       "cu": "Собо́ръ новомꙋ́ченикѡвъ и҆ и҆сповѣ́дникѡвъ казахста́нскихъ",
       "sourceId": "09070398",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09070398.xml"
+    },
+    {
+      "ru": "Собор новомучеников и исповедников Церкви Русской",
+      "cu": "Собо́ръ новомч҃никѡвъ и҆ и҆сповѣ́дникѡвъ цр҃кве рꙋ́сскїѧ",
+      "sourceId": "6613",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/6613.xml"
+    },
+    {
+      "ru": "Собор Предтечи и Крестителя Господня Иоанна (ок.28)",
+      "cu": "Собо́ръ прⷣте́чи и҆ крⷭ҇ти́телѧ гдⷭ҇нѧ і҆ѡа́нна (ѻ҆́кѡлѡ 28)",
+      "sourceId": "1007",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1007.xml"
     },
     {
       "ru": "Собор преподобных отцев Псково-Печерских",
@@ -6748,6 +6797,12 @@
       "cu": "Собо́ръ сиби́рскихъ ст҃ы́хъ",
       "sourceId": "06100100",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/06100100.xml"
+    },
+    {
+      "ru": "Сретение Владимирской иконы Пресвятой Богородицы",
+      "cu": "Срѣ́тенїе влади́мїрскїѧ і҆кѡ́ны прест҃ы́ѧ бг҃оро́дицы",
+      "sourceId": "281201",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/281201.xml"
     },
     {
       "ru": "Старорусской иконы Божией Матери (1570)",

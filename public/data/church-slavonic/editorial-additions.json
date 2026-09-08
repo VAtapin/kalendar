@@ -1,0 +1,16 @@
+{
+  "license": "GPL-3.0-or-later",
+  "date": "2026-09-08",
+  "basis": "Editorial adaptations of individually read Ponomar NAME forms. Source dates are not imported: annotations of our XML are preserved. These additions are translations, not verbatim parallel-source matches or independent philological certification.",
+  "entries": [
+    { "ru": "Славных и всехвальных первоверховных апостолов Петра и Павла (67)", "cu": "Ст҃ы́хъ сла́вныхъ и҆ всехва́льныхъ и҆ первоверхо́вныхъ а҆пⷭ҇лъ, петра̀ и҆ па́ѵла (67)", "sourceId": "09785", "note": "Source NAME with the XML historical year retained; not a new dating decision." },
+    { "ru": "Собор новомучеников и исповедников Церкви Русской", "cu": "Собо́ръ новомч҃никѡвъ и҆ и҆сповѣ́дникѡвъ цр҃кве рꙋ́сскїѧ", "sourceId": "6613", "note": "Adapted the source's Russian-new-martyrs designation to the exact modern Church designation in our XML." },
+    { "ru": "Собор Вселенских учителей и святителей Василия Великого, Григория Богослова и Иоанна Златоустого", "cu": "Собо́ръ вселе́нскихъ ꙋ҆чи́телей и҆ ст҃и́телей васі́лїа вели́кагѡ, григо́рїа бг҃осло́ва и҆ і҆ѡа́нна златоꙋ́стагѡ", "sourceId": "09030", "note": "Personal name forms from the unconditional feast title; retained the XML designation of teachers and hierarchs. Transfer conditions are not imported." },
+    { "ru": "Прп. Антония Печерского (1073)", "cu": "Прпⷣбнагѡ а҆нтѡ́нїа пече́рскагѡ (1073)", "sourceId": "21801", "note": "Shortened the full NAME to precisely the shorter XML title; same person and year." },
+    { "ru": "Иверской иконы Божией Матери", "cu": "І҆́верскїѧ і҆кѡ́ны бж҃їѧ мт҃ри", "sourceId": "2858", "note": "Icon name without the century annotation, matching this XML title." },
+    { "ru": "Владимирской иконы Божией Матери (1521)", "cu": "Влади́мїрскїѧ і҆кѡ́ны бж҃їѧ мт҃ри (1521)", "sourceId": "2812", "note": "Nominal calendar heading adapted from the source's meeting-of-icon heading; the source Russian annotation and XML refer to 1521." },
+    { "ru": "Владимирской иконы Божией Матери", "cu": "Влади́мїрскїѧ і҆кѡ́ны бж҃їѧ мт҃ри", "sourceId": "2812", "note": "Nominal icon name only; no historical year added to the XML title." },
+    { "ru": "Сретение Владимирской иконы Пресвятой Богородицы", "cu": "Срѣ́тенїе влади́мїрскїѧ і҆кѡ́ны прест҃ы́ѧ бг҃оро́дицы", "sourceId": "281201", "note": "Editorial nominal heading; omitted the source year because this XML title has none." },
+    { "ru": "Собор Предтечи и Крестителя Господня Иоанна (ок.28)", "cu": "Собо́ръ прⷣте́чи и҆ крⷭ҇ти́телѧ гдⷭ҇нѧ і҆ѡа́нна (ѻ҆́кѡлѡ 28)", "sourceId": "1007", "note": "Preserved the XML's approximate historical annotation; not a claim that Ponomar supplies this year." }
+  ]
+}

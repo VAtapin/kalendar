@@ -3,6 +3,7 @@ import type { ResolvedCalendarEvent } from "../types";
 import type { FoodRuleId } from "../fasting/fasting-api";
 import { CHURCH_SLAVONIC_CYCLE_TITLES, CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
 import { sourceAttestedSlavonicTitle } from "./slavonic-corpus";
+import { GERMAN_COMMEMORATIONS } from "./german-commemorations";
 
 /**
  * Editorial vocabulary, not a fully translated or independently verified menologion.
@@ -374,7 +375,8 @@ export function localizeCalendarEventTitleWithStatus(title: string, language: Ca
   const resolvedLanguage = normalizeCalendarLanguage(language);
   if (resolvedLanguage === "ru" || !title.trim()) return { title, status: "source" };
   const dictionary = CORE_EVENTS[resolvedLanguage];
-  const exact = (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
+  const exact = (resolvedLanguage === "de" && Object.hasOwn(GERMAN_COMMEMORATIONS, title) ? GERMAN_COMMEMORATIONS[title] : undefined)
+    ?? (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
     ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined)
     ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined);
   if (exact) return { title: exact, status: "exact" };

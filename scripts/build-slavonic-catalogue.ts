@@ -76,13 +76,30 @@ for (const ru of titles) {
   const chosen = candidates[0]!;
   entries.push({ ru, cu: chosen.cu.text, sourceId: chosen.source.cid, sourceUrl: chosen.source.cuUrl! });
 }
+const additions = JSON.parse(readFileSync(join(output, 'editorial-additions.json'), 'utf8')) as {
+  entries: { ru: string; cu: string; sourceId: string; note: string }[];
+};
+for (const addition of additions.entries) {
+  const source = sources.find(s => s.cid === addition.sourceId);
+  if (!titles.has(addition.ru) || !source?.cuUrl || !addition.note.trim()
+    || churchSlavonicTechnicalIssues(addition.cu).length
+    || JSON.stringify(addition.ru.match(/\d+/gu) ?? []) !== JSON.stringify(addition.cu.match(/\d+/gu) ?? [])) {
+    throw new Error(`Invalid editorial translation: ${addition.ru}`);
+  }
+  if (entries.some(e => slavonicSourceKey(e.ru) === slavonicSourceKey(addition.ru))) {
+    throw new Error(`Editorial translation overlaps a source entry: ${addition.ru}`);
+  }
+  entries.push({ru:addition.ru, cu:addition.cu, sourceId:addition.sourceId, sourceUrl:source.cuUrl});
+  const index = missing.indexOf(addition.ru);
+  if (index >= 0) missing.splice(index, 1);
+}
 entries.sort((a, b) => a.ru.localeCompare(b.ru, "ru"));
 const catalogue = {
   schemaVersion: 1, language: "cu", license: "GPL-3.0-or-later",
   copyright: "Copyright 2006–2018 Aleksandr Andreev and others. Source: Ponomar.",
   sourceRevision: revision, modified: "2026-09-08",
   modificationNotice: "Selected parallel NAME fields, including individually documented typographic alignments; incomplete, unmarked and damaged candidates excluded. Explicit grammatical corrections documented separately. No upstream source code included. This catalogue is not a complete or independently philologically certified translation.",
-  licenseFile: "COPYING", sourceFile: "sources.json", correctionFile: "editorial-corrections.json", alignmentFile: "source-alignments.json", entries,
+  licenseFile: "COPYING", sourceFile: "sources.json", correctionFile: "editorial-corrections.json", alignmentFile: "source-alignments.json", editorialAdditionFile: "editorial-additions.json", entries,
 };
 const used = new Set(entries.map(e => e.sourceId));
 // Preferred editable source includes the parallel NAME records and provenance,
