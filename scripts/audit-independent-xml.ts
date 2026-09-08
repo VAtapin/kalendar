@@ -36,6 +36,8 @@ const rows = dataset.records.map((record, index) => {
   const correction = corrections.changes.find((change: { sourceIndex: number }) => change.sourceIndex === record.sourceIndex);
   if (correction && correction.after !== record.title) throw new Error(`Correction drift ${record.id}`);
   const dateCorrection = corrections.dateChanges.find((change: { sourceIndex: number }) => change.sourceIndex === record.sourceIndex);
+  const rankCorrection = corrections.rankChanges?.find((change: { sourceIndex: number }) => change.sourceIndex === record.sourceIndex);
+  if (rankCorrection && rankCorrection.after !== record.typeCode) throw new Error(`Rank correction drift ${record.id}`);
   if (dateCorrection && Object.entries(dateCorrection.after).some(([key, value]) => record[key as keyof typeof record] !== value)) {
     throw new Error(`Date correction drift ${record.id}`);
   }
@@ -62,6 +64,7 @@ const rows = dataset.records.map((record, index) => {
     },
     correctionStatus: correction ? "title-correction-reviewed-see-change-ledger" : "unchanged",
     dateCorrectionStatus: dateCorrection ? "date-rule-correction-reviewed-see-change-ledger" : "unchanged",
+    rankCorrectionStatus: rankCorrection ? "rank-correction-reviewed-see-change-ledger" : "unchanged",
     editorialApproval: false,
   };
 });
@@ -73,6 +76,7 @@ const summary = {
   pravoslavie: count(row => row.pravoslavie.status), ponomar: count(row => row.ponomar.correspondence),
   correctedTitles: corrections.changes.length,
   correctedDateRules: corrections.dateChanges.length,
+  correctedRanks: corrections.rankChanges?.length ?? 0,
   completeIndependentEditorialAudit: false,
   limitations: [
     "Every XML record has a row; automated textual coverage is not independent historical/philological approval.",

@@ -486,7 +486,7 @@ function calendarFontFamily(preferred: string): string {
 }
 
 function textElementFontFamily(element: TextElement | MonthTextElement): string {
-  return element.type === "text" && element.semanticRole === "calendar-month-title"
+  return element.type === "text" && element.semanticRole
     ? calendarFontFamily(element.typography.fontFamily)
     : element.typography.fontFamily;
 }

@@ -1,7 +1,8 @@
 import type { CalendarLanguage, PageModel, TextElement } from "../../document/types";
 import type { ResolvedCalendarEvent } from "../types";
 import type { FoodRuleId } from "../fasting/fasting-api";
-import { CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
+import { CHURCH_SLAVONIC_CYCLE_TITLES, CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
+import { sourceAttestedSlavonicTitle } from "./slavonic-corpus";
 
 /**
  * Editorial vocabulary, not a fully translated or independently verified menologion.
@@ -52,6 +53,7 @@ const FOOD_LABELS: Record<CalendarLanguage, Record<FoodRuleId, string>> = {
 
 const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string>> = {
   cu: {
+    ...CHURCH_SLAVONIC_CYCLE_TITLES,
     "Светлое Христово Воскресение. Пасха": "Свѣ́тлое хрⷭ҇то́во воскрⷭ҇нїе. Па́сха",
     "Вход Господень в Иерусалим": "Вхо́дъ гдⷭ҇ень во і҆ерꙋсали́мъ",
     "Вознесение Господне": "Вознесе́нїе гдⷭ҇не",
@@ -343,6 +345,11 @@ export function calendarMonthHeading(month: number, year: number, language: Cale
   return `${calendarMonthName(month, language)} ${year}`;
 }
 
+export function calendarCoverHeading(language: CalendarLanguage = "ru"): string {
+  return ({ ru: "ПРАВОСЛАВНЫЙ КАЛЕНДАРЬ", cu: "Правосла́вный мѣсѧцесло́въ", de: "ORTHODOXER KALENDER",
+    uk: "ПРАВОСЛАВНИЙ КАЛЕНДАР", pl: "KALENDARZ PRAWOSŁAWNY" } as const)[normalizeCalendarLanguage(language)];
+}
+
 export function calendarWeekdayLabels(language: CalendarLanguage = "ru", short = false): readonly string[] {
   const labels = WEEKDAYS[normalizeCalendarLanguage(language)];
   return short ? labels.short : labels.full;
@@ -368,7 +375,8 @@ export function localizeCalendarEventTitleWithStatus(title: string, language: Ca
   if (resolvedLanguage === "ru" || !title.trim()) return { title, status: "source" };
   const dictionary = CORE_EVENTS[resolvedLanguage];
   const exact = (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
-    ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined);
+    ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined)
+    ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined);
   if (exact) return { title: exact, status: "exact" };
   const structured = localizeStructuredLiturgicalTitle(title, resolvedLanguage);
   if (structured) return { title: structured, status: "structured" };
@@ -408,6 +416,7 @@ export function localizedTextTitle(
   year: number,
   language: CalendarLanguage = "ru",
 ): string {
+  if (element.semanticRole === "calendar-cover-title") return calendarCoverHeading(language);
   if (element.semanticRole !== "calendar-month-title") return element.content.title;
   const month = page.elements.find((item) => item.type === "calendar-grid")?.month;
   const storedYear = /\b(19|20|21|22)\d{2}\b/u.exec(element.content.title)?.[0];

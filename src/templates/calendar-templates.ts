@@ -8,7 +8,7 @@ import type {
   PageOrientation,
   TextElement,
 } from "../document/types";
-import { calendarMonthHeading } from "../calendar/localization/calendar-language";
+import { calendarCoverHeading, calendarMonthHeading } from "../calendar/localization/calendar-language";
 import { createElementOnOwnLayer, type ElementIdFactory } from "../editor/element-creation";
 import { applyDefaultCalendarCellGeometry } from "./calendar-cell-defaults";
 import {
@@ -258,6 +258,7 @@ export function createCoverTemplatePage(
   year: number,
   publisherName: string,
   idFactory: ElementIdFactory = defaultId,
+  calendarLanguage: CalendarLanguage = "ru",
 ): PageModel {
   const page = createBlankPage(formatId, orientation);
   page.id = `page-cover-${idFactory()}`;
@@ -286,7 +287,8 @@ export function createCoverTemplatePage(
     { x: margin, y: page.height * 0.71, width: page.width - margin * 2, height: page.height * 0.1 },
     { idFactory, fillColor: "#fff4d0" },
   ).element as TextElement;
-  title.content.title = "ПРАВОСЛАВНЫЙ КАЛЕНДАРЬ";
+  title.content.title = calendarCoverHeading(calendarLanguage);
+  title.semanticRole = "calendar-cover-title";
   title.typography.fontFamily = "Ruslan Display";
   title.typography.fontSizePt = Math.max(25, page.width * 0.12);
   title.typography.fontWeight = 400;
@@ -361,7 +363,7 @@ export function createFullCalendarTemplate(
   calendarLanguage: CalendarLanguage = "ru",
 ): PageModel[] {
   return [
-    createCoverTemplatePage(formatId, orientation, year, publisherName),
+    createCoverTemplatePage(formatId, orientation, year, publisherName, defaultId, calendarLanguage),
     ...Array.from({ length: 12 }, (_, index) =>
       createMonthTemplatePageWithPreset(formatId, orientation, index + 1, year, templateId, defaultId, calendarLanguage),
     ),

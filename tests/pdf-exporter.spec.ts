@@ -30,6 +30,25 @@ function decodedPageContent(document: PDFDocument, pageIndex: number): string {
 }
 
 describe("PDF exporter", () => {
+  it("exports the source-backed Church Slavonic month offline with an embedded combining-mark font", async () => {
+    const [xml, font, corpus] = await Promise.all([
+      readFile("public/data/MemoryDays.xml", "utf8"),
+      readFile("public/fonts/MonomakhUnicode.ttf"),
+      readFile("public/data/church-slavonic/catalogue.json", "utf8"),
+    ]);
+    const project = createBlankCalendarProject(2027);
+    project.calendarLanguage = "cu";
+    project.document.pages = [createMonthTemplatePage("A3", "portrait", 1, 2027)];
+    const result = await exportCalendarProjectPdf(project,
+      buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml)),
+      { regular: font, bold: font, italic: font, boldItalic: font, bundled: { "Monomakh Unicode": { regular: font } } },
+      { slavonicCorpus: JSON.parse(corpus), loadAssetSource: async () => undefined });
+    const document = await PDFDocument.load(result.bytes);
+    expect(document.getPageCount()).toBe(1);
+    expect(decodedPageContent(document, 0)).not.toContain("NaN");
+    expect(decodedPageContent(document, 0)).toContain(" Tm");
+    expect(result.warnings.some(w => w.code === "unsupported-font")).toBe(false);
+  });
   it("loads only bundled fonts actually used by the project", () => {
     const project = createBlankCalendarProject(2027);
     project.document.pages = [createMonthTemplatePage("A6", "portrait", 1, 2027)];

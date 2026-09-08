@@ -91,7 +91,7 @@ describe("fasting calculation API", () => {
 
   it("calculates the Apostles and Dormition fasts instead of relying on XML labels", () => {
     expect(rule({ year: 2027, month: 6, day: 28 }).foodRule.id).toBe("boiled-no-oil");
-    expect(rule({ year: 2027, month: 6, day: 29 }).foodRule.id).toBe("fish");
+    expect(rule({ year: 2027, month: 6, day: 29 }).foodRule.id).toBe("oil");
     expect(rule({ year: 2027, month: 6, day: 30 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 8, day: 16 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 8, day: 17 }).foodRule.id).toBe("boiled-no-oil");
@@ -214,5 +214,58 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 4, day: 17 }).foodRule.id).toBe("oil");
     expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("fast");
     expect(rule({ year: 2027, month: 5, day: 2 }).foodRule.id).toBe("no-fast");
+  });
+
+  it.each([
+    { year: 2026, month: 6, day: 14 },
+    { year: 2026, month: 12, day: 6 },
+  ])("distinguishes ordinary, doxology and vigil rules throughout a small-fast week beginning $month/$day", (sunday) => {
+    // Sunday through Saturday; independent transcription of ch. 33's Tue/Thu,
+    // Wed/Fri and vigil distinctions. The existing Monday variant is retained.
+    const ordinary = ["fish", "boiled-no-oil", "oil", "dry-eating", "oil", "dry-eating", "fish"];
+    const doxology = ["fish", "oil", "fish", "oil", "fish", "oil", "fish"];
+    for (let weekday = 0; weekday < 7; weekday += 1) {
+      const date = addDays(sunday, weekday);
+      expect(rule(date).foodRule.id).toBe(ordinary[weekday]);
+      for (const typeCode of [6, 7]) {
+        expect(rule(date, [{ title: "Малая память", typeCode }]).foodRule.id).toBe(ordinary[weekday]);
+      }
+      for (const typeCode of [4, 5]) {
+        expect(rule(date, [{ title: "Празднуемый святой", typeCode }]).foodRule.id).toBe(doxology[weekday]);
+      }
+      for (const typeCode of [1, 2, 3]) {
+        expect(rule(date, [{ title: "Бденный праздник", typeCode }]).foodRule.id).toBe("fish");
+      }
+    }
+  });
+
+  it("does not extend small-fast feast allowances into Lent, Dormition or the Nativity forefeast", () => {
+    for (const date of [
+      { year: 2027, month: 3, day: 24 },
+      { year: 2027, month: 8, day: 18 },
+      { year: 2027, month: 1, day: 3 },
+    ]) {
+      for (const typeCode of [3, 5]) {
+        expect(rule(date, [{ title: "Празднуемый святой", typeCode }]).foodRule.id).not.toBe("fish");
+      }
+    }
+  });
+
+  it("distinguishes the two explicit Pentecost fish Wednesdays from the broader parish variant", () => {
+    // 2027: Pascha May 2, Mid-Pentecost May 26, leave-taking June 9.
+    for (const date of [
+      { year: 2027, month: 5, day: 26 }, { year: 2027, month: 6, day: 9 },
+    ]) {
+      expect(rule(date).foodRule.id).toBe("fish");
+    }
+    for (const date of [
+      { year: 2027, month: 5, day: 12 }, { year: 2027, month: 5, day: 14 },
+      { year: 2027, month: 6, day: 16 }, { year: 2027, month: 6, day: 18 },
+    ]) {
+      expect(rule(date).foodRule.id).toBe("oil");
+      expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("fish");
+    }
+    // A fixed fish feast still takes precedence (St John the Theologian).
+    expect(rule({ year: 2027, month: 5, day: 21 }).foodRule.id).toBe("fish");
   });
 });

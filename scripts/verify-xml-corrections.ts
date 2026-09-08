@@ -15,6 +15,7 @@ for (let index = 0; index < before.records.length; index++) {
   const expected = { ...original.raw };
   const title = ledger.changes.find((row: { sourceIndex: number }) => row.sourceIndex === original.sourceIndex);
   const date = ledger.dateChanges.find((row: { sourceIndex: number }) => row.sourceIndex === original.sourceIndex);
+  const rank = ledger.rankChanges?.find((row: { sourceIndex: number }) => row.sourceIndex === original.sourceIndex);
   if (title) {
     assert.equal(original.title, title.before, `${original.id}: wrong before-title`);
     expected.name = title.after;
@@ -23,7 +24,11 @@ for (let index = 0; index < before.records.length; index++) {
     assert.equal(Number(original.raw[rawField]), date.before[field], `${original.id}: wrong before-date`);
     expected[rawField] = String(date.after[field]);
   }
+  if (rank) {
+    assert.equal(original.typeCode, rank.before, `${original.id}: wrong before-rank`);
+    expected.type = String(rank.after);
+  }
   assert.deepEqual(current.raw, expected, `${original.id}: undocumented raw-field change`);
-  if (title || date) changed++;
+  if (title || date || rank) changed++;
 }
 console.log(`Verified ${after.records.length} records: ${changed} documented changes, all other raw fields unchanged.`);

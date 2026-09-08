@@ -1,0 +1,44 @@
+{
+  "date": "2026-09-08",
+  "rulesVersion": "2026.09.08.2",
+  "scope": "Documented corrections and retained variants; not certification of every Typikon chapter or every day",
+  "sources": {
+    "chapter33": "https://predanie.ru/book/101747-tipikon/?chapter=chapter_33",
+    "november14": "https://www.diak.ortox.ru/bogosluzhebnye_ukazanija/view/id/1216876",
+    "variantExplanation": "https://azbyka.ru/otechnik/Aleksej_Kashkin/ustav-pravoslavnogo-bogosluzhenija/1_54"
+  },
+  "decisions": [
+    {
+      "id": "ordinary-small-fast-tuesday-thursday",
+      "status": "corrected",
+      "before": "Fish on every ordinary Tuesday and Thursday of the Apostles fast and the initial Nativity-fast phase",
+      "after": "Oil without fish on ordinary Tuesdays and Thursdays; feast allowances are evaluated separately",
+      "sources": ["chapter33", "november14"],
+      "profile": "typikon-strict",
+      "parish": "Existing milder fish days retained"
+    },
+    {
+      "id": "small-fast-doxology-and-vigil",
+      "status": "corrected",
+      "before": "Doxology rank 5 ignored; vigil rank 3 treated as polyeleos on Wednesday/Friday; weekday feast fish allowances missing",
+      "after": "Ranks 4/5 permit oil on Monday/Wednesday/Friday and fish on Tuesday/Thursday; ranks 1/2/3 permit fish before the Nativity forefeast. Ordinary ranks 6/7 confer no feast allowance",
+      "sources": ["chapter33", "november14"],
+      "limits": "Not applied to Great Lent, Dormition or the Nativity forefeast. Temple patronal feasts cannot be inferred from a general event title. Choice of actually celebrated service remains significant."
+    },
+    {
+      "id": "pentecost-weekly-measure",
+      "status": "corrected-with-variant-preserved",
+      "before": "Both profiles permitted fish on every Wednesday/Friday after Bright Week and before Pentecost",
+      "after": "Strict profile: oil on ordinary Wednesdays/Fridays, fish on Mid-Pentecost (Pascha +24) and Pascha leave-taking (+38). Explicit fixed fish feasts still take precedence. Parish profile retains the wider fish variant acknowledged in chapter 33",
+      "sources": ["chapter33"]
+    },
+    {
+      "id": "small-fast-monday-variant",
+      "status": "retained-not-adjudicated-as-error",
+      "before": "Ordinary Monday: boiled food without oil; doxology/polyeleos Monday: oil",
+      "after": "Unchanged. Chapter 33 states dry eating on ordinary Mondays and fish for doxology Mondays; chapter 48 (November 14) excludes oil on ordinary Mondays and permits oil, not fish, for doxology/polyeleos Mondays. The existing combined profile is not being silently redefined as a literal implementation of chapter 33 alone",
+      "sources": ["chapter33", "november14", "variantExplanation"],
+      "limits": "The application is still a named composite table, not a complete service-dependent Typikon engine. Selecting one monastic practice for all ambiguous cases needs an explicit editorial rule."
+    }
+  ]
+}

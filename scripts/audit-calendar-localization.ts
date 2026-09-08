@@ -4,6 +4,8 @@ import { buildOrthodoxCalendarYear, parseMemoryDaysXml } from "../src/calendar";
 import { calendarContentCategory } from "../src/calendar/presentation/calendar-content-policy";
 import { calendarEventTitleLocalizationStatus, type CalendarTitleLocalizationStatus } from "../src/calendar/localization/calendar-language";
 import type { CalendarLanguage } from "../src/document/types";
+import { installSlavonicCorpus } from "../src/calendar/localization/slavonic-corpus";
+installSlavonicCorpus(JSON.parse(readFileSync("public/data/church-slavonic/catalogue.json", "utf8")));
 
 // Reproducible code-path coverage, NOT a claim that every translated name was checked against a source.
 // Usage: npx tsx scripts/audit-calendar-localization.ts

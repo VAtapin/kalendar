@@ -116,6 +116,7 @@ async function openPreview(id: string) {
       import("../calendar/xml/parse-memory-days"), import("../calendar/engine/build-calendar-year"),
       fetch("/data/MemoryDays.xml")]);
     if (!response.ok) throw new Error("Не удалось загрузить календарные данные");
+    if (result.project.calendarLanguage === "cu") await (await import("../calendar/localization/slavonic-corpus")).loadSlavonicCorpus();
     year.value = mergeMonasteryEvents(engine.buildOrthodoxCalendarYear(result.project.year, parser.parseMemoryDaysXml(await response.text())), result.project.monasteryEvents);
     preview.value = result.project; pageIndex.value = 0;
   } catch (e) { error.value = String(e); } finally { busy.value = false; }

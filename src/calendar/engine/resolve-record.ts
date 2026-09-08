@@ -56,6 +56,14 @@ function fixedSpanForSourceYear(record: MemoryDayRecord, sourceYear: number) {
 function resolveSpecialDate(record: MemoryDayRecord, anchor: CalendarDate): CalendarDate | undefined {
   const weekday = dayOfWeek(anchor);
 
+  // Following weekday only when the anchor itself is a different weekday.
+  // E.g. the Sunday of the Holy Kinsmen after Nativity: if Nativity is
+  // Sunday, the separate conditional Monday record is used instead.
+  if (record.startMonth === -6) {
+    if (record.startDate < 0 || record.startDate > 6 || weekday === record.startDate) return undefined;
+    return addDays(anchor, positiveModulo(record.startDate - weekday, 7));
+  }
+
   // Explicit strictly-following weekday (0=Sunday ... 6=Saturday). Unlike
   // legacy -1/-2 same-week offsets, a coinciding anchor moves ahead seven days.
   if (record.startMonth === -5) {

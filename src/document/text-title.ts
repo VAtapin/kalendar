@@ -1,7 +1,7 @@
 import type { TextElement, MonthTextElement } from './types';
 export function setManualTextTitle(element: TextElement | MonthTextElement, title: string): void {
   element.content.title = title;
-  if (element.type === 'text' && element.semanticRole === 'calendar-month-title') {
+  if (element.type === 'text' && element.semanticRole) {
     delete element.semanticRole;
     element.manualTitle = true;
   }

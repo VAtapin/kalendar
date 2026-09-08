@@ -8,6 +8,10 @@ import { calendarMonthName, calendarWeekdayLabels, calendarFoodRuleLabel, calend
   calendarMonasteryEventLabel, localizeCalendarEventTitleWithStatus } from "../src/calendar/localization/calendar-language";
 import { FOOD_RULES, type FoodRuleId } from "../src/calendar/fasting/fasting-api";
 import { churchSlavonicTechnicalIssues } from "./lib/calendar-source-audit";
+import { installSlavonicCorpus } from "../src/calendar/localization/slavonic-corpus";
+import { calendarCoverHeading } from "../src/calendar/localization/calendar-language";
+
+installSlavonicCorpus(JSON.parse(readFileSync("public/data/church-slavonic/catalogue.json", "utf8")));
 
 const xml = readFileSync("public/data/MemoryDays.xml", "utf8");
 const dataset = parseMemoryDaysXml(xml);
@@ -48,7 +52,7 @@ for (const short of [false, true]) calendarWeekdayLabels("ru", short).forEach((s
 for (const rule of Object.keys(FOOD_RULES) as FoodRuleId[]) vocabulary.push({ origin: `food:${rule}`, source: calendarFoodRuleLabel(rule, "ru"), currentCu: calendarFoodRuleLabel(rule, "cu") });
 vocabulary.push({ origin: "old-style-prefix", source: calendarOldStylePrefix("ru"), currentCu: calendarOldStylePrefix("cu") },
   { origin: "monastery-event-legend", source: calendarMonasteryEventLabel("ru"), currentCu: calendarMonasteryEventLabel("cu") },
-  { origin: "cover-template:hardcoded", source: "ПРАВОСЛАВНЫЙ КАЛЕНДАРЬ", currentCu: "ПРАВОСЛАВНЫЙ КАЛЕНДАРЬ" },
+  { origin: "cover-template:localized", source: calendarCoverHeading("ru"), currentCu: calendarCoverHeading("cu") },
   { origin: "new-text-element:editable-placeholder", source: "Новый текст", currentCu: "Новый текст" });
 interface SourceName { text: string; condition?: string }
 interface SourceRecord { cid: string; ru: SourceName[]; cu: SourceName[]; cuShort: SourceName[]; cuUrl?: string; cuSha256?: string }
@@ -61,7 +65,7 @@ const externalIssues = external.flatMap(record => [
   const missing = missingGlyphs(name.text);
   if (record.ru.some(ru => ru.text === name.text)) issues.push("identical-to-russian-name");
   if (!issues.length && !missing.length) return [];
-  // No third-party corpus is distributed here; retain IDs, source hashes, diagnostic codes.
+  // This diagnostic lists IDs/hashes rather than duplicating external text fields.
   return [{ cid: record.cid, field, url: record.cuUrl, sha256: record.cuSha256,
     conditional: Boolean(name.condition), issues, missingGlyphs: missing }];
 }));
@@ -78,9 +82,9 @@ const summary = {
     "Coverage includes raw XML rules/readings/descriptions as a superset; not every such entry is printed by the current grid.",
     "Short variants are audited even when currently suppressed for missing translation; a full title alone is insufficient.",
     "Technical success (cmap/combining marks) is not proof of correct accents, titla, grammar, saint identity or complete group membership.",
-    "External corpus was inspected read-only. Its bulk import is pending an explicit licensing decision; no license of this application has been changed.",
+    "Selected exact source-parallel titles are loaded from a separately distributed GPL-3.0-or-later text catalogue with authorship, editable source fields and full license. No whole-application license change.",
     "Free text, publisher name, monastery events and text baked into uploaded/branding images are separate author-supplied content, not automatically translated.",
-    "The hardcoded Russian cover title and new-text placeholder are explicitly recorded, not silently excluded from coverage.",
+    "The cover title is localized; the editable new-text placeholder is explicitly recorded, not silently excluded from coverage.",
   ],
 };
 mkdirSync("docs/audit-data", { recursive: true });

@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-08",
+  "decisions": [
+    {
+      "sourceIndex": 27,
+      "subject": "Князь Владимир: старый бденный знак против современной службы великого праздника",
+      "decision": "correct-to-great-feast-see-change-ledger",
+      "currentTypeCode": 2,
+      "source": "https://rop.ru/shop/product/sluzhba-gospodu-bogu-nashemu-v-troice-slavimomu-v-pamyat-krescheniya-rusi-i-svyatomu-ravnoapostolnomu-knyazyu-vldadimiru",
+      "basis": "Издательство Московской Патриархии в истории богослужебного издания цитирует определение Архиерейского Собора 2008 года, п. 11, о службе 15/28 июля по уставу великого праздника. Более ранний/воспроизведённый бденный знак не определяет современную редакцию базы.",
+      "reviewScope": "Современный чин в календаре РПЦ. Исторические редакции до 2008 года отдельно не моделируются."
+    },
+    {
+      "sourceIndex": 15,
+      "subject": "Рождество Иоанна Предтечи: T5 на days.pravoslavie.ru против type=2 в XML",
+      "decision": "retain-current-rank",
+      "currentTypeCode": 2,
+      "source": "https://azbyka.ru/otechnik/Konstantin_Nikolskij/rukovodstvo-k-izucheniyu-bogosluzhenija-pravoslavnoj-tserkvi/66",
+      "basis": "Раздел Никольского «О праздниках великих» ссылается на главу 47 Типикона и прямо относит Рождество Предтечи 24 июня к праздникам с крестом в круге. Поэтому знак бдения из одной веб-страницы не заменяет правильный великий чин XML.",
+      "reviewScope": "Знак праздника; не аттестация всего набора чтений и совпадений служб."
+    },
+    {
+      "sourceIndex": 1774,
+      "subject": "Иерофей и Стефан Венгерские: расхождение даты с Ponomar",
+      "decision": "retain-current-date",
+      "currentOldStyleDate": "08-07",
+      "source": "https://magyarortodox.hu/?page_id=14361",
+      "basis": "Официальная Венгерская епархия приводит решение Священного Синода от 21 августа 2007 года: память 7 (20) августа. Поэтому наш XML с 7 августа старого стиля не переносится на 20 августа старого стиля вслед за другим корпусом.",
+      "reviewScope": "Дата этой памяти; не аттестация всех исторических сведений и языковых форм."
+    }
+  ]
+}

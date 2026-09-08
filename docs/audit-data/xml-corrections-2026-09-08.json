@@ -1,7 +1,81 @@
 {
   "date": "2026-09-08",
-  "scope": "Подтверждённые исправления названий и пяти правил дат. Количество, порядок записей, типы и описания не изменены. Не является заключением о достоверности всего XML.",
+  "scope": "Подтверждённые исправления названий, ссылок на чтения, десяти правил дат и одного чина праздника. Количество, порядок записей и описания не изменены. Не является заключением о достоверности всего XML.",
+  "rankChanges": [
+    {
+      "sourceIndex": 27,
+      "title": "Равноап. вел. кн. Владимира, во св. Крещении Василия (1015)",
+      "before": 3,
+      "after": 2,
+      "reason": "Архиерейский Собор РПЦ 2008 года, определение «О единстве Церкви», п. 11, предписал службу 15/28 июля по уставу великого праздника. В современной редакции базы чин бденного среднего праздника заменён великим недвунадесятым; теперь знак и цвет даты соответствуют этому чину.",
+      "scopeLimit": "База содержит современную редакцию месяцеслова, а не историческую реконструкцию чинов до 2008 года. Год 1015 в имени — год кончины, а не дата изменения чина.",
+      "sources": ["https://old.mospat.ru/ru/documents/synod27-06-2008/", "https://rop.ru/shop/product/sluzhba-gospodu-bogu-nashemu-v-troice-slavimomu-v-pamyat-krescheniya-rusi-i-svyatomu-ravnoapostolnomu-knyazyu-vldadimiru"]
+    }
+  ],
   "changes": [
+    {
+      "sourceIndex": 2610,
+      "before": "Мф.22:15 –23,39",
+      "after": "Мф.22:15-23:39",
+      "reason": "Утреня Великого Вторника: чтение продолжается до 39-го стиха главы 23; запятая ошибочно оставляла все стихи в главе 22.",
+      "sources": ["https://www.pokrov-monastir.ru/interpretation/19-aprelya-2022-strastnaya-sedmitsa-velikiy-vtornik-evangelskoe-chtenie-mf-22-15-23-39-i-24-36-26-2"]
+    },
+    {
+      "sourceIndex": 2804,
+      "before": "Рим.2:28-3,18",
+      "after": "Рим.2:28-3:18",
+      "reason": "Зачало 83, понедельник 2-й седмицы по Пятидесятнице: восстановлена граница глав 2 и 3 вместо некорректного интервала стихов 28–3.",
+      "sources": ["https://predanie.ru/book/216788-lekcionariy-evangelie-i-apostol-sinod-per/?chapter=chapter_13", "https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-apostola.shtml"]
+    },
+    {
+      "sourceIndex": 2825,
+      "before": "Рим.12:4-5:15-21",
+      "after": "Рим.12:4-5,15-21",
+      "reason": "Зачало 109: два отрывка одной главы 12 разделяются запятой, а не обозначением перехода к главе 5.",
+      "sources": ["https://predanie.ru/book/216788-lekcionariy-evangelie-i-apostol-sinod-per/?chapter=chapter_13"]
+    },
+    {
+      "sourceIndex": 2938,
+      "before": "Кол.1:1-2:7-11",
+      "after": "Кол.1:1-2,7-11",
+      "reason": "Зачало 249А: стихи 1–2 и 7–11 относятся к одной главе 1.",
+      "sources": ["https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-apostola.shtml", "https://azbyka.ru/bogosluzhenie/arh/apostol-v-sinodalnom-perevode.pdf"]
+    },
+    {
+      "sourceIndex": 2983,
+      "before": "2 Тим.1:1-2:8-18",
+      "after": "2 Тим.1:1-2,8-18",
+      "reason": "Зачало 290: стихи 1–2 и 8–18 относятся к одной главе 1.",
+      "sources": ["https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-apostola.shtml", "https://orthodoxy.lt/source/content/biblioteka/9_kalendar-1994/1994.pdf"]
+    },
+    {
+      "sourceIndex": 3204,
+      "before": "Мф.12:14-16:22-30",
+      "after": "Мф.12:14-16,22-30",
+      "reason": "Два отрывка одной главы 12, а не диапазон до главы 16 с лишним дефисом.",
+      "sources": ["https://azbyka.ru/days/2026-06-30", "https://azbyka.org/otechnik/Pravoslavnoe_Bogosluzhenie/evangelie-bogosluzhebnoe-grazhdanskim-shriftom-s-udarenijami/"]
+    },
+    {
+      "sourceIndex": 3235,
+      "before": "Мф.21:12-14:17-20",
+      "after": "Мф.21:12-14,17-20",
+      "reason": "Зачало 84: стихи 12–14 и 17–20 относятся к одной главе 21.",
+      "sources": ["https://azbyka.ru/days/2026-07-31", "https://azbyka.ru/ssylki-na-bibliju"]
+    },
+    {
+      "sourceIndex": 3471,
+      "before": "Лк.2:20-21:40-52",
+      "after": "Лк.2:20-21,40-52",
+      "reason": "Литургия Обрезания Господня: стихи 20–21 и 40–52 относятся к главе 2.",
+      "sources": ["https://azbyka.ru/worships/?date=2004-01-14", "https://ekzeget.ru/mediateka/detail-mysli-na-kazdyj-den-goda-feofan-zatvornik/"]
+    },
+    {
+      "sourceIndex": 2393,
+      "before": "Прмчч. Неофита, Ионы, Неофита, Ионы и Парфения Липсийских (переходящее празднование в воскресенье после 27 июня). Сщмч. Антония, архиеп. Архангельского (1931)",
+      "after": "Сщмч. Антония, архиеп. Архангельского (1931)",
+      "reason": "Из фиксированного дня исключена ошибочно приклеенная переходящая память Липсийских мучеников. Все пять мучеников сохранены в записи 1662 с исправленным правилом воскресенья; память Антония остаётся 3 июля старого стиля.",
+      "sources": ["https://azbyka.ru/days/2026-07-12", "https://days.pravoslavie.ru/Days/20260703.html"]
+    },
     {
       "sourceIndex": 55,
       "before": "Перенесение мощей блгв. князей Российских Бориса (1072) и Глеба (1115), во святом Крещении Романа и Давида",
@@ -90,6 +164,47 @@
     }
   ],
   "dateChanges": [
+    {
+      "sourceIndex": 733,
+      "title": "Правв. Иосифа Обручника, Давида царя и Иакова, брата Господня",
+      "before": {"startMonth": -2, "startDate": 7, "finishMonth": 12, "finishDate": 25},
+      "after": {"startMonth": -6, "startDate": 0, "finishMonth": 12, "finishDate": 25},
+      "reason": "Неделя по Рождестве: следующее воскресенье, кроме случая, когда само Рождество в воскресенье. Тогда служба Богоотцов переносится на 26 декабря, по отдельной условной записи 735. Код -6 — следующий день недели, но без события при совпадении дня недели якоря.",
+      "sources": ["https://diak.ortox.ru/bogosluzhebnye_ukazanija/view/id/1215101", "https://klikovo.ru/books/44495"]
+    },
+    {
+      "sourceIndex": 735,
+      "title": "Правв. Иосифа Обручника, Давида царя и Иакова, брата Господня",
+      "before": {"startMonth": 12, "startDate": 26, "finishMonth": 12, "finishDate": 26},
+      "after": {"startMonth": -3, "startDate": 1, "finishMonth": 12, "finishDate": 26},
+      "reason": "26 декабря старого стиля только если это понедельник (Рождество — воскресенье), а не ежегодная вторая память вместе с записью 733. Типикон, 26 декабря, второе «зри».",
+      "sources": ["https://diak.ortox.ru/bogosluzhebnye_ukazanija/view/id/1215101", "https://klikovo.ru/books/44495"]
+    },
+    {
+      "sourceIndex": 885,
+      "title": "Кипрской иконы Божией Матери в с. Стромыни Московской области",
+      "before": {"startMonth": 2, "startDate": 20, "finishMonth": 2, "finishDate": 20},
+      "after": {"startMonth": 0, "startDate": -42, "finishMonth": 0, "finishDate": -42},
+      "reason": "Первая Неделя Великого поста, за 42 дня до Пасхи, а не фиксированное 20 февраля. Отдельная июльская память не отменяется.",
+      "sources": ["https://azbyka.ru/days/ikona-kiprskaja-stromynskaja", "https://sobory.ru/article/?object=03920"]
+    },
+    {
+      "sourceIndex": 1141,
+      "title": "Прп. Шио Мгвимского (VI)",
+      "before": {"startMonth": 2, "startDate": 10, "finishMonth": 2, "finishDate": 10},
+      "after": {"startMonth": 0, "startDate": -52, "finishMonth": 0, "finishDate": -52},
+      "reason": "Четверг сырной седмицы, за 52 дня до Пасхи, а не фиксированное 10 февраля. Майская память остаётся без изменения.",
+      "sources": ["https://azbyka.ru/days/sv-shio-simeon-mgvimskij", "https://azbyka.ru/worships/?date=2028-02-24"]
+    },
+    {
+      "sourceIndex": 1662,
+      "title": "Прмчч. Неофита, Ионы, Неофита, Ионы и Парфения Липсийских",
+      "before": {"startMonth": 7, "startDate": 3, "finishMonth": 7, "finishDate": 3},
+      "after": {"startMonth": -2, "startDate": 0, "finishMonth": 7, "finishDate": 3},
+      "reason": "Воскресенье в интервале 27 июня — 3 июля старого стиля (10–16 июля нового стиля в 1900–2099), а не ежегодно 3 июля. Включение нижней границы проверено отдельно по 10 июля 2022: буквальная формулировка источника «после 10 июля» неточна на границе.",
+      "sources": ["https://azbyka.ru/days/2026-07-12", "https://azbyka.ru/days/2022-07-10", "https://azbyka.ru/days/2022-07-17"],
+      "caveat": "В XML сохраняется юлианский якорь. Прямое отождествление его с гражданским 10 июля за пределами периода 1900–2099 неверно. Независимое разрешение дальнейшего выбора календарного стиля этой местной греческой памяти не выполнено."
+    },
     {
       "sourceIndex": 319,
       "title": "Прп. Пахомия Кенского (XVI)",

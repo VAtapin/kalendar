@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
 import { setManualTextTitle } from './document/text-title';
+import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
@@ -1973,6 +1974,8 @@ function addCoverTemplatePage(): void {
       selectedPage.value.orientation,
       project.value.year,
       project.value.publisherProfile.name,
+      undefined,
+      project.value.calendarLanguage,
     );
     project.value.document.pages.unshift(created);
     return created;
@@ -2052,7 +2055,8 @@ async function loadCalendarData(): Promise<void> {
       calendarDatasetPromise = undefined;
       throw error;
     });
-    const [dataset, runtime] = await Promise.all([calendarDatasetPromise, calendarRuntimePromise]);
+    const [dataset, runtime] = await Promise.all([calendarDatasetPromise, calendarRuntimePromise,
+      project.value.calendarLanguage === "cu" ? loadSlavonicCorpus() : Promise.resolve()]);
     let year = calendarYearCache.get(requestedYear);
     if (!year) {
       year = runtime.buildOrthodoxCalendarYear(requestedYear, dataset);
@@ -2109,9 +2113,23 @@ function editSelectedTextTitle(event: Event): void {
   });
 }
 
-function updateCalendarLanguage(event: Event): void {
+let calendarLanguageRequest = 0;
+async function updateCalendarLanguage(event: Event): Promise<void> {
+  const request = ++calendarLanguageRequest;
+  const targetProject = project.value;
   const language = normalizeCalendarLanguage((event.target as HTMLSelectElement).value) as CalendarLanguage;
   if (language === project.value.calendarLanguage) return;
+  if (language === "cu") {
+    try { await loadSlavonicCorpus(); }
+    catch (error) {
+      if (request !== calendarLanguageRequest || project.value !== targetProject) return;
+      (event.target as HTMLSelectElement).value = project.value.calendarLanguage ?? "ru";
+      operationNotice.value = `Не удалось загрузить церковнославянские названия: ${String(error)}`;
+      return;
+    }
+  }
+  // A slow corpus request must not overwrite a later language choice or a different project.
+  if (request !== calendarLanguageRequest || project.value !== targetProject) return;
   mutateProject("Изменение языка календаря", () => {
     project.value.calendarLanguage = language;
     for (const page of project.value.document.pages) {

@@ -117,7 +117,7 @@ const summary = {
   externalRecordsWithMarkedCuTitle: [...sources.values()].filter(record => record.cu.some(name => /\p{M}/u.test(name.text))).length,
   correspondence: rows.reduce((count, row) => { count[row.correspondence] = (count[row.correspondence] ?? 0) + 1; return count; }, {} as Record<string, number>),
   allEditoriallyApproved: false, sourceRevision: revision,
-  notice: "Source discovery only: literal correspondence is not independent editorial approval. Conditions are not evaluated; ranks are not assumed equivalent. Source translations are working references, not shipped data.",
+  notice: "Source discovery only: literal correspondence is not independent editorial approval. Conditions are not evaluated; ranks are not assumed equivalent. Only separately selected source-parallel translations are shipped in the licensed catalogue.",
 };
 mkdirSync(target, { recursive: true });
 writeFileSync(join(target, "ledger.json"), JSON.stringify({ summary, indexIssues, rows }, null, 2));

@@ -214,7 +214,7 @@
 		<f_month>7</f_month>
 		<f_date>15</f_date>
 		<name>Равноап. вел. кн. Владимира, во св. Крещении Василия (1015)</name>
-		<type>3</type>
+		<type>2</type>
 	</event>
 	<event>
 		<s_month>7</s_month>
@@ -5857,8 +5857,8 @@
 		<type>7</type>
 	</event>
 	<event>
-		<s_month>-2</s_month>
-		<s_date>7</s_date>
+		<s_month>-6</s_month>
+		<s_date>0</s_date>
 		<f_month>12</f_month>
 		<f_date>25</f_date>
 		<name>Правв. Иосифа Обручника, Давида царя и Иакова, брата Господня</name>
@@ -5873,8 +5873,8 @@
 		<type>7</type>
 	</event>
 	<event>
-		<s_month>12</s_month>
-		<s_date>26</s_date>
+		<s_month>-3</s_month>
+		<s_date>1</s_date>
 		<f_month>12</f_month>
 		<f_date>26</f_date>
 		<name>Правв. Иосифа Обручника, Давида царя и Иакова, брата Господня</name>
@@ -7073,10 +7073,10 @@
 		<type>17</type>
 	</event>
 	<event>
-		<s_month>2</s_month>
-		<s_date>20</s_date>
-		<f_month>2</f_month>
-		<f_date>20</f_date>
+		<s_month>0</s_month>
+		<s_date>-42</s_date>
+		<f_month>0</f_month>
+		<f_date>-42</f_date>
 		<name>Кипрской иконы Божией Матери в с. Стромыни Московской области</name>
 		<type>17</type>
 	</event>
@@ -9121,10 +9121,10 @@
 		<type>18</type>
 	</event>
 	<event>
-		<s_month>2</s_month>
-		<s_date>10</s_date>
-		<f_month>2</f_month>
-		<f_date>10</f_date>
+		<s_month>0</s_month>
+		<s_date>-52</s_date>
+		<f_month>0</f_month>
+		<f_date>-52</f_date>
 		<name>Прп. Шио Мгвимского (VI)</name>
 		<type>18</type>
 	</event>
@@ -13289,8 +13289,8 @@
 		<type>18</type>
 	</event>
 	<event>
-		<s_month>7</s_month>
-		<s_date>3</s_date>
+		<s_month>-2</s_month>
+		<s_date>0</s_date>
 		<f_month>7</f_month>
 		<f_date>3</f_date>
 		<name>Прмчч. Неофита, Ионы, Неофита, Ионы и Парфения Липсийских</name>
@@ -19141,7 +19141,7 @@
 		<s_date>3</s_date>
 		<f_month>7</f_month>
 		<f_date>3</f_date>
-		<name>Прмчч. Неофита, Ионы, Неофита, Ионы и Парфения Липсийских (переходящее празднование в воскресенье после 27 июня). Сщмч. Антония, архиеп. Архангельского (1931)</name>
+		<name>Сщмч. Антония, архиеп. Архангельского (1931)</name>
 		<type>19</type>
 	</event>
 	<event>
@@ -20877,7 +20877,7 @@
 		<s_date>-5</s_date>
 		<f_month>0</f_month>
 		<f_date>-5</f_date>
-		<name>Мф.22:15 –23,39</name>
+		<name>Мф.22:15-23:39</name>
 		<type>202</type>
 	</event>
 	<event>
@@ -22429,7 +22429,7 @@
 		<s_date>57</s_date>
 		<f_month>0</f_month>
 		<f_date>57</f_date>
-		<name>Рим.2:28-3,18</name>
+		<name>Рим.2:28-3:18</name>
 		<type>204</type>
 	</event>
 	<event>
@@ -22597,7 +22597,7 @@
 		<s_date>78</s_date>
 		<f_month>0</f_month>
 		<f_date>78</f_date>
-		<name>Рим.12:4-5:15-21</name>
+		<name>Рим.12:4-5,15-21</name>
 		<type>204</type>
 	</event>
 	<event>
@@ -23501,7 +23501,7 @@
 		<s_date>191</s_date>
 		<f_month>0</f_month>
 		<f_date>191</f_date>
-		<name>Кол.1:1-2:7-11</name>
+		<name>Кол.1:1-2,7-11</name>
 		<type>204</type>
 	</event>
 	<event>
@@ -23861,7 +23861,7 @@
 		<s_date>236</s_date>
 		<f_month>0</f_month>
 		<f_date>236</f_date>
-		<name>2 Тим.1:1-2:8-18</name>
+		<name>2 Тим.1:1-2,8-18</name>
 		<type>204</type>
 	</event>
 	<event>
@@ -25629,7 +25629,7 @@
 		<s_date>79</s_date>
 		<f_month>0</f_month>
 		<f_date>79</f_date>
-		<name>Мф.12:14-16:22-30</name>
+		<name>Мф.12:14-16,22-30</name>
 		<type>207</type>
 	</event>
 	<event>
@@ -25877,7 +25877,7 @@
 		<s_date>110</s_date>
 		<f_month>0</f_month>
 		<f_date>110</f_date>
-		<name>Мф.21:12-14:17-20</name>
+		<name>Мф.21:12-14,17-20</name>
 		<type>207</type>
 	</event>
 	<event>
@@ -27797,7 +27797,7 @@
 		<s_date>1</s_date>
 		<f_month>1</f_month>
 		<f_date>1</f_date>
-		<name>Лк.2:20-21:40-52</name>
+		<name>Лк.2:20-21,40-52</name>
 		<type>217</type>
 		<discription>Обрезание Господне</discription>
 	</event>

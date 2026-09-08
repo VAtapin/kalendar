@@ -98,6 +98,8 @@ export const FASTING_RULE_SOURCE_URLS = [
   "https://azbyka.ru/otechnik/Spravochniki/spravochnik-pravoslavnogo-cheloveka-chast-4-pravoslavnye-posty-i-prazdniki/1",
   "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49_19",
   "https://patriarchia.ru/bu/2024-05-04",
+  "https://predanie.ru/book/101747-tipikon/?chapter=chapter_33",
+  "https://www.diak.ortox.ru/bogosluzhebnye_ukazanija/view/id/1216876",
 ] as const;
 
 export const FASTING_PROFILES: Readonly<Record<FastingProfileId, FastingProfile>> = {
@@ -105,14 +107,14 @@ export const FASTING_PROFILES: Readonly<Record<FastingProfileId, FastingProfile>
     id: "typikon-strict",
     label: "Строгий устав",
     description: "Монастырская мера с сухоядением и днями полного воздержания.",
-    rulesVersion: "2026.09.08",
+    rulesVersion: "2026.09.08.2",
     sourceUrls: FASTING_RULE_SOURCE_URLS,
   },
   parish: {
     id: "parish",
     label: "Приходская практика",
     description: "Смягчённое отображение для мирян без назначения личной меры поста.",
-    rulesVersion: "2026.09.08",
+    rulesVersion: "2026.09.08.2",
     sourceUrls: FASTING_RULE_SOURCE_URLS,
   },
 } as const;
@@ -147,6 +149,20 @@ function hasTitle(input: FastingDayInput, pattern: RegExp): boolean {
 
 function hasMajorSaint(input: FastingDayInput): boolean {
   return eventsFor(input).some((event) => event.typeCode >= 2 && event.typeCode <= 4);
+}
+
+/** Chapter 33 distinguishes doxology/polyeleos from a vigil in the small fasts.
+ * Do not widen hasMajorSaint: Lent and Dormition have their own rules.
+ */
+function smallFastFeastAllowance(input: FastingDayInput): "fish" | "oil" | undefined {
+  const weekday = input.weekday ?? dayOfWeek(input.date);
+  if (eventsFor(input).some((event) => event.typeCode >= 1 && event.typeCode <= 3)) return "fish";
+  if (eventsFor(input).some((event) => event.typeCode === 4 || event.typeCode === 5)) {
+    // Keep the existing Monday measure (ch. 48, November 14). Chapter 33
+    // also records a fish variant on Mondays; this is documented in the audit.
+    return weekday === 1 || weekday === 3 || weekday === 5 ? "oil" : "fish";
+  }
+  return undefined;
 }
 
 function result(
@@ -192,14 +208,18 @@ function apostlesFastRule(input: FastingDayInput): FastingDayResolution {
   if (sameOldStyleDate(input.date, 6, 24)) {
     return result(input, "fish", "Рождество Иоанна Предтечи: разрешается рыба", "apostles-fast");
   }
-  if (hasMajorSaint(input) && (weekday === 1 || weekday === 3 || weekday === 5)) {
-    return result(input, "oil", "Великий или полиелейный праздник: пища с маслом", "apostles-fast");
+  const feastAllowance = smallFastFeastAllowance(input);
+  if (feastAllowance) {
+    return result(input, feastAllowance, "Праздничное разрешение Петрова поста по чину службы", "apostles-fast");
   }
   if (weekday === 1) {
     return result(input, "boiled-no-oil", "Понедельник Петрова поста: горячая пища без масла", "apostles-fast");
   }
   if (weekday === 3 || weekday === 5) {
     return result(input, "dry-eating", "Среда или пятница Петрова поста: сухоядение", "apostles-fast");
+  }
+  if (weekday === 2 || weekday === 4) {
+    return result(input, "oil", "Обычный вторник или четверг Петрова поста: пища с маслом, без рыбы", "apostles-fast");
   }
   return result(input, "fish", "В Петров пост в этот день разрешается рыба", "apostles-fast");
 }
@@ -226,15 +246,19 @@ function nativityFastRule(input: FastingDayInput): FastingDayResolution {
     return result(input, "fish", "Введение Богородицы или память святителя Николая: разрешается рыба", "nativity-fast");
   }
 
-  if (oldOrdinal < 1220 && hasMajorSaint(input) && (weekday === 1 || weekday === 3 || weekday === 5)) {
-    return result(input, "oil", "Великий или полиелейный праздник: пища с маслом", "nativity-fast");
+  const feastAllowance = smallFastFeastAllowance(input);
+  if (oldOrdinal < 1220 && feastAllowance) {
+    return result(input, feastAllowance, "Праздничное разрешение Рождественского поста по чину службы", "nativity-fast");
   }
 
-  // 15 November–6 December old style: the same measure as the Apostles fast.
+  // Ordinary Tue/Thu do not permit fish (Typikon ch. 33 and ch. 48, Nov 14).
+  // Keep this profile's existing Monday no-oil measure: ch. 33's dry-eating
+  // and ch. 48's abstention from oil are not identical prescriptions.
   if (oldOrdinal <= 1206) {
     if (weekday === 1) return result(input, "boiled-no-oil", "Понедельник: горячая пища без масла", "nativity-fast");
     if (weekday === 3 || weekday === 5) return result(input, "dry-eating", "Среда или пятница: сухоядение", "nativity-fast");
-    return result(input, "fish", "Начальная часть Рождественского поста: разрешается рыба", "nativity-fast");
+    if (weekday === 2 || weekday === 4) return result(input, "oil", "Обычный вторник или четверг: пища с маслом, без рыбы", "nativity-fast");
+    return result(input, "fish", "Суббота или воскресенье: разрешается рыба", "nativity-fast");
   }
 
   // From St Nicholas until the forefeast fish is left only for weekends.
@@ -414,9 +438,13 @@ function calculateStrictFastingDay(input: FastingDayInput): FastingDayResolution
   }
 
   if (weekday === 3 || weekday === 5) {
-    // Winter meat-eater and the period from Bright week to Trinity are milder.
+    // Ch. 33 explicitly distinguishes Pentecost's ordinary Wednesdays/Fridays
+    // (oil) from Mid-Pentecost and Pascha leave-taking (fish). Its broader fish
+    // variant is retained in the separate parish profile, not silently erased.
     if (offset >= 7 && offset <= 49) {
-      return result(input, "fish", "Весенний мясоед: в среду и пятницу разрешается рыба");
+      return offset === 24 || offset === 38
+        ? result(input, "fish", "Преполовение Пятидесятницы или отдание Пасхи: разрешается рыба")
+        : result(input, "oil", "Среда или пятница Пятидесятницы: пища с маслом (Типикон, гл. 33)");
     }
     const publicanWeekStart = addDays(calculateOrthodoxPascha(input.date.year), -69);
     const theophany = julianToGregorian({ year: input.date.year, month: 1, day: 6 });
@@ -456,6 +484,11 @@ function applyParishProfile(
     foodRule = FOOD_RULES.oil;
     explanation = "Великая суббота";
     qualification = "; приходской профиль: сохранена общая субботняя мера с маслом";
+  } else if (!strict.period && (weekday === 3 || weekday === 5) &&
+    paschaOffset(input.date) >= 7 && paschaOffset(input.date) <= 49) {
+    foodRule = FOOD_RULES.fish;
+    explanation = "Весенний мясоед: в среду и пятницу разрешается рыба";
+    qualification = "; приходской профиль: сохранён рыбный вариант, упомянутый в Типиконе, гл. 33";
   } else if (strict.period === "apostles-fast") {
     foodRule = weekday === 3 || weekday === 5 ? FOOD_RULES.oil : FOOD_RULES.fish;
   } else if (strict.period === "nativity-fast" && oldOrdinal <= 1206) {

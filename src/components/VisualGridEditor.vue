@@ -4,6 +4,7 @@ import type { CalendarGridElement,PageModel,CalendarLanguage } from '../document
 import type { OrthodoxCalendarYear } from '../calendar';
 import { buildCalendarGridLayout,calendarCellTypography,calendarFoodMarkerGeometry } from '../layout/calendar-grid-layout';
 import { FONT_OPTIONS } from '../typography/font-catalog';
+import { loadSlavonicCorpus } from '../calendar/localization/slavonic-corpus';
 import PageScene from './PageScene.vue';
 const props=defineProps<{modelValue:CalendarGridElement;disabled?:boolean}>();
 const emit=defineEmits<{'update:modelValue':[CalendarGridElement]}>();
@@ -47,6 +48,7 @@ function move(e:PointerEvent){const p=point(e);if(!drag||!p||!cell.value)return;
 function end(){drag=undefined;}
 let loadVersion=0;
 async function loadCalendar(){const version=++loadVersion;try{const [parser,engine,response]=await Promise.all([import('../calendar/xml/parse-memory-days'),import('../calendar/engine/build-calendar-year'),fetch('/data/MemoryDays.xml')]);if(!response.ok)throw new Error('Не удалось загрузить календарные данные');const built=engine.buildOrthodoxCalendarYear(previewYear.value,parser.parseMemoryDaysXml(await response.text()));if(version===loadVersion)calendar.value=built;}catch(e){error.value=String(e);}}
+watch(language,async(value,_previous,onCleanup)=>{let active=true;onCleanup(()=>{active=false;});if(value==='cu'){try{await loadSlavonicCorpus();if(active)calendar.value=calendar.value?{...calendar.value}:undefined;}catch(e){if(active){error.value=String(e);language.value='ru';}}}});
 watch(previewYear,()=>{if(Number.isInteger(previewYear.value)&&previewYear.value>=1900&&previewYear.value<=2200)void loadCalendar();});
 onMounted(loadCalendar);
 </script>

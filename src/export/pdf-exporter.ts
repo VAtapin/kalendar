@@ -1,4 +1,5 @@
 import fontkit from "@pdf-lib/fontkit";
+import { installSlavonicCorpus, loadSlavonicCorpus } from "../calendar/localization/slavonic-corpus";
 import { FASTING_COLORS } from '../calendar/presentation/fasting-colors';
 import {
   PDFDocument,
@@ -141,6 +142,8 @@ export interface PdfExportResult {
 
 export interface PdfExportOptions {
   loadAssetSource?: (source: string) => Promise<Uint8Array | undefined>;
+  /** Pass parsed catalogue.json for offline/Node exports; browser exports load it lazily. */
+  slavonicCorpus?: unknown;
 }
 
 interface EmbeddedFonts {
@@ -574,7 +577,7 @@ function drawTextFrame(
   context: PageContext,
   element: TextElement | MonthTextElement,
 ): void {
-  const typography = element.type === "text" && element.semanticRole === "calendar-month-title" && context.calendarLanguage === "cu"
+  const typography = element.type === "text" && element.semanticRole && context.calendarLanguage === "cu"
     ? { ...element.typography, fontFamily: "Monomakh Unicode" }
     : element.typography;
   const font = chooseFont(context.fonts, typography);
@@ -1365,6 +1368,10 @@ export async function exportCalendarProjectPdf(
   fontFiles: PdfFontFiles,
   options: PdfExportOptions = {},
 ): Promise<PdfExportResult> {
+  if (project.calendarLanguage === "cu") {
+    if (options.slavonicCorpus) installSlavonicCorpus(options.slavonicCorpus);
+    await loadSlavonicCorpus();
+  }
   const pdfDocument = await PDFDocument.create();
   pdfDocument.registerFontkit(fontkit);
   pdfDocument.setTitle(project.name);
