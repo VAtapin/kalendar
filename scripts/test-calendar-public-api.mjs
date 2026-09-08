@@ -108,6 +108,7 @@ try {
 
   browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
   const page = await browser.newPage({ viewport:{width:1200,height:1000} });
+  await page.route('https://bible-desktop.com/api/**',route=>route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{data:[]}}));
   await page.goto(pathToFileURL(resolve('public/calendar-api-test.html')).href);
   await page.locator('#base').fill(base + '/');
   await page.locator('#api-key').fill(key);

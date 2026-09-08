@@ -22,6 +22,16 @@
     <button id="submit">Показать всё за этот день</button>
     <p class="hint">Нужны интернет и выданный администратором API-ключ. Ключ отправляется только в заголовке, не сохраняется на диск и не включается в JSON. После закрытия страницы введите его снова. Не публикуйте личный ключ в коде сайта.</p>
   </form>
+  <section class="panel" aria-labelledby="bible-heading">
+    <h2 id="bible-heading">Тексты чтений — BibleDesktop</h2>
+    <div class="controls">
+      <label>Язык Библии<select id="bible-language"><option value="ru">Русский</option></select></label>
+      <label>Перевод<select id="bible-translation" disabled><option value="">Сначала запросите календарь</option></select></label>
+    </div>
+    <button id="bible-refresh" type="button">Обновить каталог переводов</button>
+    <p id="bible-status" role="status">Язык текста выбирается отдельно от языка календаря. Доступные переводы определяются через API BibleDesktop.</p>
+    <p class="hint">Ключ календаря не отправляется в BibleDesktop. Тексты выводятся по номерам выбранного перевода; соответствие нумерации календарному источнику не подтверждено.</p>
+  </section>
   <p id="status" role="status" aria-live="polite"></p>
   <a id="request" target="_blank" rel="noopener noreferrer" hidden></a>
   <div id="result" hidden>
@@ -38,6 +48,7 @@
   const now = new Date();
   $('date').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   let lastResponse = null;
+  let lastCalendarEndpoint = null;
   let slavonicFontUrl = '';
   let slavonicFontFace;
   async function loadCalendarFont(language, endpoint) {
@@ -77,6 +88,7 @@
   function render(value, endpoint) {
     const day = value.day;
     if (!day || !Array.isArray(day.events) || !day.fasting) throw new Error('Ответ не соответствует формату календарного API. Проверьте адрес.');
+    readingGeneration++; readingCards = [];
     $('day').replaceChildren(); $('events').replaceChildren();
     const language = value.metadata?.language || 'ru';
     calendarText(node('h2',`${day.date} — ${day.weekdayName}`,$('day')), language);
@@ -113,6 +125,11 @@
       if (event.description) node('p',event.description,card);
       line(card,'Источник',event.source ? `XML, запись № ${event.sourceIndex}` : 'Рассчитанное событие');
       line(card,'Правило расчёта',event.ruleKind);
+      if (event.category === 'scripture-reading') {
+        const output=node('section','',card,'reading-text');
+        node('p','Загрузка текста чтения…',output);
+        readingCards.push({event,output});
+      }
       details(card,'Все поля события и исходная запись XML',event);
     }
     $('metadata').textContent=JSON.stringify(value.metadata,null,2);
@@ -120,7 +137,7 @@
     $('result').hidden=false;
   }
   $('query').addEventListener('submit',async event=>{
-    event.preventDefault(); $('submit').disabled=true; $('result').hidden=true; $('request').hidden=true;
+    event.preventDefault(); readingGeneration++; $('submit').disabled=true; $('result').hidden=true; $('request').hidden=true;
     $('status').className=''; $('status').textContent='Запрашиваю данные…'; lastResponse=null;
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),30000);
     try {
@@ -140,12 +157,159 @@
       let fontWarning = '';
       try { await loadCalendarFont(value.metadata?.language, url); }
       catch { fontWarning = ' Шрифт Monomakh Unicode не загрузился: проверьте публикацию /calendar-api-font.php.'; }
-      render(value,url); lastResponse=value; $('status').textContent=`Получено ${value.day.events.length} событий. Ничего не сокращено.${fontWarning}`;
+      render(value,url); lastResponse=value; lastCalendarEndpoint=url;
+      void prepareBible(value.metadata?.language || 'ru'); $('status').textContent=`Получено ${value.day.events.length} событий. Ничего не сокращено.${fontWarning}`;
     } catch(error) {
       $('status').className='error';
       $('status').textContent=error.name==='AbortError' ? 'Сервер не ответил за 30 секунд. Повторите запрос.' : `${error.message}\nЕсли запрос не дошёл: проверьте адрес API, интернет и разрешение CORS на сервере. Файл работает локально, но данные получает по сети.`;
     } finally {clearTimeout(timer);$('submit').disabled=false;}
   });
+  const bibleBase = 'https://bible-desktop.com/api/';
+  let translations = null, cataloguePromise = null, languageChosen = false;
+  let readingCards = [], readingGeneration = 0, catalogueGeneration = 0;
+  const booksCache = new Map(), chaptersCache = new Map();
+  let activeBibleRequests = 0;
+  const bibleWaiters = [];
+  async function bibleJson(path) {
+    if (activeBibleRequests >= 3) await new Promise(resolve=>bibleWaiters.push(resolve));
+    else activeBibleRequests++;
+    const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),20000);
+    try {
+      const response=await fetch(new URL(path,bibleBase),{credentials:'omit',mode:'cors',signal:controller.signal,headers:{Accept:'application/json'}});
+      const value=await response.json();
+      if(!response.ok) throw new Error('BibleDesktop HTTP '+response.status+': '+(value.message||'Текст недоступен'));
+      return value.data;
+    } catch(error) {
+      if(error.name==='AbortError') throw new Error('BibleDesktop не ответил за 20 секунд. Повторите запрос.');
+      throw error;
+    } finally {
+      clearTimeout(timer);
+      const next=bibleWaiters.shift(); if(next)next(); else activeBibleRequests--;
+    }
+  }
+  function cached(cache,key,path) {
+    if(!cache.has(key)) {
+      const pending=bibleJson(path).catch(error=>{cache.delete(key);throw error;});
+      cache.set(key,pending);
+    }
+    return cache.get(key);
+  }
+  function option(parent,value,label) {const item=node('option',label,parent);item.value=value;return item;}
+  function fillLanguages(preferred) {
+    const selected=preferred||$('bible-language').value;
+    const languages=new Map(translations.map(t=>[t.language.code,t.language.name||t.language.code]));
+    if(!languages.has(selected)) languages.set(selected,selected+' — переводы отсутствуют');
+    $('bible-language').replaceChildren();
+    for(const [code,name] of languages)option($('bible-language'),code,name);
+    $('bible-language').value=selected;
+  }
+  function fillTranslations() {
+    const previous=$('bible-translation').value,language=$('bible-language').value;
+    const available=translations.filter(t=>t.language.code===language);
+    $('bible-translation').replaceChildren();$('bible-translation').disabled=!available.length;
+    if(!available.length) {option($('bible-translation'),'','Нет перевода на выбранном языке');return;}
+    for(const translation of available)option($('bible-translation'),translation.code,translation.name+' ('+translation.code+')');
+    if(available.some(t=>t.code===previous))$('bible-translation').value=previous;
+  }
+  async function prepareBible(calendarLanguage) {
+    const revision=++catalogueGeneration;
+    try {
+      if(!translations) {
+        $('bible-status').textContent='Загружаю каталог переводов BibleDesktop…';
+        cataloguePromise ||= bibleJson('translations').finally(()=>{cataloguePromise=null;});
+        const result=await cataloguePromise;
+        if(!Array.isArray(result)||result.some(t=>typeof t.code!=='string'||typeof t.language?.code!=='string'))throw new Error('Каталог BibleDesktop не содержит коды переводов и языков.');
+        translations=result;
+      }
+      if(revision!==catalogueGeneration)return;
+      fillLanguages(languageChosen?$('bible-language').value:calendarLanguage);
+      fillTranslations();await loadReadings();
+    } catch(error) {
+      if(revision!==catalogueGeneration)return;
+      $('bible-status').textContent='Ошибка: '+error.message;
+      for(const {output} of readingCards){output.replaceChildren();node('p','Текст недоступен: '+error.message,output,'error');}
+    }
+  }
+  function validatePassages(reading) {
+    if(!reading || reading.schemaVersion!==1)throw new Error('Календарный API ещё не выдаёт структурированные чтения. Обновите календарь. Исходная ссылка сохранена выше.');
+    if(reading.parseStatus!=='parsed')throw new Error('Ссылка разобрана не полностью ('+reading.parseStatus+'). Текст не выдаётся как полное чтение. '+(reading.issues||[]).map(i=>i.message).join('; '));
+    if(!Array.isArray(reading.passages)||!reading.passages.length)throw new Error('В чтении отсутствуют отрывки.');
+    for(const passage of reading.passages) {
+      const a=passage.start,b=passage.end;
+      if(typeof passage.book!=='string'||!a||!b||![a.chapter,b.chapter].every(n=>Number.isSafeInteger(n)&&n>0)||a.chapter>b.chapter)throw new Error('Неверные координаты чтения.');
+      const chapters=a.verse===null&&b.verse===null;
+      if(!chapters&&(![a.verse,b.verse].every(n=>Number.isSafeInteger(n)&&n>0)||(a.chapter===b.chapter&&a.verse>b.verse)))throw new Error('Неверные границы стихов.');
+    }
+    return reading.passages;
+  }
+  function verifyTranslation(value,translation) {
+    if(value?.translation?.code!==translation.code || value.translation.language?.code!==translation.language.code)throw new Error('BibleDesktop вернул другой перевод/язык или старую схему. Требуется обновление API BibleDesktop.');
+  }
+  async function readingText(event,translation) {
+    const passages=validatePassages(event.reading),prefix='translations/'+encodeURIComponent(translation.code)+'/books';
+    const library=await cached(booksCache,translation.code,prefix);
+    verifyTranslation(library,translation);
+    if(!Array.isArray(library.books))throw new Error('Неверный каталог книг BibleDesktop.');
+    const result=[];
+    for(const passage of passages) {
+      const matches=library.books.filter(book=>book.canonical_book?.osis_code===passage.book);
+      if(matches.length!==1)throw new Error('Книга '+passage.book+': '+(matches.length?'неоднозначное соответствие':'нет в выбранном переводе'));
+      const book=matches[0],a=passage.start,b=passage.end;
+      if(!Number.isSafeInteger(book.chapters_count)||b.chapter>book.chapters_count||typeof book.slug!=='string')throw new Error('Глава вне пределов книги '+passage.book);
+      for(let chapter=a.chapter;chapter<=b.chapter;chapter++) {
+        const path=prefix+'/'+encodeURIComponent(book.slug)+'/chapters/'+chapter;
+        const data=await cached(chaptersCache,translation.code+'|'+book.slug+'|'+chapter,path);
+        verifyTranslation(data,translation);
+        if(data.book?.slug!==book.slug||data.chapter?.number!==chapter||!Array.isArray(data.verses)||!data.verses.length)throw new Error('Нет полной главы '+passage.book+' '+chapter);
+        const verses=data.verses;
+        if(verses.some((v,i)=>!Number.isSafeInteger(v.number)||v.number<1||(i&&v.number<=verses[i-1].number)))throw new Error('Неверный порядок стихов '+passage.book+' '+chapter);
+        const first=chapter===a.chapter&&a.verse!==null?a.verse:1;
+        const last=chapter===b.chapter&&b.verse!==null?b.verse:verses[verses.length-1].number;
+        const selected=verses.filter(v=>v.number>=first&&v.number<=last);
+        if(!selected.length||selected[0].number!==first||selected[selected.length-1].number!==last||selected.some((v,i)=>i&&v.number!==selected[i-1].number+1))throw new Error('В переводе отсутствуют запрошенные стихи '+passage.book+' '+chapter+':'+first+'–'+last+'. Чтение не показано как полное.');
+        if(selected.some(v=>typeof v.plain_text!=='string'))throw new Error('API BibleDesktop требует обновления: отсутствует plain_text.');
+        if(selected.some(v=>!v.plain_text.trim()))throw new Error('Пустой текст запрошенного стиха '+passage.book+' '+chapter+'.');
+        for(const verse of selected) result.push({reference:passage.book+' '+chapter+':'+verse.number,text:verse.plain_text});
+      }
+    }
+    return result;
+  }
+  async function loadReadings() {
+    const generation=++readingGeneration;
+    const translation=translations?.find(t=>t.code===$('bible-translation').value&&t.language.code===$('bible-language').value);
+    for(const {output} of readingCards){output.replaceChildren();node('p',translation?'Загрузка текста…':'Нет перевода на выбранном языке.',output,translation?'hint':'error');}
+    if(!translation){$('bible-status').textContent='Нет перевода на выбранном языке. Выберите другой язык явно.';return;}
+    $('bible-status').textContent='Выбран '+translation.name+' · '+translation.language.code+'. Загружаю чтения…';
+    let fontWarning='';
+    if(translation.language.code==='cu'&&lastCalendarEndpoint)try{await loadCalendarFont('cu',lastCalendarEndpoint);}catch{fontWarning=' Шрифт Monomakh Unicode недоступен.';}
+    let index=0,failed=0,complete=0;
+    const cards=[...readingCards];
+    async function worker() {
+      while(index<cards.length&&generation===readingGeneration) {
+        const {event,output}=cards[index++];
+        try {
+          const verses=await readingText(event,translation);
+          if(generation!==readingGeneration)return;
+          output.replaceChildren();
+          node('h4',translation.name,output);
+          node('p','Нумерация источника не подтверждена. Текст показан по номерам выбранного перевода.',output,'warning');
+          for(const verse of verses) {
+            const paragraph=node('p','',output,'bible-verse');node('span',verse.reference+' ',paragraph,'tag');
+            calendarText(node('span',verse.text,paragraph),translation.language.code);
+          }
+          node('p','Получены все запрошенные координаты: '+verses.length+' стихов.',output,'hint');complete++;
+        } catch(error) {
+          if(generation!==readingGeneration)return;
+          output.replaceChildren();node('p','Текст недоступен: '+error.message,output,'error');failed++;
+        }
+      }
+    }
+    await Promise.all([worker(),worker(),worker()]);
+    if(generation===readingGeneration)$('bible-status').textContent=translation.name+' · '+translation.language.code+': чтений получено '+complete+', с ошибками '+failed+'.'+fontWarning;
+  }
+  $('bible-language').addEventListener('change',()=>{languageChosen=true;if(translations){fillTranslations();void loadReadings();}});
+  $('bible-translation').addEventListener('change',()=>void loadReadings());
+  $('bible-refresh').addEventListener('click',()=>{translations=null;booksCache.clear();chaptersCache.clear();readingGeneration++;void prepareBible(lastResponse?.metadata?.language||$('lang').value);});
   $('download').addEventListener('click',()=>{
     if(!lastResponse)return;
     const url=URL.createObjectURL(new Blob([JSON.stringify(lastResponse,null,2)],{type:'application/json'}));
