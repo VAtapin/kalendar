@@ -4,6 +4,9 @@ import type { FoodRuleId } from "../fasting/fasting-api";
 import { CHURCH_SLAVONIC_CYCLE_TITLES, CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
 import { sourceAttestedSlavonicTitle } from "./slavonic-corpus";
 import { GERMAN_COMMEMORATIONS } from "./german-commemorations";
+import { localizeScriptureTitle } from './scripture-titles';
+import { localizeFastingTitle } from './fasting-titles';
+import { localizeMarriageTitle } from './marriage-titles';
 
 /**
  * Editorial vocabulary, not a fully translated or independently verified menologion.
@@ -375,12 +378,15 @@ export function localizeCalendarEventTitleWithStatus(title: string, language: Ca
   const resolvedLanguage = normalizeCalendarLanguage(language);
   if (resolvedLanguage === "ru" || !title.trim()) return { title, status: "source" };
   const dictionary = CORE_EVENTS[resolvedLanguage];
-  const exact = (resolvedLanguage === "de" && Object.hasOwn(GERMAN_COMMEMORATIONS, title) ? GERMAN_COMMEMORATIONS[title] : undefined)
+  const exact = localizeFastingTitle(title,resolvedLanguage)
+    ?? (resolvedLanguage === "de" && Object.hasOwn(GERMAN_COMMEMORATIONS, title) ? GERMAN_COMMEMORATIONS[title] : undefined)
     ?? (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
     ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined)
     ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined);
   if (exact) return { title: exact, status: "exact" };
-  const structured = localizeStructuredLiturgicalTitle(title, resolvedLanguage);
+  const structured = localizeMarriageTitle(title, resolvedLanguage)
+    ?? localizeScriptureTitle(title, resolvedLanguage)
+    ?? localizeStructuredLiturgicalTitle(title, resolvedLanguage);
   if (structured) return { title: structured, status: "structured" };
   // Substituting letters, titles or Russian inflections is not a translation.
   // Retain the entire source record until an exact localized form is reviewed.
