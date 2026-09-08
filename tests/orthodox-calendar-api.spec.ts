@@ -12,6 +12,20 @@ const xml = `
 `;
 
 describe("public Orthodox calendar API", () => {
+  it("isolates each calendar's profile and local events from other users", () => {
+    const date = { year: 2027, month: 7, day: 14 };
+    const strict = createOrthodoxCalendarApiFromXml(xml, "test.xml", { profileId: "typikon-strict" });
+    const parish = createOrthodoxCalendarApiFromXml(xml, "test.xml", {
+      profileId: "parish", monasteryEvents: [{ id: "local-only", title: "Память нашей общины",
+        dateRule: { type: "annual", month: 7, day: 14 }, priority: 999 }],
+    });
+    expect(parish.getFasting(date)?.foodRule.id).toBe("oil");
+    expect(strict.getFasting(date)?.foodRule.id).toBe("dry-eating");
+    expect(parish.getDay(date)?.events.some(e => e.title === "Память нашей общины")).toBe(true);
+    expect(strict.getDay(date)?.events.some(e => e.title === "Память нашей общины")).toBe(false);
+    parish.clearCache();
+    expect(strict.getFasting(date)?.profileId).toBe("typikon-strict");
+  });
   it("provides cached feasts, Pascha, periods and fasting through one facade", () => {
     const api = createOrthodoxCalendarApiFromXml(xml, "test.xml");
     expect(api.getYear(2027)).toBe(api.getYear(2027));
@@ -38,6 +52,6 @@ describe("public Orthodox calendar API", () => {
     expect(api.getDay({ year: 2027, month: 7, day: 14 })?.events.some((event) => event.title === "Местный праздник")).toBe(true);
     // The Apostles fast ends on 11 July civil in 2027; this Wednesday is
     // therefore governed by the ordinary weekly rule in both profiles.
-    expect(api.getFasting({ year: 2027, month: 7, day: 14 })?.foodRule.id).toBe("dry-eating");
+    expect(api.getFasting({ year: 2027, month: 7, day: 14 })?.foodRule.id).toBe("oil");
   });
 });

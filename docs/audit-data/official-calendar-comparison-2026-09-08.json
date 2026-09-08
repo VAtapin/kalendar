@@ -1,12 +1,12 @@
 {
   "summary": {
-    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
+    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
     "officialDays": 365,
     "records": 2610,
     "statuses": {
       "requires-rule-evidence": 148,
-      "requires-editorial-review": 789,
-      "complete-title-on-same-date": 1669,
+      "requires-editorial-review": 787,
+      "complete-title-on-same-date": 1671,
       "leap-day-not-in-2026-source": 4
     },
     "note": "Exact normalized full-title occurrence in a same-Julian-date official publication is textual evidence. Approximate alignment is only a review aid, never an approval. Font-encoded service symbols are not verified by plain-text extraction."
@@ -10073,7 +10073,7 @@
     },
     {
       "sourceIndex": 851,
-      "title": "Собор святителей Сербских: Саввы I (1237), Арсения I (1266), Саввы II (1269), Евстафия I (ок. 1285), Иакова (1292), Никодима (1325), Даниила (1338) архиепископов; Иоанникия II (1354), Ефрема II (после 1395), Спиридона (1388), Макария (1574), Гавриила I (1659), патриархов, и Григория епископа (1012)",
+      "title": "Собор святителей Сербских: Саввы I (1237), Арсения I (1266), Саввы II (1271), Евстафия I (ок. 1285), Иакова (1292), Никодима (1325), Даниила (1338) архиепископов; Иоанникия II (1354), Ефрема II (после 1395), Спиридона (1388), Макария (1574), Гавриила I (1659), патриархов, и Григория епископа (1012)",
       "oldStyleDate": "8-30",
       "status": "requires-editorial-review",
       "sourceParagraphs": [],
@@ -10081,11 +10081,10 @@
         "paragraph": 2,
         "missingTokens": [
           "собор",
-          "1269",
           "после",
           "1012"
         ],
-        "score": 0.9047619047619048
+        "score": 0.9285714285714286
       },
       "editorialApproval": false
     },
@@ -13541,17 +13540,13 @@
     },
     {
       "sourceIndex": 1135,
-      "title": "Свт. Саввы II, архиеп. Сербского (1269)",
+      "title": "Свт. Саввы II, архиеп. Сербского (1271)",
       "oldStyleDate": "2-8",
-      "status": "requires-editorial-review",
-      "sourceParagraphs": [],
-      "reviewCandidate": {
-        "paragraph": 2,
-        "missingTokens": [
-          "1269"
-        ],
-        "score": 0.8333333333333334
-      },
+      "status": "complete-title-on-same-date",
+      "sourceParagraphs": [
+        2
+      ],
+      "reviewCandidate": null,
       "editorialApproval": false
     },
     {
@@ -25789,18 +25784,13 @@
     },
     {
       "sourceIndex": 2123,
-      "title": "Свт. Григория Паламы, архиеп. Фессалонитского (ок. 1360)",
+      "title": "Свт. Григория Паламы, архиеп. Фессалонитского (1357)",
       "oldStyleDate": "11-14",
-      "status": "requires-editorial-review",
-      "sourceParagraphs": [],
-      "reviewCandidate": {
-        "paragraph": 2,
-        "missingTokens": [
-          "ок",
-          "1360"
-        ],
-        "score": 0.7142857142857143
-      },
+      "status": "complete-title-on-same-date",
+      "sourceParagraphs": [
+        2
+      ],
+      "reviewCandidate": null,
       "editorialApproval": false
     },
     {

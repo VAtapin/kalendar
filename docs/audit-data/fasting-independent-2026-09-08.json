@@ -1,11 +1,11 @@
 {
   "summary": {
     "dates": 366,
-    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
-    "fastingEngineSha256": "3a0d254589e3324d84669c6b7051487e8e9f462c99f4ded142e0f48022cccf3b",
+    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
+    "fastingEngineSha256": "60f9870155f27fe442a7d0afe5fce29ca9136826708361fcf25aab0ec3d5d8c7",
     "strict": {
-      "same-food-category": 289,
-      "difference-needs-editorial-adjudication": 76,
+      "same-food-category": 306,
+      "difference-needs-editorial-adjudication": 59,
       "no-reference-rule": 1
     },
     "notes": [
@@ -126,10 +126,10 @@
       "pageSha256": "2e33829d3af77a75cfc69eb79f35431cd42337ae22ad3371d4844d348665d414",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "fish",
-      "parish": "fish",
-      "strictComparison": "same-food-category",
-      "parishComparison": "same-food-category",
+      "strict": "dry-eating",
+      "parish": "oil",
+      "strictComparison": "difference-needs-editorial-adjudication",
+      "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
     {
@@ -152,10 +152,10 @@
       "pageSha256": "18ded460c7cf68935e5a0a9f746714824b0af77314205a157d1257662b48c2c6",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "fish",
-      "parish": "fish",
-      "strictComparison": "same-food-category",
-      "parishComparison": "same-food-category",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "difference-needs-editorial-adjudication",
+      "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
     {
@@ -217,10 +217,10 @@
       "pageSha256": "df9875b6e9c38ebe1fde3aee8ee4b8569a2044e9b8987c93a5feaec8bc930fd0",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "fish",
-      "parish": "fish",
-      "strictComparison": "same-food-category",
-      "parishComparison": "same-food-category",
+      "strict": "dry-eating",
+      "parish": "oil",
+      "strictComparison": "difference-needs-editorial-adjudication",
+      "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
     {
@@ -243,10 +243,10 @@
       "pageSha256": "dcee1b9beac800bf5b8764fc74360a5245709dd7365b2fa30a183fd707dbd697",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "fish",
-      "parish": "fish",
-      "strictComparison": "same-food-category",
-      "parishComparison": "same-food-category",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "difference-needs-editorial-adjudication",
+      "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
     {
@@ -400,7 +400,7 @@
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
@@ -426,7 +426,7 @@
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
@@ -554,10 +554,10 @@
       "url": "https://days.pravoslavie.ru/Days/20260210.html",
       "pageSha256": "dc58d75de0f8633f90be42b80a36cc04fbabde89aded89c42c336f6fd3ce41aa",
       "externalLabel": "По монастырскому уставу - полное воздержание от пищи.",
-      "observedRule": "total-abstinence-not-a-distinct-app-rule",
-      "strict": "strict-fast",
+      "observedRule": "total-abstinence",
+      "strict": "total-abstinence",
       "parish": "dry-eating",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -568,7 +568,7 @@
       "pageSha256": "5be5f1b3d56d3daff0e1673cbb1c36218ea4eee937476ebc2111c67fc86c4f42",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "strict-fast",
+      "strict": "total-abstinence",
       "parish": "dry-eating",
       "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "same-food-category",
@@ -594,9 +594,9 @@
       "pageSha256": "f697fe081ef076b40992b92769699142f94ab91470bff76c1b754be5a0795a07",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -659,9 +659,9 @@
       "pageSha256": "d586cc8558da853c1efe8271d979465a02636fd28488e69625558124bb4e0288",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -685,9 +685,9 @@
       "pageSha256": "1394a64abb0a454aa9f121e6207c3dfd9a02893720deabea31196ff855c18a6c",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -737,10 +737,10 @@
       "pageSha256": "27f25f7ef4c6e8844a700762157b643b34963e2ce997b02bf3ae65702fe68a91",
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
-      "strict": "boiled-no-oil",
-      "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -750,9 +750,9 @@
       "pageSha256": "2a49bb1be9642eeec9ef74c2424b874457dd00322c5eb0b95525dd15faaed82f",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -776,9 +776,9 @@
       "pageSha256": "f39b5f4b4c113734c9478711a6d5730edb3696858f9c44aee98448fd1057ca41",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -841,9 +841,9 @@
       "pageSha256": "b83a0429a7197f182e2ee4266ef251e1435eabab8e34d0d6fc5e75c3c32a4567",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -867,9 +867,9 @@
       "pageSha256": "f0c867c1f226ec3e5a620a0c68587ca261d0fea59b465d45f4be12313c18a69f",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -932,9 +932,9 @@
       "pageSha256": "864c527470d2bc7052d6a715d28d5d7c3318df68d2b56c89c4d1a0e858f304eb",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -945,10 +945,10 @@
       "pageSha256": "043cc8659eea76a5324bc37698c9308cfc3fd16195e904fecfb841027994a73f",
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
-      "strict": "dry-eating",
-      "parish": "dry-eating",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -958,10 +958,10 @@
       "pageSha256": "1cf519dcb41a44b7d14fec72a09b76eb84e4aa920828a04c01a12e240d08c380",
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
-      "strict": "boiled-no-oil",
-      "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -1023,9 +1023,9 @@
       "pageSha256": "2f504e74340e84c5fb7d5237e45504776620b69a577a6f6d8a1c0f191fdd8999",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -1049,9 +1049,9 @@
       "pageSha256": "6e49395948f91807eb9e595541b16a2d783ad52171d3cb2cb577eff9b3d3a465",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -1074,11 +1074,11 @@
       "url": "https://days.pravoslavie.ru/Days/20260322.html",
       "pageSha256": "0fc12259416ee7145802b674a38c3ded689366623ad54d5c36ef7bf8afba25a6",
       "externalLabel": "Разрешается рыбная икра.",
-      "observedRule": "caviar-not-a-distinct-app-rule",
-      "strict": "fast",
-      "parish": "fast",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "observedRule": "caviar",
+      "strict": "caviar",
+      "parish": "caviar",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -1102,7 +1102,7 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "boiled-no-oil",
+      "parish": "dry-eating",
       "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
@@ -1140,10 +1140,10 @@
       "pageSha256": "0b7be92a9d9ce4eee070814cfc6d782a234735a49b2ccbbe246848a02b0db8de",
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
-      "strict": "boiled-no-oil",
-      "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -1152,10 +1152,10 @@
       "url": "https://days.pravoslavie.ru/Days/20260328.html",
       "pageSha256": "87daf7ca37b9de951adbdb836b5148bbbaf9cee5937fe21284d696fa9e2cb664",
       "externalLabel": "По монастырскому уставу - полное воздержание от пищи.",
-      "observedRule": "total-abstinence-not-a-distinct-app-rule",
-      "strict": "strict-fast",
+      "observedRule": "total-abstinence",
+      "strict": "total-abstinence",
       "parish": "dry-eating",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -1167,7 +1167,7 @@
       "externalLabel": null,
       "observedRule": "not-classified",
       "strict": "dry-eating",
-      "parish": "oil",
+      "parish": "dry-eating",
       "strictComparison": "no-reference-rule",
       "parishComparison": "no-reference-rule",
       "adjudicated": false
@@ -1920,9 +1920,9 @@
       "pageSha256": "5c96c7cf14485ec371ed2fd89e9ddead11002f2004a0730c1c276ce307dcb428",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "fish",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -2011,9 +2011,9 @@
       "pageSha256": "5ca24b46e20182008b5fece9cddf4effb7083b92e42948835c31b6ccc32f9ccc",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "fish",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -2102,9 +2102,9 @@
       "pageSha256": "6bf51e247daf05e817f62a6d3c165125d902fd795d4bb848140a55eb7db811a4",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "oil",
+      "strict": "fish",
       "parish": "fish",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "same-food-category",
       "adjudicated": false
     },
@@ -2193,9 +2193,9 @@
       "pageSha256": "72e20ee85aeae26679098bf50b5f36b815bdb55f2ad3014564b95faf3abbd1c7",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "oil",
+      "strict": "fish",
       "parish": "fish",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "same-food-category",
       "adjudicated": false
     },
@@ -2284,9 +2284,9 @@
       "pageSha256": "ceee4a8ffb3dac8d959628880f570e7544f2ba019ab2a89c9e15761d9b661cf7",
       "externalLabel": "Разрешается рыба.",
       "observedRule": "fish",
-      "strict": "oil",
+      "strict": "fish",
       "parish": "fish",
-      "strictComparison": "difference-needs-editorial-adjudication",
+      "strictComparison": "same-food-category",
       "parishComparison": "same-food-category",
       "adjudicated": false
     },
@@ -2402,9 +2402,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2493,9 +2493,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2519,9 +2519,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2584,9 +2584,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2610,9 +2610,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2701,9 +2701,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2766,9 +2766,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2882,10 +2882,10 @@
       "pageSha256": "de646c8c398a551e623f12f7a896cf1ef15a30db5722e1e849a59b61ba21e753",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
-      "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "dry-eating",
+      "parish": "dry-eating",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -2947,10 +2947,10 @@
       "pageSha256": "c5ec32ea2663dfe97f208aa127220e4b425cca6fe33983207a3007c3610ab49a",
       "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
       "observedRule": "dry-eating",
-      "strict": "boiled-no-oil",
-      "parish": "boiled-no-oil",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "dry-eating",
+      "parish": "dry-eating",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3039,9 +3039,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3065,9 +3065,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3130,9 +3130,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3221,9 +3221,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3247,9 +3247,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3312,9 +3312,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3338,9 +3338,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3403,9 +3403,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3429,9 +3429,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3494,9 +3494,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3611,9 +3611,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3676,9 +3676,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3793,9 +3793,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3949,9 +3949,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -3975,9 +3975,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -4040,9 +4040,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -4066,9 +4066,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -4131,9 +4131,9 @@
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
       "strict": "dry-eating",
-      "parish": "dry-eating",
+      "parish": "oil",
       "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {
@@ -4195,7 +4195,7 @@
       "pageSha256": "69cd6d47a1d5dc70a65b565f8cb70497adcbbd55a6f5dcb44d77e94740dbc45c",
       "externalLabel": "Монастырский устав: горячая пища без масла.",
       "observedRule": "boiled-no-oil",
-      "strict": "oil",
+      "strict": "fish",
       "parish": "fish",
       "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
@@ -4286,9 +4286,9 @@
       "pageSha256": "3033361137002d5604131fa9a6f73b834e733ce2df28856550b8c01f80504aa6",
       "externalLabel": "Монастырский устав: горячая пища без масла.",
       "observedRule": "boiled-no-oil",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "fish",
-      "strictComparison": "same-food-category",
+      "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -4377,9 +4377,9 @@
       "pageSha256": "adb593552b28c8ce4ecf3db5d320afedcdc880c32b73f065f1514304873904ce",
       "externalLabel": "Монастырский устав: горячая пища без масла.",
       "observedRule": "boiled-no-oil",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "fish",
-      "strictComparison": "same-food-category",
+      "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -4468,9 +4468,9 @@
       "pageSha256": "5125ec837f6f6a5ca18698f965e0181dfb6425320945b7d2c233a5f5822e3dca",
       "externalLabel": "Монастырский устав: горячая пища без масла.",
       "observedRule": "boiled-no-oil",
-      "strict": "boiled-no-oil",
+      "strict": "dry-eating",
       "parish": "oil",
-      "strictComparison": "same-food-category",
+      "strictComparison": "difference-needs-editorial-adjudication",
       "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
@@ -4559,10 +4559,10 @@
       "pageSha256": "896e70c983c90969b3ef0cfc1c8e8001645bb78c575b9ab39d3d6fce4dbc5d48",
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
-      "strict": "oil",
-      "parish": "oil",
-      "strictComparison": "same-food-category",
-      "parishComparison": "same-food-category",
+      "strict": "fish",
+      "parish": "fish",
+      "strictComparison": "difference-needs-editorial-adjudication",
+      "parishComparison": "different-profile-or-rule-needs-review",
       "adjudicated": false
     },
     {
@@ -4676,10 +4676,10 @@
       "pageSha256": "fdeb461fd1b9875896fe08575da928617fa52e26e5497fde52414ae6066b7398",
       "externalLabel": "Пища с растительным маслом.",
       "observedRule": "oil",
-      "strict": "strict-fast",
-      "parish": "dry-eating",
-      "strictComparison": "difference-needs-editorial-adjudication",
-      "parishComparison": "different-profile-or-rule-needs-review",
+      "strict": "oil",
+      "parish": "oil",
+      "strictComparison": "same-food-category",
+      "parishComparison": "same-food-category",
       "adjudicated": false
     },
     {

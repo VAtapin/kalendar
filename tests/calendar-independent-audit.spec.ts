@@ -37,7 +37,7 @@ describe("documented XML title corrections", () => {
   const ledger = JSON.parse(readFileSync("docs/audit-data/xml-corrections-2026-09-08.json", "utf8"));
   it("keeps all source IDs stable and every correction traceable", () => {
     expect(dataset.records).toHaveLength(3815);
-    expect(ledger.changes).toHaveLength(119);
+    expect(ledger.changes).toHaveLength(122);
     for (const correction of ledger.changes) {
       expect(dataset.records[correction.sourceIndex - 1]?.title).toBe(correction.after);
       expect(correction.before).not.toBe(correction.after);

@@ -400,6 +400,8 @@ export interface CalendarProject {
     | "boiled-no-oil"
     | "dry-eating"
     | "strict-fast"
+    | "caviar"
+    | "total-abstinence"
     | "dairy-eggs"
     | "memorial",
     string

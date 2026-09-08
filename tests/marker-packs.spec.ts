@@ -15,7 +15,7 @@ describe("built-in food marker packs", () => {
     expect(FOOD_MARKER_PACKS).toHaveLength(16);
     for (const pack of FOOD_MARKER_PACKS) {
       expect(Object.keys(pack.sources).sort()).toEqual(ruleIds);
-      expect(new Set(Object.values(pack.sources)).size).toBe(9);
+      expect(new Set(Object.values(pack.sources)).size).toBe(11);
     }
   });
 
@@ -24,7 +24,8 @@ describe("built-in food marker packs", () => {
       for (const rule of Object.keys(FOOD_RULES) as FoodRuleId[]) {
         const source = foodMarkerPackSource(pack.id, rule);
         expect(source).toMatch(/^\/assets\/markers\/.+\.png$/);
-        if (rule !== "no-fast") expect(source).toContain(`/markers/${pack.id}/`);
+        if (rule === "caviar" || rule === "total-abstinence") expect(source).toContain("/markers/shared/");
+        else if (rule !== "no-fast") expect(source).toContain(`/markers/${pack.id}/`);
       }
     }
   });
@@ -45,7 +46,7 @@ describe("built-in food marker packs", () => {
     const fingerprints = new Set<string>();
     for (const pack of imported) {
       for (const rule of Object.keys(FOOD_RULES) as FoodRuleId[]) {
-        if (rule === "no-fast") continue;
+        if (rule === "no-fast" || rule === "caviar" || rule === "total-abstinence") continue;
         const publicPath = resolve(
           import.meta.dirname,
           "..",

@@ -79,18 +79,18 @@ describe("fasting calculation API", () => {
   });
 
   it("applies the detailed Great Lent rule and its exceptions", () => {
-    expect(rule({ year: 2027, month: 3, day: 15 }).foodRule.id).toBe("strict-fast");
-    expect(rule({ year: 2027, month: 3, day: 17 }).foodRule.id).toBe("dry-eating");
-    expect(rule({ year: 2027, month: 3, day: 18 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 3, day: 15 }).foodRule.id).toBe("total-abstinence");
+    expect(rule({ year: 2027, month: 3, day: 17 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 3, day: 18 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 3, day: 22 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 3, day: 20 }).foodRule.id).toBe("oil");
-    expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("fast");
+    expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("caviar");
     expect(rule({ year: 2027, month: 4, day: 25 }).foodRule.id).toBe("fish");
-    expect(rule({ year: 2027, month: 4, day: 30 }).foodRule.id).toBe("strict-fast");
+    expect(rule({ year: 2027, month: 4, day: 30 }).foodRule.id).toBe("total-abstinence");
   });
 
   it("calculates the Apostles and Dormition fasts instead of relying on XML labels", () => {
-    expect(rule({ year: 2027, month: 6, day: 28 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 6, day: 28 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 6, day: 29 }).foodRule.id).toBe("oil");
     expect(rule({ year: 2027, month: 6, day: 30 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 8, day: 16 }).foodRule.id).toBe("dry-eating");
@@ -98,20 +98,41 @@ describe("fasting calculation API", () => {
     expect(rule({ year: 2027, month: 8, day: 19 }).foodRule.id).toBe("fish");
   });
 
+  it("keeps caviar and complete abstinence separate from fish and dry eating", () => {
+    for (const profile of ["typikon-strict", "parish"] as const) {
+      expect(calculateFastingDay(calendarDay({ year: 2026, month: 4, day: 4 }), profile).foodRule.id).toBe("caviar");
+    }
+    expect(rule({ year: 2026, month: 2, day: 24 }).foodRule.id).toBe("total-abstinence");
+    expect(calculateFastingDay(calendarDay({ year: 2026, month: 2, day: 24 }), "parish").foodRule.id).toBe("dry-eating");
+  });
+
+  it("uses the separately sourced Lent and Holy Week meal exceptions", () => {
+    expect(rule({ year: 2026, month: 3, day: 9 }).foodRule.id).toBe("oil");
+    expect(rule({ year: 2026, month: 3, day: 25 }).foodRule.id).toBe("oil");
+    expect(rule({ year: 2026, month: 3, day: 26 }).foodRule.id).toBe("oil");
+    for (const profile of ["typikon-strict", "parish"] as const) {
+      // In 2026 the forefeast is Holy Monday, beyond ch. 32's permission.
+      expect(calculateFastingDay(calendarDay({ year: 2026, month: 4, day: 6 }), profile).foodRule.id).toBe("dry-eating");
+      expect(calculateFastingDay(calendarDay({ year: 2026, month: 4, day: 9 }), profile).foodRule.id).toBe("oil");
+    }
+    // In 2027 the forefeast falls before Lazarus Saturday.
+    expect(rule({ year: 2027, month: 4, day: 6 }).foodRule.id).toBe("oil");
+  });
+
   it("uses the three successive Nativity-fast phases", () => {
-    expect(rule({ year: 2027, month: 11, day: 29 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 11, day: 29 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 12, day: 1 }).foodRule.id).toBe("dry-eating");
-    expect(rule({ year: 2027, month: 12, day: 20 }).foodRule.id).toBe("boiled-no-oil");
+    expect(rule({ year: 2027, month: 12, day: 20 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 12, day: 22 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 12, day: 25 }).foodRule.id).toBe("fish");
     expect(rule({ year: 2027, month: 1, day: 4 }).foodRule.id).toBe("dry-eating");
-    expect(rule({ year: 2027, month: 1, day: 6 }).foodRule.id).toBe("strict-fast");
+    expect(rule({ year: 2027, month: 1, day: 6 }).foodRule.id).toBe("oil");
   });
 
   it("handles fast-free weeks, one-day fasts and seasonal Wednesday/Friday rules", () => {
     expect(rule({ year: 2027, month: 1, day: 13 }).foodRule.id).toBe("no-fast");
     expect(rule({ year: 2027, month: 1, day: 18 }).foodRule.id).toBe("oil");
-    expect(rule({ year: 2027, month: 1, day: 20 }).foodRule.id).toBe("fish");
+    expect(rule({ year: 2027, month: 1, day: 20 }).foodRule.id).toBe("dry-eating");
     expect(rule({ year: 2027, month: 7, day: 14 }).foodRule.id).toBe("dry-eating");
     expect(rule(
       { year: 2027, month: 7, day: 14 },
@@ -140,7 +161,7 @@ describe("fasting calculation API", () => {
     expect([...usedFoodRulesForMonths(
       [januaryOrdinary, januaryFast, februaryMemorial],
       new Set([1]),
-    )]).toEqual(["no-fast", "fish"]);
+    )]).toEqual(["no-fast", "dry-eating"]);
   });
 
   it("keeps date arithmetic available to API consumers", () => {
@@ -153,7 +174,7 @@ describe("fasting calculation API", () => {
     expect(calculateFastingDay(calendarDay(date)).foodRule.id).toBe("dry-eating");
     const parish = calculateFastingDay(calendarDay(date), "parish");
     expect(parish.profileId).toBe("parish");
-    expect(parish.foodRule.id).toBe("dry-eating");
+    expect(parish.foodRule.id).toBe("oil");
   });
 
   it("implements the published parish table separately from the monastic profile", () => {
@@ -173,8 +194,9 @@ describe("fasting calculation API", () => {
   ])("separates the published strict/parish Monday measures for $year-$month-$day", (date) => {
     expect(calculateFastingDay(calendarDay(date), "typikon-strict").foodRule.id).toBe("dry-eating");
     expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("boiled-no-oil");
-    // Explicit high-rank commemorations already have a different strict rule.
-    expect(rule(date, [{ title: "Полиелейная память", typeCode: 4 }]).foodRule.id).toBe("boiled-no-oil");
+    // Dormition has its own rule; a rank must not override it by analogy with Lent.
+    expect(rule(date, [{ title: "Полиелейная память", typeCode: 4 }]).foodRule.id)
+      .toBe(date.month === 8 ? "dry-eating" : "boiled-no-oil");
   });
 
   it.each([
@@ -206,13 +228,13 @@ describe("fasting calculation API", () => {
     const strict = calculateFastingDay(calendarDay(date), "typikon-strict");
     expect(strict.foodRule.id).toBe("dry-eating");
     expect(strict.reason).toContain("разрешается вино");
-    // The existing general parish-table measure is an independent profile.
-    expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("oil");
+    // Holy Saturday is not an ordinary Saturday in either profile.
+    expect(calculateFastingDay(calendarDay(date), "parish").foodRule.id).toBe("dry-eating");
   });
 
   it("keeps other Saturday allowances and Pascha unchanged", () => {
     expect(rule({ year: 2027, month: 4, day: 17 }).foodRule.id).toBe("oil");
-    expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("fast");
+    expect(rule({ year: 2027, month: 4, day: 24 }).foodRule.id).toBe("caviar");
     expect(rule({ year: 2027, month: 5, day: 2 }).foodRule.id).toBe("no-fast");
   });
 
@@ -221,9 +243,9 @@ describe("fasting calculation API", () => {
     { year: 2026, month: 12, day: 6 },
   ])("distinguishes ordinary, doxology and vigil rules throughout a small-fast week beginning $month/$day", (sunday) => {
     // Sunday through Saturday; independent transcription of ch. 33's Tue/Thu,
-    // Wed/Fri and vigil distinctions. The existing Monday variant is retained.
-    const ordinary = ["fish", "boiled-no-oil", "oil", "dry-eating", "oil", "dry-eating", "fish"];
-    const doxology = ["fish", "oil", "fish", "oil", "fish", "oil", "fish"];
+    // Wed/Fri and vigil distinctions, including its explicit Monday rule.
+    const ordinary = ["fish", "dry-eating", "oil", "dry-eating", "oil", "dry-eating", "fish"];
+    const doxology = ["fish", "fish", "fish", "oil", "fish", "oil", "fish"];
     for (let weekday = 0; weekday < 7; weekday += 1) {
       const date = addDays(sunday, weekday);
       expect(rule(date).foodRule.id).toBe(ordinary[weekday]);

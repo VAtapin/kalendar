@@ -25,6 +25,8 @@ const FOOD_RULE_LEGEND_LABELS: Record<FoodRuleId, string> = {
   "boiled-no-oil": "пища без масла",
   "dry-eating": "сухоядение",
   "strict-fast": "строгий пост",
+  caviar: "разрешается икра",
+  "total-abstinence": "воздержание от пищи",
   "dairy-eggs": "молочное и яйца",
   memorial: "поминовение усопших",
 };

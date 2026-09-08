@@ -1,0 +1,2326 @@
+{
+  "summary": {
+    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
+    "fastingEngineSha256": "60f9870155f27fe442a7d0afe5fce29ca9136826708361fcf25aab0ec3d5d8c7",
+    "baselineCommit": "3ec616e",
+    "originalDifferences": 76,
+    "originalMissingLabel": 1,
+    "rows": 85,
+    "originalDatesAccountedFor": 77,
+    "unresolvedLocalServiceChoices": [
+      "2026-02-27",
+      "2026-11-30",
+      "2026-12-11",
+      "2026-12-16",
+      "2026-12-18",
+      "2026-12-22",
+      "2026-12-28"
+    ],
+    "note": "Every original difference has a scoped explanation. Rank-dependent cases are NOT closed by explaining the formula. This is not an unconditional Typikon certification or an all-years audit.",
+    "decisionsSha256": "7abea0c1cdd0b14779d22b6686c3b2dc0c083a1862875d582e3d2453088be166"
+  },
+  "rows": [
+    {
+      "isoDate": "2026-01-21",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260108.html",
+      "pageSha256": "2e33829d3af77a75cfc69eb79f35431cd42337ae22ad3371d4844d348665d414",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "profile-rule-explained",
+      "reason": "Зимний мясоед сам по себе не даёт рыбу по гл. 33. Строгий профиль сохраняет седмичную меру и разрешения по чину; приходской — масло. Рыбный вариант сайта не выдаётся за общую норму. Бдение Антонию 30 января в официальной таблице дано как выбор настоятеля.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-01-23",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260110.html",
+      "pageSha256": "18ded460c7cf68935e5a0a9f746714824b0af77314205a157d1257662b48c2c6",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "profile-rule-explained",
+      "reason": "Зимний мясоед сам по себе не даёт рыбу по гл. 33. Строгий профиль сохраняет седмичную меру и разрешения по чину; приходской — масло. Рыбный вариант сайта не выдаётся за общую норму. Бдение Антонию 30 января в официальной таблице дано как выбор настоятеля.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-01-28",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260115.html",
+      "pageSha256": "df9875b6e9c38ebe1fde3aee8ee4b8569a2044e9b8987c93a5feaec8bc930fd0",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "profile-rule-explained",
+      "reason": "Зимний мясоед сам по себе не даёт рыбу по гл. 33. Строгий профиль сохраняет седмичную меру и разрешения по чину; приходской — масло. Рыбный вариант сайта не выдаётся за общую норму. Бдение Антонию 30 января в официальной таблице дано как выбор настоятеля.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-01-30",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260117.html",
+      "pageSha256": "dcee1b9beac800bf5b8764fc74360a5245709dd7365b2fa30a183fd707dbd697",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": "**"
+      },
+      "disposition": "profile-rule-explained",
+      "reason": "Зимний мясоед сам по себе не даёт рыбу по гл. 33. Строгий профиль сохраняет седмичную меру и разрешения по чину; приходской — масло. Рыбный вариант сайта не выдаётся за общую норму. Бдение Антонию 30 января в официальной таблице дано как выбор настоятеля.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-11",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260129.html",
+      "pageSha256": "8bfb60dd457927dc883aa2cba7b9c1427870fc02c0afe7feff5d39c073bf77ec",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "profile-rule-explained",
+      "reason": "Зимний мясоед сам по себе не даёт рыбу по гл. 33. Строгий профиль сохраняет седмичную меру и разрешения по чину; приходской — масло. Рыбный вариант сайта не выдаётся за общую норму. Бдение Антонию 30 января в официальной таблице дано как выбор настоятеля.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-13",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260131.html",
+      "pageSha256": "7d2acebf1de05e1fc66f9befedcecd94f4480938a55a65d59e150cd300a25c74",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "profile-rule-explained",
+      "reason": "Зимний мясоед сам по себе не даёт рыбу по гл. 33. Строгий профиль сохраняет седмичную меру и разрешения по чину; приходской — масло. Рыбный вариант сайта не выдаётся за общую норму. Бдение Антонию 30 января в официальной таблице дано как выбор настоятеля.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-23",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "strict-fast",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "total-abstinence",
+        "parish": "dry-eating"
+      },
+      "externalLabel": "По монастырскому уставу - полное воздержание от пищи.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260210.html",
+      "pageSha256": "dc58d75de0f8633f90be42b80a36cc04fbabde89aded89c42c336f6fd3ce41aa",
+      "officialTable": {
+        "category": "total-abstinence",
+        "code": "х",
+        "footnote": null
+      },
+      "disposition": "corrected-category",
+      "reason": "Полное воздержание выделено в собственную категорию; не сухоядение и не неопределённый строгий пост. Приходское смягчение подписано отдельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-24",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "strict-fast",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "total-abstinence",
+        "parish": "dry-eating"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260211.html",
+      "pageSha256": "5be5f1b3d56d3daff0e1673cbb1c36218ea4eee937476ebc2111c67fc86c4f42",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 32 предписывает воздержание во вторник первой седмицы; гл. 49 приводит также афонский вариант хлеба и воды. Строгий профиль выбирает первые два дня по гл. 32, приходской — сухоядение. Это не ошибка календарной даты.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-25",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260212.html",
+      "pageSha256": "7e4ac2eae9d7865ecda6b6ccb42b988478a00eb17ab89fc85a1e6757ba05ce6a",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 32 прямо указывает тёплую пищу после Преждеосвященной, а гл. 49 — сухоядение. Выбрана гл. 32 для первой среды. Официальное бм не разрешает отличить два варианта.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-26",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260213.html",
+      "pageSha256": "f697fe081ef076b40992b92769699142f94ab91470bff76c1b754be5a0795a07",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-02-27",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260214.html",
+      "pageSha256": "9d8e82d2291d2f6548e3029f60efc9f52f281a48351cf3fd127ee6956823efe4",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "В программе горячая пища без масла возникает из полиелейного чина. Сайт даёт сухоядение; официальное бм не различает приготовленность. Это объяснение расчёта по заданному чину, не аттестация всех местных вариантов первой пятницы.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-03",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260218.html",
+      "pageSha256": "d586cc8558da853c1efe8271d979465a02636fd28488e69625558124bb4e0288",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-05",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260220.html",
+      "pageSha256": "1394a64abb0a454aa9f121e6207c3dfd9a02893720deabea31196ff855c18a6c",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-09",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260224.html",
+      "pageSha256": "27f25f7ef4c6e8844a700762157b643b34963e2ce997b02bf3ae65702fe68a91",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": "*"
+      },
+      "disposition": "corrected-specific-feast",
+      "reason": "Маркова глава Обретения главы Предтечи разрешает масло в понедельник; в среду и пятницу — два варения без масла. Прежняя общая формула полиелейного понедельника теряла это исключение.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-10",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260225.html",
+      "pageSha256": "2a49bb1be9642eeec9ef74c2424b874457dd00322c5eb0b95525dd15faaed82f",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-12",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260227.html",
+      "pageSha256": "f39b5f4b4c113734c9478711a6d5730edb3696858f9c44aee98448fd1057ca41",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-17",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260304.html",
+      "pageSha256": "b83a0429a7197f182e2ee4266ef251e1435eabab8e34d0d6fc5e75c3c32a4567",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-19",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260306.html",
+      "pageSha256": "f0c867c1f226ec3e5a620a0c68587ca261d0fea59b465d45f4be12313c18a69f",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-24",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260311.html",
+      "pageSha256": "864c527470d2bc7052d6a715d28d5d7c3318df68d2b56c89c4d1a0e858f304eb",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-25",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260312.html",
+      "pageSha256": "043cc8659eea76a5324bc37698c9308cfc3fd16195e904fecfb841027994a73f",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-specific-service",
+      "reason": "Глава 49 отдельно разрешает масло в среду перед бдением Великого канона и в четверг после него. Глава 32 и часть уставов строже; выбран конкретный вариант гл. 49, не объявленный единственным.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-26",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260313.html",
+      "pageSha256": "1cf519dcb41a44b7d14fec72a09b76eb84e4aa920828a04c01a12e240d08c380",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": "**"
+      },
+      "disposition": "corrected-specific-service",
+      "reason": "Глава 49 отдельно разрешает масло в среду перед бдением Великого канона и в четверг после него. Глава 32 и часть уставов строже; выбран конкретный вариант гл. 49, не объявленный единственным.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-03-31",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260318.html",
+      "pageSha256": "2f504e74340e84c5fb7d5237e45504776620b69a577a6f6d8a1c0f191fdd8999",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-02",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260320.html",
+      "pageSha256": "6e49395948f91807eb9e595541b16a2d783ad52171d3cb2cb577eff9b3d3a465",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычные вторники и четверги Четыредесятницы: строгий профиль теперь следует сухоядению гл. 32; горячая пища без масла осталась в явно выбранном приходском профиле. Общая таблица Успенского поста больше не переносится сюда автоматически.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-04",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "fast",
+        "parish": "fast"
+      },
+      "after": {
+        "strict": "caviar",
+        "parish": "caviar"
+      },
+      "externalLabel": "Разрешается рыбная икра.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260322.html",
+      "pageSha256": "0fc12259416ee7145802b674a38c3ded689366623ad54d5c36ef7bf8afba25a6",
+      "officialTable": {
+        "category": "caviar",
+        "code": "и",
+        "footnote": null
+      },
+      "disposition": "corrected-category",
+      "reason": "Икра — отдельное разрешение Лазаревой субботы, не рыба и не общий значок поста. Добавлены самостоятельные подпись, цвет и знак.",
+      "sources": [
+        "https://rop.ru/d/3000/d/trapeza_2026.doc",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-06",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260324.html",
+      "pageSha256": "d4a36648e2eaf98dd759d42749cb8a09f643a69d301ae799de9adc119ec2e0bd",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "source-disagreement-primary-rule-selected",
+      "reason": "Предпразднство Благовещения разрешает масло до Лазаревой субботы (гл. 32), но в 2026 оно совпадает с Великим понедельником. Сохраняется сухоядение Страстной седмицы; официальная таблица также бм. Разрешение самого Благовещения 7 апреля не переносится на канун.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-09",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260327.html",
+      "pageSha256": "0b7be92a9d9ce4eee070814cfc6d782a234735a49b2ccbbe246848a02b0db8de",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-specific-service",
+      "reason": "Выбрана трапеза Великого четверга с маслом по гл. 49. Другие перечисленные там уставы и более строгая гл. 32 записаны как варианты, а не молча смешаны.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-10",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "strict-fast",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "total-abstinence",
+        "parish": "dry-eating"
+      },
+      "externalLabel": "По монастырскому уставу - полное воздержание от пищи.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260328.html",
+      "pageSha256": "87daf7ca37b9de951adbdb836b5148bbbaf9cee5937fe21284d696fa9e2cb664",
+      "officialTable": {
+        "category": "total-abstinence",
+        "code": "х",
+        "footnote": null
+      },
+      "disposition": "corrected-category",
+      "reason": "Полное воздержание выделено в собственную категорию; не сухоядение и не неопределённый строгий пост. Приходское смягчение подписано отдельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/32",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-11",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "externalLabel": null,
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260329.html",
+      "pageSha256": "bc4ba143a95763a2358eca3e4a0857aced4555495175498818fabd8d83272e1e",
+      "officialTable": {
+        "category": "wine-only-allowance",
+        "code": "в",
+        "footnote": null
+      },
+      "disposition": "missing-label-resolved-from-primary",
+      "reason": "На сайте нет подписи пищи. Официальная буква в означает разрешение вина, а не отсутствие еды. Глава 49 уточняет хлеб, плоды и вино; в обоих профилях сухоядение. Общая субботняя формула масла удалена для Великой субботы.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/49",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-22",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260409.html",
+      "pageSha256": "c342d6613ece50b9b3824e5e5733463018dcb86ac3fe5448da685724f8355383",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-24",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260411.html",
+      "pageSha256": "45f4bc241845c611cb33f6bade2f304ed4e96a1b2fd8730cf046cd3464c98178",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-04-29",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260416.html",
+      "pageSha256": "f4a835dccc404971a9a5af9fedc85d9cb2ceead6ddd8e882865b461626082760",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-01",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260418.html",
+      "pageSha256": "0432ac5edc071b06b804b33b7d87dfd120efb52822238f5a631617e2a16cb949",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-08",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260425.html",
+      "pageSha256": "3c56469a5c50a922991b077ff8046590caf7ace00419780e07c30748fd970928",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-13",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260430.html",
+      "pageSha256": "b3fa34a5080d8b4e5de9c854bf022478a2c3243ca8ac60ff30710c8447d6df99",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-15",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260502.html",
+      "pageSha256": "87b8cc96aca1b70eb44d3cea0f9dbfdf6e59bd027d2fdc5a757c3884e0135112",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-22",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260509.html",
+      "pageSha256": "a4f3c74c7b87ada01fe78ba88d15527b6b1c87e848c7f3032dbd70dbc0db6a82",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-27",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260514.html",
+      "pageSha256": "d379b65d3977b5dde884207cee53d768fd7f7868bd68fbf4b1fb21cc948f8a9b",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-05-29",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260516.html",
+      "pageSha256": "cbd78a6c6b8ea945ca490726abfe1ca6cff195d90d0da1ce723fb1a03292d89b",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Глава 33: обычные среды/пятницы Пятидесятницы — масло, Преполовение и отдание Пасхи — рыба; там же прямо упомянут более широкий рыбный вариант. Строгий и приходской профили показывают эти варианты раздельно.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-06-08",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "fish"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260526.html",
+      "pageSha256": "5c96c7cf14485ec371ed2fd89e9ddead11002f2004a0730c1c276ce307dcb428",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычный понедельник Петрова поста: в строгом профиле сухоядение по гл. 33; приходская таблица разрешает рыбу. Прежнее варение без масла заменено последовательно выбранной нормой гл. 33.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-06-15",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "fish"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260602.html",
+      "pageSha256": "5ca24b46e20182008b5fece9cddf4effb7083b92e42948835c31b6ccc32f9ccc",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": "*"
+      },
+      "disposition": "corrected-strict-parish-separation",
+      "reason": "Обычный понедельник Петрова поста: в строгом профиле сухоядение по гл. 33; приходская таблица разрешает рыбу. Прежнее варение без масла заменено последовательно выбранной нормой гл. 33.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-06-22",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260609.html",
+      "pageSha256": "6bf51e247daf05e817f62a6d3c165125d902fd795d4bb848140a55eb7db811a4",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "corrected-monday-feast",
+      "reason": "Глава 33 прямо приравнивает славословный понедельник малых постов к праздничным вторнику/четвергу: рыба. Прежнее автоматическое масло по понедельникам этому не соответствовало.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-06-29",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260616.html",
+      "pageSha256": "72e20ee85aeae26679098bf50b5f36b815bdb55f2ad3014564b95faf3abbd1c7",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "corrected-monday-feast",
+      "reason": "Глава 33 прямо приравнивает славословный понедельник малых постов к праздничным вторнику/четвергу: рыба. Прежнее автоматическое масло по понедельникам этому не соответствовало.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-07-06",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Разрешается рыба.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260623.html",
+      "pageSha256": "ceee4a8ffb3dac8d959628880f570e7544f2ba019ab2a89c9e15761d9b661cf7",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "corrected-monday-feast",
+      "reason": "Глава 33 прямо приравнивает славословный понедельник малых постов к праздничным вторнику/четвергу: рыба. Прежнее автоматическое масло по понедельникам этому не соответствовало.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-07-15",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260702.html",
+      "pageSha256": "7e69065ab93e3d0b127fa7b5bca74655c126a14a4094e11c84e92e99135ba587",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-07-22",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260709.html",
+      "pageSha256": "fa9b8867e0ad90c4c954e1e7cef1b1ca7c469916b58cb4a5507eb6df1abf7fb7",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-07-24",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260711.html",
+      "pageSha256": "d3c09dc6de1998d5dc2f2c170c1050ce305192568f5b59b5a18a47efa46b8050",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-07-29",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260716.html",
+      "pageSha256": "637e556e809f38d3c05164dc3ece55f28dac3e0cf497d635d48b677b77a12851",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-07-31",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260718.html",
+      "pageSha256": "0900a731f0ba46b37d1d6f06077c763c1f387691a52173b28050f9d7c236c349",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-08-07",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260725.html",
+      "pageSha256": "14c86d3bad053f9e7cc1128cbce9011ffe3531b9aeb73eb223c0402884c18a3e",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-08-12",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260730.html",
+      "pageSha256": "f21350d837342076a776ecfeec20f3d4a1c9c0c072b966bb70442e7117912095",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-08-21",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260808.html",
+      "pageSha256": "de646c8c398a551e623f12f7a896cf1ef15a30db5722e1e849a59b61ba21e753",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-period-boundary",
+      "reason": "Полиелейный чин больше не переносит послабление Четыредесятницы в Успенский пост. Глава 33 задаёт здесь сухоядение по средам и пятницам и отдельное исключение Преображения.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-08-26",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "externalLabel": "Монастырский устав: cухоядение (хлеб, овощи, фрукты).",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260813.html",
+      "pageSha256": "c5ec32ea2663dfe97f208aa127220e4b425cca6fe33983207a3007c3610ab49a",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "corrected-period-boundary",
+      "reason": "Полиелейный чин больше не переносит послабление Четыредесятницы в Успенский пост. Глава 33 задаёт здесь сухоядение по средам и пятницам и отдельное исключение Преображения.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-02",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260820.html",
+      "pageSha256": "a8511764e3bd7b5e405c06d688452453f0154d8e6f9cfb085dbabcecc2717d7b",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-04",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260822.html",
+      "pageSha256": "615291c2d54b6fd45c15d4775743624e25f23143e101611122cf47d95ddc2636",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-09",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260827.html",
+      "pageSha256": "604da034a82f46b8c03085e1f18b5bd27e7be59e9b244ac102ca98c31af0a77d",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-16",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260903.html",
+      "pageSha256": "6c926dd12896e72ac8eacce7319b462af2442aba50adbacc0d278ec08db3475e",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-18",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260905.html",
+      "pageSha256": "9348bf38d372c069e38846f19e47564bc16e6660b4ff878e4b084e7f40ab16c8",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-23",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260910.html",
+      "pageSha256": "7981a64dda47d4901ed856680ae175ef9dac73bc650912a08f1c6de0933d1346",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-25",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260912.html",
+      "pageSha256": "9232b2151e917c730fb61d319ccce702824fb28eff578064cfa09c26a1732068",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-09-30",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260917.html",
+      "pageSha256": "a0ddaea5a54b8aabecb919a61c15302ba412dd3fb62ea648d533299569c716e3",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-10-02",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260919.html",
+      "pageSha256": "f48b5771839d8f3784c5432c2cd119bc06fd15f166a486faf469257f52da1d49",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-10-07",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260924.html",
+      "pageSha256": "52e49fee99dcbef9a032a63afd29402204c730fa119022b9bed35403b71872ae",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-10-09",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20260926.html",
+      "pageSha256": "818b13b063e625272d0327cea2be8efb15f606b9d70faaac2dadab3329b89c27",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-disagreement-primary-rule-selected",
+      "reason": "Для Иоанна Богослова гл. 33 прямо разрешает рыбу при совпадении со средой/пятницей. Масло внешнего календаря не основание стереть указанное праздничное разрешение.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-10-16",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261003.html",
+      "pageSha256": "30319b5990674c95032ec8472a5b9b16228fbb9cc63da8c2bca3e6824b8301b6",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-10-21",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261008.html",
+      "pageSha256": "fa94387f3ca34f80b778016d4b7dcc444c9feb52f23e0102f1855cdfa3a5a694",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-10-30",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261017.html",
+      "pageSha256": "726651e163a3254a85b2efbbc986c0fabece202df379a9e674384b5166679ceb",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-11-11",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261029.html",
+      "pageSha256": "69b9ee0412884c41087c3ac19c912b16c13f65eb5c17fb768bc6de285c629206",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-11-13",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261031.html",
+      "pageSha256": "a715fcf725985d0a45e252efd93b4dc316ec444c08594275ac1a580b98659b64",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-11-18",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261105.html",
+      "pageSha256": "b5ebddb00582ffb4bc3de69cbbfba2c3029948b193edbe6655a61f648b23e64a",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-11-20",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261107.html",
+      "pageSha256": "aaca8235db82b8e64eb1be86a8c84b1367a610e2392fcde0de367538d8954730",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-11-25",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261112.html",
+      "pageSha256": "e65f2350aa477792daca85b71c434b452e5102bf1f5024dfe1b2fcb1f1f3924f",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "corrected-parish-profile",
+      "reason": "Обычные среды и пятницы вне многодневных постов: строгая мера сухоядения сохранена, приходская исправлена на масло. Обе категории сохраняются раздельно, даже если внешний календарь печатает только приходскую.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-11-30",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261117.html",
+      "pageSha256": "69cd6d47a1d5dc70a65b565f8cb70497adcbbd55a6f5dcb44d77e94740dbc45c",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "Разрешение рассчитано по чину в XML: славословие по Пн/Вт/Чт — рыба, по Ср/Пт — масло; бдение — рыба (гл. 33). Внешняя трапезная таблица не всегда применяет этот чин; бдение Савве Освященному обозначено как факультативное. Требуется проверка конкретной службы/местного выбора, не подмена всех календарей одним значением.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-07",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "fish"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261124.html",
+      "pageSha256": "3033361137002d5604131fa9a6f73b834e733ce2df28856550b8c01f80504aa6",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Дополнительное расхождение после выбора последовательной нормы гл. 33: обычный понедельник — сухоядение, не варение без масла. Приходские фазы остаются отдельными.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-11",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261128.html",
+      "pageSha256": "7ab870d889dd541c7d9c6c6a8337b74a9e43efbd6c437051b9b188e74e3961fb",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "Разрешение рассчитано по чину в XML: славословие по Пн/Вт/Чт — рыба, по Ср/Пт — масло; бдение — рыба (гл. 33). Внешняя трапезная таблица не всегда применяет этот чин; бдение Савве Освященному обозначено как факультативное. Требуется проверка конкретной службы/местного выбора, не подмена всех календарей одним значением.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-14",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "fish"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261201.html",
+      "pageSha256": "adb593552b28c8ce4ecf3db5d320afedcdc880c32b73f065f1514304873904ce",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Дополнительное расхождение после выбора последовательной нормы гл. 33: обычный понедельник — сухоядение, не варение без масла. Приходские фазы остаются отдельными.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-16",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261203.html",
+      "pageSha256": "5030191152d17c432ff53df72bcaa2c85b806886b7810fc84c500251f48d1eb5",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "Разрешение рассчитано по чину в XML: славословие по Пн/Вт/Чт — рыба, по Ср/Пт — масло; бдение — рыба (гл. 33). Внешняя трапезная таблица не всегда применяет этот чин; бдение Савве Освященному обозначено как факультативное. Требуется проверка конкретной службы/местного выбора, не подмена всех календарей одним значением.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-18",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261205.html",
+      "pageSha256": "65b6b52a8ca14176fcce162476a720c31acdc8e9491198090f5f89f590136281",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": "*"
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "Разрешение рассчитано по чину в XML: славословие по Пн/Вт/Чт — рыба, по Ср/Пт — масло; бдение — рыба (гл. 33). Внешняя трапезная таблица не всегда применяет этот чин; бдение Савве Освященному обозначено как факультативное. Требуется проверка конкретной службы/местного выбора, не подмена всех календарей одним значением.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-21",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "boiled-no-oil",
+        "parish": "oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261208.html",
+      "pageSha256": "5125ec837f6f6a5ca18698f965e0181dfb6425320945b7d2c233a5f5822e3dca",
+      "officialTable": {
+        "category": "without-oil-unspecified",
+        "code": "бм",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Дополнительное расхождение после выбора последовательной нормы гл. 33: обычный понедельник — сухоядение, не варение без масла. Приходские фазы остаются отдельными.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-22",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261209.html",
+      "pageSha256": "468878eaec5e8c38534f95626e546089d13cd6823426a2ed361d66e84aaa210f",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "Разрешение рассчитано по чину в XML: славословие по Пн/Вт/Чт — рыба, по Ср/Пт — масло; бдение — рыба (гл. 33). Внешняя трапезная таблица не всегда применяет этот чин; бдение Савве Освященному обозначено как факультативное. Требуется проверка конкретной службы/местного выбора, не подмена всех календарей одним значением.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-23",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261210.html",
+      "pageSha256": "1f834d901b90d6339d582d65213d4f1d16fb90ef96a6cd5e484302ffd21ec6c8",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Будние дни Рождественского поста: сухоядение гл. 33 в строгом профиле, варение без масла в приходской таблице. Разница приготовленности пищи сохранена.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-25",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261212.html",
+      "pageSha256": "c776f07037a6774c81830b4c845588844975cc69303ce16372f9cee39b27af38",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": "**"
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Будние дни Рождественского поста: сухоядение гл. 33 в строгом профиле, варение без масла в приходской таблице. Разница приготовленности пищи сохранена.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-28",
+      "originalDiscrepancy": false,
+      "before": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "after": {
+        "strict": "fish",
+        "parish": "fish"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261215.html",
+      "pageSha256": "896e70c983c90969b3ef0cfc1c8e8001645bb78c575b9ab39d3d6fce4dbc5d48",
+      "officialTable": {
+        "category": "fish",
+        "code": "р",
+        "footnote": null
+      },
+      "disposition": "rank-dependent-not-universal",
+      "reason": "Разрешение рассчитано по чину в XML: славословие по Пн/Вт/Чт — рыба, по Ср/Пт — масло; бдение — рыба (гл. 33). Внешняя трапезная таблица не всегда применяет этот чин; бдение Савве Освященному обозначено как факультативное. Требуется проверка конкретной службы/местного выбора, не подмена всех календарей одним значением.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48",
+        "https://rop.ru/d/3000/d/trapeza_2026.doc"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2026-12-30",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261217.html",
+      "pageSha256": "721b3fde5dc290129a9ce4f286dc0894f2540486f21b9fe531c55968190d5731",
+      "officialTable": {
+        "category": "oil",
+        "code": "м",
+        "footnote": null
+      },
+      "disposition": "source-variant-retained",
+      "reason": "Будние дни Рождественского поста: сухоядение гл. 33 в строгом профиле, варение без масла в приходской таблице. Разница приготовленности пищи сохранена.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2027-01-01",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "after": {
+        "strict": "dry-eating",
+        "parish": "boiled-no-oil"
+      },
+      "externalLabel": "Монастырский устав: горячая пища без масла.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261219.html",
+      "pageSha256": "a7c7b455bfc59cee9f742c38edf504816c5bd25a2736987972afa1c63c2b7613",
+      "officialTable": null,
+      "disposition": "source-variant-retained",
+      "reason": "Будние дни Рождественского поста: сухоядение гл. 33 в строгом профиле, варение без масла в приходской таблице. Разница приготовленности пищи сохранена.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/33",
+        "https://azbyka.ru/days/p-kalendar-postov-i-trapez"
+      ],
+      "unconditionalApproval": false
+    },
+    {
+      "isoDate": "2027-01-06",
+      "originalDiscrepancy": true,
+      "before": {
+        "strict": "strict-fast",
+        "parish": "dry-eating"
+      },
+      "after": {
+        "strict": "oil",
+        "parish": "oil"
+      },
+      "externalLabel": "Пища с растительным маслом.",
+      "externalUrl": "https://days.pravoslavie.ru/Days/20261224.html",
+      "pageSha256": "fdeb461fd1b9875896fe08575da928617fa52e26e5497fde52414ae6066b7398",
+      "officialTable": null,
+      "disposition": "corrected-time-versus-food",
+      "reason": "Глава 48, навечерие Рождества: после богослужения трапеза с маслом. Воздержание до службы не равняется полному воздержанию от еды на весь день.",
+      "sources": [
+        "https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/tipikon/48"
+      ],
+      "unconditionalApproval": false
+    }
+  ]
+}

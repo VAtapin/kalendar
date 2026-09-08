@@ -9,6 +9,8 @@ export const FASTING_COLORS: Readonly<Record<FoodRuleId, string>> = {
   'boiled-no-oil': '#ecdac7',
   'dry-eating': '#e3d5ed',
   'strict-fast': '#bfd9de',
+  caviar: '#f4cfaa',
+  'total-abstinence': '#c9c4d6',
   'dairy-eggs': '#fff3bf',
   memorial: '#dedee5',
 };

@@ -65,6 +65,8 @@ describe("separate source-attested Church Slavonic catalogue", () => {
     }
     expect(sourceAttestedSlavonicTitle("Равноап. Ольги, вел. кн. Российской, во св. Крещении Елены (969)"))
       .toContain("нарече́нныѧ");
+    expect(sourceAttestedSlavonicTitle("Бессребреников и чудотворцев Космы и Дамиана Азийских и матери их прп. Феодотии (III)"))
+      .toContain("прпⷣбныѧ феодо́тїи");
   });
   it("never translates by similarity, removing a surname or changing a historical year", () => {
     expect(sourceAttestedSlavonicTitle("Прп. Марии Неизвестной (123)")).toBeUndefined();

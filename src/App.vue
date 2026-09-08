@@ -4479,6 +4479,7 @@ onBeforeUnmount(() => {
               <p class="property-help">Язык месяцев, дней недели, праздников, постов и имён святых. Он не зависит от языка программы.</p>
               <label class="field-control"><span>Правила поста</span><select v-model="project.fastingProfileId"><option v-for="profile in fastingProfileOptions" :key="profile.id" :value="profile.id">{{ profile.label }}</option></select></label>
               <p class="property-help">{{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].description }} Версия правил {{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].rulesVersion }}.</p>
+              <p class="property-help">Выбор действует только в этом календаре. Местные обычаи одного монастыря или прихода не являются общими правилами программы.</p>
               <label class="field-stack"><span>Издатель / монастырь</span><input v-model="project.publisherProfile.name" type="text" /></label>
               <h2 class="property-subheading">Шрифты проекта</h2>
               <button class="font-upload-button" type="button" @click="requestCustomFontFile">

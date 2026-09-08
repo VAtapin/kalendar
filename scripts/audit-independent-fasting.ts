@@ -11,10 +11,10 @@ const calendars = new Map<number, ReturnType<typeof buildOrthodoxCalendarYear>>(
 const rules: Record<string, string> = {
   "Из трапезы исключается мясо.": "dairy-eggs", "Поста нет.": "no-fast",
   "Пища с растительным маслом.": "oil", "Разрешается рыба.": "fish",
-  "По монастырскому уставу - полное воздержание от пищи.": "total-abstinence-not-a-distinct-app-rule",
+  "По монастырскому уставу - полное воздержание от пищи.": "total-abstinence",
   "Монастырский устав: cухоядение (хлеб, овощи, фрукты).": "dry-eating",
   "Монастырский устав: сухоядение (хлеб, овощи, фрукты).": "dry-eating",
-  "Разрешается рыбная икра.": "caviar-not-a-distinct-app-rule",
+  "Разрешается рыбная икра.": "caviar",
   "Монастырский устав: горячая пища без масла.": "boiled-no-oil",
 };
 const directory = "tmp/xml-independent-audit/pravoslavie-days";

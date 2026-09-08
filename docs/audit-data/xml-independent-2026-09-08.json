@@ -1,21 +1,21 @@
 {
   "summary": {
     "date": "2026-09-08",
-    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
+    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
     "totalRecords": 3815,
     "independentDaySnapshots": 366,
     "pravoslavie": {
       "conditional-or-range-not-compared": 1260,
-      "full-title-found-on-same-old-style-date": 2031,
-      "full-title-not-found-needs-review": 524
+      "full-title-found-on-same-old-style-date": 2028,
+      "full-title-not-found-needs-review": 527
     },
     "ponomar": {
-      "candidate-needs-review": 725,
+      "candidate-needs-review": 723,
       "rule-needs-independent-reference": 1228,
-      "literal-title-and-fixed-date": 1656,
-      "no-candidate-in-this-source": 206
+      "literal-title-and-fixed-date": 1657,
+      "no-candidate-in-this-source": 207
     },
-    "correctedTitles": 119,
+    "correctedTitles": 122,
     "correctedDateRules": 45,
     "correctedRanks": 1,
     "correctedDescriptions": 5,
@@ -47517,7 +47517,7 @@
     {
       "recordId": "memory-day-0851",
       "sourceIndex": 851,
-      "title": "Собор святителей Сербских: Саввы I (1237), Арсения I (1266), Саввы II (1269), Евстафия I (ок. 1285), Иакова (1292), Никодима (1325), Даниила (1338) архиепископов; Иоанникия II (1354), Ефрема II (после 1395), Спиридона (1388), Макария (1574), Гавриила I (1659), патриархов, и Григория епископа (1012)",
+      "title": "Собор святителей Сербских: Саввы I (1237), Арсения I (1266), Саввы II (1271), Евстафия I (ок. 1285), Иакова (1292), Никодима (1325), Даниила (1338) архиепископов; Иоанникия II (1354), Ефрема II (после 1395), Спиридона (1388), Макария (1574), Гавриила I (1659), патриархов, и Григория епископа (1012)",
       "rule": {
         "startMonth": 8,
         "startDate": 30,
@@ -47528,15 +47528,13 @@
       "descriptionPresent": false,
       "structuralDiagnostics": [],
       "pravoslavie": {
-        "status": "full-title-found-on-same-old-style-date",
+        "status": "full-title-not-found-needs-review",
         "url": "https://days.pravoslavie.ru/Days/20260830.html",
         "sourceDate": "20260830",
         "fetchedAt": "2026-09-08T11:32:33.311Z",
         "pageSha256": "830bf1cf542323726db8952f6f2fe89a348976c5be5653002d47e799feb51b51",
-        "paragraphIndexes": [
-          2
-        ],
-        "historicalNumbersPresentInMatchedTitle": true,
+        "paragraphIndexes": [],
+        "historicalNumbersPresentInMatchedTitle": false,
         "rankStatus": "not-independently-adjudicated"
       },
       "ponomar": {
@@ -47560,7 +47558,7 @@
           }
         ]
       },
-      "correctionStatus": "unchanged",
+      "correctionStatus": "title-correction-reviewed-see-change-ledger",
       "dateCorrectionStatus": "unchanged",
       "rankCorrectionStatus": "unchanged",
       "descriptionCorrectionStatus": "unchanged",
@@ -63155,7 +63153,7 @@
     {
       "recordId": "memory-day-1135",
       "sourceIndex": 1135,
-      "title": "Свт. Саввы II, архиеп. Сербского (1269)",
+      "title": "Свт. Саввы II, архиеп. Сербского (1271)",
       "rule": {
         "startMonth": 2,
         "startDate": 8,
@@ -63166,25 +63164,23 @@
       "descriptionPresent": false,
       "structuralDiagnostics": [],
       "pravoslavie": {
-        "status": "full-title-found-on-same-old-style-date",
+        "status": "full-title-not-found-needs-review",
         "url": "https://days.pravoslavie.ru/Days/20260208.html",
         "sourceDate": "20260208",
         "fetchedAt": "2026-09-08T11:30:16.962Z",
         "pageSha256": "1ee012968247b9a560bbc62057eb7fbb29877d176b053502fe2a35dfff8a2711",
-        "paragraphIndexes": [
-          2
-        ],
-        "historicalNumbersPresentInMatchedTitle": true,
+        "paragraphIndexes": [],
+        "historicalNumbersPresentInMatchedTitle": false,
         "rankStatus": "not-independently-adjudicated"
       },
       "ponomar": {
-        "correspondence": "candidate-needs-review",
+        "correspondence": "literal-title-and-fixed-date",
         "candidates": [
           {
             "cid": "020802",
-            "exactNormalizedTitle": false,
+            "exactNormalizedTitle": true,
             "sameFixedDate": true,
-            "unconditionalExact": false,
+            "unconditionalExact": true,
             "sources": {
               "ru": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/ru/xml/lives/020802.xml",
               "cu": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/020802.xml"
@@ -63193,12 +63189,12 @@
               "ru": "cd00d7d3480b546adb51564c150b9ac24bcc43deca2d3c2330d140af778e6513",
               "cu": "b667b02b3e8db64db3561f3f34d86896c5c559ef64e8a7a3cfd4ce62d2ec5419"
             },
-            "titleNumberSequencesAgree": false,
+            "titleNumberSequencesAgree": true,
             "conditionalNames": false
           }
         ]
       },
-      "correctionStatus": "unchanged",
+      "correctionStatus": "title-correction-reviewed-see-change-ledger",
       "dateCorrectionStatus": "unchanged",
       "rankCorrectionStatus": "unchanged",
       "descriptionCorrectionStatus": "unchanged",
@@ -119742,7 +119738,7 @@
     {
       "recordId": "memory-day-2123",
       "sourceIndex": 2123,
-      "title": "Свт. Григория Паламы, архиеп. Фессалонитского (ок. 1360)",
+      "title": "Свт. Григория Паламы, архиеп. Фессалонитского (1357)",
       "rule": {
         "startMonth": 11,
         "startDate": 14,
@@ -119753,39 +119749,20 @@
       "descriptionPresent": false,
       "structuralDiagnostics": [],
       "pravoslavie": {
-        "status": "full-title-found-on-same-old-style-date",
+        "status": "full-title-not-found-needs-review",
         "url": "https://days.pravoslavie.ru/Days/20261114.html",
         "sourceDate": "20261114",
         "fetchedAt": "2026-09-08T11:33:18.042Z",
         "pageSha256": "4fa5ca723e344ad167e50ea1a0a26cdf5858fdf1b61414302781ac24736c79d1",
-        "paragraphIndexes": [
-          2
-        ],
-        "historicalNumbersPresentInMatchedTitle": true,
+        "paragraphIndexes": [],
+        "historicalNumbersPresentInMatchedTitle": false,
         "rankStatus": "not-independently-adjudicated"
       },
       "ponomar": {
-        "correspondence": "candidate-needs-review",
-        "candidates": [
-          {
-            "cid": "543",
-            "exactNormalizedTitle": true,
-            "sameFixedDate": false,
-            "unconditionalExact": false,
-            "sources": {
-              "ru": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/ru/xml/lives/543.xml",
-              "cu": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/543.xml"
-            },
-            "hashes": {
-              "ru": "5360ca2c575ab479a0f3afe1b9125380621c48d3fb162984861bdb24886ebffd",
-              "cu": "f2e1357a66aa62856e12e8bf488fddf62c10ee03322a1c2665b6344c653eee08"
-            },
-            "titleNumberSequencesAgree": true,
-            "conditionalNames": false
-          }
-        ]
+        "correspondence": "no-candidate-in-this-source",
+        "candidates": []
       },
-      "correctionStatus": "unchanged",
+      "correctionStatus": "title-correction-reviewed-see-change-ledger",
       "dateCorrectionStatus": "unchanged",
       "rankCorrectionStatus": "unchanged",
       "descriptionCorrectionStatus": "unchanged",

@@ -42,6 +42,8 @@ const fileNames: Record<FoodRuleId, string> = {
   "boiled-no-oil": "boiled-no-oil.png",
   "dry-eating": "dry-eating.png",
   "strict-fast": "strict-fast.png",
+  caviar: "caviar.png",
+  "total-abstinence": "total-abstinence.png",
   "dairy-eggs": "dairy-eggs.png",
   memorial: "memorial.png",
 };
@@ -50,7 +52,9 @@ function packSources(folder: string): Record<FoodRuleId, string> {
   return Object.fromEntries(
     Object.entries(fileNames).map(([id, fileName]) => [
       id,
-      id === "no-fast" && folder !== "ornamental" && folder !== "dark"
+      id === "caviar" || id === "total-abstinence"
+        ? `/assets/markers/shared/${fileName}`
+        : id === "no-fast" && folder !== "ornamental" && folder !== "dark"
         ? "/assets/markers/ornamental/no-fast.png"
         : `/assets/markers/${folder}/${fileName}`,
     ]),

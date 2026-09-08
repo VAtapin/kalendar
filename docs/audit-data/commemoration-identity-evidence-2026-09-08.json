@@ -1,11 +1,11 @@
 {
   "summary": {
-    "xmlSha256": "c750e37ba404a0198c857564e80c7a745374ad70f21393ad80a025b3f5852b90",
+    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
     "records": 2610,
     "statuses": {
       "requires-rule-evidence": 148,
-      "complete-text-with-source-linked-identities": 2197,
-      "requires-editorial-review": 265
+      "complete-text-with-source-linked-identities": 2194,
+      "requires-editorial-review": 268
     },
     "note": "Uses the named saint link's canonical label to verify civil surnames before comparing the entire displayed title and its numbers on the same Julian date. No fuzzy match, omitted year, image tooltip or cross-date candidate is accepted. This is additional textual identity evidence, not historical/philological certification."
   },
@@ -11520,17 +11520,9 @@
     },
     {
       "sourceIndex": 851,
-      "title": "Собор святителей Сербских: Саввы I (1237), Арсения I (1266), Саввы II (1269), Евстафия I (ок. 1285), Иакова (1292), Никодима (1325), Даниила (1338) архиепископов; Иоанникия II (1354), Ефрема II (после 1395), Спиридона (1388), Макария (1574), Гавриила I (1659), патриархов, и Григория епископа (1012)",
-      "status": "complete-text-with-source-linked-identities",
-      "evidence": [
-        {
-          "sourceUrl": "https://days.pravoslavie.ru/Days/20260830.html",
-          "pageSha256": "830bf1cf542323726db8952f6f2fe89a348976c5be5653002d47e799feb51b51",
-          "paragraph": 2,
-          "completeTextMatch": true,
-          "identities": []
-        }
-      ],
+      "title": "Собор святителей Сербских: Саввы I (1237), Арсения I (1266), Саввы II (1271), Евстафия I (ок. 1285), Иакова (1292), Никодима (1325), Даниила (1338) архиепископов; Иоанникия II (1354), Ефрема II (после 1395), Спиридона (1388), Макария (1574), Гавриила I (1659), патриархов, и Григория епископа (1012)",
+      "status": "requires-editorial-review",
+      "evidence": [],
       "editorialApproval": false
     },
     {
@@ -15492,17 +15484,9 @@
     },
     {
       "sourceIndex": 1135,
-      "title": "Свт. Саввы II, архиеп. Сербского (1269)",
-      "status": "complete-text-with-source-linked-identities",
-      "evidence": [
-        {
-          "sourceUrl": "https://days.pravoslavie.ru/Days/20260208.html",
-          "pageSha256": "1ee012968247b9a560bbc62057eb7fbb29877d176b053502fe2a35dfff8a2711",
-          "paragraph": 2,
-          "completeTextMatch": true,
-          "identities": []
-        }
-      ],
+      "title": "Свт. Саввы II, архиеп. Сербского (1271)",
+      "status": "requires-editorial-review",
+      "evidence": [],
       "editorialApproval": false
     },
     {
@@ -29984,17 +29968,9 @@
     },
     {
       "sourceIndex": 2123,
-      "title": "Свт. Григория Паламы, архиеп. Фессалонитского (ок. 1360)",
-      "status": "complete-text-with-source-linked-identities",
-      "evidence": [
-        {
-          "sourceUrl": "https://days.pravoslavie.ru/Days/20261114.html",
-          "pageSha256": "4fa5ca723e344ad167e50ea1a0a26cdf5858fdf1b61414302781ac24736c79d1",
-          "paragraph": 2,
-          "completeTextMatch": true,
-          "identities": []
-        }
-      ],
+      "title": "Свт. Григория Паламы, архиеп. Фессалонитского (1357)",
+      "status": "requires-editorial-review",
+      "evidence": [],
       "editorialApproval": false
     },
     {

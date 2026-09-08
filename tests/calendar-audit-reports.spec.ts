@@ -11,9 +11,38 @@ const read = (name: string) => JSON.parse(readFileSync(`docs/audit-data/${name}-
 it("ties every independent report to this exact XML revision", () => {
   for (const name of ["xml-independent", "commemoration-identity-evidence", "official-calendar-comparison",
     "conditional-calendar-comparison", "scripture-reference-audit", "fasting-independent",
-    "typikon-rank-comparison", "church-slavonic-coverage"]) {
+    "typikon-rank-comparison", "church-slavonic-coverage", "official-trapeza",
+    "fasting-adjudications", "official-reverse", "reading-assignments"]) {
     expect(read(name).summary.xmlSha256, name).toBe(hash);
   }
+});
+
+it("invalidates fasting evidence when the calculation engine changes", () => {
+  const engineHash = createHash("sha256").update(readFileSync("src/calendar/fasting/fasting-api.ts")).digest("hex");
+  for (const name of ["fasting-independent", "official-trapeza", "fasting-adjudications"]) {
+    expect(read(name).summary.fastingEngineSha256, name).toBe(engineHash);
+  }
+});
+
+it("retains every original fasting difference without claiming unconditional approval", () => {
+  const report = read("fasting-adjudications");
+  expect(report.summary.originalDatesAccountedFor).toBe(77);
+  expect(new Set(report.rows.map((r: { isoDate: string }) => r.isoDate)).size).toBe(report.rows.length);
+  expect(report.rows.filter((r: { originalDiscrepancy: boolean }) => r.originalDiscrepancy)).toHaveLength(77);
+  for (const row of report.rows) {
+    expect(row.sources.length).toBeGreaterThan(0);
+    expect(row.unconditionalApproval).toBe(false);
+  }
+});
+
+it("keeps all scripture records and reverse paragraphs visible without blanket approval", () => {
+  const readings = read("reading-assignments"), reverse = read("official-reverse");
+  expect(readings.rows.map((r: { sourceIndex: number }) => r.sourceIndex))
+    .toEqual(records.filter(r => r.typeCode >= 200).map(r => r.sourceIndex));
+  expect(readings.rows.every((r: { assignmentApproved: boolean }) => !r.assignmentApproved)).toBe(true);
+  expect(reverse.rows).toHaveLength(1761);
+  expect(new Set(reverse.rows.map((r: { isoDate: string }) => r.isoDate)).size).toBe(365);
+  expect(reverse.rows.every((r: { editorialApproval: boolean }) => !r.editorialApproval)).toBe(true);
 });
 
 it("includes each XML record exactly once in the whole-file and rank reports", () => {
