@@ -56,6 +56,13 @@ function fixedSpanForSourceYear(record: MemoryDayRecord, sourceYear: number) {
 function resolveSpecialDate(record: MemoryDayRecord, anchor: CalendarDate): CalendarDate | undefined {
   const weekday = dayOfWeek(anchor);
 
+  // Explicit strictly-following weekday (0=Sunday ... 6=Saturday). Unlike
+  // legacy -1/-2 same-week offsets, a coinciding anchor moves ahead seven days.
+  if (record.startMonth === -5) {
+    if (record.startDate < 0 || record.startDate > 6) return undefined;
+    return addDays(anchor, positiveModulo(record.startDate - weekday - 1, 7) + 1);
+  }
+
   if (record.startMonth === -1) {
     if (record.startDate === weekday) return undefined;
     return addDays(anchor, record.startDate - weekday);
@@ -157,4 +164,3 @@ export function resolveMemoryDayRecord(
 
   return [];
 }
-

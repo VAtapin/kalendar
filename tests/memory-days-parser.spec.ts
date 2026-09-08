@@ -19,7 +19,7 @@ describe("MemoryDays XML parser", () => {
       recordsWithDescription: 138,
       recordsWithLink: 0,
       exactDuplicateCount: 4,
-      specialRuleCount: 89,
+      specialRuleCount: 90, // Pakhomius of Kensky: first Saturday after Theophany, not January 8.
     });
     expect(dataset.records[0]).toMatchObject({
       startMonth: 0,

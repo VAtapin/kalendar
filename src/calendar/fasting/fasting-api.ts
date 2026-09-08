@@ -389,10 +389,10 @@ function calculateStrictFastingDay(input: FastingDayInput): FastingDayResolution
 
   if (period?.id === "nativity-fast") return nativityFastRule(input);
 
-  // The week following the fast-free Publican and Pharisee week is a gradual
-  // preparation for Great Lent.
+  // The week after the Prodigal Son is not a fast-free week, but its Monday
+  // is not a fasting day either. Only Wednesday/Friday have the weekly rule.
+  // Source: https://azbyka.ru/o-postax-i-trapezax (preparatory weeks).
   if (offset >= -62 && offset <= -56) {
-    if (weekday === 1) return result(input, "oil", "Подготовительная седмица: в понедельник пища с маслом");
     if (weekday === 3 || weekday === 5) return result(input, "dry-eating", "Подготовительная седмица: сухоядение");
     return result(input, "no-fast", "Подготовительная седмица: обычный день");
   }
