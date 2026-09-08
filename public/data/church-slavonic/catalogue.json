@@ -61,6 +61,30 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/96.xml"
     },
     {
+      "ru": "Ап. от 70-ти Анании (I)",
+      "cu": "А҆пⷭ҇ла а҆на́нїи, є҆ди́нагѡ ѿ 70-ти (а҃)",
+      "sourceId": "1639",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1639.xml"
+    },
+    {
+      "ru": "Ап. от 70-ти Ерма (I)",
+      "cu": "А҆пⷭ҇ла є҆ди́нагѡ ѿ 70-ти є҆́рма (а҃)",
+      "sourceId": "79101",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/79101.xml"
+    },
+    {
+      "ru": "Ап. от 70-ти Кодрата (ок. 130)",
+      "cu": "А҆пⷭ҇ла є҆ди́нагѡ ѿ 70-ти кодра́та (ѻ҆́кѡлѡ 130)",
+      "sourceId": "1256",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1256.xml"
+    },
+    {
+      "ru": "Ап. от 70-ти Никанора (ок. 34)",
+      "cu": "А҆пⷭ҇ла є҆ди́нагѡ ѿ 70-ти нїканѡ́ра (ѻ҆́кѡлѡ 34)",
+      "sourceId": "432001",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/432001.xml"
+    },
+    {
       "ru": "Ап. от 70-ти Онисима (ок. 109)",
       "cu": "А҆пⷭ҇ла є҆ди́нагѡ ѿ 70-ти ѻ҆ни́сїма (ѻ҆́кѡлѡ 109)",
       "sourceId": "450",
@@ -175,6 +199,18 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/365.xml"
     },
     {
+      "ru": "Апп. от 70 Иродиона, Агава, Асинкрита, Руфа, Флегонта, Ерма и иже с ними (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70: и҆рѡдїѡ́на, а҆га́ва, а҆сѷгкрі́та, рꙋ́фа, фле́гонта, є҆́рма и҆ и҆̀же съ ни́ми (а҃)",
+      "sourceId": "811",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/811.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Апеллия, Лукия и Климента (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти а҆пе́ллїѧ, лꙋ́кїѧ и҆ кли́мента (а҃)",
+      "sourceId": "1501",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1501.xml"
+    },
+    {
       "ru": "Апп. от 70-ти Аристарха, Пуда и Трофима (ок. 67)",
       "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти а҆рїста́рха, пꙋ́да и҆ трофі́ма (ѻ҆́кѡлѡ 67)",
       "sourceId": "09253",
@@ -187,10 +223,58 @@
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/09279.xml"
     },
     {
+      "ru": "Апп. от 70-ти Евода (66) и Онисифора (после 67)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти є҆ѵо́да (66) и҆ ѻ҆нисі́фора (по 67)",
+      "sourceId": "1474",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1474.xml"
+    },
+    {
       "ru": "Апп. от 70-ти Карпа и Алфея (I)",
       "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти ка́рпа и҆ а҆лфе́ѧ (а҃)",
       "sourceId": "1141",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1141.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Патрова, Ерма, Лина, Гаия, Филолога (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти патро́ва, є҆́рма, лі́на, га́їѧ, фїлоло́га (а҃)",
+      "sourceId": "79202",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/79202.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Прохора, Никанора, Тимона и Пармена диаконов (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти про́хѡра, нїканѡ́ра, ті́мѡна и҆ парме́на дїа́конѡвъ (а҃)",
+      "sourceId": "4320",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4320.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Силы, Силуана, Крискента, Епенета и Андроника (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти сі́лы, сїлꙋа́на, криске́нта, є҆пене́та и҆ а҆ндроні́ка (а҃)",
+      "sourceId": "4349",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4349.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Сосфена, Аполлоса, Кифы, Тихика, Епафродита, Кесаря и Онисифора (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти сѡсѳе́на, а҆поллѡ́са, ки́фы, тѷхі́ка, є҆пафроді́та, ке́сарѧ и҆ ѻ҆нисі́фора (а҃)",
+      "sourceId": "3085",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/3085.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Стахия, Амплия, Урвана, Наркисса, Апеллия и Аристовула (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти стахѵ́а, а҆мплі́а, оу҆рва́на, наркі́сса, а҆пе́ллїѧ и҆ а҆рїстовꙋ́ла (а҃)",
+      "sourceId": "4619",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4619.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Тертия, Марка, Иуста и Артемы (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти те́ртїѧ, ма́рка, і҆ꙋ́ста и҆ а҆рте́мы (а҃)",
+      "sourceId": "4615",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/4615.xml"
+    },
+    {
+      "ru": "Апп. от 70-ти Филимона и Архиппа и мц. равноап. Апфии (I)",
+      "cu": "Ст҃ы́хъ а҆пⷭ҇лъ ѿ 70-ти фїлимѡ́на и҆ а҆рхі́ппа и҆ ст҃ы́ѧ мꙋ́ченицы равноапⷭ҇льныѧ а҆пфі́и (а҃)",
+      "sourceId": "2288",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/2288.xml"
     },
     {
       "ru": "Апп. Сосфена, Аполлоса, Кифы, Кесаря и Епафродита (I)",
@@ -4883,6 +4967,12 @@
       "cu": "Прпⷣбнагѡ меркꙋ́рїа, по́стника пече́рскагѡ (ді҃)",
       "sourceId": "1520",
       "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1520.xml"
+    },
+    {
+      "ru": "Прп. Мефодия, игумена Пешношского (1392)",
+      "cu": "Прпⷣбнагѡ меѳо́дїа, и҆гꙋ́мена пе́сношскагѡ (1392)",
+      "sourceId": "1303",
+      "sourceUrl": "https://github.com/typiconman/ponomar/blob/0af645f438856f45c22026912d2e4a9ce495e531/Ponomar/languages/cu/xml/lives/1303.xml"
     },
     {
       "ru": "Прп. Мины (VI)",
