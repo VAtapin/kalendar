@@ -1,0 +1,123 @@
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdtempSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { createServer } from 'node:net';
+import { chromium } from 'playwright';
+
+// Test only an isolated local PHP server and its disposable generated cache.
+mkdirSync('tmp', { recursive: true });
+const data = mkdtempSync(resolve('tmp/calendar-api-test-'));
+const probe = createServer();
+await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
+const port = probe.address().port;
+await new Promise(resolve => probe.close(resolve));
+const origin = `http://127.0.0.1:${port}`;
+const base = `${origin}/api/v1/calendar`;
+let logs = '';
+const server = spawn('php', ['-S', `127.0.0.1:${port}`, '-t', resolve('dist'), 'scripts/php-dev-router.php'], {
+  windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'],
+  env: { ...process.env, CALENDAR_DATA_DIR: data, APP_PUBLIC_URL: origin },
+});
+server.stderr.on('data', chunk => { logs += chunk; });
+let browser;
+try {
+  for (let attempt = 0; attempt < 60; attempt++) {
+    try { await fetch(base); break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
+  }
+  const request = async (path, options) => {
+    const response = await fetch(base + path, options);
+    return { response, body: await response.json() };
+  };
+  const metadata = await request('');
+  assert.equal(metadata.response.status, 200);
+  assert.equal(metadata.body.apiVersion, '1.0.0');
+  assert.equal(metadata.response.headers.get('access-control-allow-origin'), '*');
+  assert.equal(metadata.response.headers.get('access-control-allow-credentials'), null);
+  assert.equal(metadata.response.headers.get('set-cookie'), null);
+  assert.deepEqual(metadata.body.yearRange, { min: 1900, max: 2200 });
+  const options = await fetch(base + '/day', { method: 'OPTIONS', headers: { Origin: 'null', 'Access-Control-Request-Method': 'GET' } });
+  assert.equal(options.status, 204);
+  assert.equal(options.headers.get('access-control-allow-origin'), '*');
+  assert.equal((await request('/day', {method:'POST'})).response.status, 405);
+  for (const path of ['/day?date=2027-02-29', '/day?date=2027-13-01', '/day?date[]=2027-05-02',
+    '/year?year=../2027', '/year?year=1899', '/year?year=2201', '/month?year=2027&month=13',
+    '/day?date=2027-05-02&lang=en', '/day?date=2027-05-02&profile=unknown']) {
+    assert.equal((await request(path)).response.status, 400, path);
+  }
+  assert.equal((await request('/unknown')).response.status, 404);
+  const first = await request('/day?date=2027-05-02', {headers:{Origin:'null'}});
+  assert.equal(first.response.status, 200, JSON.stringify(first.body));
+  assert.equal(first.body.day.pascha, '2027-05-02');
+  assert.equal(first.body.day.daysFromPascha, 0);
+  assert.equal(first.body.day.events[0].typikonMark.id, 'great');
+  assert.equal(first.body.day.events[0].source.raw.name, 'Светлое Христово Воскресение. Пасха');
+  assert.ok(first.body.day.events.some(event => event.category === 'scripture-reading'));
+  assert.ok(first.body.day.events.some(event => event.typeCode > 6 && event.typikonMark === null));
+  assert.ok(first.body.day.foodMarkers.length > 1);
+  const etag = first.response.headers.get('etag');
+  const unchanged = await fetch(base + '/day?date=2027-05-02', {headers:{'If-None-Match':etag}});
+  assert.equal(unchanged.status, 304); assert.equal(await unchanged.text(), '');
+  const head = await fetch(base + '/day?date=2027-05-02', {method:'HEAD'});
+  assert.equal(head.status, 200); assert.equal(await head.text(), '');
+  const year = await request('/year?year=2027');
+  assert.equal(year.body.days.length, 365);
+  assert.deepEqual(year.body.days.find(day => day.date === '2027-05-02'), first.body.day);
+  const leap = await request('/month?year=2028&month=02');
+  assert.equal(leap.body.days.length, 29); assert.equal(leap.body.days.at(-1).date, '2028-02-29');
+  const pascha = await request('/pascha?year=2027'); assert.equal(pascha.body.pascha, first.body.day.pascha);
+  for (const lang of ['de', 'cu', 'uk', 'pl']) {
+    const localized = await request(`/day?date=2027-05-02&lang=${lang}`);
+    assert.equal(localized.response.status, 200);
+    assert.equal(localized.body.metadata.language, lang);
+    assert.equal(localized.body.day.events.length, first.body.day.events.length);
+    assert.notEqual(localized.body.day.events[0].localization, 'source-fallback');
+  }
+  const strict = await request('/day?date=2027-07-14');
+  const parish = await request('/day?date=2027-07-14&profile=parish');
+  assert.equal(strict.body.day.fasting.foodRule.id, 'dry-eating');
+  assert.equal(parish.body.day.fasting.foodRule.id, 'oil');
+  assert.notEqual(strict.body.metadata.fastingProfileId, parish.body.metadata.fastingProfileId);
+  assert.ok(readdirSync(data).every(file => file === 'public-calendar-cache'), 'Public API must not create account or project storage');
+  const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});
+  assert.equal(privateSession.headers.get('access-control-allow-origin'),null,'Private routes must not inherit public CORS');
+  assert.ok(readdirSync(resolve(data,'public-calendar-cache')).filter(file=>file.endsWith('.json')).length <= 32);
+  console.log('PASS: real PHP/Node HTTP API, all endpoints, dates, profiles, five languages, CORS, cache/ETag/HEAD and public-data isolation');
+
+  browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
+  const page = await browser.newPage({ viewport:{width:1200,height:1000} });
+  await page.goto(pathToFileURL(resolve('public/calendar-api-test.html')).href);
+  await page.locator('#base').fill(base + '/');
+  await page.locator('#date').fill('2027-05-02');
+  await page.locator('#submit').click();
+  await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Получено'));
+  assert.equal(await page.locator('#events article').count(),first.body.day.events.length);
+  assert.deepEqual(JSON.parse(await page.locator('#raw').textContent()), first.body);
+  const marker=page.locator('img.mark').first();
+  await marker.waitFor();
+  await page.waitForFunction(()=>document.querySelector('img.mark')?.naturalWidth>0);
+  await page.screenshot({path:'tmp/calendar-api-local-test.png',fullPage:false});
+  await page.locator('#events article').first().scrollIntoViewIfNeeded();
+  await page.screenshot({path:'tmp/calendar-api-local-events.png',fullPage:false});
+  await page.evaluate(()=>scrollTo(0,0));
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.screenshot({path:'tmp/calendar-api-local-mobile.png',fullPage:false});
+  // Render hostile data as plain text even when pointed at an untrusted endpoint.
+  await page.route('**/api/v1/calendar/day*', route => route.fulfill({
+    contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
+    body:JSON.stringify({...first.body,day:{...first.body.day,events:[{...first.body.day.events[0],title:'<img src=x onerror="window.compromised=true">'}]}}),
+  }));
+  await page.locator('#submit').click();
+  await page.waitForFunction(()=>document.querySelector('#events h3')?.textContent.includes('<img'));
+  assert.equal(await page.evaluate(()=>window.compromised),undefined);
+  assert.equal(await page.locator('#events [onerror]').count(),0);
+  assert.ok(!readFileSync('public/calendar-api-test.html','utf8').includes('innerHTML'));
+  console.log('PASS: standalone file:// HTML, real cross-origin fetch, Typikon images, complete JSON, mobile layout and escaped content');
+} catch (error) {
+  console.error(logs.slice(-5000)); throw error;
+} finally {
+  if (browser) await browser.close();
+  server.kill();
+}

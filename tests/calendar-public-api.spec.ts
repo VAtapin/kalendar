@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from 'node:fs';
 import {
   createCalendarPublicApi,
   createOrthodoxCalendarApiFromXml,
@@ -22,5 +23,39 @@ describe("public calendar API contract", () => {
     expect(day?.date).toBe("2027-01-14");
     expect(api.metadata().apiVersion).toBe("1.0.0");
     expect(JSON.parse(JSON.stringify(day))).toEqual(day);
+    expect(day?.events[0]?.source?.raw.name).toBe('Праздник');
+    expect(day?.events[0]?.typikonMark?.id).toBe('great');
+  });
+
+  it('returns every engine event for the whole year, including readings and minor memories', () => {
+    const engine = createOrthodoxCalendarApiFromXml(readFileSync('public/data/MemoryDays.xml','utf8'));
+    const api = createCalendarPublicApi(engine);
+    for (const day of engine.getYear(2027).days) {
+      const exposed = api.getDay(day.date)!;
+      expect(exposed.events.map(e => e.id)).toEqual(day.events.map(e => e.id));
+      expect(exposed.eventCount).toBe(day.events.length);
+      expect(exposed.foodLabel.trim()).not.toBe('');
+      for (const event of exposed.events) {
+        if (event.source) expect(event.source.raw).toEqual(engine.dataset.records[event.sourceIndex - 1]!.raw);
+        if (event.typeCode >= 7) expect(event.typikonMark).toBeNull();
+      }
+    }
+    const pascha = api.getDay({ year: 2027, month: 5, day: 2 })!;
+    expect(pascha.daysFromPascha).toBe(0);
+    expect(pascha.weekdayName).toBe('Воскресенье');
+    expect(pascha.foodMarkers.length).toBeGreaterThan(1);
+    expect(api.getDay({year:2027,month:5,day:1})!.daysFromPascha).toBe(-1);
+  });
+
+  it('does not present missing translations or icon images as available', () => {
+    const iconXml = xml.replace('Праздник', 'Неизвестной иконы Божией Матери').replace('<type>1</type>', '<type>17</type>');
+    const api = createCalendarPublicApi(createOrthodoxCalendarApiFromXml(iconXml), 'de');
+    const day = api.getDay({year:2027,month:1,day:14})!;
+    const icon = day.events.find(e => e.sourceIndex === 1)!;
+    expect(icon.localization).toBe('source-fallback');
+    expect(icon.sourceTitle).toBe(icon.title);
+    expect(icon.typikonMark).toBeNull();
+    expect(day.icons).toContainEqual({eventId:icon.id,title:icon.title,imageUrl:null});
+    expect(api.metadata().completeness.iconImages).toBe(false);
   });
 });
