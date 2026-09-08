@@ -15,6 +15,7 @@ check(preg_match('/^cal_[a-f0-9]{64}$/', $key) === 1, 'Key format');
 check(!isset($client['keyHash']) && !str_contains(json_encode($store->overview()), $key), 'Overview exposes secret');
 check(!str_contains(file_get_contents($directory.'/api-access.json'), $key), 'Stored plaintext key');
 if (($argv[2] ?? '') === '--fixture') { echo $key; exit; }
+if (($argv[2] ?? '') === '--system-fixture') { echo $store->saveClient(array_merge($body,['kind'=>'system','planId'=>null]))['key']; exit; }
 $now = strtotime('2026-09-09T12:00:00Z');
 fails(fn()=>$store->authorize('bad', $now), 'invalid_api_key');
 fails(fn()=>$store->authorize('cal_'.str_repeat('0',64), $now), 'invalid_api_key');
@@ -45,4 +46,21 @@ fails(fn()=>$store->authorize($key,$now),'api_access_disabled');
 $config=$store->overview();$config['plans']=['bad'];fails(fn()=>$store->configure($config),'invalid_plan');
 fails(fn()=>$store->saveClient(['name'=>[]]),'invalid_client');
 fails(fn()=>$store->saveClient(array_merge($body,['expiresAt'=>'2026-02-30'])),'invalid_expiry');
+$systemBody=array_merge($body,['kind'=>'system','planId'=>null]);
+$system=$store->saveClient($systemBody);$systemKey=$system['key'];$systemClient=$system['client'];
+check($systemClient['planId']===null && $systemClient['kind']==='system', 'System has a tariff');
+for($i=0;$i<12;$i++) {
+    $result=$store->authorize($systemKey,$now);
+    check($result['monthLimit']===null && $result['monthRemaining']===null, 'System quota not null');
+}
+$systemRotated=$store->rotate($systemClient['id'],$systemClient['revision']);
+check($systemRotated['client']['totalRequests']===12,'System rotation resets count');
+fails(fn()=>$store->authorize($systemKey,$now),'invalid_api_key');
+$systemKey=$systemRotated['key'];$systemClient=$systemRotated['client'];
+$systemDisabled=$store->saveClient(array_merge($systemBody,['enabled'=>false,'revision'=>$systemClient['revision']]),$systemClient['id']);
+fails(fn()=>$store->authorize($systemKey,$now),'api_access_disabled');
+$systemExpired=$store->saveClient(array_merge($systemBody,['expiresAt'=>'2026-09-08','revision'=>$systemDisabled['client']['revision']]),$systemClient['id']);
+fails(fn()=>$store->authorize($systemKey,$now),'api_key_expired');
+fails(fn()=>$store->saveClient(array_merge($body,['kind'=>'unlimited'])),'invalid_client_kind');
+echo "PASS: system bypasses disabled tariff and all quotas; expiry, disable, rotation, counters remain active\n";
 echo "PASS: issuance, hash-only persistence, validation, rotation, disabled client/plan, inclusive expiry, all UTC quotas and rollover\n";

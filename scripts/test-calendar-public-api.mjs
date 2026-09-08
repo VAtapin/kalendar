@@ -12,6 +12,7 @@ const data = mkdtempSync(resolve('tmp/calendar-api-test-'));
 const unitData = mkdtempSync(resolve('tmp/calendar-access-test-'));
 console.log(execFileSync('php', ['scripts/test-calendar-access.php', unitData], {encoding:'utf8'}).trim());
 const key = execFileSync('php', ['scripts/test-calendar-access.php', data, '--fixture'], {encoding:'utf8'}).trim();
+const systemKey = execFileSync('php', ['scripts/test-calendar-access.php', data, '--system-fixture'], {encoding:'utf8'}).trim();
 const probe = createServer();
 await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
 const port = probe.address().port;
@@ -42,6 +43,10 @@ try {
   assert.equal((await today.json()).day.date,berlin);
   for (const path of ['/today?date=2027-05-02','/today?year=2027','/today?api_key=example','/day?date=2027-05-02&unknown=1']) assert.equal((await fetch(base+path)).status,400);
   assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:{'X-API-Key':'cal_'+ '0'.repeat(64)}})).status,401);
+  const systemResponse=await fetch(base+'/day?date=2027-05-02',{headers:{'X-API-Key':systemKey}});
+  await systemResponse.json();
+  assert.equal(systemResponse.status,200);assert.equal(systemResponse.headers.get('X-API-Month-Limit'),null);assert.equal(systemResponse.headers.get('X-API-Month-Remaining'),null);
+  assert.equal((await fetch(base+'/day?date=2027-05-02',{method:'POST',headers:{'X-API-Key':systemKey}})).status,405);
   const metadata = await request('');
   assert.equal(metadata.response.status, 200);
   assert.equal(metadata.body.apiVersion, '1.0.0');
@@ -93,7 +98,7 @@ try {
   assert.notEqual(strict.body.metadata.fastingProfileId, parish.body.metadata.fastingProfileId);
   assert.ok(readdirSync(data).every(file => ['public-calendar-cache','api-access.json','locks'].includes(file)), 'Public API must not create account or project storage');
   for (const [path,method] of [['','GET'],['','PUT'],['/clients','POST'],['/clients/00000000-0000-4000-8000-000000000000/rotate','POST']]) {
-    const denied=await fetch(origin+'/api/v1/admin/calendar-api'+path,{method,headers:{'Content-Type':'application/json'},...(method==='GET'?{}:{body:'{}'})});
+    const denied=await fetch(origin+'/api/v1/admin/calendar-api'+path,{method,headers:{'Content-Type':'application/json','X-API-Key':systemKey},...(method==='GET'?{}:{body:'{}'})});
     assert.equal(denied.status,403);assert.equal(denied.headers.get('cache-control'),'private, no-store');
   }
   const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});

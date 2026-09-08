@@ -17,7 +17,7 @@ final class CalendarApiAccessStore {
     }
     private function write(array $state): void { calendar_atomic_json_write($this->directory . '/api-access.json', $state); }
     private function locked(callable $action): mixed { return calendar_with_lock($this->directory . '/locks', 'calendar-api-access', $action); }
-    private function cleanClient(array $client): array { unset($client['keyHash']); return $client; }
+    private function cleanClient(array $client): array { unset($client['keyHash']); $client['kind'] ??= 'standard'; return $client; }
     public function overview(): array {
         $state = $this->state();
         $state['clients'] = array_values(array_map(fn($client) => $this->cleanClient($client), $state['clients']));
@@ -48,7 +48,7 @@ final class CalendarApiAccessStore {
                 $validated[]=['id'=>$id,'name'=>$name,'priceCents'=>$plan['priceCents'],'currency'=>'EUR','perMinute'=>$plan['perMinute'],
                     'perDay'=>$plan['perDay'],'perMonth'=>$plan['perMonth'],'enabled'=>($plan['enabled']??false)===true,'published'=>($plan['published']??false)===true];
             }
-            foreach ($state['clients'] as $client) if (!isset($ids[$client['planId']])) calendar_fail('plan_in_use',409,'Тариф используется клиентом; отключите его вместо удаления.');
+            foreach ($state['clients'] as $client) if (($client['kind'] ?? 'standard') !== 'system' && !isset($ids[$client['planId']])) calendar_fail('plan_in_use',409,'Тариф используется клиентом; отключите его вместо удаления.');
             if (!is_array($body['settings'] ?? null) || !is_string($body['settings']['contactEmail'] ?? null) || !is_string($body['settings']['wordpressUrl'] ?? null)) calendar_fail('invalid_settings',400);
             $email=trim((string)($body['settings']['contactEmail']??'')); $url=trim((string)($body['settings']['wordpressUrl']??''));
             if ($email!=='' && !filter_var($email,FILTER_VALIDATE_EMAIL)) calendar_fail('invalid_email',400);
@@ -63,14 +63,17 @@ final class CalendarApiAccessStore {
             if ($id!==null && !$old) calendar_fail('client_not_found',404);
             if (!$old && count($state['clients'])>=5000) calendar_fail('client_limit',409);
             if ($old && ($body['revision']??null)!==$old['revision']) calendar_fail('revision_conflict',409,'Клиент изменён. Обновите список.');
-            if (!is_string($body['name'] ?? null) || !is_string($body['email'] ?? null) || !is_string($body['planId'] ?? null) || (isset($body['enabled']) && !is_bool($body['enabled']))) calendar_fail('invalid_client',400);
+            if (!is_string($body['name'] ?? null) || !is_string($body['email'] ?? null) || (isset($body['enabled']) && !is_bool($body['enabled']))) calendar_fail('invalid_client',400);
+            $kind = $body['kind'] ?? $old['kind'] ?? 'standard';
+            if (!in_array($kind, ['standard', 'system'], true)) calendar_fail('invalid_client_kind',400);
             $name=trim((string)($body['name']??'')); $email=trim((string)($body['email']??'')); $planId=$body['planId']??'';
             if ($name==='' || strlen($name)>160 || strlen($email)>254 || !filter_var($email,FILTER_VALIDATE_EMAIL)) calendar_fail('invalid_client',400);
-            if (!in_array($planId,array_column($state['plans'],'id'),true)) calendar_fail('invalid_plan',400);
+            if ($kind === 'system') $planId = null;
+            elseif (!is_string($planId) || !in_array($planId,array_column($state['plans'],'id'),true)) calendar_fail('invalid_plan',400);
             $expires=$body['expiresAt']??null;
             if ($expires!==null && (!is_string($expires) || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$expires) || !checkdate((int)substr($expires,5,2),(int)substr($expires,8,2),(int)substr($expires,0,4)))) calendar_fail('invalid_expiry',400);
             $id??=calendar_uuid();
-            $client=array_merge($old??[],['id'=>$id,'name'=>$name,'email'=>$email,'planId'=>$planId,'enabled'=>($body['enabled']??true)===true,
+            $client=array_merge($old??[],['id'=>$id,'name'=>$name,'email'=>$email,'kind'=>$kind,'planId'=>$planId,'enabled'=>($body['enabled']??true)===true,
                 'expiresAt'=>$expires,'createdAt'=>$old['createdAt']??calendar_now(),'revision'=>($old['revision']??0)+1]);
             $key=null;
             if (!$old) { $key='cal_'.bin2hex(random_bytes(32)); $client['keyHash']=hash('sha256',$key); $client['keyPrefix']=substr($key,0,12); $client['keyCreatedAt']=calendar_now(); }
@@ -96,21 +99,24 @@ final class CalendarApiAccessStore {
             $state=$this->state(); $client=null; $hash=hash('sha256',$key);
             foreach ($state['clients'] as $entry) if (hash_equals($entry['keyHash'],$hash)) { $client=$entry; break; }
             if (!$client) calendar_fail('invalid_api_key',401,'Недействительный API-ключ.');
+            $system = ($client['kind'] ?? 'standard') === 'system';
             $plan=null; foreach ($state['plans'] as $entry) if ($entry['id']===$client['planId']) $plan=$entry;
-            if (!$client['enabled'] || !$plan || !$plan['enabled']) calendar_fail('api_access_disabled',403,'Доступ клиента или тариф отключён.');
+            if (!$client['enabled'] || (!$system && (!$plan || !$plan['enabled']))) calendar_fail('api_access_disabled',403,'Доступ клиента или тариф отключён.');
             if ($client['expiresAt']!==null && gmdate('Y-m-d',$now)>$client['expiresAt']) calendar_fail('api_key_expired',403,'Срок доступа истёк.');
-            $windows=['minute'=>[gmdate('Y-m-d\TH:i',$now),$plan['perMinute'],60-$now%60],
-                'day'=>[gmdate('Y-m-d',$now),$plan['perDay'],86400-$now%86400],
-                'month'=>[gmdate('Y-m',$now),$plan['perMonth'],gmmktime(0,0,0,(int)gmdate('n',$now)+1,1,(int)gmdate('Y',$now))-$now]];
+            $windows=['minute'=>[gmdate('Y-m-d\TH:i',$now),($system ? null : $plan['perMinute']),60-$now%60],
+                'day'=>[gmdate('Y-m-d',$now),($system ? null : $plan['perDay']),86400-$now%86400],
+                'month'=>[gmdate('Y-m',$now),($system ? null : $plan['perMonth']),gmmktime(0,0,0,(int)gmdate('n',$now)+1,1,(int)gmdate('Y',$now))-$now]];
             $usage=$client['usage']??[];
             foreach ($windows as $name=>[$bucket,$limit,$retry]) {
                 if (($usage[$name]['bucket']??null)!==$bucket) $usage[$name]=['bucket'=>$bucket,'count'=>0];
-                if ($usage[$name]['count']>=$limit) { header('Retry-After: '.$retry); calendar_fail('api_'.$name.'_limit',429,'Лимит запросов исчерпан: '.$name); }
+                if ($limit !== null && $usage[$name]['count']>=$limit) { header('Retry-After: '.$retry); calendar_fail('api_'.$name.'_limit',429,'Лимит запросов исчерпан: '.$name); }
             }
             foreach ($windows as $name=>$_) $usage[$name]['count']++;
             $client['usage']=$usage; $client['totalRequests']=($client['totalRequests']??0)+1; $client['lastUsedAt']=gmdate('Y-m-d\TH:i:s.000\Z',$now);
             $state['clients'][$client['id']]=$client; $this->write($state);
-            return ['planId'=>$plan['id'],'monthLimit'=>$plan['perMonth'],'monthRemaining'=>$plan['perMonth']-$usage['month']['count']];
+            return ['kind'=>$system ? 'system' : 'standard', 'planId'=>$system ? null : $plan['id'],
+                'monthLimit'=>$system ? null : $plan['perMonth'],
+                'monthRemaining'=>$system ? null : $plan['perMonth']-$usage['month']['count']];
         });
     }
 }

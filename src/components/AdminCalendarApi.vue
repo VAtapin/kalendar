@@ -2,11 +2,11 @@
 import { computed, onMounted, ref } from 'vue';
 import { catalogRequest } from '../collaboration/catalog-client';
 type Plan = {id:string;name:string;priceCents:number;currency:string;perMinute:number;perDay:number;perMonth:number;enabled:boolean;published:boolean};
-type Client = {id:string;name:string;email:string;planId:string;enabled:boolean;expiresAt:string|null;revision:number;keyPrefix:string;createdAt:string;keyCreatedAt:string;lastUsedAt?:string;totalRequests?:number;usage?:Record<string,{bucket:string;count:number}>};
+type Client = {id:string;name:string;email:string;kind:'standard'|'system';planId:string|null;enabled:boolean;expiresAt:string|null;revision:number;keyPrefix:string;createdAt:string;keyCreatedAt:string;lastUsedAt?:string;totalRequests?:number;usage?:Record<string,{bucket:string;count:number}>};
 type Overview = {revision:number;plans:Plan[];clients:Client[];settings:{contactEmail:string;wordpressUrl:string};serverTime:string};
 const emit=defineEmits<{dirty:[value:boolean]}>();
 const data=ref<Overview>(); const busy=ref(false),error=ref(''),notice=ref(''),secret=ref(''),search=ref('');
-const form=ref({name:'',email:'',planId:'free',enabled:true,expiresAt:''});
+const form=ref({name:'',email:'',kind:'standard',planId:'free',enabled:true,expiresAt:''});
 const clients=computed(()=>data.value?.clients.filter(c=>`${c.name} ${c.email} ${c.keyPrefix}`.toLowerCase().includes(search.value.toLowerCase()))??[]);
 async function load(){data.value=await catalogRequest<Overview>('admin/calendar-api');emit('dirty',false);}
 async function run(action:()=>Promise<void>){busy.value=true;error.value='';notice.value='';try{await action();}catch(e){error.value=String(e);}finally{busy.value=false;}}
@@ -41,15 +41,17 @@ onMounted(()=>run(load));
     <label>Ссылка на WordPress-плагин (после выпуска)<input v-model="data.settings.wordpressUrl" type="url" placeholder="https://…" @input="changed"></label>
     <p>Пока ссылка пуста, документация сообщает, что плагин готовится.</p>
     <button :disabled="busy" @click="saveSettings">Сохранить тарифы и настройки</button>
-    <h3>Создать клиента и выдать ключ</h3><form @submit.prevent="create"><fieldset :disabled="busy"><div class="fields">
+    <h3>Создать клиента и выдать ключ</h3><p>Системный доступ — для собственных серверных интеграций, например BibleDesktop: без тарифных квот, только чтение. Отключение и срок действия сохраняются.</p><form @submit.prevent="create"><fieldset :disabled="busy"><div class="fields">
       <label>Имя / организация<input v-model="form.name" required maxlength="160"></label><label>E-mail клиента<input v-model="form.email" type="email" required maxlength="254"></label>
-      <label>Тариф<select v-model="form.planId"><option v-for="plan in data.plans" :key="plan.id" :value="plan.id">{{plan.name}}{{plan.enabled?'':' — отключён'}}</option></select></label>
+      <label>Тип доступа<select v-model="form.kind"><option value="standard">Клиент по тарифу</option><option value="system">Системный — без квот</option></select></label>
+      <label v-if="form.kind!=='system'">Тариф<select v-model="form.planId"><option v-for="plan in data.plans" :key="plan.id" :value="plan.id">{{plan.name}}{{plan.enabled?'':' — отключён'}}</option></select></label>
       <label>Доступ до даты включительно (UTC)<input v-model="form.expiresAt" type="date"></label></div><button>Создать клиента и ключ</button></fieldset></form>
     <h3>Клиенты и запросы</h3><label>Поиск клиента<input v-model="search" type="search"></label><button :disabled="busy" @click="run(load)">Обновить список</button>
     <p>Лимиты и счётчики — по UTC. Смена ключа не обнуляет использование. После редактирования клиента нажмите «Сохранить клиента».</p>
     <article v-for="client in clients" :key="client.id"><h4 data-no-translate>{{client.name}} · {{client.keyPrefix}}…</h4><div class="fields">
       <label>Имя / организация<input v-model="client.name" maxlength="160"></label><label>E-mail клиента<input v-model="client.email" type="email"></label>
-      <label>Тариф<select v-model="client.planId"><option v-for="plan in data.plans" :key="plan.id" :value="plan.id">{{plan.name}}</option></select></label>
+      <label>Тип доступа<select v-model="client.kind"><option value="standard">Клиент по тарифу</option><option value="system">Системный — без квот</option></select></label>
+      <label v-if="client.kind!=='system'">Тариф<select v-model="client.planId"><option :value="null" disabled>Выберите тариф</option><option v-for="plan in data.plans" :key="plan.id" :value="plan.id">{{plan.name}}</option></select></label>
       <label>Доступ до даты включительно (UTC)<input v-model="client.expiresAt" type="date"></label></div>
       <label><input v-model="client.enabled" type="checkbox"> Доступ включён</label>
       <p>Сегодня: {{count(client,'day')}} · За месяц: {{count(client,'month')}} · Всего: {{client.totalRequests??0}}</p>

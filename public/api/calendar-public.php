@@ -155,8 +155,10 @@ function calendar_public_routes(string $method, string $path): void {
         $key = api_header('X-API-Key');
         if ($key === '') $key = api_bearer_token();
         $access = (new CalendarApiAccessStore())->authorize($key);
-        header('X-API-Month-Limit: ' . $access['monthLimit']);
-        header('X-API-Month-Remaining: ' . $access['monthRemaining']);
+        if ($access['monthLimit'] !== null) {
+            header('X-API-Month-Limit: ' . $access['monthLimit']);
+            header('X-API-Month-Remaining: ' . $access['monthRemaining']);
+        }
     }
     $value = calendar_public_year($manifest, $runtimeDirectory, $year, $profile, $language);
     if ($action === '/day') {
