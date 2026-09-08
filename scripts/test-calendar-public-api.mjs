@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -9,6 +9,9 @@ import { chromium } from 'playwright';
 // Test only an isolated local PHP server and its disposable generated cache.
 mkdirSync('tmp', { recursive: true });
 const data = mkdtempSync(resolve('tmp/calendar-api-test-'));
+const unitData = mkdtempSync(resolve('tmp/calendar-access-test-'));
+console.log(execFileSync('php', ['scripts/test-calendar-access.php', unitData], {encoding:'utf8'}).trim());
+const key = execFileSync('php', ['scripts/test-calendar-access.php', data, '--fixture'], {encoding:'utf8'}).trim();
 const probe = createServer();
 await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
 const port = probe.address().port;
@@ -27,9 +30,18 @@ try {
     try { await fetch(base); break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
   }
   const request = async (path, options) => {
-    const response = await fetch(base + path, options);
+    const response = await fetch(base + path, {...options, headers:{'X-API-Key':key,...options?.headers}});
     return { response, body: await response.json() };
   };
+  assert.equal((await fetch(base)).status,200);
+  for (const path of ['/day?date=2027-05-02','/month?year=2027&month=5','/year?year=2027','/pascha?year=2027']) {
+    const denied=await fetch(base+path);assert.equal(denied.status,401);assert.equal(denied.headers.get('cache-control'),'private, no-store');
+  }
+  const today=await fetch(base+'/today');assert.equal(today.status,200);
+  const berlin=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  assert.equal((await today.json()).day.date,berlin);
+  for (const path of ['/today?date=2027-05-02','/today?year=2027','/today?api_key=example','/day?date=2027-05-02&unknown=1']) assert.equal((await fetch(base+path)).status,400);
+  assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:{'X-API-Key':'cal_'+ '0'.repeat(64)}})).status,401);
   const metadata = await request('');
   assert.equal(metadata.response.status, 200);
   assert.equal(metadata.body.apiVersion, '1.0.0');
@@ -57,9 +69,9 @@ try {
   assert.ok(first.body.day.events.some(event => event.typeCode > 6 && event.typikonMark === null));
   assert.ok(first.body.day.foodMarkers.length > 1);
   const etag = first.response.headers.get('etag');
-  const unchanged = await fetch(base + '/day?date=2027-05-02', {headers:{'If-None-Match':etag}});
+  const unchanged = await fetch(base + '/day?date=2027-05-02', {headers:{'If-None-Match':etag,'X-API-Key':key}});
   assert.equal(unchanged.status, 304); assert.equal(await unchanged.text(), '');
-  const head = await fetch(base + '/day?date=2027-05-02', {method:'HEAD'});
+  const head = await fetch(base + '/day?date=2027-05-02', {method:'HEAD',headers:{'X-API-Key':key}});
   assert.equal(head.status, 200); assert.equal(await head.text(), '');
   const year = await request('/year?year=2027');
   assert.equal(year.body.days.length, 365);
@@ -79,7 +91,11 @@ try {
   assert.equal(strict.body.day.fasting.foodRule.id, 'dry-eating');
   assert.equal(parish.body.day.fasting.foodRule.id, 'oil');
   assert.notEqual(strict.body.metadata.fastingProfileId, parish.body.metadata.fastingProfileId);
-  assert.ok(readdirSync(data).every(file => file === 'public-calendar-cache'), 'Public API must not create account or project storage');
+  assert.ok(readdirSync(data).every(file => ['public-calendar-cache','api-access.json','locks'].includes(file)), 'Public API must not create account or project storage');
+  for (const [path,method] of [['','GET'],['','PUT'],['/clients','POST'],['/clients/00000000-0000-4000-8000-000000000000/rotate','POST']]) {
+    const denied=await fetch(origin+'/api/v1/admin/calendar-api'+path,{method,headers:{'Content-Type':'application/json'},...(method==='GET'?{}:{body:'{}'})});
+    assert.equal(denied.status,403);assert.equal(denied.headers.get('cache-control'),'private, no-store');
+  }
   const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});
   assert.equal(privateSession.headers.get('access-control-allow-origin'),null,'Private routes must not inherit public CORS');
   assert.ok(readdirSync(resolve(data,'public-calendar-cache')).filter(file=>file.endsWith('.json')).length <= 32);
@@ -89,6 +105,7 @@ try {
   const page = await browser.newPage({ viewport:{width:1200,height:1000} });
   await page.goto(pathToFileURL(resolve('public/calendar-api-test.html')).href);
   await page.locator('#base').fill(base + '/');
+  await page.locator('#api-key').fill(key);
   await page.locator('#date').fill('2027-05-02');
   await page.locator('#submit').click();
   await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Получено'));

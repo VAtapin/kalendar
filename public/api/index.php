@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-public.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-access.php';
 
 header_remove('X-Powered-By');
 
@@ -12,7 +13,7 @@ function api_response(int $status, mixed $body = null, bool $cache = false): nev
     http_response_code($status);
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
-    header('Cache-Control: ' . ($cache && $status === 200 ? 'public, max-age=3600' : 'no-store'));
+    header('Cache-Control: ' . ($cache && $status === 200 ? 'public, max-age=3600' : 'private, no-store'));
     if ($status !== 204) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
@@ -248,6 +249,7 @@ try {
     $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $path = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
     $path = preg_replace('#^/api(?=/|$)#', '', $path) ?: '/';
+    calendar_access_routes($store, $method, $path);
     calendar_print_routes($store, $method, $path);
     calendar_domain_session_routes($store, $method, $path);
     calendar_site_routes($store, $method, $path);

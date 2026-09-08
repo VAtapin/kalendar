@@ -13,13 +13,14 @@
   <p>Все события выбранного дня без сокращений печатной сетки. Один файл HTML: можно открыть двойным щелчком или разместить на любом сайте.</p>
   <form id="query">
     <label>Адрес API<input id="base" type="url" required value="https://kalender.georg-kloster.ru/api/v1/calendar/" spellcheck="false"></label>
+    <label>API-ключ<input id="api-key" type="password" required autocomplete="off" spellcheck="false" placeholder="cal_…"></label>
     <div class="controls">
       <label>Дата (новый стиль)<input id="date" type="date" min="1900-01-01" max="2200-12-31" required></label>
       <label>Язык календарных названий<select id="lang"><option value="ru">Русский</option><option value="cu">Церковнославянский</option><option value="de">Deutsch</option><option value="uk">Українська</option><option value="pl">Polski</option></select></label>
       <label>Профиль поста<select id="profile"><option value="typikon-strict">Строгий устав</option><option value="parish">Приходская практика</option></select></label>
     </div>
     <button id="submit">Показать всё за этот день</button>
-    <p class="hint">Нужен интернет и опубликованный API. Вход в кабинет и API-ключ не требуются. При отсутствии перевода сохраняется русский текст с явной пометкой.</p>
+    <p class="hint">Нужны интернет и выданный администратором API-ключ. Ключ отправляется только в заголовке, не сохраняется на диск и не включается в JSON. После закрытия страницы введите его снова. Не публикуйте личный ключ в коде сайта.</p>
   </form>
   <p id="status" role="status" aria-live="polite"></p>
   <a id="request" target="_blank" rel="noopener noreferrer" hidden></a>
@@ -129,7 +130,7 @@
       $('request').href=url.href; $('request').textContent=url.href; $('request').hidden=false;
       let response, value;
       for(let attempt=0;attempt<3;attempt++) {
-        response=await fetch(url,{mode:'cors',credentials:'omit',signal:controller.signal,headers:{Accept:'application/json'}});
+        response=await fetch(url,{mode:'cors',credentials:'omit',signal:controller.signal,headers:{Accept:'application/json','X-API-Key':$('api-key').value.trim()}});
         value=await response.json().catch(()=>{throw new Error(`HTTP ${response.status}: вместо JSON получен другой формат. Проверьте публикацию API.`);});
         if(!['calendar_busy','calendar_updating'].includes(value.error) || attempt===2) break;
         $('status').textContent='Сервер занят расчётом другого года. Повторяю запрос…';
