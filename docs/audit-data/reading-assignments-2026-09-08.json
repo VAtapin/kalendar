@@ -1,15 +1,15 @@
 {
   "summary": {
     "records": 1205,
-    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
+    "xmlSha256": "8c1bef82656a0b39cd3d4ac8ffc33fc35f1ef123a728df93344931e914cf8ff4",
     "sourceUrl": "https://rop.ru/d/3000/d/calendar_2026_0.doc",
     "sourceTextSha256": "067f33ffa4cb6feeec224607c7208c49c6f74cb4bf90759d8012922caeb8b01c",
     "sourceYear": "Julian 2026",
     "parsedSourceReferences": 1477,
     "statuses": {
-      "same-date-and-service-text-evidence": 658,
-      "requires-liturgical-assignment-review": 497,
-      "not-active-in-reference-year": 50
+      "same-date-and-service-text-evidence": 734,
+      "requires-liturgical-assignment-review": 396,
+      "not-active-in-reference-year": 75
     },
     "note": "All 1205 records inventoried by service and engine date. Matching is reference evidence only; optional readings, transfers, ordering, omissions, and all-year Lukan/annual jumps are NOT approved by this report. The annual grid does not print the entire Psalter schedule."
   },
@@ -347,7 +347,16 @@
           "matches": [
             {
               "key": "1Кор5:6-8",
-              "references": []
+              "references": [
+                {
+                  "service": "matins",
+                  "key": "1Кор5:6-8",
+                  "printed": "1 Кор., 133 зач., V, 6–8;",
+                  "lection": "133",
+                  "index": 22,
+                  "paragraph": "Утр. – Ап. составной: 1 Кор., 133 зач., V, 6–8; Гал., 206 зач., III, 13–14. Мф., 114 зач., XXVII, 62–66. Лит. – Рим., 91 зач., VI, 3–11. Мф., 115 зач., XXVIII, 1–20."
+                }
+              ]
             },
             {
               "key": "Гал3:13-14",
@@ -378,7 +387,7 @@
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -2449,30 +2458,9 @@
         "finishMonth": 0,
         "finishDate": 364
       },
-      "engineDates": [
-        "2026-04-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-04-19",
-          "matches": [
-            {
-              "key": "Мф28:16-20",
-              "references": [
-                {
-                  "service": "matins",
-                  "key": "Мф28:16-20",
-                  "printed": "Мф., 116 зач., XXVIII, 16–20",
-                  "lection": "116",
-                  "index": 16,
-                  "paragraph": "Утр. – Ев. 1-е, Мф., 116 зач., XXVIII, 16–20. Лит. – Деян., 14 зач., V, 12–20. Ин., 65 зач., XX, 19–31."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -3218,21 +3206,9 @@
         "finishMonth": 0,
         "finishDate": -86
       },
-      "engineDates": [
-        "2026-01-16"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-16",
-          "matches": [
-            {
-              "key": "Иак2:1-13",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -15737,19 +15713,9 @@
         "finishDate": 271
       },
       "engineDates": [
-        "2026-01-16",
         "2027-01-08"
       ],
       "evidence": [
-        {
-          "date": "2026-01-16",
-          "matches": [
-            {
-              "key": "1Пет1:1-2,10-12,2:6-10",
-              "references": []
-            }
-          ]
-        },
         {
           "date": "2027-01-08",
           "matches": [
@@ -17490,21 +17456,9 @@
         "finishMonth": 0,
         "finishDate": -88
       },
-      "engineDates": [
-        "2026-01-14"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-14",
-          "matches": [
-            {
-              "key": "Мк10:11-16",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17521,21 +17475,9 @@
         "finishMonth": 0,
         "finishDate": -87
       },
-      "engineDates": [
-        "2026-01-15"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-15",
-          "matches": [
-            {
-              "key": "Мк10:17-27",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17552,21 +17494,9 @@
         "finishMonth": 0,
         "finishDate": -86
       },
-      "engineDates": [
-        "2026-01-16"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-16",
-          "matches": [
-            {
-              "key": "Мк10:23-32",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17645,21 +17575,9 @@
         "finishMonth": 0,
         "finishDate": -83
       },
-      "engineDates": [
-        "2026-01-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-19",
-          "matches": [
-            {
-              "key": "Мк10:46-52",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17676,30 +17594,9 @@
         "finishMonth": 0,
         "finishDate": -82
       },
-      "engineDates": [
-        "2026-01-20"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-20",
-          "matches": [
-            {
-              "key": "Мк11:11-23",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк11:11-23",
-                  "printed": "Мк., 50 зач., XI, 11–23",
-                  "lection": "50",
-                  "index": 26,
-                  "paragraph": "Иак., 54 зач., III, 1–10. Мк., 50 зач., XI, 11–23. Предтечи: Деян., 42 зач., XIX, 1–8. Ин., 3 зач., I, 29–34."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17716,30 +17613,9 @@
         "finishMonth": 0,
         "finishDate": -81
       },
-      "engineDates": [
-        "2026-01-21"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-21",
-          "matches": [
-            {
-              "key": "Мк11:23-26",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк11:23-26",
-                  "printed": "Мк., 51 зач., XI, 23–26",
-                  "lection": "51",
-                  "index": 32,
-                  "paragraph": "Иак., 55 зач., III, 11 – IV, 6. Мк., 51 зач., XI, 23–26."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17756,30 +17632,9 @@
         "finishMonth": 0,
         "finishDate": -80
       },
-      "engineDates": [
-        "2026-01-22"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-22",
-          "matches": [
-            {
-              "key": "Мк11:27-33",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк11:27-33",
-                  "printed": "Мк., 52 зач., XI, 27–33",
-                  "lection": "52",
-                  "index": 68,
-                  "paragraph": "Утр. – Лк., 24 зач., VI, 17–23. Лит. – Иак., 56 зач., IV, 7 – V, 9. Мк., 52 зач., XI, 27–33. Свт.: Евр., 335 зач., XIII, 17–21. Ин., 36 зач., X, 9–16."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17796,30 +17651,9 @@
         "finishMonth": 0,
         "finishDate": -79
       },
-      "engineDates": [
-        "2026-01-23"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-23",
-          "matches": [
-            {
-              "key": "Мк12:1-12",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк12:1-12",
-                  "printed": "Мк., 53 зач., XII, 1–12",
-                  "lection": "53",
-                  "index": 88,
-                  "paragraph": "Утр. – Ин., 35 зач. (от полу), X, 1–9. Лит. – 1 Пет., 58 зач., I, 1–2, 10–12; II, 6–10. Мк., 53 зач., XII, 1–12. Свт. Феофана: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16. Свт. Григория: 1 Кор., 151 зач., XII, 7–11. Мф., 34 зач. (от полу), X, 1–8."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17916,30 +17750,9 @@
         "finishMonth": 0,
         "finishDate": -76
       },
-      "engineDates": [
-        "2026-01-26"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-26",
-          "matches": [
-            {
-              "key": "Мк12:13-17",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк12:13-17",
-                  "printed": "Мк., 54 зач., XII, 13–17",
-                  "lection": "54",
-                  "index": 34,
-                  "paragraph": "1 Пет., 59 зач., II, 21 – III, 9. Мк., 54 зач., XII, 13–17. Прпп.: Рим., 99 зач., VIII, 28–39. Лк., 24 зач., VI, 17–23."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17956,30 +17769,9 @@
         "finishMonth": 0,
         "finishDate": -75
       },
-      "engineDates": [
-        "2026-01-27"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-27",
-          "matches": [
-            {
-              "key": "Мк12:18-27",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк12:18-27",
-                  "printed": "Мк., 55 зач., XII, 18–27",
-                  "lection": "55",
-                  "index": 75,
-                  "paragraph": "Утр. – Мф., 34 зач. (от полу), X, 1–8. Лит. – 1 Пет., 60 зач., III, 10–22. Мк., 55 зач., XII, 18–27. Равноап.: 1 Кор., 131 зач., IV, 9–16. Мф., 104 зач., XXV, 1–13."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -17996,30 +17788,9 @@
         "finishMonth": 0,
         "finishDate": -74
       },
-      "engineDates": [
-        "2026-01-28"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-28",
-          "matches": [
-            {
-              "key": "Мк12:28-37",
-              "references": [
-                {
-                  "service": "liturgy",
-                  "key": "Мк12:28-37",
-                  "printed": "Мк., 56 зач., XII, 28–37",
-                  "lection": "56",
-                  "index": 27,
-                  "paragraph": "1 Пет., 61 зач., IV, 1–11. Мк., 56 зач., XII, 28–37. Прпп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 43 зач., XI, 27–30."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "status": "same-date-and-service-text-evidence",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -18036,21 +17807,9 @@
         "finishMonth": 0,
         "finishDate": -73
       },
-      "engineDates": [
-        "2026-01-29"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-29",
-          "matches": [
-            {
-              "key": "Мк12:38-44",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -18067,21 +17826,9 @@
         "finishMonth": 0,
         "finishDate": -72
       },
-      "engineDates": [
-        "2026-01-30"
-      ],
-      "evidence": [
-        {
-          "date": "2026-01-30",
-          "matches": [
-            {
-              "key": "Мк13:1-8",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -18538,12 +18285,21 @@
           "matches": [
             {
               "key": "Мк14:43-15:1",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк14:43-15:1",
+                  "printed": "Мк., 65 зач., XIV, 43 – XV, 1,",
+                  "lection": "65",
+                  "index": 33,
+                  "paragraph": "1 Ин., 73 зач., III, 21 – IV, 6. Мк., 65 зач., XIV, 43 – XV, 1, и за четверг (под зачало): 1 Ин., 74 зач., IV, 20 – V, 21. Мк., 66 зач., XV, 1–15. Сщмч.: Евр., 311 зач., IV, 14 – V, 6. Мк., 41 зач., IX, 33–41."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -18579,7 +18335,7 @@
     },
     {
       "sourceIndex": 3100,
-      "title": "Мк.15:22-25,33-41",
+      "title": "Мк.15:22,25,33-41",
       "description": null,
       "typeCode": 207,
       "service": "liturgy",
@@ -18599,13 +18355,22 @@
           "date": "2026-02-13",
           "matches": [
             {
-              "key": "Мк15:22-25,33-41",
-              "references": []
+              "key": "Мк15:22,25,33-41",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк15:22,25,33-41",
+                  "printed": "Мк., 68 зач., XV, 22, 25, 33–41",
+                  "lection": "68",
+                  "index": 25,
+                  "paragraph": "2 Ин., 75 зач., I, 1–13. Мк., 68 зач., XV, 22, 25, 33–41. Бессребреников (под зачало): 1 Кор., 153 зач., XII, 27 – XIII, 8. Мф., 34 зач. (от полу), X, 1, 5–8. Мч.: Рим., 99 зач., VIII, 28–39. Лк., 51 зач. (от полу), X, 19–21."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -22893,7 +22658,7 @@
     },
     {
       "sourceIndex": 3207,
-      "title": "Мф.13:4-9",
+      "title": "Мф.13:3-9",
       "description": null,
       "typeCode": 207,
       "service": "liturgy",
@@ -22913,13 +22678,22 @@
           "date": "2026-07-03",
           "matches": [
             {
-              "key": "Мф13:4-9",
-              "references": []
+              "key": "Мф13:3-9",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф13:3-9",
+                  "printed": "Мф., 50 зач., XIII, 3–9",
+                  "lection": "50",
+                  "index": 27,
+                  "paragraph": "Рим., 120 зач., XVI, 1–16. Мф., 50 зач., XIII, 3–9."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -23025,12 +22799,21 @@
           "matches": [
             {
               "key": "Мф13:10-23",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф13:10-23",
+                  "printed": "Мф., 51 зач., XIII, 10–23 –",
+                  "lection": "51",
+                  "index": 69,
+                  "paragraph": "Утр. – Лк., 4 зач., I, 39–49, 56. Лит. – Рим., 121 зач., XVI, 17–24. Мф., 51 зач., XIII, 10–23 – за понедельник и за вторник (под зачало): 1 Кор., 122 зач., I, 1–9. Мф., 52 зач., XIII, 24–30. Богородицы: Флп., 240 зач., II, 5–11. Лк., 54 зач., X, 38–42; XI, 27–28."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -23567,12 +23350,21 @@
           "matches": [
             {
               "key": "Мф16:1-6",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф16:1-6",
+                  "printed": "Мф., 65 зач., XVI, 1–6,",
+                  "lection": "65",
+                  "index": 29,
+                  "paragraph": "1 Кор., 142 зач., IX, 13–18. Мф., 65 зач., XVI, 1–6, и за вторник: 1 Кор., 144 зач., X, 5–12. Мф., 66 зач., XVI, 6–12. Прп. Евфросинии: Гал., 208 зач., III, 23–29. Мф., 104 зач., XXV, 1–13."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -23829,12 +23621,21 @@
           "matches": [
             {
               "key": "Мф18:1-11",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф18:1-11",
+                  "printed": "Мф., 74 зач., XVIII, 1–11 –",
+                  "lection": "74",
+                  "index": 35,
+                  "paragraph": "1 Кор., 150 зач., XI, 31 – XII, 6. Мф., 74 зач., XVIII, 1–11 – за понедельник и за вторник (под зачало): 1 Кор., 152 зач., XII, 12–26. Мф., 76 зач., XVIII, 18–22; XIX, 1–2, 13–15. Мчч.: 1 Кор., 154 зач. (от полу), XIII, 11 – XIV, 5. Лк., 51 зач. (от полу), X, 19–21."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -23971,12 +23772,21 @@
           "matches": [
             {
               "key": "Мф21:12-14,17-20",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф21:12-14,17-20",
+                  "printed": "Мф., 83 зач., XXI, 12–14, 17–20,",
+                  "lection": "83",
+                  "index": 30,
+                  "paragraph": "1 Кор., 157 зач., XIV, 26–40. Мф., 83 зач., XXI, 12–14, 17–20, и за субботу: Рим., 113 зач., XIV, 6–9. Мф., 64 зач., XV, 32–39."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -24345,7 +24155,8 @@
         "finishDate": 120
       },
       "engineDates": [
-        "2026-08-10"
+        "2026-08-10",
+        "2026-09-28"
       ],
       "evidence": [
         {
@@ -24361,6 +24172,24 @@
                   "lection": "94",
                   "index": 69,
                   "paragraph": "Утр. – Лк., 4 зач., I, 39–49, 56. Лит. – 2 Кор., 171 зач., II, 3–15. Мф., 94 зач., XXIII, 13–22. Богородицы: Флп., 240 зач., II, 5–11. Лк., 54 зач., X, 38–42; XI, 27–28. Свт.: Евр., 335 зач., XIII, 17–21. Лк., 24 зач., VI, 17–23."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "date": "2026-09-28",
+          "matches": [
+            {
+              "key": "Мф23:13-22",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф23:13-22",
+                  "printed": "Мф., 94 зач., XXIII, 13–22",
+                  "lection": "94",
+                  "index": 26,
+                  "paragraph": "Еф., 227 зач., IV, 25–32. Мф., 94 зач., XXIII, 13–22. Вмч.: 2 Тим., 292 зач., II, 1–10. Мф., 36 зач., X, 16–22."
                 }
               ]
             }
@@ -24385,7 +24214,8 @@
         "finishDate": 121
       },
       "engineDates": [
-        "2026-08-11"
+        "2026-08-11",
+        "2026-09-29"
       ],
       "evidence": [
         {
@@ -24401,6 +24231,24 @@
                   "lection": "95",
                   "index": 35,
                   "paragraph": "2 Кор., 172 зач., II, 14 – III, 3. Мф., 95 зач., XXIII, 23–28."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "date": "2026-09-29",
+          "matches": [
+            {
+              "key": "Мф23:23-28",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф23:23-28",
+                  "printed": "Мф., 95 зач., XXIII, 23–28",
+                  "lection": "95",
+                  "index": 25,
+                  "paragraph": "Еф., 230 зач., V, 20–26. Мф., 95 зач., XXIII, 23–28. Вмц.: 2 Кор., 181 зач., VI, 1–10. Лк., 33 зач., VII, 36–50."
                 }
               ]
             }
@@ -24425,7 +24273,8 @@
         "finishDate": 122
       },
       "engineDates": [
-        "2026-08-12"
+        "2026-08-12",
+        "2026-09-30"
       ],
       "evidence": [
         {
@@ -24441,6 +24290,24 @@
                   "lection": "96",
                   "index": 29,
                   "paragraph": "2 Кор., 173 зач., III, 4–11. Мф., 96 зач., XXIII, 29–39. Мч.: Рим., 116 зач., XV, 1–7. Мф., 69 зач., XVI, 24–28."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "date": "2026-09-30",
+          "matches": [
+            {
+              "key": "Мф23:29-39",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф23:29-39",
+                  "printed": "Мф., 96 зач., XXIII, 29–39",
+                  "lection": "96",
+                  "index": 25,
+                  "paragraph": "Еф., 231 зач., V, 25–33. Мф., 96 зач., XXIII, 29–39."
                 }
               ]
             }
@@ -24465,7 +24332,8 @@
         "finishDate": 123
       },
       "engineDates": [
-        "2026-08-13"
+        "2026-08-13",
+        "2026-10-01"
       ],
       "evidence": [
         {
@@ -24473,12 +24341,39 @@
           "matches": [
             {
               "key": "Мф24:13-28",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф24:13-28",
+                  "printed": "Мф., 99 зач., XXIV, 13–28,",
+                  "lection": "99",
+                  "index": 27,
+                  "paragraph": "2 Кор., 175 зач., IV, 1–6. Мф., 99 зач., XXIV, 13–28, и за пятницу (под зачало): 2 Кор., 177 зач., IV, 13–18. Мф., 100 зач., XXIV, 27–33, 42–51. Прав.: Гал., 213 зач., V, 22 – VI, 2. Мф., 43 зач., XI, 27–30."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "date": "2026-10-01",
+          "matches": [
+            {
+              "key": "Мф24:13-28",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф24:13-28",
+                  "printed": "Мф., 99 зач., XXIV, 13–28",
+                  "lection": "99",
+                  "index": 30,
+                  "paragraph": "Еф., 232 зач., V, 33 – VI, 9. Мф., 99 зач., XXIV, 13–28."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -24496,7 +24391,8 @@
         "finishDate": 124
       },
       "engineDates": [
-        "2026-08-14"
+        "2026-08-14",
+        "2026-10-02"
       ],
       "evidence": [
         {
@@ -24505,6 +24401,24 @@
             {
               "key": "Мф24:27-33,42-51",
               "references": []
+            }
+          ]
+        },
+        {
+          "date": "2026-10-02",
+          "matches": [
+            {
+              "key": "Мф24:27-33,42-51",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мф24:27-33,42-51",
+                  "printed": "Мф., 100 зач., XXIV, 27–33, 42–51",
+                  "lection": "100",
+                  "index": 26,
+                  "paragraph": "Еф., 234 зач., VI, 18–24. Мф., 100 зач., XXIV, 27–33, 42–51."
+                }
+              ]
             }
           ]
         }
@@ -24655,12 +24569,21 @@
           "matches": [
             {
               "key": "Мк1:16-22",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк1:16-22",
+                  "printed": "Мк., 3 зач., I, 16–22,",
+                  "lection": "3",
+                  "index": 28,
+                  "paragraph": "2 Кор., 180 зач., V, 15–21. Мк., 3 зач., I, 16–22, и за среду (под зачало): 2 Кор., 182 зач., VI, 11–16. Мк., 4 зач., I, 23–28."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -24997,12 +24920,21 @@
           "matches": [
             {
               "key": "Мк3:28-35",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк3:28-35",
+                  "printed": "Мк., 14 зач., III, 28–35,",
+                  "lection": "14",
+                  "index": 27,
+                  "paragraph": "2 Кор., 190 зач., X, 7–18. Мк., 14 зач., III, 28–35, и за пятницу (под зачало): 2 Кор., 192 зач., XI, 5–21. Мк., 15 зач., IV, 1–9. Прп.: Гал., 213 зач., V, 22 – VI, 2. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -25539,12 +25471,21 @@
           "matches": [
             {
               "key": "Мк6:30-45",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк6:30-45",
+                  "printed": "Мк., 25 зач., VI, 30–45,",
+                  "lection": "25",
+                  "index": 33,
+                  "paragraph": "Гал., 208 зач., III, 23 – IV, 5. Мк., 25 зач., VI, 30–45, и за пятницу: Гал., 210 зач., IV, 8–21. Мк., 26 зач., VI, 45–53. Прпп.: Гал., 213 зач., V, 22 – VI, 2. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26103,12 +26044,21 @@
           "matches": [
             {
               "key": "Мк12:1-12",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк12:1-12",
+                  "printed": "Мк., 53 зач., XII, 1–12,",
+                  "lection": "53",
+                  "index": 26,
+                  "paragraph": "Еф., 226 зач., IV, 17–25. Мк., 53 зач., XII, 1–12, и за субботу (под зачало): 1 Кор., 156 зач., XIV, 20–25. Мф., 104 зач., XXV, 1–13. Богородицы: Флп., 240 зач., II, 5–11. Лк., 54 зач., X, 38–42; XI, 27–28."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26188,20 +26138,29 @@
         "finishDate": 169
       },
       "engineDates": [
-        "2026-09-28"
+        "2026-10-05"
       ],
       "evidence": [
         {
-          "date": "2026-09-28",
+          "date": "2026-10-05",
           "matches": [
             {
               "key": "Лк3:19-22",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк3:19-22",
+                  "printed": "Лк., 10 зач., III, 19–22",
+                  "lection": "10",
+                  "index": 24,
+                  "paragraph": "Флп., 235 зач., I, 1–7. Лк., 10 зач., III, 19–22. Сщмч.: Евр., 311 зач., IV, 14 – V, 6. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26219,20 +26178,29 @@
         "finishDate": 170
       },
       "engineDates": [
-        "2026-09-29"
+        "2026-10-06"
       ],
       "evidence": [
         {
-          "date": "2026-09-29",
+          "date": "2026-10-06",
           "matches": [
             {
               "key": "Лк3:23-4:1",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк3:23-4:1",
+                  "printed": "Лк., 11 зач., III, 23 – IV, 1",
+                  "lection": "11",
+                  "index": 25,
+                  "paragraph": "Флп., 236 зач., I, 8–14. Лк., 11 зач., III, 23 – IV, 1. Предтечи: Гал., 210 зач. (от полу), IV, 22–31. Лк., 2 зач., I, 5–25."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26250,20 +26218,29 @@
         "finishDate": 171
       },
       "engineDates": [
-        "2026-09-30"
+        "2026-10-07"
       ],
       "evidence": [
         {
-          "date": "2026-09-30",
+          "date": "2026-10-07",
           "matches": [
             {
               "key": "Лк4:1-15",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк4:1-15",
+                  "printed": "Лк., 12 зач., IV, 1–15,",
+                  "lection": "12",
+                  "index": 26,
+                  "paragraph": "Флп., 237 зач., I, 12–20. Лк., 12 зач., IV, 1–15, и за четверг (под зачало): Флп., 238 зач., I, 20–27. Лк., 13 зач., IV, 16–22. Первомц.: 2 Тим., 296 зач., III, 10–15. Мф., 104 зач., XXV, 1–13."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26281,11 +26258,11 @@
         "finishDate": 172
       },
       "engineDates": [
-        "2026-10-01"
+        "2026-10-08"
       ],
       "evidence": [
         {
-          "date": "2026-10-01",
+          "date": "2026-10-08",
           "matches": [
             {
               "key": "Лк4:16-22",
@@ -26312,11 +26289,11 @@
         "finishDate": 173
       },
       "engineDates": [
-        "2026-10-02"
+        "2026-10-09"
       ],
       "evidence": [
         {
-          "date": "2026-10-02",
+          "date": "2026-10-09",
           "matches": [
             {
               "key": "Лк4:22-30",
@@ -26405,20 +26382,29 @@
         "finishDate": 176
       },
       "engineDates": [
-        "2026-10-05"
+        "2026-10-12"
       ],
       "evidence": [
         {
-          "date": "2026-10-05",
+          "date": "2026-10-12",
           "matches": [
             {
               "key": "Лк4:37-44",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк4:37-44",
+                  "printed": "Лк., 16 зач., IV, 37–44",
+                  "lection": "16",
+                  "index": 27,
+                  "paragraph": "Флп., 241 зач., II, 12–16. Лк., 16 зач., IV, 37–44. Прп.: Гал., 213 зач., V, 22 – VI, 2. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26436,20 +26422,29 @@
         "finishDate": 177
       },
       "engineDates": [
-        "2026-10-06"
+        "2026-10-13"
       ],
       "evidence": [
         {
-          "date": "2026-10-06",
+          "date": "2026-10-13",
           "matches": [
             {
               "key": "Лк5:12-16",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк5:12-16",
+                  "printed": "Лк., 18 зач., V, 12–16,",
+                  "lection": "18",
+                  "index": 64,
+                  "paragraph": "Утр. – Ин., 36 зач., X, 9–16. Лит. – Флп., 242 зач., II, 16–23. Лк., 18 зач., V, 12–16, и за среду (под зачало): Флп., 243 зач., II, 24–30. Лк., 21 зач., V, 33–39. Свт.: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26467,11 +26462,11 @@
         "finishDate": 178
       },
       "engineDates": [
-        "2026-10-07"
+        "2026-10-14"
       ],
       "evidence": [
         {
-          "date": "2026-10-07",
+          "date": "2026-10-14",
           "matches": [
             {
               "key": "Лк5:33-39",
@@ -26498,20 +26493,29 @@
         "finishDate": 179
       },
       "engineDates": [
-        "2026-10-08"
+        "2026-10-15"
       ],
       "evidence": [
         {
-          "date": "2026-10-08",
+          "date": "2026-10-15",
           "matches": [
             {
               "key": "Лк6:12-19",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк6:12-19",
+                  "printed": "Лк., 23 зач., VI, 12–19",
+                  "lection": "23",
+                  "index": 26,
+                  "paragraph": "Флп., 244 зач., III, 1–8. Лк., 23 зач., VI, 12–19. Свв.: 1 Тим., 280 зач., I, 12–17. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26529,20 +26533,29 @@
         "finishDate": 180
       },
       "engineDates": [
-        "2026-10-09"
+        "2026-10-16"
       ],
       "evidence": [
         {
-          "date": "2026-10-09",
+          "date": "2026-10-16",
           "matches": [
             {
               "key": "Лк6:17-23",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк6:17-23",
+                  "printed": "Лк., 24 зач., VI, 17–23",
+                  "lection": "24",
+                  "index": 27,
+                  "paragraph": "Флп., 245 зач., III, 8–19. Лк., 24 зач., VI, 17–23. Сщмч. Дионисия: Деян., 40 зач., XVII, 16–34. Мф., 55 зач., XIII, 44–54."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26622,20 +26635,29 @@
         "finishDate": 183
       },
       "engineDates": [
-        "2026-10-12"
+        "2026-10-19"
       ],
       "evidence": [
         {
-          "date": "2026-10-12",
+          "date": "2026-10-19",
           "matches": [
             {
               "key": "Лк6:24-30",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк6:24-30",
+                  "printed": "Лк., 25 зач., VI, 24–30",
+                  "lection": "25",
+                  "index": 67,
+                  "paragraph": "Утр. – Ин., 67 зач., XXI, 15–25. Лит. – Флп., 248 зач., IV, 10–23. Лк., 25 зач., VI, 24–30. Ап.: 1 Кор., 131 зач., IV, 9–16. Ин., 65 зач., XX, 19–31."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26653,20 +26675,29 @@
         "finishDate": 184
       },
       "engineDates": [
-        "2026-10-13"
+        "2026-10-20"
       ],
       "evidence": [
         {
-          "date": "2026-10-13",
+          "date": "2026-10-20",
           "matches": [
             {
               "key": "Лк6:37-45",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк6:37-45",
+                  "printed": "Лк., 27 зач., VI, 37–45",
+                  "lection": "27",
+                  "index": 30,
+                  "paragraph": "Кол., 249 зач., I, 1–2, 7–11. Лк., 27 зач., VI, 37–45. Мчч.: Евр., 330 зач., XI, 33 – XII, 2. Лк., 106 зач., XXI, 12–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26684,20 +26715,29 @@
         "finishDate": 185
       },
       "engineDates": [
-        "2026-10-14"
+        "2026-10-21"
       ],
       "evidence": [
         {
-          "date": "2026-10-14",
+          "date": "2026-10-21",
           "matches": [
             {
               "key": "Лк6:46-7:1",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк6:46-7:1",
+                  "printed": "Лк., 28 зач., VI, 46 – VII, 1",
+                  "lection": "28",
+                  "index": 26,
+                  "paragraph": "Кол., 251 зач., I, 18–23. Лк., 28 зач., VI, 46 – VII, 1."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26715,20 +26755,29 @@
         "finishDate": 186
       },
       "engineDates": [
-        "2026-10-15"
+        "2026-10-22"
       ],
       "evidence": [
         {
-          "date": "2026-10-15",
+          "date": "2026-10-22",
           "matches": [
             {
               "key": "Лк7:17-30",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк7:17-30",
+                  "printed": "Лк., 31 зач., VII, 17–30",
+                  "lection": "31",
+                  "index": 66,
+                  "paragraph": "Утр. – Ин., 67 зач., XXI, 15–25. Лит. – Кол., 252 зач., I, 24–29. Лк., 31 зач., VII, 17–30. Ап.: 1 Кор., 131 зач., IV, 9–16. Лк., 51 зач., X, 16–21."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26746,20 +26795,29 @@
         "finishDate": 187
       },
       "engineDates": [
-        "2026-10-16"
+        "2026-10-23"
       ],
       "evidence": [
         {
-          "date": "2026-10-16",
+          "date": "2026-10-23",
           "matches": [
             {
               "key": "Лк7:31-35",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк7:31-35",
+                  "printed": "Лк., 32 зач., VII, 31–35",
+                  "lection": "32",
+                  "index": 64,
+                  "paragraph": "Утр. – Мф., 43 зач., XI, 27–30. Лит. – Кол., 253 зач., II, 1–7. Лк., 32 зач., VII, 31–35. Прп.: Гал., 213 зач., V, 22 – VI, 2. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26839,20 +26897,29 @@
         "finishDate": 190
       },
       "engineDates": [
-        "2026-10-19"
+        "2026-10-26"
       ],
       "evidence": [
         {
-          "date": "2026-10-19",
+          "date": "2026-10-26",
           "matches": [
             {
               "key": "Лк7:36-50",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк7:36-50",
+                  "printed": "Лк., 33 зач., VII, 36–50",
+                  "lection": "33",
+                  "index": 68,
+                  "paragraph": "Утр. – Лк., 4 зач., I, 39–49, 56. Лит. – Кол., 255 зач., II, 13–20. Лк., 33 зач., VII, 36–50. Богородицы: Флп., 240 зач., II, 5–11. Лк., 54 зач., X, 38–42; XI, 27–28."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26870,20 +26937,29 @@
         "finishDate": 191
       },
       "engineDates": [
-        "2026-10-20"
+        "2026-10-27"
       ],
       "evidence": [
         {
-          "date": "2026-10-20",
+          "date": "2026-10-27",
           "matches": [
             {
               "key": "Лк8:1-3",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк8:1-3",
+                  "printed": "Лк., 34 зач., VIII, 1–3",
+                  "lection": "34",
+                  "index": 33,
+                  "paragraph": "Кол., 256 зач., II, 20 – III, 3. Лк., 34 зач., VIII, 1–3."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26901,20 +26977,29 @@
         "finishDate": 192
       },
       "engineDates": [
-        "2026-10-21"
+        "2026-10-28"
       ],
       "evidence": [
         {
-          "date": "2026-10-21",
+          "date": "2026-10-28",
           "matches": [
             {
               "key": "Лк8:22-25",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк8:22-25",
+                  "printed": "Лк., 37 зач., VIII, 22–25",
+                  "lection": "37",
+                  "index": 72,
+                  "paragraph": "Утр. – Лк., 64 зач., XII, 8–12. Лит. – Кол., 259 зач., III, 17 – IV, 1. Лк., 37 зач., VIII, 22–25. Свт.: Еф., 233 зач., VI, 10–17. Лк., 64 зач., XII, 8–12."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26932,20 +27017,29 @@
         "finishDate": 193
       },
       "engineDates": [
-        "2026-10-22"
+        "2026-10-29"
       ],
       "evidence": [
         {
-          "date": "2026-10-22",
+          "date": "2026-10-29",
           "matches": [
             {
               "key": "Лк9:7-11",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк9:7-11",
+                  "printed": "Лк., 41 зач., IX, 7–11",
+                  "lection": "41",
+                  "index": 25,
+                  "paragraph": "Кол., 260 зач., IV, 2–9. Лк., 41 зач., IX, 7–11. Мч.: 2 Тим., 292 зач., II, 1–10. Мф., 113 зач., XXVII, 33–54."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -26963,20 +27057,29 @@
         "finishDate": 194
       },
       "engineDates": [
-        "2026-10-23"
+        "2026-10-30"
       ],
       "evidence": [
         {
-          "date": "2026-10-23",
+          "date": "2026-10-30",
           "matches": [
             {
               "key": "Лк9:12-18",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк9:12-18",
+                  "printed": "Лк., 42 зач., IX, 12–18",
+                  "lection": "42",
+                  "index": 27,
+                  "paragraph": "Кол., 261 зач., IV, 10–18. Лк., 42 зач., IX, 12–18."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27056,20 +27159,29 @@
         "finishDate": 197
       },
       "engineDates": [
-        "2026-10-26"
+        "2026-11-02"
       ],
       "evidence": [
         {
-          "date": "2026-10-26",
+          "date": "2026-11-02",
           "matches": [
             {
               "key": "Лк9:18-22",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк9:18-22",
+                  "printed": "Лк., 43 зач., IX, 18–22",
+                  "lection": "43",
+                  "index": 26,
+                  "paragraph": "1 Сол., 262 зач., I, 1–5. Лк., 43 зач., IX, 18–22. Вмч.: 2 Тим., 292 зач., II, 1–10. Ин., 52 зач., XV, 17 – XVI, 2."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27087,20 +27199,29 @@
         "finishDate": 198
       },
       "engineDates": [
-        "2026-10-27"
+        "2026-11-03"
       ],
       "evidence": [
         {
-          "date": "2026-10-27",
+          "date": "2026-11-03",
           "matches": [
             {
               "key": "Лк9:23-27",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк9:23-27",
+                  "printed": "Лк., 44 зач., IX, 23–27,",
+                  "lection": "44",
+                  "index": 27,
+                  "paragraph": "1 Сол., 263 зач., I, 6–10. Лк., 44 зач., IX, 23–27, и за среду (под зачало): 1 Сол., 264 зач., II, 1–8. Лк., 47 зач., IX, 43–50. Прп.: 2 Кор., 188 зач., IX, 6–11. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27118,11 +27239,11 @@
         "finishDate": 199
       },
       "engineDates": [
-        "2026-10-28"
+        "2026-11-04"
       ],
       "evidence": [
         {
-          "date": "2026-10-28",
+          "date": "2026-11-04",
           "matches": [
             {
               "key": "Лк9:44-50",
@@ -27149,20 +27270,29 @@
         "finishDate": 200
       },
       "engineDates": [
-        "2026-10-29"
+        "2026-11-05"
       ],
       "evidence": [
         {
-          "date": "2026-10-29",
+          "date": "2026-11-05",
           "matches": [
             {
               "key": "Лк9:49-56",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк9:49-56",
+                  "printed": "Лк., 48 зач., IX, 49–56",
+                  "lection": "48",
+                  "index": 28,
+                  "paragraph": "1 Сол., 265 зач., II, 9–14. Лк., 48 зач., IX, 49–56. Ап.: Гал., 200 зач., I, 11–19. Мф., 56 зач., XIII, 54–58."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27180,20 +27310,29 @@
         "finishDate": 201
       },
       "engineDates": [
-        "2026-10-30"
+        "2026-11-06"
       ],
       "evidence": [
         {
-          "date": "2026-10-30",
+          "date": "2026-11-06",
           "matches": [
             {
               "key": "Лк10:1-15",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк10:1-15",
+                  "printed": "Лк., 50 зач., X, 1–15",
+                  "lection": "50",
+                  "index": 70,
+                  "paragraph": "Утр. – Лк., 4 зач., I, 39–49, 56. Лит. – 1 Сол., 266 зач., II, 14–19. Лк., 50 зач., X, 1–15. Богородицы: Флп., 240 зач., II, 5–11. Лк., 54 зач., X, 38–42; XI, 27–28."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27273,20 +27412,29 @@
         "finishDate": 204
       },
       "engineDates": [
-        "2026-11-02"
+        "2026-11-09"
       ],
       "evidence": [
         {
-          "date": "2026-11-02",
+          "date": "2026-11-09",
           "matches": [
             {
               "key": "Лк10:22-24",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк10:22-24",
+                  "printed": "Лк., 52 зач., X, 22–24",
+                  "lection": "52",
+                  "index": 35,
+                  "paragraph": "1 Сол., 267 зач., II, 20 – III, 8. Лк., 52 зач., X, 22–24. Мч.: Еф., 233 зач., VI, 10–17. Лк., 106 зач., XXI, 12–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27304,20 +27452,29 @@
         "finishDate": 205
       },
       "engineDates": [
-        "2026-11-03"
+        "2026-11-10"
       ],
       "evidence": [
         {
-          "date": "2026-11-03",
+          "date": "2026-11-10",
           "matches": [
             {
               "key": "Лк11:1-10",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:1-10",
+                  "printed": "Лк., 55 зач., XI, 1–10",
+                  "lection": "55",
+                  "index": 75,
+                  "paragraph": "Утр. – Ин., 35 зач. (от полу), X, 1–9. Лит. – 1 Сол., 268 зач., III, 9–13. Лк., 55 зач., XI, 1–10. Свт.: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27335,20 +27492,29 @@
         "finishDate": 206
       },
       "engineDates": [
-        "2026-11-04"
+        "2026-11-11"
       ],
       "evidence": [
         {
-          "date": "2026-11-04",
+          "date": "2026-11-11",
           "matches": [
             {
               "key": "Лк11:9-13",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:9-13",
+                  "printed": "Лк., 56 зач., XI, 9–13",
+                  "lection": "56",
+                  "index": 28,
+                  "paragraph": "1 Сол., 269 зач., IV, 1–12. Лк., 56 зач., XI, 9–13. Прп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 43 зач., XI, 27–30."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27366,20 +27532,29 @@
         "finishDate": 207
       },
       "engineDates": [
-        "2026-11-05"
+        "2026-11-12"
       ],
       "evidence": [
         {
-          "date": "2026-11-05",
+          "date": "2026-11-12",
           "matches": [
             {
               "key": "Лк11:14-23",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:14-23",
+                  "printed": "Лк., 57 зач., XI, 14–23",
+                  "lection": "57",
+                  "index": 26,
+                  "paragraph": "1 Сол., 271 зач., V, 1–8. Лк., 57 зач., XI, 14–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27397,20 +27572,29 @@
         "finishDate": 208
       },
       "engineDates": [
-        "2026-11-06"
+        "2026-11-13"
       ],
       "evidence": [
         {
-          "date": "2026-11-06",
+          "date": "2026-11-13",
           "matches": [
             {
               "key": "Лк11:23-26",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:23-26",
+                  "printed": "Лк., 58 зач., XI, 23–26",
+                  "lection": "58",
+                  "index": 34,
+                  "paragraph": "1 Сол., 272 зач., V, 9–13, 24–28. Лк., 58 зач., XI, 23–26."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27490,20 +27674,29 @@
         "finishDate": 211
       },
       "engineDates": [
-        "2026-11-09"
+        "2026-11-16"
       ],
       "evidence": [
         {
-          "date": "2026-11-09",
+          "date": "2026-11-16",
           "matches": [
             {
               "key": "Лк11:29-33",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:29-33",
+                  "printed": "Лк., 59 зач., XI, 29–33",
+                  "lection": "59",
+                  "index": 27,
+                  "paragraph": "2 Сол., 274 зач., I, 1–10. Лк., 59 зач., XI, 29–33. Свв.: Еф., 233 зач., VI, 10–17. Лк., 106 зач., XXI, 12–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27521,20 +27714,29 @@
         "finishDate": 212
       },
       "engineDates": [
-        "2026-11-10"
+        "2026-11-17"
       ],
       "evidence": [
         {
-          "date": "2026-11-10",
+          "date": "2026-11-17",
           "matches": [
             {
               "key": "Лк11:34-41",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:34-41",
+                  "printed": "Лк., 60 зач., XI, 34–41",
+                  "lection": "60",
+                  "index": 43,
+                  "paragraph": "2 Сол., 274 зач. (от полу), I, 10 – II, 2. Лк., 60 зач., XI, 34–41. Прп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 10 зач., IV, 25 – V, 12."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27552,20 +27754,29 @@
         "finishDate": 213
       },
       "engineDates": [
-        "2026-11-11"
+        "2026-11-18"
       ],
       "evidence": [
         {
-          "date": "2026-11-11",
+          "date": "2026-11-18",
           "matches": [
             {
               "key": "Лк11:42-46",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:42-46",
+                  "printed": "Лк., 61 зач., XI, 42–46",
+                  "lection": "61",
+                  "index": 65,
+                  "paragraph": "Утр. – Ин., 36 зач., X, 9–16. Лит. – 2 Сол., 275 зач., II, 1–12. Лк., 61 зач., XI, 42–46. Свт.: Евр., 318 зач., VII, 26 – VIII, 2 (или Еф., 233 зач., VI, 10–17). Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27583,20 +27794,29 @@
         "finishDate": 214
       },
       "engineDates": [
-        "2026-11-12"
+        "2026-11-19"
       ],
       "evidence": [
         {
-          "date": "2026-11-12",
+          "date": "2026-11-19",
           "matches": [
             {
               "key": "Лк11:47-12:1",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк11:47-12:1",
+                  "printed": "Лк., 62 зач., XI, 47 – XII, 1",
+                  "lection": "62",
+                  "index": 35,
+                  "paragraph": "2 Сол., 276 зач., II, 13 – III, 5. Лк., 62 зач., XI, 47 – XII, 1. Прп.: Гал., 213 зач., V, 22 – VI, 2. Лк., 24 зач., VI, 17–23. Свт.: Евр., 318 зач. (от полу), VIII, 3–6. Лк., 64 зач., XII, 8–12."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27614,20 +27834,29 @@
         "finishDate": 215
       },
       "engineDates": [
-        "2026-11-13"
+        "2026-11-20"
       ],
       "evidence": [
         {
-          "date": "2026-11-13",
+          "date": "2026-11-20",
           "matches": [
             {
               "key": "Лк12:2-12",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк12:2-12",
+                  "printed": "Лк., 63 зач., XII, 2–12,",
+                  "lection": "63",
+                  "index": 29,
+                  "paragraph": "2 Сол., 277 зач., III, 6–18. Лк., 63 зач., XII, 2–12, и за субботу (под зачало): Гал., 199 зач., I, 3–10. Лк., 40 зач., IX, 1–6. Прп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 10 зач., IV, 25 – V, 12."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27707,20 +27936,29 @@
         "finishDate": 218
       },
       "engineDates": [
-        "2026-11-16"
+        "2026-11-23"
       ],
       "evidence": [
         {
-          "date": "2026-11-16",
+          "date": "2026-11-23",
           "matches": [
             {
               "key": "Лк12:13-15,22-31",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк12:13-15,22-31",
+                  "printed": "Лк., 65 зач., XII, 13–15, 22–31",
+                  "lection": "65",
+                  "index": 26,
+                  "paragraph": "1 Тим., 278 зач., I, 1–7. Лк., 65 зач., XII, 13–15, 22–31."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27738,20 +27976,29 @@
         "finishDate": 219
       },
       "engineDates": [
-        "2026-11-17"
+        "2026-11-24"
       ],
       "evidence": [
         {
-          "date": "2026-11-17",
+          "date": "2026-11-24",
           "matches": [
             {
               "key": "Лк12:42-48",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк12:42-48",
+                  "printed": "Лк., 68 зач., XII, 42–48",
+                  "lection": "68",
+                  "index": 27,
+                  "paragraph": "1 Тим., 279 зач., I, 8–14. Лк., 68 зач., XII, 42–48. Мчч.: Еф., 233 зач., VI, 10–17. Мф., 38 зач., X, 32–33, 37–38; XIX, 27–30. Прп.: Евр., 335 зач., XIII, 17–21. Мф., 10 зач., IV, 25 – V, 12."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27769,20 +28016,29 @@
         "finishDate": 220
       },
       "engineDates": [
-        "2026-11-18"
+        "2026-11-25"
       ],
       "evidence": [
         {
-          "date": "2026-11-18",
+          "date": "2026-11-25",
           "matches": [
             {
               "key": "Лк12:48-59",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк12:48-59",
+                  "printed": "Лк., 69 зач., XII, 48–59,",
+                  "lection": "69",
+                  "index": 38,
+                  "paragraph": "1 Тим., 281 зач., I, 18–20; II, 8–15. Лк., 69 зач., XII, 48–59, и за четверг (под зачало): 1 Тим., 283 зач., III, 1–13. Лк., 70 зач., XIII, 1–9. Свт.: Евр., 311 зач., IV, 14 – V, 6. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27800,11 +28056,11 @@
         "finishDate": 221
       },
       "engineDates": [
-        "2026-11-19"
+        "2026-11-26"
       ],
       "evidence": [
         {
-          "date": "2026-11-19",
+          "date": "2026-11-26",
           "matches": [
             {
               "key": "Лк13:1-9",
@@ -27831,20 +28087,29 @@
         "finishDate": 222
       },
       "engineDates": [
-        "2026-11-20"
+        "2026-11-27"
       ],
       "evidence": [
         {
-          "date": "2026-11-20",
+          "date": "2026-11-27",
           "matches": [
             {
               "key": "Лк13:31-35",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк13:31-35",
+                  "printed": "Лк., 73 зач., XIII, 31–35",
+                  "lection": "73",
+                  "index": 71,
+                  "paragraph": "Утр. – Ин., 67 зач., XXI, 15–25. Лит. – 1 Тим., 285 зач., IV, 4–8, 16. Лк., 73 зач., XIII, 31–35. Ап.: 1 Кор., 131 зач., IV, 9–16. Ин., 5 зач., I, 43–51."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27924,20 +28189,29 @@
         "finishDate": 225
       },
       "engineDates": [
-        "2026-11-23"
+        "2026-11-30"
       ],
       "evidence": [
         {
-          "date": "2026-11-23",
+          "date": "2026-11-30",
           "matches": [
             {
               "key": "Лк14:12-15",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк14:12-15",
+                  "printed": "Лк., 75 зач., XIV, 12–15",
+                  "lection": "75",
+                  "index": 37,
+                  "paragraph": "1 Тим., 285 зач. (от полу), V, 1–10. Лк., 75 зач., XIV, 12–15. Прп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 10 зач., IV, 25 – V, 12. Свт.: 1 Кор., 151 зач., XII, 7–11. Мф., 34 зач. (от полу), X, 1, 5–8."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27955,20 +28229,29 @@
         "finishDate": 226
       },
       "engineDates": [
-        "2026-11-24"
+        "2026-12-01"
       ],
       "evidence": [
         {
-          "date": "2026-11-24",
+          "date": "2026-12-01",
           "matches": [
             {
               "key": "Лк14:25-35",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк14:25-35",
+                  "printed": "Лк., 77 зач., XIV, 25–35",
+                  "lection": "77",
+                  "index": 28,
+                  "paragraph": "1 Тим., 286 зач., V, 11–21. Лк., 77 зач., XIV, 25–35."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -27986,20 +28269,29 @@
         "finishDate": 227
       },
       "engineDates": [
-        "2026-11-25"
+        "2026-12-02"
       ],
       "evidence": [
         {
-          "date": "2026-11-25",
+          "date": "2026-12-02",
           "matches": [
             {
               "key": "Лк15:1-10",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк15:1-10",
+                  "printed": "Лк., 78 зач., XV, 1–10",
+                  "lection": "78",
+                  "index": 80,
+                  "paragraph": "Утр. – Ин., 35 зач. (от полу), X, 1–9. Лит. – 1 Тим., 287 зач., V, 22 – VI, 11. Лк., 78 зач., XV, 1–10. Свт.: Еф., 233 зач., VI, 10–17. Мф., 11 зач., V, 14–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28017,20 +28309,29 @@
         "finishDate": 228
       },
       "engineDates": [
-        "2026-11-26"
+        "2026-12-03"
       ],
       "evidence": [
         {
-          "date": "2026-11-26",
+          "date": "2026-12-03",
           "matches": [
             {
               "key": "Лк16:1-9",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк16:1-9",
+                  "printed": "Лк., 80 зач., XVI, 1–9,",
+                  "lection": "80",
+                  "index": 29,
+                  "paragraph": "1 Тим., 289 зач., VI, 17–21. Лк., 80 зач., XVI, 1–9, и за пятницу (под зачало): 2 Тим., 290 зач., I, 1–2, 8–18. Лк., 82 зач., XVI, 15–18; XVII, 1–4. Свт.: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28048,11 +28349,11 @@
         "finishDate": 229
       },
       "engineDates": [
-        "2026-11-27"
+        "2026-12-04"
       ],
       "evidence": [
         {
-          "date": "2026-11-27",
+          "date": "2026-12-04",
           "matches": [
             {
               "key": "Лк16:15-18,17:1-4",
@@ -28141,20 +28442,29 @@
         "finishDate": 232
       },
       "engineDates": [
-        "2026-11-30"
+        "2026-12-07"
       ],
       "evidence": [
         {
-          "date": "2026-11-30",
+          "date": "2026-12-07",
           "matches": [
             {
               "key": "Лк17:20-25",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк17:20-25",
+                  "printed": "Лк., 86 зач., XVII, 20–25",
+                  "lection": "86",
+                  "index": 29,
+                  "paragraph": "2 Тим., 294 зач., II, 20–26. Лк., 86 зач., XVII, 20–25. Свв.: Еф., 233 зач., VI, 10–17. Лк., 106 зач., XXI, 12–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28172,20 +28482,29 @@
         "finishDate": 233
       },
       "engineDates": [
-        "2026-12-01"
+        "2026-12-08"
       ],
       "evidence": [
         {
-          "date": "2026-12-01",
+          "date": "2026-12-08",
           "matches": [
             {
               "key": "Лк17:26-37",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк17:26-37",
+                  "printed": "Лк., 87 зач., XVII, 26–37",
+                  "lection": "87",
+                  "index": 35,
+                  "paragraph": "2 Тим., 297 зач., III, 16 – IV, 4. Лк., 87 зач., XVII, 26–37. Богородицы (под зачало): Евр., 320 зач., IX, 1–7. Лк., 54 зач., X, 38–42; XI, 27–28. Сщмчч.: Флп., 246 зач., III, 20 – IV, 3. Мф., 11 зач., V, 14–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28203,20 +28522,29 @@
         "finishDate": 234
       },
       "engineDates": [
-        "2026-12-02"
+        "2026-12-09"
       ],
       "evidence": [
         {
-          "date": "2026-12-02",
+          "date": "2026-12-09",
           "matches": [
             {
               "key": "Лк18:15-17,26-30",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк18:15-17,26-30",
+                  "printed": "Лк., 90 зач., XVIII, 15–17, 26–30",
+                  "lection": "90",
+                  "index": 28,
+                  "paragraph": "2 Тим., 299 зач., IV, 9–22. Лк., 90 зач., XVIII, 15–17, 26–30."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28234,20 +28562,29 @@
         "finishDate": 235
       },
       "engineDates": [
-        "2026-12-03"
+        "2026-12-10"
       ],
       "evidence": [
         {
-          "date": "2026-12-03",
+          "date": "2026-12-10",
           "matches": [
             {
               "key": "Лк18:31-34",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк18:31-34",
+                  "printed": "Лк., 92 зач., XVIII, 31–34",
+                  "lection": "92",
+                  "index": 81,
+                  "paragraph": "Утр. – Лк., 4 зач., I, 39–49, 56. Лит. – Тит., 300 зач. (от полу), I, 5 – II, 1. Лк., 92 зач., XVIII, 31–34. Богородицы (под зачало): Евр., 320 зач., IX, 1–7. Лк., 54 зач., X, 38–42; XI, 27–28. Вмч.: Еф., 233 зач., VI, 10–17. Ин., 50 зач., XV, 1–7."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28265,20 +28602,29 @@
         "finishDate": 236
       },
       "engineDates": [
-        "2026-12-04"
+        "2026-12-11"
       ],
       "evidence": [
         {
-          "date": "2026-12-04",
+          "date": "2026-12-11",
           "matches": [
             {
               "key": "Лк19:12-28",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк19:12-28",
+                  "printed": "Лк., 95 зач., XIX, 12–28",
+                  "lection": "95",
+                  "index": 32,
+                  "paragraph": "Тит., 301 зач., I, 15 – II, 10. Лк., 95 зач., XIX, 12–28. Прмч.: 2 Тим. 291 зач., I, 8–18. Мф., 37 зач., X, 23–31."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28358,20 +28704,29 @@
         "finishDate": 239
       },
       "engineDates": [
-        "2026-12-07"
+        "2026-12-14"
       ],
       "evidence": [
         {
-          "date": "2026-12-07",
+          "date": "2026-12-14",
           "matches": [
             {
               "key": "Лк19:37-44",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк19:37-44",
+                  "printed": "Лк., 97 зач., XIX, 37–44",
+                  "lection": "97",
+                  "index": 34,
+                  "paragraph": "Евр., 308 зач., III, 5–11, 17–19. Лк., 97 зач., XIX, 37–44. Прав.: Кол., 258 зач., III, 12–16. Лк., 26 зач., VI, 31–36."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28389,20 +28744,29 @@
         "finishDate": 240
       },
       "engineDates": [
-        "2026-12-08"
+        "2026-12-15"
       ],
       "evidence": [
         {
-          "date": "2026-12-08",
+          "date": "2026-12-15",
           "matches": [
             {
               "key": "Лк19:45-48",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк19:45-48",
+                  "printed": "Лк., 98 зач., XIX, 45–48",
+                  "lection": "98",
+                  "index": 26,
+                  "paragraph": "Евр., 310 зач., IV, 1–13. Лк., 98 зач., XIX, 45–48."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28420,20 +28784,29 @@
         "finishDate": 241
       },
       "engineDates": [
-        "2026-12-09"
+        "2026-12-16"
       ],
       "evidence": [
         {
-          "date": "2026-12-09",
+          "date": "2026-12-16",
           "matches": [
             {
               "key": "Лк20:1-8",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк20:1-8",
+                  "printed": "Лк., 99 зач., XX, 1–8",
+                  "lection": "99",
+                  "index": 31,
+                  "paragraph": "Евр., 312 зач., V, 11 – VI, 8. Лк., 99 зач., XX, 1–8. Прп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 10 зач., IV, 25 – V, 12."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28451,20 +28824,29 @@
         "finishDate": 242
       },
       "engineDates": [
-        "2026-12-10"
+        "2026-12-17"
       ],
       "evidence": [
         {
-          "date": "2026-12-10",
+          "date": "2026-12-17",
           "matches": [
             {
               "key": "Лк20:9-18",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк20:9-18",
+                  "printed": "Лк., 100 зач., XX, 9–18",
+                  "lection": "100",
+                  "index": 66,
+                  "paragraph": "Утр. – Мф., 104 зач., XXV, 1–13. Лит. – Евр., 315 зач., VII, 1–6. Лк., 100 зач., XX, 9–18. Вмц.: Гал., 208 зач., III, 23–29. Мк., 21 зач., V, 24–34."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28482,20 +28864,29 @@
         "finishDate": 243
       },
       "engineDates": [
-        "2026-12-11"
+        "2026-12-18"
       ],
       "evidence": [
         {
-          "date": "2026-12-11",
+          "date": "2026-12-18",
           "matches": [
             {
               "key": "Лк20:19-26",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк20:19-26",
+                  "printed": "Лк., 101 зач., XX, 19–26,",
+                  "lection": "101",
+                  "index": 67,
+                  "paragraph": "Утр. – Лк., 24 зач., VI, 17–23. Лит. – Евр., 317 зач., VII, 18–25. Лк., 101 зач., XX, 19–26, и за субботу (под зачало): Еф., 220 зач. (от полу), II, 11–13. Лк., 67 зач., XII, 32–40. Прп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 43 зач., XI, 27–30."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28575,20 +28966,29 @@
         "finishDate": 246
       },
       "engineDates": [
-        "2026-12-14"
+        "2026-12-21"
       ],
       "evidence": [
         {
-          "date": "2026-12-14",
+          "date": "2026-12-21",
           "matches": [
             {
               "key": "Лк20:27-44",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк20:27-44",
+                  "printed": "Лк., 102 зач., XX, 27–44",
+                  "lection": "102",
+                  "index": 28,
+                  "paragraph": "Евр., 319 зач., VIII, 7–13. Лк., 102 зач., XX, 27–44."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28606,20 +29006,29 @@
         "finishDate": 247
       },
       "engineDates": [
-        "2026-12-15"
+        "2026-12-22"
       ],
       "evidence": [
         {
-          "date": "2026-12-15",
+          "date": "2026-12-22",
           "matches": [
             {
               "key": "Лк21:12-19",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк21:12-19",
+                  "printed": "Лк., 106 зач., XXI, 12–19",
+                  "lection": "106",
+                  "index": 33,
+                  "paragraph": "Евр., 321 зач., IX, 8–10, 15–23. Лк., 106 зач., XXI, 12–19. Прав. Анны: Гал., 210 зач. (от полу), IV, 22–31. Лк., 36 зач., VIII, 16–21."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28637,20 +29046,29 @@
         "finishDate": 248
       },
       "engineDates": [
-        "2026-12-16"
+        "2026-12-23"
       ],
       "evidence": [
         {
-          "date": "2026-12-16",
+          "date": "2026-12-23",
           "matches": [
             {
               "key": "Лк21:5-7,10-11,20-24",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк21:5-7,10-11,20-24",
+                  "printed": "Лк., 104 зач., XXI, 5–7, 10–11, 20–24",
+                  "lection": "104",
+                  "index": 62,
+                  "paragraph": "Утр. – Ин., 36 зач., X, 9–16. Лит. – Евр., 323 зач., X, 1–18. Лк., 104 зач., XXI, 5–7, 10–11, 20–24. Свт.: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16. Мчч.: Еф., 233 зач., VI, 10–17. Лк., 106 зач., XXI, 12–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28668,20 +29086,29 @@
         "finishDate": 249
       },
       "engineDates": [
-        "2026-12-17"
+        "2026-12-24"
       ],
       "evidence": [
         {
-          "date": "2026-12-17",
+          "date": "2026-12-24",
           "matches": [
             {
               "key": "Лк21:28-33",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк21:28-33",
+                  "printed": "Лк., 107 зач., XXI, 28–33",
+                  "lection": "107",
+                  "index": 31,
+                  "paragraph": "Евр., 326 зач., X, 35 – XI, 7. Лк., 107 зач., XXI, 28–33."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28699,20 +29126,29 @@
         "finishDate": 250
       },
       "engineDates": [
-        "2026-12-18"
+        "2026-12-25"
       ],
       "evidence": [
         {
-          "date": "2026-12-18",
+          "date": "2026-12-25",
           "matches": [
             {
               "key": "Лк21:37-22:8",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Лк21:37-22:8",
+                  "printed": "Лк., 108 зач., XXI, 37 – XXII, 8",
+                  "lection": "108",
+                  "index": 30,
+                  "paragraph": "Евр., 327 зач., XI, 8, 11–16. Лк., 108 зач., XXI, 37 – XXII, 8. Свт.: Евр., 335 зач., XIII, 17–21. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28801,20 +29237,29 @@
         "finishDate": 253
       },
       "engineDates": [
-        "2026-12-21"
+        "2026-12-28"
       ],
       "evidence": [
         {
-          "date": "2026-12-21",
+          "date": "2026-12-28",
           "matches": [
             {
               "key": "Мк8:11-21",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк8:11-21",
+                  "printed": "Мк., 33 зач., VIII, 11–21",
+                  "lection": "33",
+                  "index": 80,
+                  "paragraph": "Утр. – Ин., 35 зач. (от полу), X, 1–9. Лит. – Евр., 329 зач., XI, 17–23, 27–31. Мк., 33 зач., VIII, 11–21. Свт.: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28832,20 +29277,29 @@
         "finishDate": 254
       },
       "engineDates": [
-        "2026-12-22"
+        "2026-12-29"
       ],
       "evidence": [
         {
-          "date": "2026-12-22",
+          "date": "2026-12-29",
           "matches": [
             {
               "key": "Мк8:22-26",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк8:22-26",
+                  "printed": "Мк., 34 зач., VIII, 22–26",
+                  "lection": "34",
+                  "index": 41,
+                  "paragraph": "Евр., 333 зач., XII, 25–26; XIII, 22–25. Мк., 34 зач., VIII, 22–26."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28863,20 +29317,29 @@
         "finishDate": 255
       },
       "engineDates": [
-        "2026-12-23"
+        "2026-12-30"
       ],
       "evidence": [
         {
-          "date": "2026-12-23",
+          "date": "2026-12-30",
           "matches": [
             {
               "key": "Мк8:30-34",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк8:30-34",
+                  "printed": "Мк., 36 зач., VIII, 30–34",
+                  "lection": "36",
+                  "index": 24,
+                  "paragraph": "Иак., 50 зач., I, 1–18. Мк., 36 зач., VIII, 30–34. Свв.: Евр., 330 зач., XI, 33 – XII, 2. Лк., 62 зач., XI, 47 – XII, 1."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28894,20 +29357,29 @@
         "finishDate": 256
       },
       "engineDates": [
-        "2026-12-24"
+        "2026-12-31"
       ],
       "evidence": [
         {
-          "date": "2026-12-24",
+          "date": "2026-12-31",
           "matches": [
             {
               "key": "Мк9:10-16",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк9:10-16",
+                  "printed": "Мк., 39 зач., IX, 10–16",
+                  "lection": "39",
+                  "index": 25,
+                  "paragraph": "Иак., 51 зач., I, 19–27. Мк., 39 зач., IX, 10–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -28925,20 +29397,29 @@
         "finishDate": 257
       },
       "engineDates": [
-        "2026-12-25"
+        "2027-01-01"
       ],
       "evidence": [
         {
-          "date": "2026-12-25",
+          "date": "2027-01-01",
           "matches": [
             {
               "key": "Мк9:33-41",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк9:33-41",
+                  "printed": "Мк., 41 зач., IX, 33–41,",
+                  "lection": "41",
+                  "index": 25,
+                  "paragraph": "Иак., 52 зач., II, 1–13. Мк., 41 зач., IX, 33–41, и за субботу: Кол., 249 зач. (от полу), I, 3–6. Лк., 74 зач., XIV, 1–11."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29018,20 +29499,29 @@
         "finishDate": 260
       },
       "engineDates": [
-        "2026-12-28"
+        "2027-01-04"
       ],
       "evidence": [
         {
-          "date": "2026-12-28",
+          "date": "2027-01-04",
           "matches": [
             {
               "key": "Мк9:42-10:1",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк9:42-10:1",
+                  "printed": "Мк., 42 зач., IX, 42 – X, 1",
+                  "lection": "42",
+                  "index": 26,
+                  "paragraph": "Иак., 53 зач., II, 14–26. Мк., 42 зач., IX, 42 – X, 1. Вмц.: Гал., 208 зач., III, 23–29. Лк., 33 зач., VII, 36–50."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29049,20 +29539,29 @@
         "finishDate": 261
       },
       "engineDates": [
-        "2026-12-29"
+        "2027-01-05"
       ],
       "evidence": [
         {
-          "date": "2026-12-29",
+          "date": "2027-01-05",
           "matches": [
             {
               "key": "Мк10:2-12",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк10:2-12",
+                  "printed": "Мк., 43 зач., X, 2–12",
+                  "lection": "43",
+                  "index": 26,
+                  "paragraph": "Иак., 54 зач., III, 1–10. Мк., 43 зач., X, 2–12. Мчч.: Еф., 233 зач., VI, 10–17. Лк., 106 зач., XXI, 12–19."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29080,11 +29579,11 @@
         "finishDate": 262
       },
       "engineDates": [
-        "2026-12-30"
+        "2027-01-06"
       ],
       "evidence": [
         {
-          "date": "2026-12-30",
+          "date": "2027-01-06",
           "matches": [
             {
               "key": "Мк10:11-16",
@@ -29111,11 +29610,11 @@
         "finishDate": 263
       },
       "engineDates": [
-        "2026-12-31"
+        "2027-01-07"
       ],
       "evidence": [
         {
-          "date": "2026-12-31",
+          "date": "2027-01-07",
           "matches": [
             {
               "key": "Мк10:17-27",
@@ -29142,11 +29641,11 @@
         "finishDate": 264
       },
       "engineDates": [
-        "2027-01-01"
+        "2027-01-08"
       ],
       "evidence": [
         {
-          "date": "2027-01-01",
+          "date": "2027-01-08",
           "matches": [
             {
               "key": "Мк10:23-32",
@@ -29235,15 +29734,34 @@
         "finishDate": 267
       },
       "engineDates": [
-        "2027-01-04"
+        "2026-01-19",
+        "2027-01-11"
       ],
       "evidence": [
         {
-          "date": "2027-01-04",
+          "date": "2026-01-19",
           "matches": [
             {
               "key": "Мк10:46-52",
               "references": []
+            }
+          ]
+        },
+        {
+          "date": "2027-01-11",
+          "matches": [
+            {
+              "key": "Мк10:46-52",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк10:46-52",
+                  "printed": "Мк., 48 зач., X, 46–52",
+                  "lection": "48",
+                  "index": 34,
+                  "paragraph": "1 Пет., 59 зач., II, 21 – III, 9. Мк., 48 зач., X, 46–52. Мчч.: 2 Кор., 180 зач., V, 15–21. Мф., 4 зач., II, 13–23."
+                }
+              ]
             }
           ]
         }
@@ -29266,20 +29784,48 @@
         "finishDate": 268
       },
       "engineDates": [
-        "2027-01-05"
+        "2026-01-20",
+        "2027-01-12"
       ],
       "evidence": [
         {
-          "date": "2027-01-05",
+          "date": "2026-01-20",
           "matches": [
             {
               "key": "Мк11:11-23",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк11:11-23",
+                  "printed": "Мк., 50 зач., XI, 11–23",
+                  "lection": "50",
+                  "index": 26,
+                  "paragraph": "Иак., 54 зач., III, 1–10. Мк., 50 зач., XI, 11–23. Предтечи: Деян., 42 зач., XIX, 1–8. Ин., 3 зач., I, 29–34."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "date": "2027-01-12",
+          "matches": [
+            {
+              "key": "Мк11:11-23",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк11:11-23",
+                  "printed": "Мк., 50 зач., XI, 11–23",
+                  "lection": "50",
+                  "index": 75,
+                  "paragraph": "Утр. – Ин., 35 зач. (от полу), X, 1–9. Лит. – 1 Пет., 60 зач., III, 10–22. Мк., 50 зач., XI, 11–23. Свт.: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29297,30 +29843,48 @@
         "finishDate": 269
       },
       "engineDates": [
-        "2026-01-14",
-        "2027-01-06"
+        "2026-01-21",
+        "2027-01-13"
       ],
       "evidence": [
         {
-          "date": "2026-01-14",
+          "date": "2026-01-21",
           "matches": [
             {
               "key": "Мк11:23-26",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк11:23-26",
+                  "printed": "Мк., 51 зач., XI, 23–26",
+                  "lection": "51",
+                  "index": 32,
+                  "paragraph": "Иак., 55 зач., III, 11 – IV, 6. Мк., 51 зач., XI, 23–26."
+                }
+              ]
             }
           ]
         },
         {
-          "date": "2027-01-06",
+          "date": "2027-01-13",
           "matches": [
             {
               "key": "Мк11:23-26",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк11:23-26",
+                  "printed": "Мк., 51 зач., XI, 23–26",
+                  "lection": "51",
+                  "index": 66,
+                  "paragraph": "Утр. – Мф., 43 зач., XI, 27–30. Лит. – 1 Пет., 61 зач., IV, 1–11. Мк., 51 зач., XI, 23–26. Прп. Паисия: Гал., 213 зач., V, 22 – VI, 2. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29338,30 +29902,29 @@
         "finishDate": 270
       },
       "engineDates": [
-        "2026-01-15",
-        "2027-01-07"
+        "2026-01-22"
       ],
       "evidence": [
         {
-          "date": "2026-01-15",
+          "date": "2026-01-22",
           "matches": [
             {
               "key": "Мк11:27-33",
-              "references": []
-            }
-          ]
-        },
-        {
-          "date": "2027-01-07",
-          "matches": [
-            {
-              "key": "Мк11:27-33",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк11:27-33",
+                  "printed": "Мк., 52 зач., XI, 27–33",
+                  "lection": "52",
+                  "index": 68,
+                  "paragraph": "Утр. – Лк., 24 зач., VI, 17–23. Лит. – Иак., 56 зач., IV, 7 – V, 9. Мк., 52 зач., XI, 27–33. Свт.: Евр., 335 зач., XIII, 17–21. Ин., 36 зач., X, 9–16."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29379,30 +29942,29 @@
         "finishDate": 271
       },
       "engineDates": [
-        "2026-01-16",
-        "2027-01-08"
+        "2026-01-23"
       ],
       "evidence": [
         {
-          "date": "2026-01-16",
+          "date": "2026-01-23",
           "matches": [
             {
               "key": "Мк12:1-12",
-              "references": []
-            }
-          ]
-        },
-        {
-          "date": "2027-01-08",
-          "matches": [
-            {
-              "key": "Мк12:1-12",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк12:1-12",
+                  "printed": "Мк., 53 зач., XII, 1–12",
+                  "lection": "53",
+                  "index": 88,
+                  "paragraph": "Утр. – Ин., 35 зач. (от полу), X, 1–9. Лит. – 1 Пет., 58 зач., I, 1–2, 10–12; II, 6–10. Мк., 53 зач., XII, 1–12. Свт. Феофана: Евр., 318 зач., VII, 26 – VIII, 2. Ин., 36 зач., X, 9–16. Свт. Григория: 1 Кор., 151 зач., XII, 7–11. Мф., 34 зач. (от полу), X, 1–8."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29502,30 +30064,29 @@
         "finishDate": 274
       },
       "engineDates": [
-        "2026-01-19",
-        "2027-01-11"
+        "2026-01-26"
       ],
       "evidence": [
         {
-          "date": "2026-01-19",
+          "date": "2026-01-26",
           "matches": [
             {
               "key": "Мк12:13-17",
-              "references": []
-            }
-          ]
-        },
-        {
-          "date": "2027-01-11",
-          "matches": [
-            {
-              "key": "Мк12:13-17",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк12:13-17",
+                  "printed": "Мк., 54 зач., XII, 13–17",
+                  "lection": "54",
+                  "index": 34,
+                  "paragraph": "1 Пет., 59 зач., II, 21 – III, 9. Мк., 54 зач., XII, 13–17. Прпп.: Рим., 99 зач., VIII, 28–39. Лк., 24 зач., VI, 17–23."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29543,30 +30104,29 @@
         "finishDate": 275
       },
       "engineDates": [
-        "2026-01-20",
-        "2027-01-12"
+        "2026-01-27"
       ],
       "evidence": [
         {
-          "date": "2026-01-20",
+          "date": "2026-01-27",
           "matches": [
             {
               "key": "Мк12:18-27",
-              "references": []
-            }
-          ]
-        },
-        {
-          "date": "2027-01-12",
-          "matches": [
-            {
-              "key": "Мк12:18-27",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк12:18-27",
+                  "printed": "Мк., 55 зач., XII, 18–27",
+                  "lection": "55",
+                  "index": 75,
+                  "paragraph": "Утр. – Мф., 34 зач. (от полу), X, 1–8. Лит. – 1 Пет., 60 зач., III, 10–22. Мк., 55 зач., XII, 18–27. Равноап.: 1 Кор., 131 зач., IV, 9–16. Мф., 104 зач., XXV, 1–13."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -29584,12 +30144,12 @@
         "finishDate": 276
       },
       "engineDates": [
-        "2026-01-21",
-        "2027-01-13"
+        "2026-01-14",
+        "2026-01-28"
       ],
       "evidence": [
         {
-          "date": "2026-01-21",
+          "date": "2026-01-14",
           "matches": [
             {
               "key": "Мк12:28-37",
@@ -29598,11 +30158,20 @@
           ]
         },
         {
-          "date": "2027-01-13",
+          "date": "2026-01-28",
           "matches": [
             {
               "key": "Мк12:28-37",
-              "references": []
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк12:28-37",
+                  "printed": "Мк., 56 зач., XII, 28–37",
+                  "lection": "56",
+                  "index": 27,
+                  "paragraph": "1 Пет., 61 зач., IV, 1–11. Мк., 56 зач., XII, 28–37. Прпп.: Гал., 213 зач., V, 22 – VI, 2. Мф., 43 зач., XI, 27–30."
+                }
+              ]
             }
           ]
         }
@@ -29625,15 +30194,34 @@
         "finishDate": 277
       },
       "engineDates": [
-        "2026-01-22"
+        "2026-01-15",
+        "2026-01-29"
       ],
       "evidence": [
         {
-          "date": "2026-01-22",
+          "date": "2026-01-15",
           "matches": [
             {
               "key": "Мк12:38-44",
               "references": []
+            }
+          ]
+        },
+        {
+          "date": "2026-01-29",
+          "matches": [
+            {
+              "key": "Мк12:38-44",
+              "references": [
+                {
+                  "service": "liturgy",
+                  "key": "Мк12:38-44",
+                  "printed": "Мк., 57 зач., XII, 38–44,",
+                  "lection": "57",
+                  "index": 32,
+                  "paragraph": "1 Пет., 62 зач., IV, 12 – V, 5. Мк., 57 зач., XII, 38–44, и за пятницу (под зачало): 2 Пет., 64 зач., I, 1–10. Мк., 58 зач., XIII, 1–8. Ап.: Деян., 29 зач., XII, 1–11. Ин., 67 зач., XXI, 15–25."
+                }
+              ]
             }
           ]
         }
@@ -29656,11 +30244,11 @@
         "finishDate": 278
       },
       "engineDates": [
-        "2026-01-23"
+        "2026-01-30"
       ],
       "evidence": [
         {
-          "date": "2026-01-23",
+          "date": "2026-01-30",
           "matches": [
             {
               "key": "Мк13:1-8",
@@ -30934,24 +31522,42 @@
         "finishDate": 5
       },
       "engineDates": [
-        "2026-01-18"
+        "2026-01-16"
       ],
       "evidence": [
         {
-          "date": "2026-01-18",
+          "date": "2026-01-16",
           "matches": [
             {
               "key": "Деян13:25-32",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-1",
+                  "key": "Деян13:25-32",
+                  "printed": "Деян., 33 зач., XIII, 25–32",
+                  "lection": "33",
+                  "index": 13,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             },
             {
               "key": "Мф3:1-11",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-1",
+                  "key": "Мф3:1-11",
+                  "printed": "Мф., 5 зач., III, 1–11",
+                  "lection": "5",
+                  "index": 42,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -31253,24 +31859,42 @@
         "finishDate": 5
       },
       "engineDates": [
-        "2026-01-18"
+        "2026-01-16"
       ],
       "evidence": [
         {
-          "date": "2026-01-18",
+          "date": "2026-01-16",
           "matches": [
             {
               "key": "Деян19:1-8",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-3",
+                  "key": "Деян19:1-8",
+                  "printed": "Деян., 42 зач., XIX, 1–8",
+                  "lection": "42",
+                  "index": 79,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             },
             {
               "key": "Мк1:1-8",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-3",
+                  "key": "Мк1:1-8",
+                  "printed": "Мк., 1 зач., I, 1–8",
+                  "lection": "1",
+                  "index": 105,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -31396,14 +32020,6 @@
                   "printed": "1 Кор., 143 зач. (от полу), X, 1–4",
                   "lection": "143",
                   "index": 170,
-                  "paragraph": "Утр. – Ев. 10-е, Ин., 66 зач., XXI, 1–14. Лит. – Недели пред Богоявлением: 2 Тим., 298 зач., IV, 5–8. Мк., 1 зач., I, 1–8. На вечерне (совершается отдельно от литургии): 1 Кор., 143 зач. (от полу), X, 1–4. Лк., 9 зач., III, 1–18. На освящении воды: 1 Кор., 143 зач. (от полу), X, 1–4. Мк., 2 зач., I, 9–11."
-                },
-                {
-                  "service": "liturgy",
-                  "key": "1Кор10:1-4",
-                  "printed": "1 Кор., 143 зач. (от полу), X, 1–4",
-                  "lection": "143",
-                  "index": 249,
                   "paragraph": "Утр. – Ев. 10-е, Ин., 66 зач., XXI, 1–14. Лит. – Недели пред Богоявлением: 2 Тим., 298 зач., IV, 5–8. Мк., 1 зач., I, 1–8. На вечерне (совершается отдельно от литургии): 1 Кор., 143 зач. (от полу), X, 1–4. Лк., 9 зач., III, 1–18. На освящении воды: 1 Кор., 143 зач. (от полу), X, 1–4. Мк., 2 зач., I, 9–11."
                 }
               ]
@@ -31897,24 +32513,42 @@
         "finishDate": 5
       },
       "engineDates": [
-        "2026-01-18"
+        "2026-01-16"
       ],
       "evidence": [
         {
-          "date": "2026-01-18",
+          "date": "2026-01-16",
           "matches": [
             {
               "key": "Рим6:3-11",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-6",
+                  "key": "Рим6:3-11",
+                  "printed": "Рим., 91 зач., VI, 3–11",
+                  "lection": "91",
+                  "index": 139,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             },
             {
               "key": "Мк1:9-15",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-6",
+                  "key": "Мк1:9-15",
+                  "printed": "Мк., 2 зач., I, 9–15",
+                  "lection": "2",
+                  "index": 164,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -32419,24 +33053,42 @@
         "finishDate": 5
       },
       "engineDates": [
-        "2026-01-18"
+        "2026-01-16"
       ],
       "evidence": [
         {
-          "date": "2026-01-18",
+          "date": "2026-01-16",
           "matches": [
             {
               "key": "Тит2:11-14,3:4-7",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-9",
+                  "key": "Тит2:11-14,3:4-7",
+                  "printed": "Тит., 302 зач., II, 11–14; III, 4–7",
+                  "lection": "302",
+                  "index": 199,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             },
             {
               "key": "Мф3:13-17",
-              "references": []
+              "references": [
+                {
+                  "service": "hour-9",
+                  "key": "Мф3:13-17",
+                  "printed": "Мф., 6 зач., III, 13–17",
+                  "lection": "6",
+                  "index": 236,
+                  "paragraph": "На 1-м часе: Деян., 33 зач., XIII, 25–32. Мф., 5 зач., III, 1–11. На 3-м часе: Деян., 42 зач., XIX, 1–8. Мк., 1 зач., I, 1–8. На 6-м часе: Рим., 91 зач., VI, 3–11. Мк., 2 зач., I, 9–15. На 9-м часе: Тит., 302 зач., II, 11–14; III, 4–7. Мф., 6 зач., III, 13–17."
+                }
+              ]
             }
           ]
         }
       ],
-      "status": "requires-liturgical-assignment-review",
+      "status": "same-date-and-service-text-evidence",
       "assignmentApproved": false
     },
     {
@@ -36552,21 +37204,9 @@
         "finishMonth": 0,
         "finishDate": 332
       },
-      "engineDates": [
-        "2026-03-18"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-18",
-          "matches": [
-            {
-              "key": "Пс9-16",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -36583,21 +37223,9 @@
         "finishMonth": 0,
         "finishDate": 333
       },
-      "engineDates": [
-        "2026-03-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-19",
-          "matches": [
-            {
-              "key": "Пс64-69",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -38671,29 +39299,9 @@
         "finishMonth": 0,
         "finishDate": 332
       },
-      "engineDates": [
-        "2026-03-18"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-18",
-          "matches": [
-            {
-              "key": "Пс134-142",
-              "references": []
-            },
-            {
-              "key": "Пс143-150",
-              "references": []
-            },
-            {
-              "key": "Пс1-8",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -38710,29 +39318,9 @@
         "finishMonth": 0,
         "finishDate": 333
       },
-      "engineDates": [
-        "2026-03-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-19",
-          "matches": [
-            {
-              "key": "Пс37-45",
-              "references": []
-            },
-            {
-              "key": "Пс46-54",
-              "references": []
-            },
-            {
-              "key": "Пс55-63",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -40064,21 +40652,9 @@
         "finishMonth": 0,
         "finishDate": 332
       },
-      "engineDates": [
-        "2026-03-18"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-18",
-          "matches": [
-            {
-              "key": "Пс17-23",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -40095,21 +40671,9 @@
         "finishMonth": 0,
         "finishDate": 333
       },
-      "engineDates": [
-        "2026-03-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-19",
-          "matches": [
-            {
-              "key": "Пс70-76",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -41180,21 +41744,9 @@
         "finishMonth": 0,
         "finishDate": 332
       },
-      "engineDates": [
-        "2026-03-18"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-18",
-          "matches": [
-            {
-              "key": "Пс24-31",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -41211,21 +41763,9 @@
         "finishMonth": 0,
         "finishDate": 333
       },
-      "engineDates": [
-        "2026-03-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-19",
-          "matches": [
-            {
-              "key": "Пс77-84",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -43660,21 +44200,9 @@
         "finishMonth": 0,
         "finishDate": 332
       },
-      "engineDates": [
-        "2026-03-18"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-18",
-          "matches": [
-            {
-              "key": "Пс32-36",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     },
     {
@@ -43691,21 +44219,9 @@
         "finishMonth": 0,
         "finishDate": 333
       },
-      "engineDates": [
-        "2026-03-19"
-      ],
-      "evidence": [
-        {
-          "date": "2026-03-19",
-          "matches": [
-            {
-              "key": "Пс85-90",
-              "references": []
-            }
-          ]
-        }
-      ],
-      "status": "requires-liturgical-assignment-review",
+      "engineDates": [],
+      "evidence": [],
+      "status": "not-active-in-reference-year",
       "assignmentApproved": false
     }
   ]

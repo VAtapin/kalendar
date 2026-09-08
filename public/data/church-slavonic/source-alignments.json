@@ -1,0 +1,21 @@
+{
+  "license": "GPL-3.0-or-later",
+  "date": "2026-09-08",
+  "basis": "Individually selected parallel titles. Russian source and XML differ only by the typographic death dagger before the same numeric year. No name, surname, rank, place, group member or date is normalized away. The Church Slavonic NAME is preserved verbatim; this is not a full-corpus philological certification.",
+  "alignments": [
+    { "sourceId": "663201", "ru": "Свт. Иова, патриарха Московского и всея Руси (1607)", "sourceRu": "Свт. Иова, патриарха Московского и всея Руси († 1607)" },
+    { "sourceId": "21901", "ru": "Прп. Антония Римлянина, Новгородского чудотворца (1147)", "sourceRu": "Прп. Антония Римлянина, Новгородского чудотворца († 1147)" },
+    { "sourceId": "2201", "ru": "Вмч. Феодора Стратилата (319)", "sourceRu": "Вмч. Феодора Стратилата († 319)" },
+    { "sourceId": "29501", "ru": "Свт. Афанасия Великого, архиеп. Александрийского (373)", "sourceRu": "Свт. Афанасия Великого, архиеп. Александрийского († 373)" },
+    { "sourceId": "1042", "ru": "Свт. Ионы, митр. Московского и всея России, чудотворца (1461)", "sourceRu": "Свт. Ионы, митр. Московского и всея России, чудотворца († 1461)" },
+    { "sourceId": "162501", "ru": "Свт. Никифора исп., патриарха Константинопольского (828)", "sourceRu": "Свт. Никифора исп., патриарха Константинопольского († 828)" },
+    { "sourceId": "4582", "ru": "Мч. Арефы и с ним 4299 мучеников (523)", "sourceRu": "Мч. Арефы и с ним 4299 мучеников († 523)" },
+    { "sourceId": "6785", "ru": "Прп. Паисия Угличского (1504)", "sourceRu": "Прп. Паисия Угличского († 1504)" },
+    { "sourceId": "1106", "ru": "Прп. Иоанна, еп. Готфского (790)", "sourceRu": "Прп. Иоанна, еп. Готфского († 790)" },
+    { "sourceId": "252901", "ru": "Прп. Нила Мироточивого, Афонского (1651)", "sourceRu": "Прп. Нила Мироточивого, Афонского († 1651)" }
+  ],
+  "notSelected": [
+    { "sourceId": "32401", "reason": "The paired CU title omits the blessed-prince title present in the Russian group. Typographic alignment alone does not establish complete translation." },
+    { "sourceId": "1303", "reason": "The source uses песношскаго against the XML's Пешношского; historical/local orthography needs separate evidence, not a silent letter replacement." }
+  ]
+}

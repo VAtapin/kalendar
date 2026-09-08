@@ -1,6 +1,7 @@
 import { officialText } from "./official-calendar-evidence";
 
-export type ReadingService = "hour-1" | "matins" | "hour-3" | "liturgy" | "hour-6" | "vespers" | "hour-9";
+export type ReadingService = "hour-1" | "matins" | "hour-3" | "liturgy" | "hour-6" | "vespers" | "hour-9"
+  | "water-blessing" | "foot-washing";
 export function xmlReadingService(typeCode: number): ReadingService | undefined {
   if (typeCode < 200 || typeCode >= 400) return undefined;
   return ({ 1: "hour-1", 2: "matins", 3: "hour-3", 4: "liturgy", 6: "hour-6",
@@ -18,13 +19,18 @@ export function referenceKey(value: string): string {
  * evidence, and a textual match never proves that a service should be sung. */
 export function officialReadingReferences(paragraph: string) {
   const text = officialText(paragraph);
-  const markers = [...text.matchAll(/(Утр\.|Лит\.|Веч\.|На ([1369])-м часе)\s*[:–—-]/gu)].map(m => ({
-    index: m.index!, service: (m[2] ? `hour-${m[2]}` : m[1] === "Утр." ? "matins" : m[1] === "Веч." ? "vespers" : "liturgy") as ReadingService,
+  const markers = [...text.matchAll(/(Утр\.|Лит\.|Веч\.|На ([1369])-м часе|На освящении воды|На водоосвящении|На омовении ног)\s*[:–—-]/gu)].map(m => ({
+    index: m.index!, service: (m[2] ? `hour-${m[2]}` : m[1] === "Утр." ? "matins" : m[1] === "Веч." ? "vespers"
+      : m[1] === "На омовении ног" ? "foot-washing"
+      : m[1] === "На освящении воды" || m[1] === "На водоосвящении" ? "water-blessing" : "liturgy") as ReadingService,
   }));
   const references = [...text.matchAll(/((?:[123]\s*)?(?:Гал|Мф|Ин|Лк|Мк|Кор|Рим|Еф|Евр|Кол|Иак|Тим|Пет|Сол|Иуд|Флп|Деян|Тит|Ис|Быт|Притч|Пс))\.,?\s*(?:(\d+(?:[–—-]\d+)?)\s*зач\.(?:\s*\(от полу\))?,?\s*)?([IVXLCDM]+\s*,\s*\d[IVXLCDM\d,;\s–—−-]*)/gu)];
   return references.map(m => {
     const service = markers.filter(marker => marker.index < m.index!).at(-1)?.service ?? "liturgy";
-    const reference = m[3]!.trim().replace(/([IVXLCDM]+)\s*,\s*/gu, (_, numeral: string) => `${roman(numeral)}:`);
+    // A comma/dash before “и за ...” belongs to the rubric, not the verse
+    // range. Keep internal separators intact; never merge separated verses.
+    const reference = m[3]!.trim().replace(/[\s,;–—−-]+$/gu, "")
+      .replace(/([IVXLCDM]+)\s*,\s*/gu, (_, numeral: string) => `${roman(numeral)}:`);
     return { service, key: referenceKey(`${m[1]}.${reference}`), printed: m[0].trim(), lection: m[2] ?? null,
       index: m.index!, paragraph: text };
   });

@@ -63,6 +63,7 @@ export interface MemoryDaysDataset {
 export type CalendarRuleKind =
   | "fixed-julian"
   | "pascha-relative"
+  | "lectionary-cycle"
   | "pascha-to-fixed-julian"
   | "weekday-relative"
   | "weekday-conditional"

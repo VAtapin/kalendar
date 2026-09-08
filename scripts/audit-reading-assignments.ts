@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { parseMemoryDaysXml } from "../src/calendar/xml/parse-memory-days";
-import { resolveMemoryDayRecord } from "../src/calendar/engine/resolve-record";
-import { enumerateDates, gregorianToJulian, julianToGregorian, toIsoDate } from "../src/calendar/date/calendar-date";
+import { buildOrthodoxCalendarYear } from "../src/calendar/engine/build-calendar-year";
+import { gregorianToJulian, julianToGregorian, toIsoDate } from "../src/calendar/date/calendar-date";
 import { parseOfficialCalendar } from "./lib/official-calendar-evidence";
 import { xmlReadingService, officialReadingReferences, referenceKey } from "./lib/official-reading-evidence";
 
@@ -12,12 +12,22 @@ const official = parseOfficialCalendar(sourceText).map(day => ({
   date: toIsoDate(julianToGregorian({ year: 2026, month: day.oldMonth, day: day.oldDay })),
   references: day.paragraphs.flatMap(officialReadingReferences),
 }));
-const records = parseMemoryDaysXml(xml).records.filter(r => r.typeCode >= 200);
+const dataset = parseMemoryDaysXml(xml);
+const records = dataset.records.filter(r => r.typeCode >= 200);
+// Inspect what users actually receive, including lectionary selection and
+// event de-duplication, not the raw XML date-rule candidates.
+const actualDays = [2026, 2027].flatMap(year => buildOrthodoxCalendarYear(year, dataset).days)
+  .filter(day => gregorianToJulian(day.date).year === 2026);
+const datesBySource = new Map<string, string[]>();
+for (const day of actualDays) for (const event of day.events) {
+  const dates = datesBySource.get(event.sourceId) ?? [];
+  dates.push(day.isoDate);
+  datesBySource.set(event.sourceId, dates);
+}
 const rows = records.map(record => {
   const service = xmlReadingService(record.typeCode);
   if (!service) throw new Error(`Unmapped service ${record.sourceIndex}/${record.typeCode}`);
-  const engineDates = [...new Set([2026, 2027].flatMap(year => resolveMemoryDayRecord(record, year))
-    .flatMap(span => enumerateDates(span.start, span.finish)).filter(date => gregorianToJulian(date).year === 2026).map(toIsoDate))].sort();
+  const engineDates = [...new Set(datesBySource.get(record.id) ?? [])].sort();
   const keys = record.title.split(";").map(referenceKey);
   const evidence = official.filter(day => engineDates.includes(day.date)).map(day => ({
     date: day.date, matches: keys.map(key => ({ key, references: day.references.filter(r => r.key === key && r.service === service) })),

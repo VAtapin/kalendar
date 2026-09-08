@@ -15,7 +15,8 @@ import {
   toIsoDate,
 } from "../date/calendar-date";
 import { calculateOrthodoxPascha } from "../pascha/orthodox-pascha";
-import { resolveMemoryDayRecord } from "./resolve-record";
+import { indexWeekdayGospelDates, resolveCalendarRecord } from "./weekday-gospel-cycle";
+import { isLiturgyReadingType, isTransferredRoyalHoursDate, moveRoyalHoursSpans } from "./royal-hours";
 import { buildGeneratedLiturgicalEvents } from "./liturgical-cycle";
 import {
   createShortCalendarTitle,
@@ -60,12 +61,14 @@ export function buildOrthodoxCalendarYear(
     }),
   );
   const dayMap = new Map(days.map((day) => [day.isoDate, day]));
+  const gospelDates = indexWeekdayGospelDates(year);
 
   for (const record of dataset.records) {
     if (isSupersededLiturgicalRangeRecord(record.title)) continue;
-    for (const span of resolveMemoryDayRecord(record, year)) {
+    for (const span of moveRoyalHoursSpans(record, resolveCalendarRecord(record, year, gospelDates))) {
       const spanDates = enumerateDates(span.start, span.finish);
       spanDates.forEach((date, dayIndexInSpan) => {
+        if (isLiturgyReadingType(record.typeCode) && isTransferredRoyalHoursDate(date)) return;
         // Typikon, March 24/26: the forefeast is not observed on Lazarus
         // Saturday, Palm Sunday, Holy Week or Bright Week. Its hymns are
         // transferred to earlier Compline, not printed as a feast that day.

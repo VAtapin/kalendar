@@ -65,4 +65,15 @@ describe("independent source evidence parsers (not liturgical approval)", () => 
     expect(xmlReadingService(208)).toBe("vespers");
     expect(xmlReadingService(4)).toBeUndefined();
   });
+
+  it("does not append rubric punctuation to a reference or turn a verse list into a range", () => {
+    const refs = officialReadingReferences("Мк., 57 зач., XII, 38–44, и за пятницу – Мк., 58 зач., XIII, 1–8. Мк., 68 зач., XV, 22, 25, 33–41.");
+    expect(refs.map(r => r.key)).toEqual(["Мк12:38-44", "Мк13:1-8", "Мк15:22,25,33-41"]);
+  });
+
+  it("never accepts water-blessing or foot-washing readings as evidence for the liturgy", () => {
+    const refs = officialReadingReferences("Лит. – Мф., 6 зач., III, 13–17. На освящении воды: 1 Кор., 143 зач., X, 1–4. Мк., 2 зач., I, 9–11. На омовении ног: Ин., 44 зач., XIII, 1–11.");
+    expect(refs.map(r => r.service)).toEqual(["liturgy", "water-blessing", "water-blessing", "foot-washing"]);
+    expect(officialReadingReferences("На водоосвящении: Ин., 14 зач., V, 1–4.")[0]?.service).toBe("water-blessing");
+  });
 });

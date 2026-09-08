@@ -23,6 +23,7 @@
     "scripts/adjudicate-fasting-differences.ts",
     "scripts/audit-official-reverse.ts",
     "scripts/audit-reading-assignments.ts",
+    "scripts/audit-weekday-gospel-cycle.ts",
     "scripts/inspect-official-calendar-differences.ts",
     "scripts/inspect-xml-audit-differences.ts",
     "scripts/verify-xml-corrections.ts",

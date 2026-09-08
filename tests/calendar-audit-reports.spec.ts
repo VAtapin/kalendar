@@ -12,9 +12,20 @@ it("ties every independent report to this exact XML revision", () => {
   for (const name of ["xml-independent", "commemoration-identity-evidence", "official-calendar-comparison",
     "conditional-calendar-comparison", "scripture-reference-audit", "fasting-independent",
     "typikon-rank-comparison", "church-slavonic-coverage", "official-trapeza",
-    "fasting-adjudications", "official-reverse", "reading-assignments"]) {
+    "fasting-adjudications", "official-reverse", "reading-assignments", "weekday-gospel-cycle"]) {
     expect(read(name).summary.xmlSha256, name).toBe(hash);
   }
+});
+
+it("binds the whole-year weekday Gospel comparison to the actual selection engine", () => {
+  const report = read("weekday-gospel-cycle");
+  for (const [path, hash] of Object.entries(report.summary.engineSha256)) {
+    expect(createHash("sha256").update(readFileSync(path, "utf8").replace(/\r\n/gu, "\n")).digest("hex"), path).toBe(hash);
+  }
+  expect(report.rows).toHaveLength(261);
+  expect(new Set(report.rows.map((r: { date: string }) => r.date)).size).toBe(261);
+  expect(report.rows.every((r: { selected: unknown[]; serviceAssignmentApproved: boolean }) =>
+    r.selected.length <= 1 && !r.serviceAssignmentApproved)).toBe(true);
 });
 
 it("invalidates fasting evidence when the calculation engine changes", () => {

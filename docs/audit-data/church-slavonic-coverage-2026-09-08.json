@@ -1,7 +1,7 @@
 {
   "summary": {
     "date": "2026-09-08",
-    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
+    "xmlSha256": "8c1bef82656a0b39cd3d4ac8ffc33fc35f1ef123a728df93344931e914cf8ff4",
     "uniqueTextPayloads": 5630,
     "xmlRecords": 3815,
     "generatedYearRange": [
@@ -9,13 +9,13 @@
       2199
     ],
     "localizationStatuses": {
-      "exact": 1243,
-      "source-fallback": 4326,
+      "exact": 1253,
+      "source-fallback": 4316,
       "structured": 61
     },
     "commemorationFullTitles": {
-      "exact": 1199,
-      "source-fallback": 1322,
+      "exact": 1209,
+      "source-fallback": 1312,
       "structured": 11
     },
     "currentPayloadsWithMissingGlyphs": 0,
@@ -26,7 +26,7 @@
       "Coverage includes raw XML rules/readings/descriptions as a superset; not every such entry is printed by the current grid.",
       "Short variants are audited even when currently suppressed for missing translation; a full title alone is insufficient.",
       "Technical success (cmap/combining marks) is not proof of correct accents, titla, grammar, saint identity or complete group membership.",
-      "Selected exact source-parallel titles are loaded from a separately distributed GPL-3.0-or-later text catalogue with authorship, editable source fields and full license. No whole-application license change.",
+      "Selected source-parallel titles, including individually documented typographic alignments, are loaded from a separately distributed GPL-3.0-or-later text catalogue with authorship, editable source fields and full license. No whole-application license change.",
       "Free text, publisher name, monastery events and text baked into uploaded/branding images are separate author-supplied content, not automatically translated.",
       "The cover title is localized; the editable new-text placeholder is explicitly recorded, not silently excluded from coverage."
     ]
@@ -3082,11 +3082,9 @@
       "origins": [
         "memory-day-0071:title"
       ],
-      "currentCu": "Свт. Иова, патриарха Московского и всея Руси (1607)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ і҆́ѡва, патрїа́рха моско́вскагѡ и҆ всеѧ̀ рѡссі́и († 1607)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -5544,11 +5542,9 @@
       "origins": [
         "memory-day-0161:title"
       ],
-      "currentCu": "Прп. Антония Римлянина, Новгородского чудотворца (1147)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Прпⷣбнагѡ а҆нтѡ́нїа ри́млѧнина, новгоро́дскагѡ чꙋдотво́рца († 1147)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -6887,11 +6883,9 @@
         "memory-day-0230:title",
         "memory-day-0230:shortTitle"
       ],
-      "currentCu": "Вмч. Феодора Стратилата (319)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Великомꙋ́ченика ѳео́дѡра стратила́та († 319)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -7022,11 +7016,9 @@
         "memory-day-0220:title",
         "memory-day-0220:shortTitle"
       ],
-      "currentCu": "Свт. Афанасия Великого, архиеп. Александрийского (373)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ а҆ѳана́сїа вели́кагѡ, а҆рхїепⷭ҇копа а҆леѯандрі́йскагѡ († 373)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -11676,11 +11668,9 @@
       "origins": [
         "memory-day-0415:title"
       ],
-      "currentCu": "Свт. Ионы, митр. Московского и всея России, чудотворца (1461)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ і҆ѡ́ны, митрополі́та моско́вскагѡ и҆ всеѧ̀ рѡссі́и, чꙋдотво́рца († 1461)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -13357,11 +13347,9 @@
       "origins": [
         "memory-day-0483:title"
       ],
-      "currentCu": "Свт. Никифора исп., патриарха Константинопольского (828)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ нїки́фора и҆сповѣ́дника, патрїа́рха кѡнстанті́нѧ гра́да († 828)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -17481,11 +17469,9 @@
       "origins": [
         "memory-day-0658:title"
       ],
-      "currentCu": "Мч. Арефы и с ним 4299 мучеников (523)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Ст҃а́гѡ мч҃ника а҆ре́ѳы и҆ съ ни́мъ 4299 мꙋ́ченикѡвъ (523)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -25451,11 +25437,9 @@
         "memory-day-1555:title",
         "memory-day-1555:shortTitle"
       ],
-      "currentCu": "Прп. Паисия Угличского (1504)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Прпⷣбнагѡ паі́сїѧ оу҆́гличскагѡ († 1504)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -36124,11 +36108,9 @@
         "memory-day-1492:title",
         "memory-day-1492:shortTitle"
       ],
-      "currentCu": "Прп. Иоанна, еп. Готфского (790)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Прпⷣбнагѡ і҆ѡа́нна, є҆пі́скопа го́тѳскагѡ († 790)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -50332,11 +50314,9 @@
         "memory-day-2119:title",
         "memory-day-2119:shortTitle"
       ],
-      "currentCu": "Прп. Нила Мироточивого, Афонского (1651)",
-      "localizationStatus": "source-fallback",
-      "technicalIssues": [
-        "no-combining-marks"
-      ],
+      "currentCu": "Прпⷣбнагѡ ні́ла мѷроточи́вагѡ, а҆ѳѡ́нскагѡ († 1651)",
+      "localizationStatus": "exact",
+      "technicalIssues": [],
       "missingGlyphs": [],
       "independentPhilologicalApproval": false
     },
@@ -69201,13 +69181,13 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мк.15:22-25,33-41",
+      "source": "Мк.15:22,25,33-41",
       "origins": [
         "memory-day-3100:title",
         "memory-day-3100:shortTitle",
         "memory-day-3100:veryShortTitle"
       ],
-      "currentCu": "Мк.15:22-25,33-41",
+      "currentCu": "Мк.15:22,25,33-41",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"
@@ -70767,13 +70747,13 @@
       "independentPhilologicalApproval": false
     },
     {
-      "source": "Мф.13:4-9",
+      "source": "Мф.13:3-9",
       "origins": [
         "memory-day-3207:title",
         "memory-day-3207:shortTitle",
         "memory-day-3207:veryShortTitle"
       ],
-      "currentCu": "Мф.13:4-9",
+      "currentCu": "Мф.13:3-9",
       "localizationStatus": "source-fallback",
       "technicalIssues": [
         "no-combining-marks"

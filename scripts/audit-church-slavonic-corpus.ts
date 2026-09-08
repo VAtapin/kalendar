@@ -82,7 +82,7 @@ const summary = {
     "Coverage includes raw XML rules/readings/descriptions as a superset; not every such entry is printed by the current grid.",
     "Short variants are audited even when currently suppressed for missing translation; a full title alone is insufficient.",
     "Technical success (cmap/combining marks) is not proof of correct accents, titla, grammar, saint identity or complete group membership.",
-    "Selected exact source-parallel titles are loaded from a separately distributed GPL-3.0-or-later text catalogue with authorship, editable source fields and full license. No whole-application license change.",
+    "Selected source-parallel titles, including individually documented typographic alignments, are loaded from a separately distributed GPL-3.0-or-later text catalogue with authorship, editable source fields and full license. No whole-application license change.",
     "Free text, publisher name, monastery events and text baked into uploaded/branding images are separate author-supplied content, not automatically translated.",
     "The cover title is localized; the editable new-text placeholder is explicitly recorded, not silently excluded from coverage.",
   ],

@@ -74,6 +74,20 @@ describe("separate source-attested Church Slavonic catalogue", () => {
     const entry = corpus.entries.find((row: { ru: string }) => /\d{4}/u.test(row.ru));
     expect(sourceAttestedSlavonicTitle(entry.ru.replace(/\d{4}/u, "9999"))).toBeUndefined();
   });
+  it("keeps every typographic alignment explicit, complete and source-backed", () => {
+    const { alignments } = JSON.parse(readFileSync("public/data/church-slavonic/source-alignments.json", "utf8"));
+    const sources = JSON.parse(readFileSync("public/data/church-slavonic/sources.json", "utf8"));
+    expect(alignments).toHaveLength(10);
+    for (const alignment of alignments) {
+      expect(alignment.sourceRu.replace(/\(\s*†\s*(?=\d)/gu, "(")).toBe(alignment.ru);
+      const entry = corpus.entries.find((e: { ru: string }) => e.ru === alignment.ru);
+      expect(entry?.sourceId).toBe(alignment.sourceId);
+      const source = sources.records.find((s: { cid: string }) => s.cid === alignment.sourceId);
+      expect(source.ru.names.some((n: { Nominative: string }) => n.Nominative === alignment.sourceRu)).toBe(true);
+      expect(source.cu.names.some((n: { Nominative: string }) => n.Nominative === entry.cu)).toBe(true);
+    }
+    expect(sourceAttestedSlavonicTitle("Вмч. Феодора Стратилата (999)")).toBeUndefined();
+  });
   it("does not replace the translated full name by the Russian short name in tight cells", () => {
     const entry = corpus.entries.find((row: { ru: string }) => row.ru.startsWith("Прп."));
     const event = { title: entry.ru, shortTitle: "Непереведённое сокращение", veryShortTitle: "Непереведённое" } as ResolvedCalendarEvent;

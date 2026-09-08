@@ -19,6 +19,9 @@ const sources: Source[] = JSON.parse(readFileSync("tmp/xml-independent-audit/sou
 const editorial = JSON.parse(readFileSync(join(output, "editorial-corrections.json"), "utf8")) as {
   corrections: { sourceId: string; before: string; after: string }[];
 };
+const alignments = JSON.parse(readFileSync(join(output, "source-alignments.json"), "utf8")) as {
+  alignments: { sourceId: string; ru: string; sourceRu: string }[];
+};
 for (const correction of editorial.corrections) {
   const source = sources.find(s => s.cid === correction.sourceId);
   const matches = source?.cu.filter(name => name.text === correction.before) ?? [];
@@ -52,6 +55,18 @@ for (const source of sources) {
     byRussian.set(key, [...(byRussian.get(key) ?? []), { source, cu }]);
   }
 }
+// Explicit reviewed aliases, not a fuzzy/phonetic match or a blanket deletion
+// of historical annotations. All existing CU quality filters still apply.
+for (const alignment of alignments.alignments) {
+  const withoutDagger = alignment.sourceRu.replace(/\(\s*†\s*(?=\d)/gu, "(");
+  if (withoutDagger === alignment.sourceRu || slavonicSourceKey(withoutDagger) !== slavonicSourceKey(alignment.ru)
+    || !titles.has(alignment.ru)) throw new Error(`Invalid editorial alignment: ${alignment.sourceId}`);
+  const candidates = (byRussian.get(slavonicSourceKey(alignment.sourceRu)) ?? [])
+    .filter(c => c.source.cid === alignment.sourceId && c.source.ru.some(n => n.text === alignment.sourceRu));
+  if (candidates.length !== 1) throw new Error(`Unqualified source alignment: ${alignment.sourceId}`);
+  const key = slavonicSourceKey(alignment.ru);
+  byRussian.set(key, [...(byRussian.get(key) ?? []), ...candidates]);
+}
 const entries: SlavonicCorpusEntry[] = [];
 const missing: string[] = [];
 for (const ru of titles) {
@@ -66,8 +81,8 @@ const catalogue = {
   schemaVersion: 1, language: "cu", license: "GPL-3.0-or-later",
   copyright: "Copyright 2006–2018 Aleksandr Andreev and others. Source: Ponomar.",
   sourceRevision: revision, modified: "2026-09-08",
-  modificationNotice: "Selected exact Russian/Church Slavonic parallel NAME fields; incomplete, unmarked and damaged candidates excluded. Explicit grammatical corrections documented separately. No upstream source code included. This catalogue is not a complete or independently philologically certified translation.",
-  licenseFile: "COPYING", sourceFile: "sources.json", correctionFile: "editorial-corrections.json", entries,
+  modificationNotice: "Selected parallel NAME fields, including individually documented typographic alignments; incomplete, unmarked and damaged candidates excluded. Explicit grammatical corrections documented separately. No upstream source code included. This catalogue is not a complete or independently philologically certified translation.",
+  licenseFile: "COPYING", sourceFile: "sources.json", correctionFile: "editorial-corrections.json", alignmentFile: "source-alignments.json", entries,
 };
 const used = new Set(entries.map(e => e.sourceId));
 // Preferred editable source includes the parallel NAME records and provenance,
@@ -86,6 +101,7 @@ writeFileSync(join(output, "sources.json"), JSON.stringify({ license: catalogue.
 writeFileSync(join(output, "COPYING"), readFileSync(join(root, "LICENSE")));
 writeFileSync("docs/audit-data/slavonic-catalogue-selection-2026-09-08.json", JSON.stringify({
   xmlSha256: createHash("sha256").update(xml).digest("hex"), included: entries.length, missing: missing.length,
-  method: "exact-parallel-source-selection-with-technical-filters", philologicallyCertified: false, excluded, missingTitles: missing,
+  method: "parallel-source-selection-with-technical-filters-and-explicit-typographic-alignments",
+  editorialAlignments: alignments.alignments.length, philologicallyCertified: false, excluded, missingTitles: missing,
 }, null, 2) + "\n");
 console.log(JSON.stringify({ included: entries.length, missing: missing.length, excludedSourceCandidates: excluded.length }));

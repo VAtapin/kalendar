@@ -1,12 +1,12 @@
 {
   "summary": {
-    "xmlSha256": "bfb891efd3c1118dcd9ee6963b60dca33e86b1c8a13498411fb662bc0a2195dd",
+    "xmlSha256": "8c1bef82656a0b39cd3d4ac8ffc33fc35f1ef123a728df93344931e914cf8ff4",
     "records": 1205,
     "citations": 1372,
     "completeReferenceScan": true,
     "issues": 0,
-    "fullReferenceFoundInLectionary": 773,
-    "noLiteralLectionaryMatch": 432,
+    "fullReferenceFoundInLectionary": 775,
+    "noLiteralLectionaryMatch": 430,
     "note": "All scripture records checked. Existing verses alone do not validate a lection, chapter separator or service/date assignment."
   },
   "sources": [
@@ -9519,15 +9519,20 @@
     },
     {
       "sourceIndex": 3100,
-      "title": "Мк.15:22-25,33-41",
+      "title": "Мк.15:22,25,33-41",
       "citations": [
         {
           "book": "Мк",
-          "reference": "15:22-25,33-41",
+          "reference": "15:22,25,33-41",
           "issues": []
         }
       ],
-      "lectionaryMatches": [],
+      "lectionaryMatches": [
+        {
+          "source": "https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-evangelija.shtml",
+          "lection": "Мк. зачало 68"
+        }
+      ],
       "parseRemainder": "",
       "referenceStatus": "references-exist",
       "liturgicalAssignmentStatus": "not-approved-by-reference-existence-check"
@@ -11639,15 +11644,20 @@
     },
     {
       "sourceIndex": 3207,
-      "title": "Мф.13:4-9",
+      "title": "Мф.13:3-9",
       "citations": [
         {
           "book": "Мф",
-          "reference": "13:4-9",
+          "reference": "13:3-9",
           "issues": []
         }
       ],
-      "lectionaryMatches": [],
+      "lectionaryMatches": [
+        {
+          "source": "https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-evangelija.shtml",
+          "lection": "Мф. зачало 50"
+        }
+      ],
       "parseRemainder": "",
       "referenceStatus": "references-exist",
       "liturgicalAssignmentStatus": "not-approved-by-reference-existence-check"
