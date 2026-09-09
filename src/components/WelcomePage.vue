@@ -105,8 +105,8 @@ function changeInterfaceLanguage(event: Event): void {
       </div>
       <div class="welcome-services__grid">
         <a href="/icons-of-mother-of-god.html">
-          <strong>Иконы Богородицы</strong>
-          <span>Иконная библиотека с днями празднования, историей образов, поиском и тематическими подборками.</span>
+          <strong>Православные иконы</strong>
+          <span>Иконная библиотека Богородичных образов и святых с днями празднования, историей и тематическими подборками.</span>
           <em>Открыть библиотеку →</em>
         </a>
         <a :href="localizedPath('/calendar-api')">

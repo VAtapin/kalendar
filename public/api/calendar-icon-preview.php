@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 function calendar_icon_preview_routes(string $method,string $path): void {
-    if(!in_array(rtrim($path,'/'),['/v1/calendar-icons/preview','/v1/icons/mother-of-god'],true))return;
+    $route=rtrim($path,'/');
+    if(!in_array($route,['/v1/calendar-icons/preview','/v1/icons','/v1/icons/mother-of-god'],true))return;
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
     header('Access-Control-Allow-Headers: Accept, If-None-Match');
@@ -10,5 +11,11 @@ function calendar_icon_preview_routes(string $method,string $path): void {
     if($_GET)calendar_fail('invalid_parameter',400);
     $library=calendar_read_json_file(dirname(__DIR__).'/data/icon-preview.json',null);
     if(!is_array($library))calendar_fail('icon_preview_unavailable',503);
+    if($route==='/v1/icons/mother-of-god'){
+        $library['images']=array_values(array_filter($library['images']??[],fn(array $item): bool => ($item['kind']??'')==='mother-of-god'));
+        $library['cards']=array_values(array_filter($library['cards']??[],fn(array $item): bool => ($item['kind']??'')==='mother-of-god'));
+        $library['count']=count($library['images']);
+        $library['cardCount']=count($library['cards']);
+    }
     calendar_public_response($library,$method);
 }

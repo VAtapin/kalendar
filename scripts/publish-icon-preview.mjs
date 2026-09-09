@@ -7,7 +7,7 @@ const db=JSON.parse(readFileSync(join(root,'catalog.json'),'utf8'));
 const prior=existsSync(target)?JSON.parse(readFileSync(target,'utf8')):{schemaVersion:1,images:[]};
 const seen=new Set(prior.images.map(i=>i.id));const additions=[];
 const max=20;
-for(const card of Object.values(db.records).filter(r=>r.kind==='mother-of-god')) {
+for(const card of Object.values(db.records).filter(r=>['mother-of-god','saint'].includes(r.kind))) {
   for(const image of card.images??[]) {
     if(image.status!=='downloaded'||!/^originals\/[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(image.path??''))continue;
     const id=createHash('sha256').update(card.url+'#'+image.sha256).digest('hex');

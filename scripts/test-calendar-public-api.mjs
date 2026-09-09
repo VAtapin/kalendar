@@ -161,8 +161,10 @@ try {
   const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});
   assert.equal(privateSession.headers.get('access-control-allow-origin'),null,'Private routes must not inherit public CORS');
   assert.ok(readdirSync(resolve(data,'public-calendar-cache')).filter(file=>file.endsWith('.json')).length <= 32);
-  const iconsResponse=await fetch(origin+'/api/v1/icons/mother-of-god');const icons=await iconsResponse.json();
+  const iconsResponse=await fetch(origin+'/api/v1/icons');const icons=await iconsResponse.json();
   assert.equal(iconsResponse.status,200);assert.ok(icons.count>=39);assert.equal(icons.cards.length,icons.cardCount);assert.ok(!JSON.stringify(icons).toLowerCase().includes('azbyka.ru'));
+  const motherOfGodResponse=await fetch(origin+'/api/v1/icons/mother-of-god');const motherOfGod=await motherOfGodResponse.json();
+  assert.equal(motherOfGodResponse.status,200);assert.ok(motherOfGod.cards.every(card=>card.kind==='mother-of-god'));
   console.log('PASS: real PHP/Node HTTP API, all endpoints, dates, profiles, five languages, CORS, cache/ETag/HEAD and public-data isolation');
 
   browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
