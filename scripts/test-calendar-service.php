@@ -18,6 +18,11 @@ $greatFriday=new DateTimeImmutable('2026-04-10');
 $rows=calendar_service_assignments($library,(int)$greatFriday->format('w'),6,'cross');
 if(array_unique(array_column($rows,'subject'))!==['cross'])throw new Exception('Friday incorrectly assigns Nicholas');
 if(array_filter($rows,static fn($r)=>!str_starts_with($r['textId'],'weekday-')))throw new Exception('Invented Great Friday proper');
-$full=calendar_service_expansions('full');
-if(count($full)!==7||strlen($full[0]['text'])<100)throw new Exception('Missing full prayers');
-echo "PASS service: all seven weekdays, Thursday/Saturday pairs, Friday cross, no invented Great Friday proper, full prayers\n";
+foreach (['ru', 'cu-civil', 'cu'] as $language) {
+    $full=calendar_service_expansions('full', $language);
+    if(count($full)!==7||strlen($full[0]['text'])<100||($full[0]['language'] ?? null)!==$language)throw new Exception('Missing localized full prayers: '.$language);
+}
+if(substr_count(calendar_service_expansion('come-worship', 'full', 'cu')['text'], 'цр҃е́ви') !== 3)throw new Exception('Traditional full form lost Ponomar spelling');
+if(calendar_service_expansion('come-worship', 'full', 'ru')['text'] === calendar_service_expansion('come-worship', 'full', 'cu-civil')['text'])throw new Exception('Russian and civil editions were conflated');
+if(str_contains(calendar_service_expansions('full', 'ru')[6]['text'], "`n"))throw new Exception('Lord have mercy count was expanded into repeated lines');
+echo "PASS service: all seven weekdays, reviewed assignments, three localized full forms, no repeated Lord-have-mercy lines\n";

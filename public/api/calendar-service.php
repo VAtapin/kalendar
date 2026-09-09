@@ -16,55 +16,51 @@ function calendar_service_days_between(string $from, string $to): int {
 }
 
 /** @return array{title:string, text:string, source:array<int, array<string,mixed>>} */
-function calendar_service_expansion(string $id, string $mode): array {
+function calendar_service_expansion(string $id, string $mode, string $language): array {
     $entries = [
-        'come-worship' => [
-            'short' => 'Приидите, поклонимся: трижды.',
-            'full' => "Приидите, поклонимся Цареви нашему Богу.\nПриидите, поклонимся и припадем Христу, Цареви нашему Богу.\nПриидите, поклонимся и припадем Самому Христу, Цареви и Богу нашему.",
-            'title' => 'Приидите, поклонимся',
+        'ru' => [
+            'come-worship' => ['short' => 'Придите, поклонимся: (3). И три поклона.', 'full' => "Придите, поклонимся Царю нашему Богу.\nПридите, поклонимся и припадем ко Христу, Царю нашему Богу.\nПридите, поклонимся и припадем Самому Христу, Царю и Богу нашему.\nИ три поклона.", 'title' => 'Придите, поклонимся'],
+            'trisagion' => ['short' => 'Трисвятое.', 'full' => 'Святый Боже, Святый Крепкий, Святый Бессмертный, помилуй нас. (Трижды.)', 'title' => 'Трисвятое'],
+            'lords-prayer' => ['short' => 'Отче наш:', 'full' => 'Отче наш, Сущий на небесах! Да святится имя Твоё; да придёт Царствие Твоё; да будет воля Твоя и на земле, как на небе; хлеб наш насущный дай нам на сей день; и прости нам долги наши, как и мы прощаем должникам нашим; и не введи нас в искушение, но избавь нас от лукавого.', 'title' => 'Отче наш'],
+            'glory-now' => ['short' => 'Слава, и ныне:', 'full' => 'Слава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.', 'title' => 'Слава, и ныне'],
         ],
-        'trisagion' => [
-            'short' => 'Трисвятое.',
-            'full' => "Святый Боже, Святый Крепкий, Святый Безсмертный, помилуй нас. (Трижды.)\nСлава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.\nПресвятая Троице, помилуй нас; Господи, очисти грехи наша; Владыко, прости беззакония наша; Святый, посети и исцели немощи наша, имене Твоего ради.\nГосподи, помилуй. (Трижды.)\nСлава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.",
-            'title' => 'Трисвятое',
+        'cu-civil' => [
+            'come-worship' => ['short' => 'Приидите, поклонимся: трижды.', 'full' => "Приидите, поклонимся Цареви нашему Богу.\nПриидите, поклонимся и припадем Христу, Цареви нашему Богу.\nПриидите, поклонимся и припадем Самому Христу, Цареви и Богу нашему.", 'title' => 'Приидите, поклонимся'],
+            'trisagion' => ['short' => 'Трисвятое.', 'full' => "Святый Боже, Святый Крепкий, Святый Безсмертный, помилуй нас. (Трижды.)\nСлава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.\nПресвятая Троице, помилуй нас; Господи, очисти грехи наша; Владыко, прости беззакония наша; Святый, посети и исцели немощи наша, имене Твоего ради.\nГосподи, помилуй. (Трижды.)\nСлава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.", 'title' => 'Трисвятое'],
+            'lords-prayer' => ['short' => 'По Отче наш:', 'full' => 'Отче наш, Иже еси на Небесех, да святится имя Твое, да приидет Царствие Твое, да будет воля Твоя, яко на Небеси и на земли. Хлеб наш насущный даждь нам днесь; и остави нам долги наша, якоже и мы оставляем должником нашим; и не введи нас во искушение, но избави нас от лукаваго.', 'title' => 'Отче наш'],
+            'glory-now' => ['short' => 'Слава, и ныне:', 'full' => 'Слава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.', 'title' => 'Слава, и ныне'],
         ],
-        'lords-prayer' => [
-            'short' => 'По Отче наш:',
-            'full' => 'Отче наш, Иже еси на Небесех, да святится имя Твое, да приидет Царствие Твое, да будет воля Твоя, яко на Небеси и на земли. Хлеб наш насущный даждь нам днесь; и остави нам долги наша, якоже и мы оставляем должником нашим; и не введи нас во искушение, но избави нас от лукаваго.',
-            'title' => 'Отче наш',
-        ],
-        'glory-now' => [
-            'short' => 'Слава, и ныне:',
-            'full' => 'Слава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.',
-            'title' => 'Слава, и ныне',
+        'cu' => [
+            // Traditional spelling and titla come from the Ponomar electronic edition.
+            'come-worship' => ['short' => 'Прїиди́те, поклони́мсѧ: Покло́ны трѝ.', 'full' => "Прїиди́те, поклони́мсѧ цр҃е́ви на́шемꙋ бг҃ꙋ.\nПрїиди́те, поклони́мсѧ и҆ припаде́мъ хрⷭ҇тꙋ̀, цр҃е́ви на́шемꙋ бг҃ꙋ.\nПрїиди́те, поклони́мсѧ и҆ припаде́мъ самому̀ хрⷭ҇тꙋ̀, цр҃е́ви и҆ бг҃ꙋ на́шемꙋ.\nПокло́ны трѝ.", 'title' => 'Прїиди́те, поклони́мсѧ'],
+            'trisagion' => ['short' => 'Трист҃о́е.', 'full' => 'Ст҃ы́й бж҃е, ст҃ы́й крѣ́пкїй, ст҃ы́й безсме́ртный, поми́лꙋй на́съ. Три́жды.', 'title' => 'Трист҃о́е'],
+            'lords-prayer' => ['short' => 'По Ѻ҆́ч҃е на́шъ:', 'full' => 'Ѻ҆́ч҃е на́шъ, и҆́же є҆сѝ на нб҃сѣ́хъ, да свѧти́тсѧ и҆́мѧ твоѐ, да прїи́детъ црⷭ҇твїе твоѐ: да бꙋ́детъ во́лѧ твоѧ̀, ꙗ҆́кѡ на нб҃сѝ и҆ на землѝ. Хлѣ́бъ на́шъ насꙋ́щный да́ждь на́мъ дне́сь; и҆ ѡ҆ста́ви на́мъ до́лги на́шѧ, ꙗ҆́коже и҆ мы̀ ѡ҆ставлѧ́емъ должникѡ́мъ на́шымъ: и҆ не введѝ на́съ во и҆скꙋше́нїе, но и҆зба́ви на́съ ѿ лꙋка́вагѡ.', 'title' => 'Ѻ҆́ч҃е на́шъ'],
+            'glory-now' => ['short' => 'Сла́ва, и҆ ны́нѣ:', 'full' => 'Сла́ва ѻ҆ц҃ꙋ̀, и҆ сн҃ꙋ, и҆ ст҃о́мꙋ дх҃ꙋ, и҆ ны́нѣ и҆ при́снѡ, и҆ во вѣ́ки вѣкѡ́въ. А҆ми́нь.', 'title' => 'Сла́ва, и҆ ны́нѣ'],
         ],
     ];
-    $entry = $entries[$id];
+    $language = array_key_exists($language, $entries) ? $language : 'cu';
+    $entry = $entries[$language][$id];
     return ['title' => $entry['title'], 'text' => $entry[$mode], 'source' => [[
-        'title' => 'Часослов: общеупотребительные молитвы',
-        'url' => 'https://azbyka.ru/bogosluzhenie/1/chasoslov/',
+        'title' => $language === 'cu' ? 'Ponomar: Часослов Московской Патриархии' : 'Азбука веры: Часослов',
+        'url' => $language === 'cu' ? 'https://www.ponomar.net/' : 'https://azbyka.ru/bogosluzhenie/1/chasoslov/',
     ]]];
 }
 
 /** @return array<int, array<string,mixed>> */
-function calendar_service_expansions(string $mode): array {
+function calendar_service_expansions(string $mode, string $language): array {
     $rows = [];
     foreach (['come-worship', 'trisagion', 'lords-prayer', 'glory-now'] as $id) {
-        $entry = calendar_service_expansion($id, $mode);
-        $rows[] = ['id' => $id, 'mode' => $mode, 'title' => $entry['title'], 'text' => $entry['text'], 'source' => $entry['source']];
+        $entry = calendar_service_expansion($id, $mode, $language);
+        $rows[] = ['id' => $id, 'mode' => $mode, 'language' => $language, 'title' => $entry['title'], 'text' => $entry['text'], 'source' => $entry['source']];
     }
     foreach ([3, 12, 40] as $count) {
-        $rows[] = [
-            'id' => 'lord-have-mercy-' . $count,
-            'title' => 'Господи, помилуй (' . $count . ')',
-            'mode' => $mode,
-            'text' => $mode === 'full' ? implode("\n", array_fill(0, $count, 'Господи, помилуй.')) : 'Господи, помилуй, ' . $count . '.',
-            'source' => [['title' => 'Часослов: общеупотребительные молитвы', 'url' => 'https://azbyka.ru/bogosluzhenie/1/chasoslov/']],
-        ];
+        $rows[] = ['id' => 'lord-have-mercy-' . $count, 'title' => 'Господи, помилуй (' . $count . ')', 'mode' => $mode, 'language' => $language,
+            // A count is a rubric; do not manufacture forty printed repetitions.
+            'text' => $language === 'cu' ? 'Гдⷭ҇и поми́лꙋй, ' . $count . '.' : 'Господи, помилуй. (' . $count . ' раз.)',
+            'source' => [['title' => $language === 'cu' ? 'Ponomar: Часослов Московской Патриархии' : 'Азбука веры: Часослов', 'url' => $language === 'cu' ? 'https://www.ponomar.net/' : 'https://azbyka.ru/bogosluzhenie/1/chasoslov/']]];
     }
     return $rows;
 }
-
 /** @return array{pascha:string, daysFromPascha:int, period:string, label:string, tone:int|null} */
 function calendar_service_movable_cycle(array $manifest, string $runtimeDirectory, string $date, string $profile, string $language, array $currentYear): array {
     $year = (int) substr($date, 0, 4);
@@ -139,7 +135,7 @@ function calendar_service_routes(string $method, string $path): void {
     if (!preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $date) || !checkdate((int) substr($date, 5, 2), (int) substr($date, 8, 2), (int) substr($date, 0, 4))) calendar_fail('invalid_date', 400);
     if ((int) substr($date, 0, 4) < 1900 || (int) substr($date, 0, 4) > 2200) calendar_fail('invalid_year', 400);
     if (!in_array($office, ['horologion', 'midnight-office', 'matins', 'first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'vespers', 'compline', 'typica'], true)
-        || !in_array($language, ['ru', 'cu', 'de', 'uk', 'pl'], true)
+        || !in_array($language, ['ru', 'cu', 'cu-civil', 'de', 'uk', 'pl'], true)
         || !in_array($profile, ['typikon-strict', 'parish'], true)
         || !in_array($expansion, ['short', 'full'], true)) calendar_fail('invalid_parameter', 400);
     $key = api_header('X-API-Key'); if ($key === '') $key = api_bearer_token();
@@ -163,7 +159,7 @@ function calendar_service_routes(string $method, string $path): void {
     $commemorations = array_values(array_map(static fn($event) => array_intersect_key($event, array_flip(['id', 'title', 'typeCode', 'typikonMark', 'category', 'localization'])), array_filter($day['events'], static fn($event) => ($event['category'] ?? null) === 'commemoration')));
     calendar_public_response([
         'schemaVersion' => 1, 'apiVersion' => '1.2.0', 'date' => $date, 'office' => $office,
-        'language' => $language, 'textLanguage' => 'cu', 'profile' => $profile,
+        'language' => $language, 'textLanguage' => $language, 'profile' => $profile,
         'calendar' => ['oldStyleDate' => $day['oldStyleDate'], 'weekday' => $weekday, 'weekdayName' => $day['weekdayName'], 'fasting' => $day['fasting'], 'commemorations' => $commemorations],
         'cycles' => [
             'daily' => ['office' => $office, 'date' => $date],
@@ -174,7 +170,7 @@ function calendar_service_routes(string $method, string $path): void {
         'assignments' => $assignments,
         'properAssignments' => [],
         'assignmentStatus' => $assignments ? 'weekly-cycle-only' : 'no-verified-text-for-date',
-        'expansions' => calendar_service_expansions($expansion),
+        'expansions' => calendar_service_expansions($expansion, $language),
         'coverage' => [
             'weekly' => 'Воскресные гласы и дни седмицы из опубликованного корпуса.',
             'annual' => 'Памяти и праздники дня возвращаются полностью; собственные минейные тропари и кондаки не выдаются без проверенной привязки текста к конкретному событию.',
