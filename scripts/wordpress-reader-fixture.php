@@ -17,6 +17,6 @@ $a['lang']=$lang;$a['office']=$office;$a['images']='0';$a['sections']='fasting,r
 $a['endpoint']='https://reader.test/api/';$a['liveDate']=false;$a['ui']=Orthocal_Plugin::ui_catalog($lang);
 $day=['date'=>'2026-09-09','oldStyleDate'=>'2026-08-27','weekAfterPentecost'=>15,'tone'=>6,'foodLabel'=>'Trockenkost','events'=>[['category'=>'scripture-reading','title'=>'Mk 6:7-13','reading'=>null]]];
 $library=json_decode(file_get_contents(__DIR__.'/../public/data/liturgical-texts.json'),true);
-$data=['date'=>$a['date'],'office'=>$office,'assignments'=>calendar_service_assignments($library,3,6,'cross'),'expansions'=>calendar_service_expansions('full')];
+$data=['date'=>$a['date'],'office'=>$office,'assignments'=>calendar_service_assignments($library,3,6,'cross'),'expansions'=>calendar_service_expansions('full',$lang)];
 $body=$mode==='day'?Orthocal_Plugin::day($day,$a):Orthocal_Plugin::service($data,$a);
 echo '<section class="orthocal oc-theme-book" data-orthocal="'.esc_attr(wp_json_encode($a)).'"><div class="oc-heading">'.esc_html(Orthocal_Plugin::ui('Календарная мастерская',$lang)).'</div>'.$body.'<p class="oc-status" role="status"></p></section>';

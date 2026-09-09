@@ -76,7 +76,7 @@
 - `assets/calendar.css`: изолированные стили, контейнерная адаптация и печать.
 - `includes/admin.php`, `assets/admin.js/css`: настройки, конструктор и помощь.
 - `includes/media-cache.php`: локальные файлы, условные проверки и очистка.
-- `assets/editor.js`, `blocks/*/block.json`: 19 динамических Gutenberg-блоков.
+- `assets/editor.js`, `blocks/*/block.json`: 20 динамических Gutenberg-блоков; каждый также доступен как шорткод.
 
 Calendar API выбирает события и структурированные отрывки; BibleDesktop даёт
 каталог книг и главы. Сопоставление по OSIS, проверка языка/перевода, границ и
