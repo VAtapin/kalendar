@@ -100,11 +100,14 @@ function calendar_service_movable_cycle(array $manifest, string $runtimeDirector
 /** @return array<int, array<string,mixed>> */
 function calendar_service_assignments(array $library, int $weekday, ?int $tone, string $subject, bool $full = false): array {
     $texts = $library['texts'] ?? [];
-    $selected = array_values(array_filter($texts, static function ($text) use ($weekday, $tone, $full): bool {
+    $selected = array_values(array_filter($texts, static function ($text) use ($weekday, $tone): bool {
         if (!is_array($text)) return false;
         if (!in_array($text['type'] ?? '', ['troparion', 'kontakion'], true)) return false;
         if ($weekday === 0) return ($text['scope'] ?? '') === 'resurrection' && ($text['tone'] ?? null) === $tone;
-        return ($text['scope'] ?? '') === 'weekday' && ($text['subject'] ?? '') === $subject && in_array($weekday, $text['weekdays'] ?? [], true);
+        // The reviewed corpus already binds texts to weekdays. A single subject
+        // drops Nicholas on Thursdays and the departed on Saturdays; the old
+        // closure also failed to capture $subject, dropping every weekday text.
+        return ($text['scope'] ?? '') === 'weekday' && in_array($weekday, $text['weekdays'] ?? [], true);
     }));
     return array_map(static function (array $text) use ($weekday, $tone): array {
         return [
@@ -154,7 +157,7 @@ function calendar_service_routes(string $method, string $path): void {
     $movable = calendar_service_movable_cycle($manifest, $runtimeDirectory, $date, $profile, $language, $calendar);
     $weekday = (int) $day['weekday'];
     $subjects = ['Воскресение Христово', 'Небесные силы бесплотные', 'Святой Иоанн Предтеча', 'Честной Крест', 'Святые апостолы и святитель Николай', 'Честной Крест', 'Все святые и усопшие'];
-    $subjectIds = ['resurrection', 'angels', 'forerunner', 'cross', 'apostles', 'nicholas', 'all-saints'];
+    $subjectIds = ['resurrection', 'angels', 'forerunner', 'cross', 'apostles', 'cross', 'all-saints'];
     $subject = $weekday === 0 ? 'resurrection' : ($subjectIds[$weekday] ?? '');
     $assignments = calendar_service_assignments($library, $weekday, $movable['tone'], $subject, $office === 'horologion');
     $commemorations = array_values(array_map(static fn($event) => array_intersect_key($event, array_flip(['id', 'title', 'typeCode', 'typikonMark', 'category', 'localization'])), array_filter($day['events'], static fn($event) => ($event['category'] ?? null) === 'commemoration')));
