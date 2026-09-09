@@ -12,6 +12,7 @@ interface ToolDefinition {
 const props = defineProps<{
   activeTool: EditorTool;
   photosActive?: boolean;
+  iconsActive?: boolean;
   templatesActive: boolean;
   fillColor: string;
   strokeColor: string;
@@ -22,6 +23,7 @@ const emit = defineEmits<{
   updateStroke: [color: string];
   applyGold: [];
   openTemplates: [];
+  openIcons: [];
 }>();
 
 function swapColors(): void {
@@ -69,6 +71,7 @@ const tools: ToolDefinition[] = [
       </button>
     </template>
     <span class="tools-panel__divider"></span>
+    <button type="button" class="tool-button" :class="{ 'tool-button--active': iconsActive }" title="Иконы" aria-label="Иконы" @click="emit('openIcons')">☦</button>
     <button
       type="button"
       class="tool-button"

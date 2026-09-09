@@ -10,4 +10,4 @@ export type EditorTool =
   | "hand"
   | "zoom";
 
-export type DockPanelId = "properties" | "library" | "layers" | "templates" | "pages" | "events" | "preflight";
+export type DockPanelId = "properties" | "library" | "icons" | "layers" | "templates" | "pages" | "events" | "preflight";

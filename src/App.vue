@@ -7,6 +7,7 @@ import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
+import IconLibraryPanel from "./components/IconLibraryPanel.vue";
 import { emptyPhotoFrameAt, clearPhotoFrameImage } from './document/photo-drop';
 import AccountPanel from "./components/AccountPanel.vue";
 import { setStorageAccount } from "./persistence/project-storage";
@@ -164,6 +165,7 @@ import type {
 } from "./collaboration/shared-project-types";
 import { DECOR_LIBRARY_ITEMS, type DecorLibraryItem } from "./decor/decor-library";
 import { recolorSvgMarkup, svgMarkupDataUrl } from "./decor/svg-recolor";
+import type {IconLibraryCard} from "./icons/icon-library";
 import { FONT_OPTIONS } from "./typography/font-catalog";
 import {
   applyMonthMaster,
@@ -534,6 +536,7 @@ const panelVisibility = ref({
   tools: true,
   properties: true,
   library: true,
+  icons: true,
   layers: true,
   templates: true,
   pages: true,
@@ -544,6 +547,7 @@ const panelVisibility = ref({
 const dockPanels: ReadonlyArray<{ id: DockPanelId; label: string }> = [
   { id: "properties", label: "Свойства" },
   { id: "library", label: "Элементы" },
+  { id: "icons", label: "Иконы" },
   { id: "layers", label: "Слои" },
   { id: "templates", label: "Шаблоны" },
   { id: "pages", label: "Страницы" },
@@ -569,6 +573,9 @@ const decorLibraryItems = computed(() => [
     aspectRatio: (item.widthPx ?? 100) / (item.heightPx ?? 100), widthPx: item.widthPx, heightPx: item.heightPx,
   })),
 ]);
+const iconLibraryItems = ref<IconLibraryCard[]>([]);
+const iconLibraryLoading = ref(false);
+const iconLibraryError = ref("");
 
 const selectedPage = computed(() => {
   const page =
@@ -577,6 +584,7 @@ const selectedPage = computed(() => {
   if (!page) throw new Error("Документ должен содержать хотя бы одну страницу");
   return page;
 });
+const selectedPageMonth = computed(() => selectedPage.value.elements.find((item): item is CalendarGridElement => item.type === "calendar-grid")?.month);
 const openPages = computed(() => openPageIds.value.flatMap((pageId) => {
   const page = project.value.document.pages.find((item) => item.id === pageId);
   return page ? [page] : [];
@@ -3111,6 +3119,64 @@ async function loadDecorImage(item: DecorLibraryItem): Promise<string> {
   return readFileAsDataUrl(new File([blob], `${item.id}.png`, { type: blob.type || "image/png" }));
 }
 
+async function loadIconLibrary(): Promise<void> {
+  if (iconLibraryLoading.value) return;
+  iconLibraryLoading.value = true;
+  iconLibraryError.value = "";
+  try {
+    const response = await fetch("/api/v1/icons");
+    if (!response.ok) throw new Error(`Каталог недоступен: ${response.status}`);
+    const data = await response.json() as { cards?: IconLibraryCard[] };
+    iconLibraryItems.value = Array.isArray(data.cards) ? data.cards : [];
+  } catch (error) {
+    iconLibraryError.value = error instanceof Error ? error.message : "Не удалось загрузить каталог икон";
+  } finally { iconLibraryLoading.value = false; }
+}
+
+function openIconLibrary(): void {
+  activateDockPanel("icons");
+  void loadIconLibrary();
+}
+
+async function insertCalendarIcon(item: IconLibraryCard, caption: boolean): Promise<void> {
+  if (!['none', 'editing'].includes(sharedAccessMode.value) || !item.images[0]) return;
+  const targetProject = project.value;
+  const targetPage = selectedPage.value;
+  try {
+    const response = await fetch(item.images[0].imageUrl);
+    if (!response.ok) throw new Error(`Не удалось загрузить икону «${item.title}»`);
+    const blob = await response.blob();
+    const source = await readFileAsDataUrl(new File([blob], `${item.id}.jpg`, {type: blob.type || "image/jpeg"}));
+    const dimensions = await readRasterDimensions(source);
+    if (!dimensions) throw new Error(`Не удалось определить размер иконы «${item.title}»`);
+    if (project.value !== targetProject || selectedPage.value !== targetPage) return;
+    const ratio = dimensions.widthPx / dimensions.heightPx;
+    const maxWidth = Math.min(targetPage.safeArea.right - targetPage.safeArea.left, targetPage.width * .36);
+    const maxHeight = Math.min(targetPage.safeArea.bottom - targetPage.safeArea.top, targetPage.height * .42);
+    let width = maxWidth, height = width / ratio;
+    if (height > maxHeight) { height = maxHeight; width = height * ratio; }
+    const x = targetPage.safeArea.left + (targetPage.width - targetPage.safeArea.left - targetPage.safeArea.right - width) / 2;
+    const y = targetPage.safeArea.top + (targetPage.height - targetPage.safeArea.top - targetPage.safeArea.bottom - height - (caption ? 10 : 0)) / 2;
+    const created = mutateProject("Вставка иконы в календарь", () => {
+      const existing = project.value.assets.find(asset => asset.libraryItemId === `icon-${item.id}` && asset.kind === "image");
+      const asset = existing ?? {id:`asset-icon-${crypto.randomUUID()}`,name:item.title,mimeType:blob.type || "image/jpeg",kind:"image" as const,source,libraryItemId:`icon-${item.id}`,...dimensions};
+      if (!existing) project.value.assets.push(asset);
+      const result = createElementOnOwnLayer(targetPage, "image", {x,y,width,height});
+      result.layer.name = `Икона · ${item.title}`;
+      const image = result.element as ImageElement;
+      image.assetId = asset.id; image.fit = "fit";
+      if (caption) {
+        const text = createElementOnOwnLayer(targetPage, "text", {x,y:y+height+1,width,height:8});
+        text.layer.name = `Подпись · ${item.title}`;
+        if (text.element.type === "text") { text.element.content.title = item.title; text.element.typography.align = "center"; text.element.typography.fontSizePt = 10; }
+      }
+      return result;
+    });
+    selectedLayerIds.value = [created.layer.id]; selectedElementId.value = created.element.id; activeTool.value = "selection";
+    operationNotice.value = `Добавлена икона «${item.title}»${caption ? " с подписью" : " без подписи"}`;
+  } catch (error) { operationNotice.value = error instanceof Error ? error.message : "Не удалось вставить икону"; }
+}
+
 function dropDecorLibraryItem(id: string, point: { x: number; y: number }): void {
   const item = decorLibraryItems.value.find(candidate => candidate.id === id);
   if (item && Number.isFinite(point.x) && Number.isFinite(point.y)) void insertDecorLibraryItem(item, point);
@@ -4118,6 +4184,7 @@ onBeforeUnmount(() => {
         v-if="showToolsPanel"
         :active-tool="activeTool"
         :photos-active="photoPanelVisible"
+        :icons-active="activeDockPanel === 'icons'"
         :templates-active="activeDockPanel === 'templates'"
         :fill-color="currentFillColor"
         :stroke-color="currentStrokeColor"
@@ -4126,6 +4193,7 @@ onBeforeUnmount(() => {
         @update-stroke="updateStrokeColor"
         @apply-gold="applyGoldPaint"
         @open-templates="activateDockPanel('templates')"
+        @open-icons="openIconLibrary"
       />
 
       <PhotoLibraryPanel v-if="photoPanelVisible" :photos="projectPhotos" :collapsed="false" :busy="photoUploadBusy"
@@ -4577,6 +4645,10 @@ onBeforeUnmount(() => {
           <div class="dock-content__heading">Библиотека элементов</div>
           <DecorLibraryPanel :items="decorLibraryItems" @insert="insertDecorLibraryItem" />
           <ResourceBrowser :busy="catalogBusy" @insert="insertCatalogResource" />
+        </div>
+
+        <div v-else-if="activeDockPanel === 'icons'" class="dock-content icon-library-dock">
+          <IconLibraryPanel :items="iconLibraryItems" :month="selectedPageMonth" :loading="iconLibraryLoading" :error="iconLibraryError" @refresh="loadIconLibrary" @insert="insertCalendarIcon" />
         </div>
 
         <div v-else-if="activeDockPanel === 'layers'" class="dock-content">
