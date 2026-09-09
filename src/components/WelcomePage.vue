@@ -71,8 +71,8 @@ function changeInterfaceLanguage(event: Event): void {
             </option>
           </select>
         </label>
-        <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
         <button type="button" @click="emit('account')">Личный кабинет</button>
+        <a class="button-link" :href="localizedPath('/calendar-api')">API календаря</a>
       </div>
     </header>
 
@@ -90,7 +90,6 @@ function changeInterfaceLanguage(event: Event): void {
           <button v-if="currentProjectName" type="button" @click="requestContinue">Продолжить последний</button>
           <button type="button" @click="requestOpen">Импортировать календарь…</button>
           <a class="button-link welcome-primary" :href="localizedPath('/videos')">Видеоуроки</a>
-          <a class="button-link welcome-primary" :href="localizedPath('/calendar-api')">API календаря</a>
         </div>
       </div>
       <img class="welcome-hero__art" src="/brand/share-card-preview.webp" alt="Календарная мастерская Свято-Георгиевского монастыря" />
@@ -144,6 +143,7 @@ function changeInterfaceLanguage(event: Event): void {
     <footer class="welcome-page__footer">
       <div class="welcome-page__footer-tools">
         <button type="button" @click="emit('help')">Помощь</button>
+        <a href="https://georg-kloster.ru/" target="_blank" rel="noreferrer">georg-kloster.ru</a>
         <a href="https://atapin.de/" target="_blank" rel="noreferrer">Разработка ATAPIN.DE</a>
       </div>
       <LegalLinks />

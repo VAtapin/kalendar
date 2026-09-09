@@ -3368,11 +3368,6 @@ input {
     height: 112px;
   }
 
-  .welcome-page__header a {
-    align-self: flex-start;
-    margin-top: 12px;
-  }
-
   .welcome-page__header-actions {
     align-self: flex-start;
     flex-direction: column;
