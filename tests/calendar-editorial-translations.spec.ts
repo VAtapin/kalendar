@@ -9,6 +9,15 @@ const records = parseMemoryDaysXml(readFileSync('public/data/MemoryDays.xml','ut
 const titles = new Set(records.map(r => r.title));
 const additions = JSON.parse(readFileSync('public/data/church-slavonic/editorial-additions.json','utf8')).entries as {ru:string;cu:string;note:string;sourceId:string}[];
 describe('editorial German and Church Slavonic additions', () => {
+  it('covers every full German commemoration title in the current XML', () => {
+    const commemorations = records.filter(r => ![10, 20, 100].includes(r.typeCode) && r.typeCode < 200);
+    expect(new Set(commemorations.map(r => r.title)).size).toBe(2532);
+    for (const record of commemorations) {
+      const translated = localizeCalendarEventTitleWithStatus(record.title, 'de');
+      expect(translated.status, `XML ${record.sourceIndex}: ${record.title}`).not.toBe('source-fallback');
+      expect(translated.title, record.title).not.toMatch(/\p{Script=Cyrillic}/u);
+    }
+  });
   it('uses original CU translations only for exact full XML keys and preserves numbers', () => {
     installSlavonicCorpus(JSON.parse(readFileSync('public/data/church-slavonic/catalogue.json','utf8')));
     for(const [ru,cu] of Object.entries(slavonicEditorialTitles)) {
