@@ -109,7 +109,7 @@ function changeInterfaceLanguage(event: Event): void {
           <span>Иконная библиотека с днями празднования, историей образов, поиском и тематическими подборками.</span>
           <em>Открыть библиотеку →</em>
         </a>
-        <a href="/calendar-api-test.html">
+        <a :href="localizedPath('/calendar-api')">
           <strong>Веб‑календарь</strong>
           <span>Сегодня, праздники, пост, трапеза, чтения и календарь на месяц или год.</span>
           <em>Открыть календарь →</em>
