@@ -6,6 +6,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-public.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-access.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-texts.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-icon-preview.php';
 
 header_remove('X-Powered-By');
 
@@ -240,6 +241,7 @@ try {
     $publicMethod = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $publicPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
     calendar_texts_routes($publicMethod, preg_replace('#^/api(?=/|$)#', '', $publicPath) ?: '/');
+    calendar_icon_preview_routes($publicMethod, preg_replace('#^/api(?=/|$)#', '', $publicPath) ?: '/');
     calendar_public_routes($publicMethod, preg_replace('#^/api(?=/|$)#', '', $publicPath) ?: '/');
     $defaultDataDirectory = calendar_config_value('APP_PUBLIC_URL') !== ''
         ? calendar_project_root() . DIRECTORY_SEPARATOR . 'storage'

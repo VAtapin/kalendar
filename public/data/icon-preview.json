@@ -1,0 +1,523 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-09-09T14:04:42.383Z",
+  "status": "test-preview",
+  "assignment": "none",
+  "rightsReviewed": false,
+  "mappingReviewed": false,
+  "count": 19,
+  "cardCount": 5,
+  "contentHash": "ce601af652566911b5107179537394f01bf9e86279bb747601ace468c27d9d9d",
+  "images": [
+    {
+      "id": "cbae810bfd68a30705470d73133d4fcbcb6d28d886a7009aaa6bd3aae2420493",
+      "title": "Икона Богородицы Новодворская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/a9bdfe4aa4493bfb1b6c2cb905b2f18fbf405aa9153ea703ba70a7a5fcd6aff9.jpg",
+      "sha256": "a9bdfe4aa4493bfb1b6c2cb905b2f18fbf405aa9153ea703ba70a7a5fcd6aff9",
+      "bytes": 164737,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-novodvorskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/150/p1b43fr9qb2vn1qnlnd1l44g183.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "0ccd0943b0b7ba7569fbd974f4c75e36944fe928e5d115505db99fc61416f296",
+      "title": "Икона Богородицы Новодворская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/2793fdca6a71b285211a621762d4d9a5b248e3eb341de20c7db9dcdee59ba3a6.jpg",
+      "sha256": "2793fdca6a71b285211a621762d4d9a5b248e3eb341de20c7db9dcdee59ba3a6",
+      "bytes": 369964,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-novodvorskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/150/p1b43fi29a1ikaikh17op1rk118335.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "7d1d2bf0b15cb0a6278b050310c4df520ef3281e3392fdc99a5fd850da5df4d2",
+      "title": "Икона Богородицы Новодворская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/321d17e2340e252215d4910d683f1541b383a6bc082b5fba8fdee145dc706a32.jpg",
+      "sha256": "321d17e2340e252215d4910d683f1541b383a6bc082b5fba8fdee145dc706a32",
+      "bytes": 104385,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-novodvorskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/150/p1b43fi29m6nt13va1mo91s7p15ri6.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "d12ccc2f9bd5fc0c28dda4b0e181416f4f715113d4cf00ff1d42f4670a7947a7",
+      "title": "Икона Богородицы Спасительница утопающих (Леньковская, Новгород-Северская)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/0906b452d06f2f3007a2bf7a233324465c91946a83190d37203c94e479585f5e.jpg",
+      "sha256": "0906b452d06f2f3007a2bf7a233324465c91946a83190d37203c94e479585f5e",
+      "bytes": 50275,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-spasitelnica-utopajushchih-lenkovskaja-novgorod-severskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/191/p1b43g9f7t990p478jc1bgr1ebd3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "b0d84c1249eac41f9f8df7ca850d80c29000eee3dc2b6e098a4be5d296d24dd1",
+      "title": "Икона Богородицы Спасительница утопающих (Леньковская, Новгород-Северская)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/4c4d177db475ea0ac950c6e3180b4c1c6025afd9d6a18ea140a5205ba0b3ea51.jpg",
+      "sha256": "4c4d177db475ea0ac950c6e3180b4c1c6025afd9d6a18ea140a5205ba0b3ea51",
+      "bytes": 61970,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-spasitelnica-utopajushchih-lenkovskaja-novgorod-severskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/191/6cb7a9265fe6f7369480d36081abb1d6.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "c44ba07a44e2e8682514b3aa478b4eb4f8b812006ece484ee3660d70ee978109",
+      "title": "Икона Богородицы Спасительница утопающих (Леньковская, Новгород-Северская)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/c4c84007e4081ba6f2046b6c89b273361f555af47a5605a9fec5363e5c3095c6.jpg",
+      "sha256": "c4c84007e4081ba6f2046b6c89b273361f555af47a5605a9fec5363e5c3095c6",
+      "bytes": 86324,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-spasitelnica-utopajushchih-lenkovskaja-novgorod-severskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/191/p188nlm2sb1qkh1t7q1ttfqdjrs44.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "940e25a6b9b3d2136526d919078d3840f356d23fc2320e446cccb3545ad947c9",
+      "title": "Икона Богородицы Спасительница утопающих (Леньковская, Новгород-Северская)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/2f9aa35c5095a71f697093f290904a7cae2be4d538569af4fc48523d16337340.jpg",
+      "sha256": "2f9aa35c5095a71f697093f290904a7cae2be4d538569af4fc48523d16337340",
+      "bytes": 98769,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-spasitelnica-utopajushchih-lenkovskaja-novgorod-severskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/191/p188nlm2sc1kk01q7qkp1o0m2d5.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "2 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-02",
+          "exampleGregorianDate": "2027-01-02",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "7208006900277f65f897c59221d728382a2066988d3503fd36618a8c9e9e8d99",
+      "title": "Икона Богородицы Остробрамская Виленская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/5c54db0ce6702f489770855e61b49d63b3077a32bbb3ad1865e3c52d56b32e26.jpg",
+      "sha256": "5c54db0ce6702f489770855e61b49d63b3077a32bbb3ad1865e3c52d56b32e26",
+      "bytes": 175274,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-ostrobramskaja-vilenskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/34/p1agudrq2i1ail14frtes1729t7f3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "27 апреля",
+          "sourceUrl": "https://azbyka.ru/days/2027-04-27",
+          "exampleGregorianDate": "2027-04-27",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "4b4f497d2630209b3629b7a8d994f024c1fedb0888ca4e83e1dd76a837bb2cca",
+      "title": "Икона Богородицы Остробрамская Виленская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/acfc881ba72f0ddbc35d64df2a39a32327bb5d3f67cf6b50acee4c5da8625b3e.jpg",
+      "sha256": "acfc881ba72f0ddbc35d64df2a39a32327bb5d3f67cf6b50acee4c5da8625b3e",
+      "bytes": 71238,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-ostrobramskaja-vilenskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/34/p188lh7kq6eldsscvi1g7i18oi3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "27 апреля",
+          "sourceUrl": "https://azbyka.ru/days/2027-04-27",
+          "exampleGregorianDate": "2027-04-27",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "9e5f4b94f9373aae50014f576daeff7ab835f5c4e9669d0efdef57c127d32b10",
+      "title": "Икона Богородицы Остробрамская Виленская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/aec5c25fcd586a968cb9a3feb41f42116d284ac0a907d002073f17fce6dac507.jpg",
+      "sha256": "aec5c25fcd586a968cb9a3feb41f42116d284ac0a907d002073f17fce6dac507",
+      "bytes": 92943,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-ostrobramskaja-vilenskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/34/p188lh7kq7i0o1i8b1cfm1ftakqp4.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "27 апреля",
+          "sourceUrl": "https://azbyka.ru/days/2027-04-27",
+          "exampleGregorianDate": "2027-04-27",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "b739a0ed6e95140ca9e2f24c3f044a2c2b6ff5a56710c52f69f3c0ce98947586",
+      "title": "Икона Богородицы Остробрамская Виленская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/036dd68eae685697a78d271d12090629bc79bfeb6774980042e14bc7de2c44da.jpg",
+      "sha256": "036dd68eae685697a78d271d12090629bc79bfeb6774980042e14bc7de2c44da",
+      "bytes": 79095,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-ostrobramskaja-vilenskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/34/8c211d60a02c584051496b47c0421f93.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "27 апреля",
+          "sourceUrl": "https://azbyka.ru/days/2027-04-27",
+          "exampleGregorianDate": "2027-04-27",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "57f1df66610fb8e35efa94028a6555dfa32e4ad001dba580885ba71305e4a3ac",
+      "title": "Икона Богородицы Остробрамская Виленская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/20a630f3e3790b2539fc0e776b05d02fbcbd3a739fcf101c9bfb4c56d11cb8dd.jpg",
+      "sha256": "20a630f3e3790b2539fc0e776b05d02fbcbd3a739fcf101c9bfb4c56d11cb8dd",
+      "bytes": 41088,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-ostrobramskaja-vilenskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/34/b2fd1856ae328b3ca21c4003b06ce9ab.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "27 апреля",
+          "sourceUrl": "https://azbyka.ru/days/2027-04-27",
+          "exampleGregorianDate": "2027-04-27",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "7d16461b0f454e7fc14acefe96b64c5e4225fed8e869b6b97eb7d968a7aeb449",
+      "title": "Икона Богородицы Помощница в родах",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/a4d32d41f7945e4eba8d03368342700f4eb6d33f99c66ba738da7d3f707f2990.jpg",
+      "sha256": "a4d32d41f7945e4eba8d03368342700f4eb6d33f99c66ba738da7d3f707f2990",
+      "bytes": 137671,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-pomoshchnica-v-rodah",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/62/p1d5c500461ggq1qt91b2h1t5q18264.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "9fdd5951804f0fbdd57e31727c5f79bc94c736ff4b84979e2307428673067262",
+      "title": "Икона Богородицы Помощница в родах",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/f061c4de1cf516370d7a2df5bad424e5f051105f0e94345a8cc82121a3156d58.jpg",
+      "sha256": "f061c4de1cf516370d7a2df5bad424e5f051105f0e94345a8cc82121a3156d58",
+      "bytes": 28338,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-pomoshchnica-v-rodah",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/62/p1dfag18nv137ecpgpt51tvcmh03.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "e76d8708d25f088149299476fc11a481f9e1381c1311db414b062ba2812f65d4",
+      "title": "Икона Богородицы Помощница в родах",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/469f41463a5c34361731d464b111ec5291ba3cc905fdeae611a0691b1b5be06b.jpg",
+      "sha256": "469f41463a5c34361731d464b111ec5291ba3cc905fdeae611a0691b1b5be06b",
+      "bytes": 29838,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-pomoshchnica-v-rodah",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/62/p1dfag18o0jukt9aip570vubt4.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "7af0a711ac6bf518c3e8e2fb0b969fdfe867f1ca500e5620a345bfcc4ec4b458",
+      "title": "Икона Богородицы Помощница в родах",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/4f32a1cb3917d70a671593e88870131c474e847aa96cf0b772b923444fd16cca.jpg",
+      "sha256": "4f32a1cb3917d70a671593e88870131c474e847aa96cf0b772b923444fd16cca",
+      "bytes": 226644,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-pomoshchnica-v-rodah",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/62/p1d5c503vd123aeid44r6m91a8b9.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "03a1f5ea1cb509c2f465ed773dd7bf5f7ffbac09cf0cd0122479491ae4f13bfa",
+      "title": "Икона Богородицы Помощница в родах",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/047aa6cfdff8f5c3ab30da9b63727a78b694a93440853c01c61bfa3b13135a18.png",
+      "sha256": "047aa6cfdff8f5c3ab30da9b63727a78b694a93440853c01c61bfa3b13135a18",
+      "bytes": 2454388,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-pomoshchnica-v-rodah",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/62/p1d5c503vd1381i5a18in1m721c36a.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "01e5f055ce5a7be4cce281c917101adc357e16737d298f8f4f27843efc631173",
+      "title": "Икона Богородицы Помощница в родах",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/a972c4a5ca7a56b5ae7d3124454b71a9e485d6f6fed72ccb7c16ca6fba8fbe86.jpg",
+      "sha256": "a972c4a5ca7a56b5ae7d3124454b71a9e485d6f6fed72ccb7c16ca6fba8fbe86",
+      "bytes": 52828,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-pomoshchnica-v-rodah",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/62/p188lic2sgk1190m1e7t1eom42f5.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "69daba54889b57c4634185ddc1e749589a7c8d814aa4bd0db944512302df3e12",
+      "title": "Икона Богородицы Трех Радостей",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/75d9ee039eba823c532a5f7c49647eebfdb9dadd2800d7e0369226ead8a5b515.jpg",
+      "sha256": "75d9ee039eba823c532a5f7c49647eebfdb9dadd2800d7e0369226ead8a5b515",
+      "bytes": 490734,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p1deercbc17vn1pkp1l4s9ncbmp3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    }
+  ]
+}
