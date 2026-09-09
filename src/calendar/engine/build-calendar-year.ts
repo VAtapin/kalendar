@@ -18,6 +18,7 @@ import { calculateOrthodoxPascha } from "../pascha/orthodox-pascha";
 import { indexWeekdayGospelDates, resolveCalendarRecord } from "./weekday-gospel-cycle";
 import { isLiturgyReadingType, isTransferredRoyalHoursDate, moveRoyalHoursSpans } from "./royal-hours";
 import { buildGeneratedLiturgicalEvents } from "./liturgical-cycle";
+import { addOrdinaryWeeklyPsalter } from "./psalter-cycle";
 import {
   createShortCalendarTitle,
   createVeryShortCalendarTitle,
@@ -106,6 +107,8 @@ export function buildOrthodoxCalendarYear(
   for (const event of buildGeneratedLiturgicalEvents(year)) {
     dayMap.get(toIsoDate(event.occurrenceDate))?.events.push(event);
   }
+
+  for (const day of days) addOrdinaryWeeklyPsalter(day.date, day.events);
 
   for (const day of days) {
     const uniqueEvents = new Map<string, ResolvedCalendarEvent>();

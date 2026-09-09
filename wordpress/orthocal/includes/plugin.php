@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.26';
+    const VERSION = '1.3.27';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -312,10 +312,19 @@ final class Orthocal_Plugin {
             $html .= '<section class="oc-fasting-section">'.($a['show_section_titles']==='1'?'<h3>Пост и трапеза</h3>':'').'<p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').'<sup class="oc-profile-mark" aria-label="'.$profileLabel.'">*</sup></p></section>';
         }
         if(in_array('icons',$sections,true))$html.=self::icons_slot($day,$a['icon_limit']);
-        $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'));
-        if ($readings && in_array('readings',$sections,true)) {
-            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?'<h3>Библейские чтения</h3>':'').'<label class="oc-reading-translation">Перевод <select data-oc-translation><option value="">Загрузить переводы…</option></select></label>'.($a['show_font_size']==='1'?'<label class="oc-reading-font">Размер текста <input data-oc-font type="range" min="16" max="30" value="19"></label>':'').'<p class="oc-muted">Язык текста выбирается вместе с переводом. Соответствие нумерации стихов календарному источнику пока не подтверждено.</p>';
+        $psalter=array_values(array_filter($day['events'],static fn($e)=>(int)($e['typeCode']??0)===302));
+        $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'&&(int)($e['typeCode']??0)!==302));
+        if (($readings || $psalter) && in_array('readings',$sections,true)) {
+            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?'<h3>Библейские чтения</h3>':'').'<label class="oc-reading-translation">Перевод <select data-oc-translation><option value="">Загрузить переводы…</option></select></label>'.($a['show_font_size']==='1'?'<label class="oc-reading-font">Размер текста <input data-oc-font type="range" min="16" max="30" value="19"></label>':'').'<p class="oc-muted">Текст Апостола и Евангелия открывается по выбранному переводу. Псалтирь приведена по богослужебному распределению дня.</p>';
             foreach ($readings as $event) $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title']).'</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>Скопировать текст</button><div class="oc-verses" aria-live="polite"></div></div></details>';
+            foreach ($psalter as $event) {
+                $parts=array_values(array_filter(array_map('trim',explode(';',(string)($event['title']??'')))));
+                if (!$parts) continue;
+                $vespers=count($parts)>=3?array_pop($parts):null;
+                $html.='<section class="oc-psalter"><h4>Псалтирь</h4><p><strong>На утрене:</strong> '.esc_html(implode('; ',$parts)).'</p>';
+                if ($vespers!==null) $html.='<p><strong>На вечерне:</strong> '.esc_html($vespers).'</p>';
+                $html.='</section>';
+            }
             $html .= '</div>';
         } elseif ($a['mode']==='readings') $html .= '<p>В источнике нет чтений для этой даты.</p>';
         if(in_array('texts',$sections,true)) {

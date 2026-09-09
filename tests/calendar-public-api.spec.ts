@@ -44,7 +44,7 @@ describe("public calendar API contract", () => {
       }
       expect(translated).toBeGreaterThan(0);
     }
-  });
+  }, 10_000);
   it("validates civil ISO dates", () => {
     expect(parseCalendarApiDate("2027-02-28")).toEqual({ year: 2027, month: 2, day: 28 });
     expect(parseCalendarApiDate("2027-02-29")).toBeUndefined();

@@ -7,7 +7,7 @@
     "engineSha256": {
       "src/calendar/engine/weekday-gospel-cycle.ts": "e80257305fbfa7ca1103ac858cf612d41eb1864e5c8e79a1ea958fee767f04e3",
       "src/calendar/engine/royal-hours.ts": "6d2b8422f3af553b119f674f6ed2970c978cb5bb0823dfce0a2d5089bf040a69",
-      "src/calendar/engine/build-calendar-year.ts": "8ab99e587f3b37be3cbcc5a5f6bb35864adb9c9244935da34cec06ab147d4032"
+      "src/calendar/engine/build-calendar-year.ts": "092d35b192a3bed9a42eacd5105f28586dd2fca2f13bb03da09e1939be673a6d"
     },
     "weekdays": 261,
     "ordinarySlots": 227,
