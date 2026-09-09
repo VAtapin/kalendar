@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.31';
+    const VERSION = '1.3.32';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -109,8 +109,8 @@ final class Orthocal_Plugin {
         return $a;
     }
     static function request($service, $path, $query = []) {
-        $calendar=in_array($service,['calendar','texts','service'],true);
-        $url = ($service === 'calendar' ? self::CALENDAR : ($service==='texts'?'https://kalender.georg-kloster.ru/api/v1/calendar-texts/':($service==='service'?'https://kalender.georg-kloster.ru/api/v1/calendar/service':self::BIBLE))).$path;
+        $calendar=in_array($service,['calendar','service'],true);
+        $url = ($service === 'calendar' ? self::CALENDAR : ($service==='texts'?self::BIBLE.'liturgical/calendar-texts':($service==='service'?'https://kalender.georg-kloster.ru/api/v1/calendar/service':self::BIBLE))).$path;
         if ($query) $url = add_query_arg($query,$url);
         $cache = 'oc_'.md5($url.'|'.self::key().'|'.get_option('orthocal_cache_generation','0'));
         if (isset(self::$memo[$cache])) return self::$memo[$cache];

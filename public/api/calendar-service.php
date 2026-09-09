@@ -221,8 +221,8 @@ function calendar_service_routes(string $method, string $path): void {
     $calendar = calendar_public_year($manifest, $runtimeDirectory, $year, $profile, $language);
     $day = null; foreach ($calendar['days'] as $candidate) if (($candidate['date'] ?? null) === $date) { $day = $candidate; break; }
     if (!is_array($day)) calendar_fail('date_not_found', 404);
-    $library = calendar_read_json_file(dirname(__DIR__) . '/data/liturgical-texts.json', null);
-    if (!is_array($library) || !is_array($library['texts'] ?? null)) calendar_fail('text_library_unavailable', 503);
+    $apiLibrary = calendar_bible_desktop_texts(['language' => $language]);
+    $library = ['version' => 'bible-desktop', 'contentHash' => null, 'texts' => $apiLibrary['texts']];
     $movable = calendar_service_movable_cycle($manifest, $runtimeDirectory, $date, $profile, $language, $calendar);
     $weekday = (int) $day['weekday'];
     $subjects = ['Воскресение Христово', 'Небесные силы бесплотные', 'Святой Иоанн Предтеча', 'Честной Крест', 'Святые апостолы и святитель Николай', 'Честной Крест', 'Все святые и усопшие'];

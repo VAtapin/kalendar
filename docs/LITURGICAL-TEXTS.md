@@ -99,3 +99,7 @@ WordPress получает корпус с сервера календаря, п
 
 Часослов, приложение, каноны и акафисты хранятся в public/data/liturgical-corpus.json и выдаются только маршрутом /api/v1/liturgical/. Kalendar является единственным владельцем этих данных; клиенты не хранят их копии.
 
+
+## Владение данными после миграции
+
+Kalendar не является хранилищем богослужебных текстов. После проверки импорта public/data/liturgical-texts.json и public/data/liturgical-corpus.json удаляются; API получает тексты из Bible Desktop через BIBLE_DESKTOP_API_URL.
