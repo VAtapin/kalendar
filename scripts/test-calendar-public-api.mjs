@@ -54,7 +54,8 @@ try {
   assert.equal(demoMonth.status,200);const demoMonthBody=await demoMonth.json();
   assert.equal(demoMonthBody.month,5);assert.equal(demoMonthBody.days.length,31);assert.equal(demoMonthBody.view,'summary');
   assert.equal((await fetch(demoUrl+'&unknown=1',{method:'POST',headers:demoHeaders})).status,400);
-  assert.equal((await fetch(origin+'/api/v1/calendar-demo/year?year=2027',{method:'POST',headers:demoHeaders})).status,404);
+  const demoYear=await fetch(origin+'/api/v1/calendar-demo/year?year=2027&lang=de&view=summary',{method:'POST',headers:{...demoHeaders,Referer:origin+'/web-calendar'}});
+  assert.equal(demoYear.status,200);assert.equal((await demoYear.json()).days.length,365);
   assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:demoHeaders})).status,401);
   console.log('PASS hosted demo: origin/page checks, no key or quota, day/month scope, normal API still protected');
   const textsBase=origin+'/api/v1/calendar-texts/';
@@ -75,6 +76,9 @@ try {
   console.log('PASS liturgical reference API: 98 texts, filters, auth, conditional cache, no automatic date assignment');
   const serviceBase=base+'/service';
   assert.equal((await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour')).status,401);
+  const demoService=await fetch(origin+'/api/v1/calendar-demo/service?date=2027-06-06&office=sixth-hour&lang=cu',{method:'POST',headers:{...demoHeaders,Referer:origin+'/web-calendar'}});
+  assert.equal(demoService.status,200);assert.equal((await demoService.json()).date,'2027-06-06');
+  assert.equal((await fetch(origin+'/api/v1/calendar-demo/service?date=2027-06-06',{method:'POST',headers:demoHeaders})).status,403);
   const serviceResponse=await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour&lang=cu&expansion=full',{headers:{'X-API-Key':systemKey}});
   const service=await serviceResponse.json();
   assert.equal(serviceResponse.status,200);assert.equal(service.schemaVersion,1);assert.equal(service.date,'2027-06-06');assert.equal(service.office,'sixth-hour');
@@ -195,6 +199,7 @@ try {
   assert.equal(await page.locator('#page-size').inputValue(),'12');assert.equal(await page.locator('#gallery .card').count(),12);await page.locator('#gallery .picture').first().click();await page.locator('#lightbox[open] #large').waitFor();await page.waitForFunction(()=>document.querySelector('#large')?.naturalWidth>0);
   await page.screenshot({path:'artifacts/icon-library-desktop.png',fullPage:true});await page.locator('#lightbox button').click();await page.locator('#page-size').selectOption('6');assert.equal(await page.locator('#gallery .card').count(),6);await page.locator('#place').selectOption({index:1});assert.ok(await page.locator('#gallery .card').count());
   // Render hostile data as plain text even when pointed at an untrusted endpoint.
+  await page.goto(origin+'/calendar-api-test.html');
   await page.route('**/api/v1/calendar-demo/day*', route => route.fulfill({
     contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
     body:JSON.stringify({...first.body,day:{...first.body.day,events:[{...first.body.day.events[0],title:'<img src=x onerror="window.compromised=true">'}]}}),
@@ -207,7 +212,7 @@ try {
   console.log('PASS: hosted HTML without API key, real same-origin demo fetch, Typikon images, complete JSON, mobile layout and escaped content');
   await page.goto(origin+'/web-calendar.html');
   await page.locator('#year').selectOption('2027');await page.locator('#month').selectOption('05');await page.locator('#submit').click();
-  await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Показано дней'));
+  await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Календарь готов'));
   assert.equal(await page.locator('#days .day').count(),31);
   await page.locator('#days .day').first().click();await page.locator('#detail[open] h2').waitFor();
   assert.ok(!readFileSync('public/web-calendar.html','utf8').includes('JSON.stringify(value,null,2)'));

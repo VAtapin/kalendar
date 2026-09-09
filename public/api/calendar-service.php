@@ -168,13 +168,34 @@ function calendar_service_reader_rules(string $language, string $mode): array {
     return ['rubricPrefixes' => $set['rubricPrefixes'], 'inlineRubrics' => $set['inlineRubrics'], 'transforms' => $transforms, 'hiddenWhenShort' => $hiddenWhenShort];
 }
 function calendar_service_routes(string $method, string $path): void {
-    if (!in_array($path, ['/v1/calendar/service', '/v1/calendar/service/'], true)) return;
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
-    header('Access-Control-Allow-Headers: Accept, X-API-Key, Authorization, If-None-Match');
-    header('Access-Control-Expose-Headers: ETag, Retry-After, X-API-Month-Limit, X-API-Month-Remaining');
-    if ($method === 'OPTIONS') { http_response_code(204); exit; }
-    if (!in_array($method, ['GET', 'HEAD'], true)) calendar_fail('method_not_allowed', 405);
+    $demo = in_array($path, ['/v1/calendar-demo/service', '/v1/calendar-demo/service/'], true);
+    if (!$demo && !in_array($path, ['/v1/calendar/service', '/v1/calendar/service/'], true)) return;
+    if ($demo) {
+        header('Cache-Control: private, no-store');
+        header('Allow: POST');
+        if ($method !== 'POST') calendar_fail('method_not_allowed', 405);
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $configuredOrigin = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
+        $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
+        $allowedOrigins = in_array($configuredOrigin, $aliases, true) ? $aliases : [$configuredOrigin];
+        $origin = api_header('Origin');
+        $referer = api_header('Referer');
+        if ($origin === '' || !in_array($origin, $allowedOrigins, true)
+            || api_header('Sec-Fetch-Site') !== 'same-origin'
+            || api_header('X-Calendar-Demo') !== '1'
+            || !in_array(strtok($referer, '?'), [$origin . '/web-calendar', $origin . '/web-calendar/', $origin . '/web-calendar.html'], true)) {
+            calendar_fail('demo_page_required', 403, 'Откройте страницу календаря на сайте Календарной мастерской.');
+        }
+        $method = 'GET';
+    }
+    if (!$demo) {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
+        header('Access-Control-Allow-Headers: Accept, X-API-Key, Authorization, If-None-Match');
+        header('Access-Control-Expose-Headers: ETag, Retry-After, X-API-Month-Limit, X-API-Month-Remaining');
+        if ($method === 'OPTIONS') { http_response_code(204); exit; }
+        if (!in_array($method, ['GET', 'HEAD'], true)) calendar_fail('method_not_allowed', 405);
+    }
     $allowed = ['date', 'office', 'lang', 'profile', 'expansion'];
     foreach ($_GET as $key => $value) if (!in_array($key, $allowed, true) || !is_string($value) || strlen($value) > 40) calendar_fail('invalid_parameter', 400);
     $date = calendar_public_parameter('date');
@@ -188,9 +209,11 @@ function calendar_service_routes(string $method, string $path): void {
         || !in_array($language, ['ru', 'cu', 'cu-civil', 'de', 'uk', 'pl'], true)
         || !in_array($profile, ['typikon-strict', 'parish'], true)
         || !in_array($expansion, ['short', 'full'], true)) calendar_fail('invalid_parameter', 400);
-    $key = api_header('X-API-Key'); if ($key === '') $key = api_bearer_token();
-    $access = (new CalendarApiAccessStore())->authorize($key);
-    if ($access['monthLimit'] !== null) { header('X-API-Month-Limit: ' . $access['monthLimit']); header('X-API-Month-Remaining: ' . $access['monthRemaining']); }
+    if (!$demo) {
+        $key = api_header('X-API-Key'); if ($key === '') $key = api_bearer_token();
+        $access = (new CalendarApiAccessStore())->authorize($key);
+        if ($access['monthLimit'] !== null) { header('X-API-Month-Limit: ' . $access['monthLimit']); header('X-API-Month-Remaining: ' . $access['monthRemaining']); }
+    }
     $runtimeDirectory = is_file(__DIR__ . '/calendar-runtime.json') ? __DIR__ : calendar_project_root() . '/dist/api';
     $manifest = calendar_read_json_file($runtimeDirectory . '/calendar-runtime.json', null);
     if (!is_array($manifest) || !preg_match('/^[a-f0-9]{64}$/', $manifest['dataVersion'] ?? '')) calendar_fail('calendar_not_built', 503);

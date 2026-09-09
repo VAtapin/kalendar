@@ -108,7 +108,11 @@ function calendar_public_year(array $manifest, string $runtimeDirectory, int $ye
 }
 
 function calendar_public_routes(string $method, string $path): void {
-    $demoActions = ['/v1/calendar-demo/day' => '/v1/calendar/day', '/v1/calendar-demo/month' => '/v1/calendar/month'];
+    $demoActions = [
+        '/v1/calendar-demo/day' => '/v1/calendar/day',
+        '/v1/calendar-demo/month' => '/v1/calendar/month',
+        '/v1/calendar-demo/year' => '/v1/calendar/year',
+    ];
     if (($path === '/v1/calendar-demo' || str_starts_with($path, '/v1/calendar-demo/')) && !isset($demoActions[$path])) {
         calendar_fail('not_found', 404);
     }

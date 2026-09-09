@@ -17,7 +17,7 @@ try {
     await Promise.all([response,page.locator(`a[href="${path}"]`).click()]);
     await expect(page.locator('h1')).toHaveText(title);
     await page.reload();
-    await expect(page).toHaveURL(origin+path);
+    await expect(page).toHaveURL(new RegExp('^'+origin.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+path+'(?:\\?|$)'));
     await expect(page.locator('h1')).toHaveText(title);
     assert.equal(await page.locator('.route-shell').count(),0,'Standalone HTML must replace the SPA document');
     await page.goBack();
