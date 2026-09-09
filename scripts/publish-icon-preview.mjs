@@ -6,8 +6,12 @@ const root=resolve('data/icon-library'), target=resolve('public/data/icon-previe
 const db=JSON.parse(readFileSync(join(root,'catalog.json'),'utf8'));
 const prior=existsSync(target)?JSON.parse(readFileSync(target,'utf8')):{schemaVersion:1,images:[]};
 const seen=new Set(prior.images.map(i=>i.id));const additions=[];
-const max=20;
-for(const card of Object.values(db.records).filter(r=>['mother-of-god','saint'].includes(r.kind))) {
+// Normal calls publish a small reviewable batch. --all is the explicit final
+// publication step after the importer has stopped: every downloaded asset is
+// copied into public data and becomes available through /api/v1/icons.
+const requestedMax=Number(process.argv.find(arg=>arg.startsWith('--max='))?.slice(6));
+const max=process.argv.includes('--all') ? Infinity : (Number.isSafeInteger(requestedMax)&&requestedMax>0 ? requestedMax : 20);
+for(const card of Object.values(db.records).filter(r=>['mother-of-god','savior','saint'].includes(r.kind))) {
   for(const image of card.images??[]) {
     if(image.status!=='downloaded'||!/^originals\/[a-f0-9]{64}\.(jpg|png|webp|gif)$/.test(image.path??''))continue;
     const id=createHash('sha256').update(card.url+'#'+image.sha256).digest('hex');
@@ -22,7 +26,7 @@ for(const card of Object.values(db.records).filter(r=>['mother-of-god','saint'].
   }
   if(additions.length>=max)break;
 }
-if(additions.length<10&&!process.argv.includes('--flush')){console.log('WAIT: '+additions.length+' new images; batch threshold 10');process.exit(0);}
+if(additions.length<10&&!process.argv.includes('--flush')&&!process.argv.includes('--all')){console.log('WAIT: '+additions.length+' new images; batch threshold 10');process.exit(0);}
 if(!additions.length){console.log('NO_CHANGES');process.exit(0);}
 const images=[...prior.images,...additions];
 const result={schemaVersion:1,version:new Date().toISOString(),status:'published',

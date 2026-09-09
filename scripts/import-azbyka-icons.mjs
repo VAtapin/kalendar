@@ -35,8 +35,10 @@ async function get(url,image=false){
 }
 function links(html){const table=html.match(/<tbody\b[^>]*>([\s\S]*?)<\/tbody>/i)?.[1]||'';return [...table.matchAll(/<a\b[^>]*href="([^"#]+)"[^>]*>([\s\S]*?)<\/a>/g)].filter(m=>/^\/days\/(?:sv-|ikona-)/.test(m[1])).map(m=>({url:new URL(m[1],db.source).href,title:clean(m[2])}));}
 async function index(url,kind){if(db.indexes[url])return;const html=await get(url);const list=links(html);if(!list.length)throw new Error('Index layout changed: '+url);for(const item of list)db.records[item.url]??={...item,kind,status:'pending',rightsStatus:'unverified',images:[],dates:[],mappingStatus:'unreviewed',calendarRecordIds:[]};db.indexes[url]={count:list.length,fetchedAt:new Date().toISOString()};save();console.log('INDEX',kind,list.length,Object.keys(db.records).length);}
-// Scope: the two user-selected catalogues. Do not scrape biographies or other sections.
+// Scope: the three user-selected icon catalogues. Do not scrape biographies or
+// other sections. Re-running is safe: completed cards are skipped.
 await index('https://azbyka.ru/days/menology/ikons','mother-of-god');
+await index('https://azbyka.ru/days/menology/ikons-savior','savior');
 for(let page=1;page<=16;page++)await index('https://azbyka.ru/days/menology/saints-with-ikon'+(page===1?'':`?page=${page}`),'saint');
 const max=Number(process.argv.find(x=>x.startsWith('--max='))?.split('=')[1]||Infinity);let done=0;
 for(const record of Object.values(db.records)){
@@ -45,7 +47,7 @@ for(const record of Object.values(db.records)){
   try {
   if(record.status==='pending'){
     const html=await get(record.url);const parsed=parseIconCard(html,record.url);if(!parsed.title)throw new Error('Missing title: '+record.url);
-    record.title=parsed.title;record.description=`${record.kind==='saint'?'Иконы и изображения':'Образ Божией Матери'}: ${record.title}. Карточка источника — Азбука веры.`;
+    record.title=parsed.title;record.description=`${record.kind==='saint'?'Иконы и изображения':record.kind==='savior'?'Икона Спасителя':'Образ Божией Матери'}: ${record.title}. Карточка источника — Азбука веры.`;
     record.descriptionKind='generated-catalog-label-not-biography';
     record.dates=parsed.dates;record.images=parsed.images.map(image=>({...image,status:'pending'}));record.parserVersion=2;
     record.fetchedAt=new Date().toISOString();record.status='metadata';save();
