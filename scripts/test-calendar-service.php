@@ -25,4 +25,9 @@ foreach (['ru', 'cu-civil', 'cu'] as $language) {
 if(substr_count(calendar_service_expansion('come-worship', 'full', 'cu')['text'], 'цр҃е́ви') !== 3)throw new Exception('Traditional full form lost Ponomar spelling');
 if(calendar_service_expansion('come-worship', 'full', 'ru')['text'] === calendar_service_expansion('come-worship', 'full', 'cu-civil')['text'])throw new Exception('Russian and civil editions were conflated');
 if(str_contains(calendar_service_expansions('full', 'ru')[6]['text'], "`n"))throw new Exception('Lord have mercy count was expanded into repeated lines');
-echo "PASS service: all seven weekdays, reviewed assignments, three localized full forms, no repeated Lord-have-mercy lines\n";
+foreach (['ru', 'cu-civil', 'cu'] as $language) {
+    $rules=calendar_service_reader_rules($language, 'full');
+    if(!$rules['rubricPrefixes']||!$rules['inlineRubrics']||count($rules['transforms'])<2)throw new Exception('Missing structured reader rules: '.$language);
+}
+$civilShort=calendar_service_reader_rules('cu-civil', 'short');
+if(count($civilShort['hiddenWhenShort'])!==2||count($civilShort['transforms'])!==1)throw new Exception('Civic short reader rules missing');echo "PASS service: all seven weekdays, reviewed assignments, three localized full forms, no repeated Lord-have-mercy lines\n";

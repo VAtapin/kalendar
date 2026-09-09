@@ -117,6 +117,56 @@ function calendar_service_assignments(array $library, int $weekday, ?int $tone, 
     }, $selected);
 }
 
+/**
+ * Rendering data for readers. The API owns wording and rubric classification;
+ * clients may only position the returned pieces in their local edition.
+ *
+ * @return array{rubricPrefixes:array<int,string>,inlineRubrics:array<int,string>,transforms:array<int,array<string,mixed>>,hiddenWhenShort:array<int,string>}
+ */
+function calendar_service_reader_rules(string $language, string $mode): array {
+    $common = [
+        'ru' => [
+            'rubricPrefixes' => ['Стих ', 'Священник:', 'Чтец:', 'Если же ', 'Кондак праздника.', 'Богородичен'],
+            'inlineRubrics' => ['И три поклона.'],
+            'theotokion' => ['match' => 'И ныне, Богородичен:', 'full' => "И ныне и всегда, и во веки веков. Аминь.\nБогородичен:"],
+        ],
+        'cu-civil' => [
+            'rubricPrefixes' => ['И аще ', 'Стих ', 'Слава, и ныне, Богородичен:', 'Трисвятое.', 'Кондак дне', 'Аще пост', 'Слава:', 'И ныне:'],
+            'inlineRubrics' => ['Поклоны три.'],
+            'theotokion' => ['match' => 'Слава, и ныне, Богородичен:', 'full' => "Слава Отцу и Сыну и Святому Духу, и ныне и присно и во веки веков. Аминь.\nБогородичен:"],
+        ],
+        'cu' => [
+            'rubricPrefixes' => ['И҆ а҆́ще ', 'Сті́хъ ', 'Сла́ва, и҆ ны́нѣ, бг҃оро́диченъ:', 'Трист҃о́е.', 'Конда́къ днѐ', 'А҆́ще по́стъ', 'Сла́ва:', 'И҆ ны́нѣ:'],
+            'inlineRubrics' => ['Покло́ны трѝ.'],
+            'theotokion' => ['match' => 'Сла́ва, и҆ ны́нѣ, бг҃оро́диченъ:', 'full' => "Сла́ва ѻ҆ц҃ꙋ̀, и҆ сн҃ꙋ, и҆ ст҃о́мꙋ дх҃ꙋ, и҆ ны́нѣ и҆ при́снѡ, и҆ во вѣ́ки вѣкѡ́въ. А҆ми́нь.\nБг҃оро́диченъ:"],
+        ],
+    ];
+    $set = $common[$language] ?? $common['cu'];
+    $transforms = [];
+    if ($mode === 'full') {
+        $expansion = calendar_service_expansion('come-worship', 'full', $language);
+        $short = calendar_service_expansion('come-worship', 'short', $language);
+        $transforms[] = ['id' => 'come-worship', 'match' => $short['text'], 'text' => $expansion['text'], 'source' => $expansion['source']];
+        $transforms[] = ['id' => 'glory-now-theotokion', 'match' => $set['theotokion']['match'], 'text' => $set['theotokion']['full'], 'source' => [[
+            'title' => $language === 'cu' ? 'Ponomar: Часослов Московской Патриархии' : 'Азбука веры: Часослов',
+            'url' => $language === 'cu' ? 'https://www.ponomar.net/' : 'https://azbyka.ru/bogosluzhenie/1/chasoslov/',
+        ]]];
+    }
+    // The civic source already carries the three invocations as separate blocks.
+    // In the short view only its last block remains as the canonical short rubric.
+    $hiddenWhenShort = $language === 'cu-civil' && $mode === 'short'
+        ? ['Прииди́те, поклони́мся Царе́ви на́шему Бо́гу.', 'Прииди́те, поклони́мся и припаде́м Христу́, Царе́ви на́шему Бо́гу.']
+        : [];
+    if ($language === 'cu-civil' && $mode === 'short') {
+        $transforms[] = [
+            'id' => 'come-worship-short',
+            'match' => 'Прииди́те, поклони́мся и припаде́м Самому́ Христу́, Царе́ви и Бо́гу на́шему. Покло́ны три́.',
+            'text' => calendar_service_expansion('come-worship', 'short', $language)['text'],
+            'source' => [[ 'title' => 'Азбука веры: Часослов', 'url' => 'https://azbyka.ru/bogosluzhenie/1/chasoslov/' ]],
+        ];
+    }
+    return ['rubricPrefixes' => $set['rubricPrefixes'], 'inlineRubrics' => $set['inlineRubrics'], 'transforms' => $transforms, 'hiddenWhenShort' => $hiddenWhenShort];
+}
 function calendar_service_routes(string $method, string $path): void {
     if (!in_array($path, ['/v1/calendar/service', '/v1/calendar/service/'], true)) return;
     header('Access-Control-Allow-Origin: *');
@@ -171,6 +221,7 @@ function calendar_service_routes(string $method, string $path): void {
         'properAssignments' => [],
         'assignmentStatus' => $assignments ? 'weekly-cycle-only' : 'no-verified-text-for-date',
         'expansions' => calendar_service_expansions($expansion, $language),
+        'readerRules' => calendar_service_reader_rules($language, $expansion),
         'coverage' => [
             'weekly' => 'Воскресные гласы и дни седмицы из опубликованного корпуса.',
             'annual' => 'Памяти и праздники дня возвращаются полностью; собственные минейные тропари и кондаки не выдаются без проверенной привязки текста к конкретному событию.',
