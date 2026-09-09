@@ -14,11 +14,13 @@
     const value={};
     for(const input of fields){if(input.closest('[data-oc-build-wrap]')?.hidden)continue;if(input.type==='checkbox')value[input.dataset.ocBuild]=input.checked?'1':'0';else if(input.value!=='')value[input.dataset.ocBuild]=input.value;}
     const sections=[...root.querySelectorAll('[data-oc-build-section]')].filter(input=>input.checked).map(input=>input.dataset.ocBuildSection);
-    value.sections=sections.join(',');return value;
+    value.sections=sections.join(',');
+    const levels=[...root.querySelectorAll('[data-oc-event-level]')].filter(input=>input.checked).map(input=>input.dataset.ocEventLevel);
+    value.event_levels=levels.join(',');return value;
   };
   function visibility(){
     const selected=mode(), texts=['texts','troparia','kontakia','prayers','magnifications'].includes(selected), day=['today','day','calendar','month','year','readings','fasting','saints','date'].includes(selected);
-    const enabled={date:!texts,year:['month','year','calendar','fasts','pascha'].includes(selected),month:['month','calendar'].includes(selected),limit:['upcoming','feasts','memorial'].includes(selected),filter:['upcoming','feasts'].includes(selected),image_pack:['today','day','fasting','calendar'].includes(selected),sections:day,images:day,icons:day,reading_open:['today','day','readings','calendar','month','year'].includes(selected),open:['upcoming','feasts','memorial','pascha','month','year','calendar'].includes(selected),day_page:['upcoming','feasts','memorial','pascha','month','year','calendar'].includes(selected),translation:['today','day','readings','calendar','month','year'].includes(selected),scope:texts,tone:texts,weekday:texts,text_id:texts,profile:!texts,oldstyle:!texts};
+    const enabled={date:!texts,year:['month','year','calendar','fasts','pascha'].includes(selected),month:['month','calendar'].includes(selected),limit:['upcoming','feasts','memorial'].includes(selected),filter:['upcoming','feasts'].includes(selected),image_pack:['today','day','fasting','calendar'].includes(selected),image_size:day,event_levels:['today','day','calendar','fasting','saints','date'].includes(selected),show_nav:['today','day','calendar'].includes(selected),show_picker:['today','day','calendar'].includes(selected),show_copy:['today','day','calendar'].includes(selected),sections:day,images:day,icons:day,reading_open:['today','day','readings','calendar','month','year'].includes(selected),open:['upcoming','feasts','memorial','pascha','month','year','calendar'].includes(selected),day_page:['upcoming','feasts','memorial','pascha','month','year','calendar'].includes(selected),translation:['today','day','readings','calendar','month','year'].includes(selected),scope:texts,tone:texts,weekday:texts,text_id:texts,profile:!texts,oldstyle:!texts};
     root.querySelectorAll('[data-oc-build-wrap]').forEach(wrap=>wrap.hidden=enabled[wrap.dataset.ocBuildWrap]===false);
   }
   function generate(){
@@ -31,6 +33,7 @@
   }
   function changed(){generate();clearTimeout(previewTimer);previewTimer=setTimeout(updatePreview,350);}
   fields.forEach(input=>input.addEventListener(input.type==='checkbox'||input.tagName==='SELECT'?'change':'input',changed));root.querySelectorAll('[data-oc-build-section]').forEach(input=>input.addEventListener('change',changed));
+  root.querySelectorAll('[data-oc-event-level]').forEach(input=>input.addEventListener('change',changed));
   root.querySelector('[data-oc-copy-code]')?.addEventListener('click',()=>copy(code.value,status));root.querySelector('[data-oc-preview]')?.addEventListener('click',()=>{clearTimeout(previewTimer);updatePreview();});
   generate();if(root.dataset.activeTab==='shortcodes')void updatePreview();
   root.querySelectorAll('[data-oc-tab="shortcodes"]').forEach(link=>link.addEventListener('click',()=>{if(!preview?.children.length)void updatePreview();}));
