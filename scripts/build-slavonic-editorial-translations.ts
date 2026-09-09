@@ -12,12 +12,14 @@ for(const [index,cu] of batch.entries) {
   if(!record || !cu.trim() || churchSlavonicTechnicalIssues(cu).length
     || JSON.stringify(record.title.match(/\d+/g)??[])!==JSON.stringify(cu.match(/\d+/g)??[])) throw new Error(`Invalid editorial CU translation ${index}`);
   // Roman centuries are retained from XML; all other Latin letters are mistakes.
-  const nonRoman = cu.replace(/\b[IVXLCDM]+\b/g, '');
+  const nonRoman = cu.replace(/(?<![\p{L}\p{M}])[IVXLCDM]+(?![\p{L}\p{M}])/gu, '');
   if(/\p{Script=Latin}/u.test(nonRoman)) throw new Error(`Latin letter in editorial CU translation ${index}`);
   for(const word of cu.match(/[\p{L}\p{M}]+/gu)??[]) {
     if((word.match(/[\u0300\u0301\u0311]/g)??[]).length>1) throw new Error(`Multiple stress marks in editorial CU translation ${index}: ${word}`);
   }
-  if(JSON.stringify(record.title.match(/\b[IVXLCDM]+\b/g)??[])!==JSON.stringify(cu.match(/\b[IVXLCDM]+\b/g)??[])) throw new Error(`Roman century changed in editorial CU translation ${index}`);
+  // Unicode word boundaries: the source typo "Cщмч." is not a Roman century.
+  const romanCenturies = (text: string) => text.match(/(?<![\p{L}\p{M}])[IVXLCDM]+(?![\p{L}\p{M}])/gu) ?? [];
+  if(JSON.stringify(romanCenturies(record.title))!==JSON.stringify(romanCenturies(cu))) throw new Error(`Roman century changed in editorial CU translation ${index}`);
   if(Object.hasOwn(dictionary,record.title)&&dictionary[record.title]!==cu) throw new Error(`Conflicting editorial CU title ${index}`);
   dictionary[record.title]=cu;
 }

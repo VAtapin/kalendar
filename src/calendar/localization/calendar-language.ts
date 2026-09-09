@@ -8,6 +8,8 @@ import { GERMAN_COMMEMORATIONS } from "./german-commemorations";
 import { localizeScriptureTitle } from './scripture-titles';
 import { localizeFastingTitle } from './fasting-titles';
 import { localizeMarriageTitle } from './marriage-titles';
+import { localizedReadingDescription } from './reading-descriptions';
+import { createShortCalendarTitle, createVeryShortCalendarTitle, createLocalizedCalendarTitleVariants } from '../presentation/title-variants';
 
 /**
  * Editorial vocabulary, not a fully translated or independently verified menologion.
@@ -146,6 +148,33 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "о слепом": "про сліпого",
   },
   de: {
+    "Неделя о Страшном Суде": "Sonntag des Jüngsten Gerichts",
+    "О Страшном Суде": "Vom Jüngsten Gericht",
+    "Неделя сыропустная. Прощеное воскресенье": "Sonntag des Käseverzichts. Sonntag der Vergebung",
+    "2-я Неделя Великого поста": "2. Sonntag der Großen Fastenzeit",
+    "4-я Неделя Великого поста": "4. Sonntag der Großen Fastenzeit",
+    "5-я Неделя Великого поста": "5. Sonntag der Großen Fastenzeit",
+    "Неделя Крестопоклонная": "Sonntag der Kreuzverehrung",
+    "Великий Четверток. Тайная Вечеря": "Großer Donnerstag. Mystisches Abendmahl",
+    "Великий Пяток. Распятие Христа": "Großer Freitag. Kreuzigung Christi",
+    "Антипасха. Неделя апостола Фомы": "Antipascha. Sonntag des Apostels Thomas",
+    "Антипасха": "Antipascha",
+    "Неделя святых жен-мироносиц": "Sonntag der heiligen Myronträgerinnen",
+    "Неделя жен-мироносиц": "Sonntag der Myronträgerinnen",
+    "Отдание Пасхи": "Festabschluss von Pascha",
+    "Неделя святых отцов I Вселенского Собора": "Sonntag der heiligen Väter des I. Ökumenischen Konzils",
+    "Неделя святых отцов": "Sonntag der heiligen Väter",
+    "Неделя Всех святых": "Sonntag aller Heiligen",
+    "Неделя Всех святых, в земле Русской просиявших": "Sonntag aller Heiligen, die im russischen Land erstrahlt sind",
+    "Неделя Всех русских святых": "Sonntag aller russischen Heiligen",
+    "Неделя о Страшном Суде (мясопустная)": "Sonntag des Jüngsten Gerichts (Sonntag des Fleischverzichts)",
+    "Неделя сыропустная. Воспоминание Адамова изгнания. Прощеное воскресенье": "Sonntag des Käseverzichts. Gedächtnis der Vertreibung Adams. Sonntag der Vergebung",
+    "Великий Пяток. Воспоминание Святых спасительных Страстей Господа Иисуса Христа": "Großer Freitag. Gedächtnis der heiligen und heilbringenden Leiden des Herrn Jesus Christus",
+    "Великая Суббота. Сошествие Христа во ад": "Großer Samstag. Abstieg Christi in den Hades",
+    "Неделя 7-я по Пасхе, святых отцов I Вселенского Собора": "7. Sonntag nach Pascha, der heiligen Väter des I. Ökumenischen Konzils",
+    "Понедельник Пятидесятницы. День Святого Духа": "Montag nach Pfingsten. Tag des Heiligen Geistes",
+    "Неделя 1-я по Пятидесятнице, Всех святых": "1. Sonntag nach Pfingsten, Allerheiligen",
+    "Неделя 2-я по Пятидесятнице, Всех святых, в земле Русской просиявших": "2. Sonntag nach Pfingsten, aller Heiligen, die im russischen Land erstrahlt sind",
     "Светлое Христово Воскресение. Пасха": "Die lichte Auferstehung Christi. Pascha",
     "Вход Господень в Иерусалим": "Einzug des Herrn in Jerusalem",
     "Вознесение Господне": "Christi Himmelfahrt",
@@ -409,13 +438,22 @@ export function localizeCalendarEvent(event: ResolvedCalendarEvent, language: Ca
   if (resolvedLanguage === "ru") return event;
   const full = localizeCalendarEventTitleWithStatus(event.title, resolvedLanguage);
   if (full.status === "source-fallback") return { ...event };
-  const localized = { ...event, title: full.title };
+  const localized = { ...event, title: full.title,
+    ...(event.description ? { description: localizedReadingDescription(event.description, resolvedLanguage) } : {}),
+  };
   // The layout selects a shorter variant when space is tight. An untranslated
   // short form must not silently replace a translated full title on the page.
   for (const key of ["shortTitle", "veryShortTitle"] as const) {
     if (!event[key]) continue;
     const candidate = localizeCalendarEventTitleWithStatus(event[key], resolvedLanguage);
-    if (candidate.status === "source-fallback") delete localized[key];
+    if (candidate.status === "source-fallback") {
+      // XML print variants are generated in Russian by the engine. Generate
+      // them from the translated full title, never translate a clipped name.
+      const generatedSource = key === 'shortTitle' ? createShortCalendarTitle(event.title) : createVeryShortCalendarTitle(event.title);
+      if ((resolvedLanguage === 'de' || resolvedLanguage === 'cu') && event[key] === generatedSource) {
+        localized[key] = createLocalizedCalendarTitleVariants(full.title, resolvedLanguage)[key];
+      } else delete localized[key];
+    }
     else localized[key] = candidate.title;
   }
   return localized;

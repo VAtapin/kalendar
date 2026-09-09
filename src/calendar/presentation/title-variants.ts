@@ -72,3 +72,18 @@ export function createVeryShortCalendarTitle(title: string): string {
   const clipped = semantic.slice(0, 69).replace(/\s+\S*$/u, "").replace(/[.,;:!?\s]+$/u, "");
   return `${clipped}…`;
 }
+
+/** Presentation-only variants of an already translated title. Never drops a
+ * person or a qualifier from the short form; only the tiny-cell form is clipped,
+ * visibly marked with an ellipsis, just as in the Russian layout. */
+export function createLocalizedCalendarTitleVariants(title: string, language: 'de' | 'cu'): { shortTitle: string; veryShortTitle: string } {
+  const shortTitle = language === 'de'
+    ? title.replace(/\bHeilige[nrsm]?\b/gu, 'Hl.').replace(/\bheilige[nrsm]?\b/gu, 'hl.')
+      .replace(/\bErzbischof\b/gu, 'Erzb.').replace(/\bBischof\b/gu, 'Bisch.')
+    : title; // CU titles already use traditional titlo abbreviations.
+  const withoutYears = shortTitle.replace(/\s*\(\d{1,4}(?:[–—-]\d{1,4})?\)/gu, '').trim();
+  const glyphs = [...new Intl.Segmenter(language === 'cu' ? 'ru' : 'de', { granularity: 'grapheme' }).segment(withoutYears)].map(item => item.segment);
+  const clipped = glyphs.length > 72;
+  const compact = clipped ? glyphs.slice(0, 69).join('').replace(/\s+\S*$/u, '').replace(/[.,;:!?\s]+$/u, '') + '…' : withoutYears;
+  return { shortTitle, veryShortTitle: compact };
+}

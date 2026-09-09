@@ -2,9 +2,20 @@ import { describe, expect, it } from "vitest";
 import {
   createShortCalendarTitle,
   createVeryShortCalendarTitle,
+  createLocalizedCalendarTitleVariants,
 } from "../src/calendar/presentation/title-variants";
 
 describe("calendar title variants", () => {
+  it('builds localized print variants without breaking Slavonic combining marks', () => {
+    const title = 'Мч҃никѡвъ ' + 'а҆леѯа́ндра '.repeat(20) + '(1937)';
+    const result = createLocalizedCalendarTitleVariants(title, 'cu');
+    expect(result.shortTitle).toBe(title);
+    expect(result.veryShortTitle).toMatch(/…$/u);
+    expect(result.veryShortTitle).not.toMatch(/(?:^|\s|…)\p{M}/u);
+    expect(result.veryShortTitle).not.toContain('1937');
+    expect(createLocalizedCalendarTitleVariants('Heiliger Johannes, Erzbischof (1937)', 'de').shortTitle)
+      .toBe('Hl. Johannes, Erzb. (1937)');
+  });
   it("preserves a name following its primary rank", () => {
     expect(createVeryShortCalendarTitle("День кончины Святейшего Патриарха Пимена"))
       .toBe("День кончины Святейшего патр. Пимена");

@@ -8,7 +8,7 @@ import {
 import { toIsoDate } from "../date/calendar-date";
 import { compareDates } from '../date/calendar-date';
 import type { CalendarLanguage } from '../../document/types';
-import { calendarWeekdayLabels, calendarFoodRuleLabel, localizeCalendarEventTitleWithStatus } from '../localization/calendar-language';
+import { calendarWeekdayLabels, calendarFoodRuleLabel, localizeCalendarEventTitleWithStatus, localizeCalendarEvent } from '../localization/calendar-language';
 import { calendarContentCategory } from '../presentation/calendar-content-policy';
 import { typikonMarkForEvent, dayNumberTypikonStyle } from '../presentation/typikon-style';
 import { TYPIKON_MARKERS } from '../presentation/typikon-markers';
@@ -83,6 +83,7 @@ export interface CalendarApiYear {
 
 function serializeEvent(event: ResolvedCalendarEvent, api: OrthodoxCalendarApi, language: CalendarLanguage): CalendarApiEvent {
   const localized = localizeCalendarEventTitleWithStatus(event.title, language);
+  const display = localizeCalendarEvent(event, language);
   const mark = typikonMarkForEvent(event);
   const source = api.dataset.records[event.sourceIndex - 1];
   return {
@@ -92,7 +93,7 @@ function serializeEvent(event: ResolvedCalendarEvent, api: OrthodoxCalendarApi, 
     sourceId: event.sourceId,
     sourceIndex: event.sourceIndex,
     source: source?.id === event.sourceId ? source : null,
-    description: event.description ?? null,
+    description: display.description ?? null,
     occurrenceDate: toIsoDate(event.occurrenceDate),
     spanStart: toIsoDate(event.spanStart),
     spanFinish: toIsoDate(event.spanFinish),
@@ -102,8 +103,8 @@ function serializeEvent(event: ResolvedCalendarEvent, api: OrthodoxCalendarApi, 
     localization: localized.status,
     typikonMark: mark ? TYPIKON_MARKERS[mark] : null,
     isIconCommemoration: /икон[а-яё]*\s+(?:Божией|Божьей)\s+Матери/iu.test(event.title),
-    ...(event.shortTitle ? { shortTitle: event.shortTitle } : {}),
-    ...(event.veryShortTitle ? { veryShortTitle: event.veryShortTitle } : {}),
+    ...(display.shortTitle ? { shortTitle: display.shortTitle } : {}),
+    ...(display.veryShortTitle ? { veryShortTitle: display.veryShortTitle } : {}),
     typeCode: event.typeCode,
     priority: event.priority,
     ruleKind: event.ruleKind,

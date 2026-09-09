@@ -24,7 +24,17 @@ describe("public calendar API contract", () => {
       for (const day of year.days) {
         const exposed = api.getDay(day.date)!;
         for (let i = 0; i < day.events.length; i++) {
-          expect(exposed.events[i]!.title).toBe(localizeCalendarEvent(day.events[i]!, language).title);
+          const display = localizeCalendarEvent(day.events[i]!, language);
+          expect(exposed.events[i]!.title).toBe(display.title);
+          expect(exposed.events[i]!.shortTitle).toBe(display.shortTitle);
+          expect(exposed.events[i]!.veryShortTitle).toBe(display.veryShortTitle);
+          expect(exposed.events[i]!.description).toBe(display.description ?? null);
+          if (language === 'de' || language === 'cu') {
+            expect(exposed.events[i]!.localization, day.events[i]!.title).not.toBe('source-fallback');
+            if (day.events[i]!.shortTitle) expect(display.shortTitle, day.events[i]!.title).toBeTruthy();
+            if (day.events[i]!.veryShortTitle) expect(display.veryShortTitle, day.events[i]!.title).toBeTruthy();
+            if (day.events[i]!.description) expect(display.description).not.toBe(day.events[i]!.description);
+          }
           if (exposed.events[i]!.localization !== 'source-fallback') translated++;
         }
       }
