@@ -35,6 +35,21 @@ try {
     return { response, body: await response.json() };
   };
   assert.equal((await fetch(base)).status,200);
+  const textsBase=origin+'/api/v1/calendar-texts/';
+  assert.equal((await fetch(textsBase)).status,401);
+  const textRequest=(suffix='',options={})=>fetch(textsBase+suffix,{...options,headers:{'X-API-Key':systemKey,...options.headers}});
+  const libraryResponse=await textRequest();const library=await libraryResponse.json();
+  assert.equal(libraryResponse.status,200);assert.equal(library.count,98);
+  assert.equal(library.assignment,'reference-only');assert.equal(library.completeness.automaticAssignment,false);
+  assert.equal(libraryResponse.headers.get('X-Calendar-Application-Cache-TTL'),'300');
+  assert.equal(library.contentHash,JSON.parse(readFileSync('public/data/liturgical-texts.json','utf8')).contentHash);
+  assert.equal((await textRequest('',{headers:{'If-None-Match':libraryResponse.headers.get('etag')}})).status,304);
+  assert.equal((await (await textRequest('?scope=resurrection&tone=1&type=troparion')).json()).count,1);
+  assert.equal((await (await textRequest('?language=de')).json()).count,0);
+  assert.equal((await textRequest('?id=not-a-real-text')).status,404);
+  for(const query of ['?tone=9','?weekday=7','?type[]=prayer','?date=2027-05-02'])assert.equal((await textRequest(query)).status,400);
+  assert.equal((await textRequest('',{method:'HEAD'})).status,200);
+  console.log('PASS liturgical reference API: 98 texts, filters, auth, conditional cache, no automatic date assignment');
   for (const path of ['/day?date=2027-05-02','/month?year=2027&month=5','/year?year=2027','/pascha?year=2027']) {
     const denied=await fetch(base+path);assert.equal(denied.status,401);assert.equal(denied.headers.get('cache-control'),'private, no-store');
   }
@@ -83,6 +98,18 @@ try {
   assert.deepEqual(year.body.days.find(day => day.date === '2027-05-02'), first.body.day);
   const leap = await request('/month?year=2028&month=02');
   assert.equal(leap.body.days.length, 29); assert.equal(leap.body.days.at(-1).date, '2028-02-29');
+  const summary = await request('/month?year=2028&month=02&view=summary');
+  assert.equal(summary.body.view,'summary'); assert.equal(summary.body.days.length,29);
+  assert.equal(summary.body.days[0].date,leap.body.days[0].date);
+  assert.ok(!('source' in summary.body.days[0].events[0]));
+  assert.ok(JSON.stringify(summary.body).length < JSON.stringify(leap.body).length / 2);
+  assert.equal(summary.response.headers.get('x-calendar-application-cache-ttl'),'300');
+  const upcoming = await request('/upcoming?date=2027-12-30&limit=5&filter=twelve');
+  assert.equal(upcoming.response.status,200); assert.equal(upcoming.body.items.length,5);
+  assert.ok(upcoming.body.items.every(item=>item.date>='2027-12-30'&&item.date<='2028-12-30'&&item.event.typeCode<=1));
+  assert.ok(upcoming.body.items.some(item=>item.date.startsWith('2028')));
+  for(const path of ['/month?year=2027&month=5&view=bad','/upcoming?date=2027-02-29','/upcoming?date=2027-01-01&limit=11','/upcoming?date=2027-01-01&filter=bad']) assert.equal((await request(path)).response.status,400);
+  assert.equal((await fetch(base+'/upcoming?date=2027-01-01')).status,401);
   const pascha = await request('/pascha?year=2027'); assert.equal(pascha.body.pascha, first.body.day.pascha);
   for (const lang of ['de', 'cu', 'uk', 'pl']) {
     const localized = await request(`/day?date=2027-05-02&lang=${lang}`);

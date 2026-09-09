@@ -38,8 +38,8 @@ onMounted(()=>run(load));
     </fieldset></div>
     <button :disabled="busy||data.plans.length>=20" @click="addPlan">Добавить тариф</button>
     <label>Контактный e-mail для получения API-ключа<input v-model="data.settings.contactEmail" type="email" @input="changed"></label>
-    <label>Ссылка на WordPress-плагин (после выпуска)<input v-model="data.settings.wordpressUrl" type="url" placeholder="https://…" @input="changed"></label>
-    <p>Пока ссылка пуста, документация сообщает, что плагин готовится.</p>
+    <label>Дополнительная ссылка на WordPress-плагин<input v-model="data.settings.wordpressUrl" type="url" placeholder="https://…" @input="changed"></label>
+    <p>Установочный ZIP доступен на странице «API календаря». Здесь можно указать дополнительную страницу плагина.</p>
     <button :disabled="busy" @click="saveSettings">Сохранить тарифы и настройки</button>
     <h3>Создать клиента и выдать ключ</h3><p>Системный доступ — для собственных серверных интеграций, например BibleDesktop: без тарифных квот, только чтение. Отключение и срок действия сохраняются.</p><form @submit.prevent="create"><fieldset :disabled="busy"><div class="fields">
       <label>Имя / организация<input v-model="form.name" required maxlength="160"></label><label>E-mail клиента<input v-model="form.email" type="email" required maxlength="254"></label>

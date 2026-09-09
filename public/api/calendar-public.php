@@ -8,6 +8,9 @@ function calendar_public_response(array $body, string $method, bool $cache = tru
     header('X-Content-Type-Options: nosniff');
     // Every request must pass key and quota checks; shared caches cannot bypass them.
     header('Cache-Control: private, no-store');
+    // Explicit application cache permission, not permission for HTTP/shared caches.
+    // Integrations may serve a successful result for five minutes after authorization.
+    header('X-Calendar-Application-Cache-TTL: 300');
     $etag = '"' . hash('sha256', $json) . '"';
     header('ETag: ' . $etag);
     if (in_array($etag, array_map('trim', explode(',', $_SERVER['HTTP_IF_NONE_MATCH'] ?? '')), true)) {
@@ -115,10 +118,11 @@ function calendar_public_routes(string $method, string $path): void {
     if ($method === 'OPTIONS') { http_response_code(204); exit; }
     if (!in_array($method, ['GET', 'HEAD'], true)) calendar_fail('method_not_allowed', 405);
     $action = substr($path, strlen('/v1/calendar'));
-    if (!in_array($action, ['', '/', '/today', '/day', '/month', '/year', '/pascha'], true)) calendar_fail('not_found', 404);
+    if (!in_array($action, ['', '/', '/today', '/day', '/month', '/year', '/pascha', '/upcoming'], true)) calendar_fail('not_found', 404);
     $allowed = match ($action) {
         '', '/' => [], '/today' => ['lang', 'profile'], '/day' => ['date', 'lang', 'profile'],
-        '/month' => ['year', 'month', 'lang', 'profile'], default => ['year', 'lang', 'profile'],
+        '/month' => ['year', 'month', 'lang', 'profile', 'view'], '/year' => ['year', 'lang', 'profile', 'view'],
+        '/upcoming' => ['date', 'limit', 'filter', 'lang', 'profile'], default => ['year', 'lang', 'profile'],
     };
     foreach (array_keys($_GET) as $parameter) {
         if (!in_array($parameter, $allowed, true)) calendar_fail('invalid_parameter', 400, 'Unexpected query parameter.');
@@ -135,7 +139,8 @@ function calendar_public_routes(string $method, string $path): void {
         'languages' => ['ru', 'cu', 'de', 'uk', 'pl'], 'defaultLanguage' => 'ru',
         'profiles' => ['typikon-strict', 'parish'], 'defaultProfile' => 'typikon-strict',
         'authentication' => ['header' => 'X-API-Key', 'public' => ['/', '/today'], 'todayTimezone' => 'Europe/Berlin'],
-        'endpoints' => ['today', 'day?date=2027-05-02', 'month?year=2027&month=5', 'year?year=2027', 'pascha?year=2027'],
+        'endpoints' => ['today', 'day?date=2027-05-02', 'month?year=2027&month=5', 'year?year=2027', 'pascha?year=2027', 'upcoming?date=2027-01-01&limit=5'],
+        'applicationCache' => ['maxAgeSeconds' => 300, 'staleOnError' => false, 'revocationDelaySeconds' => 300],
         'optionalParameters' => ['lang', 'profile'], 'iconImagesAvailable' => false,
         'scope' => 'Public calendar data only; no private calendars, photos or project-specific events.',
     ], $method);
@@ -144,10 +149,15 @@ function calendar_public_routes(string $method, string $path): void {
     if (!in_array($profile, ['typikon-strict', 'parish'], true)) calendar_fail('invalid_profile', 400);
     $date = $action === '/today' ? (new DateTimeImmutable('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') : calendar_public_parameter('date');
     if ($action === '/today') $action = '/day';
-    $yearText = $action === '/day' ? substr($date, 0, 4) : calendar_public_parameter('year');
+    $yearText = in_array($action, ['/day', '/upcoming'], true) ? substr($date, 0, 4) : calendar_public_parameter('year');
     if (!preg_match('/^[0-9]{4}$/', $yearText) || (int)$yearText < 1900 || (int)$yearText > 2200) calendar_fail('invalid_year', 400, 'Supported years: 1900–2200.');
     $year = (int)$yearText;
-    if ($action === '/day' && (!preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $date) || !checkdate((int)substr($date, 5, 2), (int)substr($date, 8, 2), $year))) calendar_fail('invalid_date', 400);
+    if (in_array($action, ['/day', '/upcoming'], true) && (!preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $date) || !checkdate((int)substr($date, 5, 2), (int)substr($date, 8, 2), $year))) calendar_fail('invalid_date', 400);
+    $view = calendar_public_parameter('view', 'full');
+    $filter = calendar_public_parameter('filter', 'main');
+    $limit = calendar_public_parameter('limit', '5');
+    if (!in_array($view, ['full', 'summary'], true) || !in_array($filter, ['main', 'twelve', 'great', 'memorial', 'all'], true)
+        || !preg_match('/^(?:[1-9]|10)$/', $limit)) calendar_fail('invalid_parameter', 400);
     $month = calendar_public_parameter('month');
     if ($action === '/month' && (!preg_match('/^(0?[1-9]|1[0-2])$/', $month))) calendar_fail('invalid_month', 400);
     // Only valid requests consume quota; authorization precedes calculation.
@@ -161,6 +171,28 @@ function calendar_public_routes(string $method, string $path): void {
         }
     }
     $value = calendar_public_year($manifest, $runtimeDirectory, $year, $profile, $language);
+    if ($action === '/upcoming') {
+        $items = [];
+        $until = min($year + 1, 2200);
+        $end = (new DateTimeImmutable($date, new DateTimeZone('UTC')))->modify('+366 days')->format('Y-m-d');
+        for ($scan = $year; $scan <= $until; $scan++) {
+            $calendar = $scan === $year ? $value : calendar_public_year($manifest, $runtimeDirectory, $scan, $profile, $language);
+            foreach ($calendar['days'] as $day) {
+                if ($day['date'] < $date || $day['date'] > $end) continue;
+                foreach ($day['events'] as $event) {
+                    $rank = $event['typeCode'];
+                    $matches = $event['category'] === 'commemoration' && match ($filter) {
+                        'twelve' => $rank >= 0 && $rank <= 1, 'great' => $rank === 2, 'memorial' => $rank === 9,
+                        'all' => $rank >= 0 && $rank <= 9, default => ($rank >= 0 && $rank <= 2) || $rank === 9,
+                    };
+                    if (!$matches) continue;
+                    $items[] = ['date' => $day['date'], 'oldStyleDate' => $day['oldStyleDate'], 'event' => calendar_public_event_summary($event)];
+                    if (count($items) >= (int)$limit) break 3;
+                }
+            }
+        }
+        calendar_public_response(['metadata' => $value['metadata'], 'from' => $date, 'until' => min($end, '2200-12-31'), 'items' => $items], $method);
+    }
     if ($action === '/day') {
         foreach ($value['days'] as $day) if ($day['date'] === $date) calendar_public_response(['metadata' => $value['metadata'], 'day' => $day], $method);
         calendar_fail('date_not_found', 404);
@@ -170,5 +202,17 @@ function calendar_public_routes(string $method, string $path): void {
         $value['month'] = (int)$month;
         $value['days'] = array_values(array_filter($value['days'], static fn($day) => (int)substr($day['date'], 5, 2) === (int)$month));
     }
+    if ($view === 'summary') {
+        $value['days'] = array_map(static function ($day) {
+            $summary = array_intersect_key($day, array_flip(['date', 'oldStyleDate', 'weekday', 'weekdayName', 'dayStyle', 'foodLabel', 'fastingColor', 'eventCount']));
+            $summary['events'] = array_map('calendar_public_event_summary', array_values(array_filter($day['events'], static fn($event) => $event['category'] === 'commemoration')));
+            return $summary;
+        }, $value['days']);
+        $value['view'] = 'summary';
+    }
     calendar_public_response($value, $method);
+}
+
+function calendar_public_event_summary(array $event): array {
+    return array_intersect_key($event, array_flip(['id', 'title', 'shortTitle', 'typeCode', 'category', 'typikonMark', 'localization']));
 }

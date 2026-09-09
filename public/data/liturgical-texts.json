@@ -1,0 +1,2737 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-09-09.2",
+  "contentHash": "0d4e6193b5ba8df5aa8500121397abadeb6e48383f9f550af521e3999d732fc8",
+  "completeness": {
+    "annualCycle": false,
+    "automaticAssignment": false,
+    "resurrectionTones": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "weekdayCycle": true,
+    "prayers": false,
+    "magnifications": false,
+    "akathists": false
+  },
+  "texts": [
+    {
+      "id": "resurrection-tone-1-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 1",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Ка́мени запеча́тану от иуде́й / и во́ином стрегу́щим Пречи́стое Те́ло Твое́, / воскре́сл еси́ тридне́вный, Спа́се, / да́руяй ми́рови жи́знь. / Сего́ ра́ди си́лы небе́сныя вопия́ху Ти́, Жизнода́вче: / сла́ва воскресе́нию Твоему́, Христе́, / сла́ва Ца́рствию Твоему́, / сла́ва смотре́нию Твоему́, еди́не Человеколю́бче.",
+      "scope": "resurrection",
+      "tone": 1,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n1",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-1-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 1",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Воскре́сл еси́ я́ко Бо́г из гро́ба во сла́ве, / и ми́р совоскреси́л еси́; / и естество́ челове́ческое я́ко Бо́га воспева́ет Тя́, и сме́рть исчезе́; / Ада́м же лику́ет, Влады́ко; / Е́ва ны́не от у́з избавля́ема ра́дуется, зову́щи: / Ты́ еси́, И́же все́м подая́, Христе́, воскресе́ние.",
+      "scope": "resurrection",
+      "tone": 1,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n1",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-2-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Егда́ снизше́л еси́ к сме́рти, Животе́ Безсме́ртный, / тогда́ а́д умертви́л еси́ блиста́нием Божества́: / егда́ же и уме́ршия от преиспо́дних воскреси́л еси́, / вся́ си́лы небе́сныя взыва́ху: / Жизнода́вче, Христе́ Бо́же на́ш, сла́ва Тебе́.",
+      "scope": "resurrection",
+      "tone": 2,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n2",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-2-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Воскре́сл еси́ от гро́ба, Всеси́льне Спа́се, / и а́д ви́дев чу́до, ужасе́ся, / и ме́ртвии воста́ша; / тва́рь же ви́дящи сра́дуется Тебе́, / и Ада́м свесели́тся, / и ми́р, Спа́се мо́й, воспева́ет Тя́ при́сно.",
+      "scope": "resurrection",
+      "tone": 2,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n2",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-3-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 3",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Да веселя́тся небе́сная, / да ра́дуются земна́я, / я́ко сотвори́ держа́ву / мы́шцею Свое́ю Госпо́дь, / попра́ сме́ртию сме́рть, / пе́рвенец ме́ртвых бы́сть; / из чре́ва а́дова изба́ви на́с, / и подаде́ ми́рови ве́лию ми́лость.",
+      "scope": "resurrection",
+      "tone": 3,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n3",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-3-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 3",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Воскре́сл еси́ дне́сь из гро́ба, Ще́дре, / и на́с возве́л еси́ от вра́т сме́ртных; / дне́сь Ада́м лику́ет, и ра́дуется Е́ва, / вку́пе же и проро́цы с патриа́рхи воспева́ют непреста́нно / Боже́ственную держа́ву вла́сти Твоея́.",
+      "scope": "resurrection",
+      "tone": 3,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n3",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-4-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 4",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Све́тлую воскресе́ния про́поведь / от А́нгела уве́девша Госпо́дни учени́цы / и пра́деднее осужде́ние отве́ргша, / апо́столом хва́лящася глаго́лаху: / испрове́ржеся сме́рть, / воскре́се Христо́с Бо́г, / да́руяй ми́рови ве́лию ми́лость.",
+      "scope": "resurrection",
+      "tone": 4,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n4",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-4-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 4",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Спа́с и Изба́витель мо́й / из гро́ба, я́ко Бо́г, / воскреси́ от у́з земноро́дныя, / и врата́ а́дова сокруши́, / и я́ко Влады́ка воскре́се тридне́вен.",
+      "scope": "resurrection",
+      "tone": 4,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n4",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-5-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 5",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Собезнача́льное Сло́во Отцу́ и Ду́хови, / от Де́вы ро́ждшееся на спасе́ние на́ше, / воспои́м, ве́рнии, и поклони́мся, / я́ко благоволи́ пло́тию взы́ти на кре́ст, / и сме́рть претерпе́ти, / и воскреси́ти уме́ршия / сла́вным воскресе́нием Свои́м.",
+      "scope": "resurrection",
+      "tone": 5,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n5",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-5-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 5",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Ко а́ду, Спа́се мо́й, соше́л еси́, / и врата́ сокруши́вый я́ко Всеси́лен, / уме́рших я́ко Созда́тель совоскреси́л еси́, / и сме́рти жа́ло сокруши́л еси́, / и Ада́м от кля́твы изба́влен бы́сть, / Человеколю́бче, те́мже вси́ зове́м: / спаси́ на́с, Го́споди.",
+      "scope": "resurrection",
+      "tone": 5,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n5",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-6-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 6",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "А́нгельския си́лы на гро́бе Твое́м, / и стрегу́щии омертве́ша, / и стоя́ше Мари́я во гро́бе, / и́щущи Пречи́стаго Те́ла Твоего́. / Плени́л еси́ а́д, не искуси́вся от него́; / сре́тил еси́ Де́ву, да́руяй живо́т. / Воскресы́й из ме́ртвых. Го́споди, сла́ва Тебе́.",
+      "scope": "resurrection",
+      "tone": 6,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n6",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-6-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 6",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Живонача́льною дла́нию / уме́ршия от мра́чных удо́лий, / Жизнода́вец, воскреси́в все́х Христо́с Бо́г, / воскресе́ние подаде́ челове́ческому ро́ду: / е́сть бо все́х Спаси́тель, / воскресе́ние и живо́т, и Бо́г все́х.",
+      "scope": "resurrection",
+      "tone": 6,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n6",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-7-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 7",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Разруши́л еси́ Кресто́м Твои́м сме́рть, / отве́рзл еси́ разбо́йнику ра́й, / мироно́сицам пла́ч преложи́л еси́, / и апо́столом пропове́дати повеле́л еси́, / я́ко воскре́сл еси́, Христе́ Бо́же, / да́руяй ми́рови / ве́лию ми́лость.",
+      "scope": "resurrection",
+      "tone": 7,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n7",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-7-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 7",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Не ктому́ держа́ва сме́ртная / возмо́жет держа́ти челове́ки: / Христо́с бо сни́де, сокруша́я и разоря́я си́лы ея́; / связу́емь быва́ет а́д, / проро́цы согла́сно ра́дуются, / предста́, глаго́люще, Спа́с су́щим в ве́ре: / изыди́те, ве́рнии, в воскресе́ние.",
+      "scope": "resurrection",
+      "tone": 7,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n7",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-8-troparion",
+      "type": "troparion",
+      "title": "Тропарь воскресный, глас 8",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "С высоты́ снизше́л еси́, Благоутро́бне, / погребе́ние прия́л еси́ тридне́вное, / да на́с свободи́ши страсте́й, / Животе́ и воскресе́ние на́ше. Го́споди, сла́ва Тебе́.",
+      "scope": "resurrection",
+      "tone": 8,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n8",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "resurrection-tone-8-kontakion",
+      "type": "kontakion",
+      "title": "Кондак воскресный, глас 8",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Воскре́с из гро́ба, уме́ршия воздви́гл еси́, / и Ада́ма воскреси́л еси́, / и Е́ва лику́ет во Твое́м воскресе́нии, / и мирсти́и концы́ торжеству́ют / е́же из ме́ртвых воста́нием Твои́м, Многоми́лостиве.",
+      "scope": "resurrection",
+      "tone": 8,
+      "weekdays": [
+        0
+      ],
+      "subject": "resurrection",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-voskresnye-vosmi-glasov.html#n8",
+          "title": "Тропари и кондаки воскресные 8-ми гласов",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-angels-troparion",
+      "type": "troparion",
+      "title": "Тропарь: Небесным чинам бесплотным, глас 4",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Небе́сных во́инств Архистрати́зи,/ мо́лим вас при́сно мы недосто́йнии,/ да ва́шими моли́твами оградите́ нас/ кро́вом крил невеще́ственныя ва́шея сла́вы,/ сохраня́юще нас припа́дающия приле́жно и вопию́щия:/ от бед изба́вите нас,// я́ко чинонача́льницы вы́шних Сил.",
+      "scope": "weekday",
+      "tone": 4,
+      "weekdays": [
+        1
+      ],
+      "subject": "angels",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n2",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-angels-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: Небесным чинам бесплотным, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Архистрати́зи Бо́жии,/ служи́телие Боже́ственныя сла́вы,/ А́нгелов нача́льницы, и челове́ков наста́вницы,/ поле́зное нам проси́те, и ве́лию ми́лость,// я́ко Безпло́тных Архистрати́зи.",
+      "scope": "weekday",
+      "tone": 2,
+      "weekdays": [
+        1
+      ],
+      "subject": "angels",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n3",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-forerunner-troparion",
+      "type": "troparion",
+      "title": "Тропарь: Иоанну Предтече, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Па́мять пра́веднаго с похвала́ми,/ тебе́ же довле́ет свиде́тельство Госпо́дне, Предте́че:/ пока́зал бо ся еси́ вои́стину и проро́ков честне́йший,/ я́ко и в струя́х крести́ти сподо́бился еси́ Пропове́даннаго./ Те́мже за и́стину пострада́в ра́дуяся,/ благовести́л еси́ и су́щим во а́де Бо́га я́вльшагося пло́тию,/ взе́млющаго грех ми́ра,// и подаю́щаго нам ве́лию ми́лость.",
+      "scope": "weekday",
+      "tone": 2,
+      "weekdays": [
+        2
+      ],
+      "subject": "forerunner",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n5",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-forerunner-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: Иоанну Предтече, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Про́роче Бо́жий и Предте́че благода́ти,/ главу́ твою́ я́ко ши́пок свяще́ннейший от земли́ обре́тше,/ исцеле́ния всегда́ прие́млем,// и́бо па́ки, я́коже пре́жде в ми́ре пропове́дуеши покая́ние.",
+      "scope": "weekday",
+      "tone": 2,
+      "weekdays": [
+        2
+      ],
+      "subject": "forerunner",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n6",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-cross-troparion",
+      "type": "troparion",
+      "title": "Тропарь: Кресту Господню, глас 1",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Спаси́, Го́споди, лю́ди Твоя́/ и благослови́ достоя́ние Твое́,/ побе́ды на сопроти́вныя да́руя// и Твое́ сохраня́я Кресто́м Твои́м жи́тельство.",
+      "scope": "weekday",
+      "tone": 1,
+      "weekdays": [
+        3,
+        5
+      ],
+      "subject": "cross",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n8",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-cross-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: Кресту Господню, глас 4",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Вознесы́йся на Крест во́лею,/ тезоимени́тому Твоему́ но́вому жи́тельству,/ щедро́ты Твоя́ да́руй, Христе́ Бо́же,/ возвесели́ нас си́лою Твое́ю,/ побе́ды дая́ нам на сопоста́ты,/ посо́бие иму́щим Твое́ ору́жие ми́ра,// непобеди́мую побе́ду.",
+      "scope": "weekday",
+      "tone": 4,
+      "weekdays": [
+        3,
+        5
+      ],
+      "subject": "cross",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n9",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-apostles-troparion",
+      "type": "troparion",
+      "title": "Тропарь: Апостолам, глас 3",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Апо́столи святи́и,/ моли́те Ми́лостиваго Бо́га,/ да прегреше́ний оставле́ние// пода́ст душа́м на́шим.",
+      "scope": "weekday",
+      "tone": 3,
+      "weekdays": [
+        4
+      ],
+      "subject": "apostles",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n11",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-apostles-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: Апостолам, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Тве́рдыя и боговеща́нныя пропове́датели,/ верх апо́столов Твои́х, Го́споди,/ прия́л еси́ в наслажде́ние благи́х Твои́х и поко́й;/ боле́зни бо о́нех и смерть прия́л еси́ па́че вся́каго всепло́дия,// Еди́не све́дый серде́чная.",
+      "scope": "weekday",
+      "tone": 2,
+      "weekdays": [
+        4
+      ],
+      "subject": "apostles",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n12",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-nicholas-troparion",
+      "type": "troparion",
+      "title": "Тропарь: Святителю Николаю, глас 4",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Пра́вило ве́ры и о́браз кро́тости,/ воздержа́ния учи́теля/ яви́ тя ста́ду твоему́/ Я́же веще́й И́стина./ Сего́ ра́ди стяжа́л еси́ смире́нием высо́кая,/ нището́ю бога́тая,/ о́тче священнонача́льниче Нико́лае,/ моли́ Христа́ Бо́га,// спасти́ся душа́м на́шим.",
+      "scope": "weekday",
+      "tone": 4,
+      "weekdays": [
+        4
+      ],
+      "subject": "nicholas",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n13",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-nicholas-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: Святителю Николаю, глас 3",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "В Ми́рех, свя́те, священноде́йствитель показа́лся еси́,/ Христо́во бо, преподо́бне, Ева́нгелие испо́лнив,/ положи́л еси́ ду́шу твою́ о лю́дех твои́х/ и спасл еси́ непови́нныя от сме́рти./ Сего́ ра́ди освяти́лся еси́,// я́ко вели́кий таи́нник Бо́жия благода́ти.",
+      "scope": "weekday",
+      "tone": 3,
+      "weekdays": [
+        4
+      ],
+      "subject": "nicholas",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n14",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-all-saints-troparion",
+      "type": "troparion",
+      "title": "Тропарь: Всем святым, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Апо́столи, му́ченицы и проро́цы,/ святи́телие, преподо́бнии и пра́веднии,/ до́бре по́двиг соверши́вшии и ве́ру соблю́дшии,/ дерзнове́ние иму́ще ко Спа́су,/ о нас Того́, я́ко Бла́га, моли́те,// спасти́ся, мо́лимся, душа́м на́шим.",
+      "scope": "weekday",
+      "tone": 2,
+      "weekdays": [
+        6
+      ],
+      "subject": "all-saints",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n16",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-all-saints-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: Всем святым, глас 8",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Я́ко нача́тки естества́, Насади́телю тва́ри,/ вселе́нная прино́сит Ти, Го́споди, богоно́сныя му́ченики;/ тех моли́твами в ми́ре глубо́це// Це́рковь Твою́, жи́тельство Твое́ Богоро́дицею соблюди́, Многоми́лостиве.",
+      "scope": "weekday",
+      "tone": 8,
+      "weekdays": [
+        6
+      ],
+      "subject": "all-saints",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n18",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-departed-troparion",
+      "type": "troparion",
+      "title": "Тропарь: За умерших, глас 2",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Помяни́, Го́споди, я́ко благ, рабы Твоя́,/ и, ели́ка в житии́ согреши́ша, прости́:/ никто́же бо безгре́шен, то́кмо Ты,// моги́й и преста́вленным да́ти поко́й.",
+      "scope": "weekday",
+      "tone": 2,
+      "weekdays": [
+        6
+      ],
+      "subject": "departed",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n17",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "weekday-departed-kontakion",
+      "type": "kontakion",
+      "title": "Кондак: За умерших, глас 6",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Со святы́ми упоко́й,/ Христе́,/ ду́ши раб Твои́х,/ иде́же несть боле́знь, ни печа́ль,/ ни воздыха́ние,// но жизнь безконе́чная.",
+      "scope": "weekday",
+      "tone": 6,
+      "weekdays": [
+        6
+      ],
+      "subject": "departed",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/tropari-i-kondaki-dnej-sedmicy.html#n19",
+          "title": "Тропари и кондаки дней седмицы",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-01-troparion",
+      "type": "troparion",
+      "title": "ВСЕМИЛОСТИВОМУ СПАСИТЕЛЮ: Тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "С вышних призирая, убогия приемля, / посети нас, озлобленныя грехи, Владыко Всемилостиве, / молитвами Богородицы даруй душам нашим велию милость.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ВСЕМИЛОСТИВОМУ СПАСИТЕЛЮ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-02-kontakion",
+      "type": "kontakion",
+      "title": "ВСЕМИЛОСТИВОМУ СПАСИТЕЛЮ: Кондак, глас 6",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Всякия скверны, Всемилостивый Спасе, аз бых делатель / и во отчаяния ров впадся, / но стеню от сердца и вопию к Тебе, Слове, / ускори, Щедрый, и потщися на помощь нашу, / яко милостив.",
+      "scope": "common",
+      "tone": 6,
+      "weekdays": [],
+      "subject": "ВСЕМИЛОСТИВОМУ СПАСИТЕЛЮ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-03-troparion",
+      "type": "troparion",
+      "title": "ПРЕСВЯТОЙ БОГОРОДИЦЕ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "К Богородице прилежно ныне притецем, / грешнии и смиреннии, и припадем, / в покаянии зовуще из глубины души: / Владычице, помози, на ны милосердовавши, / потщися, погибаем от множества прегрешений, / не отврати Твоя рабы тщи, / Тя бо и едину надежду имамы.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "ПРЕСВЯТОЙ БОГОРОДИЦЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-04-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕСВЯТОЙ БОГОРОДИЦЕ: Кондак, глас 6",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Предстательство христиан непостыдное, / ходатайство ко Творцу непреложное, / не презри грешных молений гласы, / но предвари, яко Благая, на помощь нас, верно зовущих Ти; / ускори на молитву, и потщися на умоление, / предстательствующи присно, Богородице, чтущих Тя.",
+      "scope": "common",
+      "tone": 6,
+      "weekdays": [],
+      "subject": "ПРЕСВЯТОЙ БОГОРОДИЦЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-05-troparion",
+      "type": "troparion",
+      "title": "ПРОРОКУ: Тропарь, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Пророка Твоего (имярек) память, Господи, празднующе, / тем Тя молим: / спаси души наша.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРОРОКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-06-kontakion",
+      "type": "kontakion",
+      "title": "ПРОРОКУ: Кондак, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Просветившееся Духом чистое твое сердце / пророчества бысть светлейшаго приятелище, / зриши бо яко настоящая далече сущая, / сего ради тя почитаем, / пророче блаженне (имярек), славне.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "ПРОРОКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-07-troparion",
+      "type": "troparion",
+      "title": "АПОСТОЛУ: Тропарь, глас 3",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Апостоле святый (имярек), / моли Милостивого Бога, / да прегрешений оставление / подаст душам нашим.",
+      "scope": "common",
+      "tone": 3,
+      "weekdays": [],
+      "subject": "АПОСТОЛУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-08-kontakion",
+      "type": "kontakion",
+      "title": "АПОСТОЛУ: Кондак, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Яко звезду пресветлую / Церковь всегда стяжа тя, / апостоле (имярек), / чудес Твоих многоподаванием просвещаема. / Темже зовем Христу: / спаси чтущих верою / память Твоего апостола, Многомилостиве.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "АПОСТОЛУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-09-troparion",
+      "type": "troparion",
+      "title": "АПОСТОЛАМ: Тропарь, глас 3",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Апостоли святии, / молите Милостиваго Бога, / да прегрешений оставление / подаст душам нашим.",
+      "scope": "common",
+      "tone": 3,
+      "weekdays": [],
+      "subject": "АПОСТОЛАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-10-kontakion",
+      "type": "kontakion",
+      "title": "АПОСТОЛАМ: Кондак, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Лозие явистеся Христова винограда, мудрии, / гроздие приносяще в добродетелех, / вино нам спасения источающе, / егоже приемлем, веселия исполняющеся. / Празднуем честную вашу память, / в нюже молите дароватися нам велицей милости, и отпущению грехов, / Господни апостоли.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "АПОСТОЛАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-11-troparion",
+      "type": "troparion",
+      "title": "СВЯТИТЕЛЮ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Правило веры и образ кротости, / воздержания учителя / яви тя стаду твоему / Яже вещей Истина, / сего ради стяжал еси смирением высокая, / нищетою богатая, / отче священноначальниче (имярек), / моли Христа Бога, / спастися душам нашим.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "СВЯТИТЕЛЮ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-12-kontakion",
+      "type": "kontakion",
+      "title": "СВЯТИТЕЛЮ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Божественный гром, труба духовная, / веры насадителю и отсекателю ересей, / Троицы угодниче, / великий святителю (имярек), / со Ангелы предстоя присно, / моли непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "СВЯТИТЕЛЮ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-13-troparion",
+      "type": "troparion",
+      "title": "СВЯТИТЕЛЯМ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Боже отец наших, / творяй присно с нами по Твоей кротости, / не отстави милость Твою от нас, / но молитвами их / в мире управи живот наш.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "СВЯТИТЕЛЯМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-14-kontakion",
+      "type": "kontakion",
+      "title": "СВЯТИТЕЛЯМ: Кондак, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Яко добродетелей учителие и иерархов украшение, / Церковь поющи вас славит, / молитвами вашими подайте чтущим вас любовию, / добродетелей исправление и соблазнов избавление, / яко непобедимии.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "СВЯТИТЕЛЯМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-15-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУ: Тропарь, глас 1",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Пустынный житель и в телеси Ангел / и чудотворец явился еси, богоносе отче наш (имярек), / постом, бдением, молитвою Небесная дарования приим, / исцеляеши недужныя и души верою притекающих ти. / Слава Давшему ти крепость, / слава Венчавшему тя, / слава Действующему тобою всем исцеления.",
+      "scope": "common",
+      "tone": 1,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-16-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУ: Тропарь столпнику, глас 1",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Терпения столп был еси, / ревновавый праотцем, преподобне, / Иову во страстех, Иосифу во искушениих, / и Безплотных жительству сый в телеси, / (имярек), отче наш, / моли Христа Бога спастися душам нашим.",
+      "scope": "common",
+      "tone": 1,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-17-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУ: Иный тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "В тебе, отче, известно спасеся еже по образу: / приим бо Крест, последовал еси Христу, / и дея учил еси презирати убо плоть, преходит бо, / прилежати же о души, вещи безсмертней, / темже и со Ангелы срадуется, преподобне (имярек), дух твой.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-18-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУ: Иный тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Слез твоих теченьми пустыни безплодное возделал еси, / и иже из глубины воздыханьми во сто трудов уплодоносил еси, / и был еси светильник вселенней, / сияя чудесы, (имярек), отче наш, / моли Христа Бога спастися душам нашим.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-19-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕПОДОБНОМУ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Чистотою душевною божественно вооружився, / и непрестанные молитвы, яко копие, вручив крепко, / пробол еси бесовская ополчения, / (имярек), отче наш, / моли непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-20-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНЫМ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Боже отец наших, / творяй присно с нами по Твоей кротости, / не отстави милость Твою от нас, / но молитвами их / в мире управи живот наш.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНЫМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-21-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕПОДОБНЫМ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Волнений множество невлажно проходяще, / безплотныя враги струями слез ваших крепко погрузили есте, / богомудрии и преподобнии; / и чудес дар приимше, / молите непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНЫМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-22-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИКУ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Мученик Твой, Господи, (имярек), / во страдании своем венец прият нетленный от Тебе, Бога нашего, / имеяй бо крепость Твою, / мучителей низложи, / сокруши и демонов немощныя дерзости. / Того молитвами / спаси души наша.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "МУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-23-kontakion",
+      "type": "kontakion",
+      "title": "МУЧЕНИКУ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Звезда светлая явился еси, / непрелестная мирови, / Солнца Христа возвещающи, / зарями Твоими, страстотерпче (имярек), / и прелесть погасил еси всю, / нам же подаеши свет, / моляся непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "МУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-24-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИКАМ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Мученицы Твои, Господи, / во страданиих своих венцы прияша нетленныя от Тебе, Бога нашего, / имуще бо крепость Твою, / мучителей низложиша, / сокрушиша и демонов немощныя дерзости. / Тех молитвами / спаси души наша.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "МУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-25-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИКАМ: Иный тропарь, глас 1",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Болезньми святых, имиже о Тебе пострадаша, / умолен буди, Господи, / и вся наша болезни исцели, / Человеколюбче, молимся.",
+      "scope": "common",
+      "tone": 1,
+      "weekdays": [],
+      "subject": "МУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-26-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИКАМ: Иный тропарь, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Страстотерпцы Господни, / блаженна земля, напившаяся кровьми вашими, / и свята селения, приимшая телеса ваша, / в тризнищи бо врага победисте / и Христа со дерзновением проповедасте: / Того яко блага молите / спастися, молимся, душам нашим.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "МУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-27-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИКАМ: Иный тропарь, глас 5",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Чудеса святых Твоих мученик / стену необориму нам даровавый, Христе Боже, / тех молитвами советы языков разори, / Церковь святую укрепи, / яко един Благ и Человеколюбец.",
+      "scope": "common",
+      "tone": 5,
+      "weekdays": [],
+      "subject": "МУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-28-kontakion",
+      "type": "kontakion",
+      "title": "МУЧЕНИКАМ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Светильницы светлии явльшеся, божественнии мученицы, / тварь всю светлостию чудес озаряете, / недуги разрешающе и глубокую тьму всегда отгоняюще, / Христу Богу молящеся непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "МУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-29-troparion",
+      "type": "troparion",
+      "title": "СВЯЩЕННОМУЧЕНИКУ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "И нравом причастник, / и престолом наместник апостолом быв, / деяние обрел еси, Богодухновенне, / в видения восход, / сего ради слово истины исправляя, / и веры ради пострадал еси даже до крове, / священномучениче (имярек), / моли Христа Бога / спастися душам нашим.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "СВЯЩЕННОМУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-30-troparion",
+      "type": "troparion",
+      "title": "СВЯЩЕННОМУЧЕНИКУ: Иный тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Благости научився, и трезвяся во всех, / благою совестию священнолепно оболкся, / почерпл еси от сосуда избраннаго неизреченная / и, веру соблюд, равное течение совершил еси, / священномучениче (имярек), / моли Христа Бога / спастися душам нашим.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "СВЯЩЕННОМУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-31-kontakion",
+      "type": "kontakion",
+      "title": "СВЯЩЕННОМУЧЕНИКУ: Кондак, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Во святителех благочестно пожив / и мучения путь прошед, / идольския угасил еси жертвы, / и поборник быв твоему стаду, богомудре. / Темже тя почитающе, тайно вопием ти: / от бед избави ны присно твоими мольбами, / отче наш (имярек).",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "СВЯЩЕННОМУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-32-troparion",
+      "type": "troparion",
+      "title": "СВЯЩЕННОМУЧЕНИКАМ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Боже отец наших, / творяй присно с нами по Твоей кротости, / не отстави милость Твою от нас, / но молитвами их / в мире управи живот наш.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "СВЯЩЕННОМУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-33-kontakion",
+      "type": "kontakion",
+      "title": "СВЯЩЕННОМУЧЕНИКАМ: Кондак, глас 3",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Яко светильницы незаходимии разумнаго солнца, / сошедшеся днесь восхвалим песньми, / возсияли бо есте сущим во тьме неразумия, / всех созывающе к высоте благочестия, священномученицы. / Тем вопием вам: / радуйтеся, постников всех основание.",
+      "scope": "common",
+      "tone": 3,
+      "weekdays": [],
+      "subject": "СВЯЩЕННОМУЧЕНИКАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-34-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУЧЕНИКУ: Тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "В тебе, отче, известно спасеся еже по образу: / приим бо Крест, последовал еси Христу, / и дея учил еси презирати убо плоть, преходит бо, / прилежати же о души, вещи безсмертней, / темже и со Ангелы срадуется, преподобне (имярек), дух твой.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-35-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУЧЕНИКУ: Иный тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Постнически преподвизався на горе, / умная врагов ополчения / всеоружием Креста погубил еси, всеблаженне, / паки же ко страдальчеству мужески вооружился еси, / убив Копронима мечем веры; / и обоих ради венчался еси от Бога, / преподобномучениче (имярек), приснопамятне.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-36-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕПОДОБНОМУЧЕНИКУ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Яко постника благочестна и искусна, / и страдальца произволением честна, / и пустыни жителя сообразна, / в песнех достойно восхвалим (имярек) приснохвальнаго, / той бо змия попрал есть.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУЧЕНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-37-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИЦЕ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Агница Твоя, Иисусе, (имярек) / зовет велиим гласом: / Тебе, Женише мой, люблю, / и, Тебе ищущи, страдальчествую, / и сраспинаюся, и спогребаюся Крещению Твоему, / и стражду Тебе ради, / яко да царствую в Тебе, / и умираю за Тя, да и живу с Тобою, / но яко жертву непорочную, приими мя, с любовию пожершуюся Тебе. / Тоя молитвами, / яко Милостив, спаси души наша.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "МУЧЕНИЦЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-38-kontakion",
+      "type": "kontakion",
+      "title": "МУЧЕНИЦЕ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Храм Твой всечестный яко цельбу душевную обретше, / вси вернии велегласно вопием ти, / дево мученице (имярек), великоименитая, / Христа Бога моли непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "МУЧЕНИЦЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-39-troparion",
+      "type": "troparion",
+      "title": "МУЧЕНИЦАМ: Тропарь, глас 1",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Агницы словесныя Агнцу и Пастырю, / приведостеся мучением ко Христу, / течение скончавше / и веру соблюдше. / Темже днесь радостною душею совершаем, досточуднии, святую вашу память, / Христа величающе.",
+      "scope": "common",
+      "tone": 1,
+      "weekdays": [],
+      "subject": "МУЧЕНИЦАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-40-kontakion",
+      "type": "kontakion",
+      "title": "МУЧЕНИЦАМ: Кондак, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Страстотерпиц Христовых память празднуем, / и верою просяще помощи / избавитися всем от всякия скорби, зовуще: / Бог наш с нами, / Иже сих прославивый, якоже изволи.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "МУЧЕНИЦАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-41-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОЙ ЖЕНЕ: Тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "В тебе, мати, известно спасеся еже по образу, / приимши бо Крест, последовала еси Христу, / и деющи учила еси презирати убо плоть, преходит бо, / прилежати же о души, вещи безсмертней, / темже и со Ангелы срадуется, преподобная (имярек), дух твой.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОЙ ЖЕНЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-42-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕПОДОБНОЙ ЖЕНЕ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "За любовь Господню, преподобная, / покоя желание возненавидела еси, / пощением дух твой просветивши: / крепко бо звери победила еси; / но молитвами твоими / противных шатание разори.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОЙ ЖЕНЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-43-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНЫМ ЖЕНАМ: Тропарь, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Истинному желанию уневестившеся, христославнии, / и временнаго обручника отвергшеся совокупления, / и добродетельными подвиги возрастше, / на высоту востекосте нетления, / краснодушнии и многобогатнии, / столпи монашествующих жен и правило, / темже о нас молите непрестанно, / любовию вашу память празднующих.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНЫМ ЖЕНАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-44-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕПОДОБНЫМ ЖЕНАМ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Телеса своя постом изнуривше, / и неусыпными молитвами моляще Зиждителя о гресех своих; / яко да приимете совершенное прощение, / и приясте божественное оставление / и царствие небесное, / молите Христа Бога о всех нас.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНЫМ ЖЕНАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-45-troparion",
+      "type": "troparion",
+      "title": "ПРЕПОДОБНОМУЧЕНИЦЕ: Тропарь, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Агница Твоя, Иисусе, (имярек) / зовет велиим гласом: / Тебе, Женише мой, люблю, / и, Тебе ищущи, страдальчествую, / и сраспинаюся, и спогребаюся Крещению Твоему, / и стражду Тебе ради, / яко да царствую в Тебе, / и умираю за Тя, да и живу с Тобою, / но яко жертву непорочную, приими мя, с любовию пожершуюся Тебе. / Тоя молитвами, / яко Милостив, спаси души наша.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУЧЕНИЦЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-46-kontakion",
+      "type": "kontakion",
+      "title": "ПРЕПОДОБНОМУЧЕНИЦЕ: Кондак, глас 4",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Божественная память твоя, (имярек), / днесь возсиявши явися мирови яко солнце, / сказующи житие твое: / ты бо воздержанием плотская двизания разорши, / и страдания кровию уневестилася еси Христови. / Темже хвалящия тя избави от всяких зол, да зовем ти: / радуйся, мати преподобная.",
+      "scope": "common",
+      "tone": 4,
+      "weekdays": [],
+      "subject": "ПРЕПОДОБНОМУЧЕНИЦЕ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-47-troparion",
+      "type": "troparion",
+      "title": "ИСПОВЕДНИКУ: Тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Православия наставниче, / благочестия учителю и чистоты, / вселенныя светильниче, / архиереев Богодухновенное удобрение, / (имярек) премудре, / ученьми твоими вся просветил еси, / цевнице духовная. / Моли Христа Бога спастися душам нашим.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ИСПОВЕДНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-48-kontakion",
+      "type": "kontakion",
+      "title": "ИСПОВЕДНИКУ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Насладився, богомудре, воздержания, / и желания плотская ты успил еси, / явився верою возращаемь, / и яко живота древо райское процвел еси, / (имярек), отче священный.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "ИСПОВЕДНИКУ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-49-troparion",
+      "type": "troparion",
+      "title": "БЕССРЕБРЕННИКАМ И ЧУДОТВОРЦАМ: Тропарь, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Святии безсребреницы и чудотворцы (имярек), / посетите немощи наша: / туне приясте, туне дадите нам.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "БЕССРЕБРЕННИКАМ И ЧУДОТВОРЦАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-50-kontakion",
+      "type": "kontakion",
+      "title": "БЕССРЕБРЕННИКАМ И ЧУДОТВОРЦАМ: Кондак, глас 2",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Благодать приимше исцелений, / простираете здравие сущим в нуждах, / врачеве, чудотворцы преславнии, / но вашим посещением / ратников дерзости низложите, / мир исцеляюще чудесы.",
+      "scope": "common",
+      "tone": 2,
+      "weekdays": [],
+      "subject": "БЕССРЕБРЕННИКАМ И ЧУДОТВОРЦАМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-51-troparion",
+      "type": "troparion",
+      "title": "ХРИСТА РАДИ ЮРОДИВЫМ: Тропарь, глас 1",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Глас апостола Твоего Павла услышав, глаголющ, / мы юроди Христа ради, / раб Твой, Христе Боже, (имярек) / юрод бысть на земли Тебе ради; / темже память его почитающе, / Тебе молим, Господи: / спаси души наша.",
+      "scope": "common",
+      "tone": 1,
+      "weekdays": [],
+      "subject": "ХРИСТА РАДИ ЮРОДИВЫМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "common-52-kontakion",
+      "type": "kontakion",
+      "title": "ХРИСТА РАДИ ЮРОДИВЫМ: Кондак, глас 8",
+      "language": "cu",
+      "orthography": "civil",
+      "text": "Вышния красоты желая, / нижния сласти телесныя тощно оставил еси, / нестяжанием суетнаго мира, Ангельское житие проходя, / скончався, (имярек) блаженне: / с нимиже Христа Бога моли непрестанно о всех нас.",
+      "scope": "common",
+      "tone": 8,
+      "weekdays": [],
+      "subject": "ХРИСТА РАДИ ЮРОДИВЫМ",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/bogosluzhenie/tropari-i-kondaki-obshhie/",
+          "title": "Тропари и кондаки общие",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из указанного источника; HTML удалён, пробелы нормализованы, латинские омоглифы a/p заменены кириллическими. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "prayer-heavenly-king",
+      "type": "prayer",
+      "title": "Молитва Святому Духу «Царю Небесный»",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Царю́ Небе́сный, Уте́шителю, Ду́ше и́стины, И́же везде́ сый и вся исполня́яй, Сокро́вище благи́х и жи́зни Пода́телю, прииди́ и всели́ся в ны, и очи́сти ны от вся́кия скве́рны, и спаси́, Бла́же, ду́ши на́ша.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Молитва Святому Духу «Царю Небесный»",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/molitvy-utrennie.html",
+          "title": "Молитвы утренние",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из источника; удалены HTML и номера редакционных сносок, нормализованы пробелы. Требует богослужебной редакционной проверки. Справочная запись не назначает время чтения."
+      }
+    },
+    {
+      "id": "prayer-holy-trinity",
+      "type": "prayer",
+      "title": "Молитва Пресвятой Троице",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Пресвята́я Тро́ице, поми́луй нас; Го́споди, очи́сти грехи́ на́ша; Влады́ко, прости́ беззако́ния на́ша; Святы́й, посети́ и исцели́ не́мощи на́ша, и́мене Твоего́ ра́ди.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Молитва Пресвятой Троице",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/molitvy-utrennie.html",
+          "title": "Молитвы утренние",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из источника; удалены HTML и номера редакционных сносок, нормализованы пробелы. Требует богослужебной редакционной проверки. Справочная запись не назначает время чтения."
+      }
+    },
+    {
+      "id": "prayer-lords-prayer",
+      "type": "prayer",
+      "title": "Молитва Господня «Отче наш»",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "О́тче наш, И́же еси́ на небесе́х! Да святи́тся и́мя Твое́, да прии́дет Ца́рствие Твое́, да бу́дет во́ля Твоя́, я́ко на небеси́ и на земли́. Хлеб наш насу́щный даждь нам днесь; и оста́ви нам до́лги на́ша, я́коже и мы оставля́ем должнико́м на́шим; и не введи́ нас во искуше́ние, но изба́ви нас от лука́ваго.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Молитва Господня «Отче наш»",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/molitvy-utrennie.html",
+          "title": "Молитвы утренние",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из источника; удалены HTML и номера редакционных сносок, нормализованы пробелы. Требует богослужебной редакционной проверки. Справочная запись не назначает время чтения."
+      }
+    },
+    {
+      "id": "prayer-morning-thanksgiving",
+      "type": "prayer",
+      "title": "Молитва ко Пресвятой Троице «От сна востав»",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "От сна воста́в, благодарю́ Тя, Свята́я Тро́ице, я́ко мно́гия ра́ди Твоея́ бла́гости и долготерпе́ния не прогне́вался еси́ на мя, лени́ваго и гре́шнаго, ниже́ погуби́л мя еси́ со беззако́ньми мои́ми; но человеколю́бствовал еси́ обы́чно и в неча́янии лежа́щаго воздви́гл мя еси́, во е́же у́треневати и славосло́вити держа́ву Твою́. И ны́не просвети́ мои́ о́чи мы́сленныя, отве́рзи моя́ уста́ поуча́тися словесе́м Твои́м, и разуме́ти за́поведи Твоя́, и твори́ти во́лю Твою́, и пе́ти Тя во испове́дании серде́чнем, и воспева́ти всесвято́е и́мя Твое́, Отца́ и Сы́на и Свята́го Ду́ха, ны́не и при́сно и во ве́ки веко́в. Ами́нь.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Молитва ко Пресвятой Троице «От сна востав»",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/molitvoslov/molitvy-utrennie.html",
+          "title": "Молитвы утренние",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Текст перенесён из источника; удалены HTML и номера редакционных сносок, нормализованы пробелы. Требует богослужебной редакционной проверки. Справочная запись не назначает время чтения."
+      }
+    },
+    {
+      "id": "magnification-nativity-theotokos",
+      "type": "magnification",
+      "title": "Величание: Рождество Пресвятой Богородицы",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Пресвята́я Де́во, и чтим святы́х Твои́х роди́телей, и всесла́вное сла́вим рождество́ Твое́.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Рождество Пресвятой Богородицы",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-exaltation-cross",
+      "type": "magnification",
+      "title": "Величание: Воздвижение Креста Господня",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, и чтим Крест Твой святы́й, и́мже нас спасл еси́ от рабо́ты вра́жия.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Воздвижение Креста Господня",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-entry-theotokos",
+      "type": "magnification",
+      "title": "Величание: Введение во храм Пресвятой Богородицы",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Пресвята́я Де́во, Богоизбра́нная Отрокови́це, и чтим е́же в храм Госпо́день вхожде́ние Твое́.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Введение во храм Пресвятой Богородицы",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-nativity-christ",
+      "type": "magnification",
+      "title": "Величание: Рождество Христово",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, нас ра́ди ны́не пло́тию ро́ждшагося от безневе́стныя и Пречи́стыя Де́вы Мари́и.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Рождество Христово",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-theophany",
+      "type": "magnification",
+      "title": "Величание: Крещение Господне",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, нас ра́ди ны́не пло́тию крести́вшагося от Иоа́нна в вода́х Иорда́нских.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Крещение Господне",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-meeting-lord",
+      "type": "magnification",
+      "title": "Величание: Сретение Господне",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, и чтим Пречи́стую Ма́терь Твою́, Е́юже по зако́ну ны́не прине́слся еси́ в храм Госпо́день.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Сретение Господне",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-annunciation",
+      "type": "magnification",
+      "title": "Величание: Благовещение Пресвятой Богородицы",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Арха́нгельский глас вопие́м Ти, Чи́стая: ра́дуйся, Благода́тная, Госпо́дь с Тобо́ю.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Благовещение Пресвятой Богородицы",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-entry-jerusalem",
+      "type": "magnification",
+      "title": "Величание: Вход Господень в Иерусалим",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, Оса́нна в вы́шних и мы Тебе́ вопие́м Благослове́н Гряды́й во и́мя Госпо́дне.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Вход Господень в Иерусалим",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-ascension",
+      "type": "magnification",
+      "title": "Величание: Вознесение Господне",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, и почита́ем е́же на небеса́ с пречи́стою Твое́ю Пло́тию Боже́ственное вознесе́ние.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Вознесение Господне",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-pentecost",
+      "type": "magnification",
+      "title": "Величание: Пятидесятница",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, и чтим Всесвята́го Ду́ха Твоего́, Его́же от Отца́ посла́л еси́ боже́ственным ученико́м Твои́м.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Пятидесятница",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-transfiguration",
+      "type": "magnification",
+      "title": "Величание: Преображение Господне",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Живода́вче Христе́, и почита́ем пречи́стыя пло́ти Твоея́ пресла́вное преображе́ние.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Преображение Господне",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    },
+    {
+      "id": "magnification-dormition",
+      "type": "magnification",
+      "title": "Величание: Успение Пресвятой Богородицы",
+      "language": "cu",
+      "orthography": "civil-accented",
+      "text": "Велича́ем Тя, Пренепоро́чная Ма́ти Христа́ Бо́га на́шего, и всесла́вное сла́вим успе́ние Твое́.",
+      "scope": "common",
+      "tone": null,
+      "weekdays": [],
+      "subject": "Успение Пресвятой Богородицы",
+      "sources": [
+        {
+          "url": "https://azbyka.ru/velichanie",
+          "title": "Величание — Азбука веры",
+          "accessedAt": "2026-09-09"
+        }
+      ],
+      "rights": {
+        "status": "public-domain",
+        "basis": "Traditional pre-modern Church Slavonic liturgical text; modern translations, commentary, audio and website design excluded"
+      },
+      "review": {
+        "status": "source-transcribed",
+        "note": "Традиционный текст из праздничной подборки источника; латинские гласные с ударениями нормализованы в кириллические с сохранением ударений. Современный перевод исключён. Требует богослужебной редакционной проверки."
+      }
+    }
+  ],
+  "availability": {
+    "prayers": true,
+    "magnifications": true
+  }
+}

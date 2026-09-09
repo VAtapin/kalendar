@@ -17,7 +17,7 @@ DirectoryIndex index.html
     # This must precede the SPA fallback (which is only for application routes).
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(?:assets|fonts|brand|data)(?:/|$) - [R=404,L]
+    RewriteRule ^(?:assets|fonts|brand|data|downloads)(?:/|$) - [R=404,L]
 
     # Keep real files and directories intact; everything else opens the app.
     RewriteCond %{REQUEST_FILENAME} !-f
