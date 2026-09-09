@@ -86,5 +86,8 @@ document.addEventListener('click', event => {
   if (!anchor || anchor.target || anchor.hasAttribute('download')) return;
   const url = new URL(anchor.href, location.href);
   if (url.origin !== location.origin || url.search || url.hash) return;
+  // Standalone HTML pages and other files belong to the server, not the SPA.
+  // pushState would only change their URL and render the public-page 404.
+  if (/\.[^/]+$/.test(url.pathname)) return;
   event.preventDefault(); navigate(url.pathname);
 });
