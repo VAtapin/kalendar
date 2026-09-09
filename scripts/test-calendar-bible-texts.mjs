@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {resolve} from 'node:path';
-import {pathToFileURL} from 'node:url';
 import {chromium} from 'playwright';
 const browser=await chromium.launch(process.platform==='win32'?{channel:'msedge'}:{});
 const page=await browser.newPage();
@@ -14,7 +12,7 @@ const calendar={metadata:{language:'cu'},day:{date:'2026-09-09',weekdayName:'С�
 try {
   await page.route('**/*',async route=>{
     const request=route.request(),url=new URL(request.url());
-    if(url.protocol==='file:')return route.continue();
+    if(url.pathname==='/calendar-api-test.html')return route.fulfill({contentType:'text/html',body:readFileSync('public/calendar-api-test.html','utf8')});
     const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'X-API-Key,Accept','Access-Control-Allow-Methods':'GET,OPTIONS'};
     if(request.method()==='OPTIONS')return route.fulfill({status:204,headers});
     requests.push({url:url.href,key:request.headers()['x-api-key']});
@@ -35,9 +33,9 @@ try {
     if(mode==='old')verses=verses.map(({plain_text,...v})=>v);
     await route.fulfill({headers,json:{data:{translation,book,chapter:{number:chapter},verses}}});
   });
-  await page.goto(pathToFileURL(resolve('public/calendar-api-test.html')).href);
-  await page.locator('#base').fill('https://calendar.test/api/v1/calendar/');
-  await page.locator('#api-key').fill('test-calendar-secret');
+  await page.goto('https://calendar.test/calendar-api-test.html');
+
+
   await page.locator('#lang').selectOption('cu');
   await page.locator('#submit').click();
   await page.waitForFunction(()=>document.getElementById('bible-status').textContent.includes('чтений получено 1'));
@@ -45,7 +43,7 @@ try {
   assert.deepEqual(await page.locator('.bible-verse .tag').allTextContents(),['Gal 2:21 ','Gal 3:1 ','Gal 3:2 ','Gal 3:3 ','Gal 3:5 ','Gal 3:1 ']);
   assert.equal(await page.locator('.reading-text img').count(),0);
   assert.equal(await page.locator('.bible-verse span[lang=cu]').count(),6);
-  assert.ok(requests.filter(r=>r.url.includes('calendar.test/api/')).every(r=>r.key==='test-calendar-secret'));
+  assert.ok(requests.filter(r=>r.url.includes('calendar.test/api/')).every(r=>r.key===undefined));
   await page.locator('#bible-translation').selectOption('CU2');
   await page.waitForFunction(()=>document.querySelector('.bible-verse')?.textContent.includes('CU2'));
   assert.ok(!(await page.locator('.reading-text').textContent()).includes('CU1'));
@@ -60,7 +58,7 @@ try {
   await page.waitForFunction(()=>document.querySelector('.reading-text .error')?.textContent.includes('plain_text'));
   // An unavailable selected language must not fall back to Russian.
   await page.reload();mode='ok';calendar.metadata.language='pl';
-  await page.locator('#base').fill('https://calendar.test/api/v1/calendar/');await page.locator('#api-key').fill('test-calendar-secret');
+
   await page.locator('#submit').click();
   await page.waitForFunction(()=>document.getElementById('bible-status').textContent.includes('Нет перевода'));
   assert.equal(await page.locator('#bible-language').inputValue(),'pl');assert.equal(await page.locator('.bible-verse').count(),0);

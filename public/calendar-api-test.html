@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="same-origin">
   <title>Проверка календарного API</title>
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f3f5f2;color:#203429;font:16px/1.55 system-ui,sans-serif}main{max-width:1150px;margin:auto;padding:32px 20px}h1{font-size:clamp(26px,5vw,38px);margin-bottom:8px}h2{font-size:24px}h3{font-size:18px;margin:0 0 10px}p{margin:8px 0}form,.panel,article{background:white;border:1px solid #d5ded6;border-radius:12px;padding:20px;margin:18px 0}label{display:block;font-weight:600}input,select,button{font:inherit;padding:10px;border:1px solid #a3b2a8;border-radius:6px}input,select{width:100%;background:white;color:#203429;margin-top:5px}button{background:#254e3b;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:16px 0}.hint{color:#526459;font-size:14px}.error{color:#9c2020;white-space:pre-wrap}pre{font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f4;padding:14px;border-radius:8px}a{color:#185b83;overflow-wrap:anywhere}summary{cursor:pointer;font-weight:600}.mark{width:26px;height:26px;object-fit:contain;vertical-align:middle;margin-right:8px}.tag{display:inline-block;background:#e9efe9;border-radius:4px;padding:2px 7px;margin:2px 5px 5px 0;font-size:13px}.warning{border-left:4px solid #b18a27;padding-left:12px}#request{display:block;margin:12px 0}[hidden]{display:none!important}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #b18a27;outline-offset:3px}
@@ -10,17 +11,15 @@
 </head>
 <body><main>
   <h1>Проверка календарного API</h1>
-  <p>Все события выбранного дня без сокращений печатной сетки. Один файл HTML: можно открыть двойным щелчком или разместить на любом сайте.</p>
+  <p>Все события выбранного дня без сокращений печатной сетки. Выберите дату и запустите проверку — API-ключ не нужен.</p>
   <form id="query">
-    <label>Адрес API<input id="base" type="url" required value="https://kalender.georg-kloster.ru/api/v1/calendar/" spellcheck="false"></label>
-    <label>API-ключ<input id="api-key" type="password" required autocomplete="off" spellcheck="false" placeholder="cal_…"></label>
     <div class="controls">
       <label>Дата (новый стиль)<input id="date" type="date" min="1900-01-01" max="2200-12-31" required></label>
       <label>Язык календарных названий<select id="lang"><option value="ru">Русский</option><option value="cu">Церковнославянский</option><option value="de">Deutsch</option><option value="uk">Українська</option><option value="pl">Polski</option></select></label>
       <label>Профиль поста<select id="profile"><option value="typikon-strict">Строгий устав</option><option value="parish">Приходская практика</option></select></label>
     </div>
     <button id="submit">Показать всё за этот день</button>
-    <p class="hint">Нужны интернет и выданный администратором API-ключ. Ключ отправляется только в заголовке, не сохраняется на диск и не включается в JSON. После закрытия страницы введите его снова. Не публикуйте личный ключ в коде сайта.</p>
+    <p class="hint">Проверку на этой странице можно запускать сколько угодно без регистрации и API-ключа.</p>
   </form>
   <section class="panel" aria-labelledby="bible-heading">
     <h2 id="bible-heading">Тексты чтений — BibleDesktop</h2>
@@ -30,10 +29,10 @@
     </div>
     <button id="bible-refresh" type="button">Обновить каталог переводов</button>
     <p id="bible-status" role="status">Язык текста выбирается отдельно от языка календаря. Доступные переводы определяются через API BibleDesktop.</p>
-    <p class="hint">Ключ календаря не отправляется в BibleDesktop. Тексты выводятся по номерам выбранного перевода; соответствие нумерации календарному источнику не подтверждено.</p>
+    <p class="hint">Тексты выводятся по номерам выбранного перевода; соответствие нумерации календарному источнику не подтверждено.</p>
   </section>
   <p id="status" role="status" aria-live="polite"></p>
-  <a id="request" target="_blank" rel="noopener noreferrer" hidden></a>
+  <pre id="request" hidden></pre>
   <div id="result" hidden>
     <section id="day" class="panel"></section>
     <section class="panel warning"><strong>Границы данных</strong><p>Используются те же знаки Типикона, что в календаре. Для обычных памятей знак может отсутствовать. Для икон доступны названия памятей, но не привязанные изображения. Личные календари, фотографии и пользовательские события через этот публичный API не выдаются.</p></section>
@@ -141,13 +140,12 @@
     $('status').className=''; $('status').textContent='Запрашиваю данные…'; lastResponse=null;
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),30000);
     try {
-      const base=safeUrl($('base').value.trim().replace(/\/*$/,'/')); base.search=''; base.hash='';
-      const url=new URL('day',base); url.searchParams.set('date',$('date').value);
+      const url=new URL('/api/v1/calendar-demo/day',location.origin); url.searchParams.set('date',$('date').value);
       url.searchParams.set('lang',$('lang').value); url.searchParams.set('profile',$('profile').value);
-      $('request').href=url.href; $('request').textContent=url.href; $('request').hidden=false;
+      $('request').textContent='POST '+url.href; $('request').hidden=false;
       let response, value;
       for(let attempt=0;attempt<3;attempt++) {
-        response=await fetch(url,{mode:'cors',credentials:'omit',signal:controller.signal,headers:{Accept:'application/json','X-API-Key':$('api-key').value.trim()}});
+        response=await fetch(url,{method:'POST',mode:'same-origin',credentials:'omit',referrerPolicy:'same-origin',signal:controller.signal,headers:{Accept:'application/json','X-Calendar-Demo':'1'}});
         value=await response.json().catch(()=>{throw new Error(`HTTP ${response.status}: вместо JSON получен другой формат. Проверьте публикацию API.`);});
         if(!['calendar_busy','calendar_updating'].includes(value.error) || attempt===2) break;
         $('status').textContent='Сервер занят расчётом другого года. Повторяю запрос…';
@@ -161,7 +159,7 @@
       void prepareBible(value.metadata?.language || 'ru'); $('status').textContent=`Получено ${value.day.events.length} событий. Ничего не сокращено.${fontWarning}`;
     } catch(error) {
       $('status').className='error';
-      $('status').textContent=error.name==='AbortError' ? 'Сервер не ответил за 30 секунд. Повторите запрос.' : `${error.message}\nЕсли запрос не дошёл: проверьте адрес API, интернет и разрешение CORS на сервере. Файл работает локально, но данные получает по сети.`;
+      $('status').textContent=error.name==='AbortError' ? 'Сервер не ответил за 30 секунд. Повторите запрос.' : `${error.message}\nЕсли запрос не дошёл, проверьте интернет и откройте тестовую страницу по ссылке на сайте Календарной мастерской.`;
     } finally {clearTimeout(timer);$('submit').disabled=false;}
   });
   const bibleBase = 'https://bible-desktop.com/api/';

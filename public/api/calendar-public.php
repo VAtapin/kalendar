@@ -108,15 +108,42 @@ function calendar_public_year(array $manifest, string $runtimeDirectory, int $ye
 }
 
 function calendar_public_routes(string $method, string $path): void {
+    if (($path === '/v1/calendar-demo' || str_starts_with($path, '/v1/calendar-demo/')) && $path !== '/v1/calendar-demo/day') {
+        calendar_fail('not_found', 404);
+    }
+    $demo = $path === '/v1/calendar-demo/day';
+    if ($demo) {
+        header('Cache-Control: private, no-store');
+        header('Allow: POST');
+        if ($method !== 'POST') calendar_fail('method_not_allowed', 405);
+        // Browser-only demo boundary, not an API credential. Non-browser clients
+        // can imitate headers; this route intentionally exposes only public day data.
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $origin = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
+        $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
+        $allowedOrigins = in_array($origin, $aliases, true) ? $aliases : [$origin];
+        $origin = api_header('Origin');
+        $referer = api_header('Referer');
+        if ($origin === '' || !in_array($origin, $allowedOrigins, true)
+            || api_header('Sec-Fetch-Site') !== 'same-origin'
+            || api_header('X-Calendar-Demo') !== '1'
+            || strtok($referer, '?') !== $origin . '/calendar-api-test.html') {
+            calendar_fail('demo_page_required', 403, 'Откройте тестовую страницу на сайте Календарной мастерской.');
+        }
+        $path = '/v1/calendar/day';
+        $method = 'GET';
+    }
     if ($path !== '/v1/calendar' && !str_starts_with($path, '/v1/calendar/')) return;
-    // Public data only. Wildcard CORS also allows a standalone file:// test page.
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
-    header('Access-Control-Allow-Headers: Accept, If-None-Match, X-API-Key, Authorization');
-    header('Access-Control-Expose-Headers: ETag, Retry-After, X-API-Month-Limit, X-API-Month-Remaining');
-    header('Allow: GET, HEAD, OPTIONS');
-    if ($method === 'OPTIONS') { http_response_code(204); exit; }
-    if (!in_array($method, ['GET', 'HEAD'], true)) calendar_fail('method_not_allowed', 405);
+    // Credentialed integrations retain CORS; the hosted demo is same-origin only.
+    if (!$demo) {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
+        header('Access-Control-Allow-Headers: Accept, If-None-Match, X-API-Key, Authorization');
+        header('Access-Control-Expose-Headers: ETag, Retry-After, X-API-Month-Limit, X-API-Month-Remaining');
+        header('Allow: GET, HEAD, OPTIONS');
+        if ($method === 'OPTIONS') { http_response_code(204); exit; }
+        if (!in_array($method, ['GET', 'HEAD'], true)) calendar_fail('method_not_allowed', 405);
+    }
     $action = substr($path, strlen('/v1/calendar'));
     if (!in_array($action, ['', '/', '/today', '/day', '/month', '/year', '/pascha', '/upcoming'], true)) calendar_fail('not_found', 404);
     $allowed = match ($action) {
@@ -161,7 +188,7 @@ function calendar_public_routes(string $method, string $path): void {
     $month = calendar_public_parameter('month');
     if ($action === '/month' && (!preg_match('/^(0?[1-9]|1[0-2])$/', $month))) calendar_fail('invalid_month', 400);
     // Only valid requests consume quota; authorization precedes calculation.
-    if ($protected) {
+    if ($protected && !$demo) {
         $key = api_header('X-API-Key');
         if ($key === '') $key = api_bearer_token();
         $access = (new CalendarApiAccessStore())->authorize($key);

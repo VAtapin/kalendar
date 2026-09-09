@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { createServer } from 'node:net';
 import { chromium } from 'playwright';
 
@@ -35,6 +34,25 @@ try {
     return { response, body: await response.json() };
   };
   assert.equal((await fetch(base)).status,200);
+  const demoUrl=origin+'/api/v1/calendar-demo/day?date=2027-05-02';
+  const demoHeaders={Origin:origin,Referer:origin+'/calendar-api-test.html','Sec-Fetch-Site':'same-origin','X-Calendar-Demo':'1'};
+  assert.equal((await fetch(demoUrl)).status,405);
+  assert.equal((await fetch(demoUrl,{method:'OPTIONS'})).status,405);
+  assert.equal((await fetch(demoUrl,{method:'POST'})).status,403);
+  for(const overrides of [{Origin:'https://foreign.test'},{Origin:'null'},{Referer:origin+'/other.html'},{Referer:origin+'/calendar-api-test.html/other'},{'Sec-Fetch-Site':'cross-site'},{'X-Calendar-Demo':''}]) {
+    const denied=await fetch(demoUrl,{method:'POST',headers:{...demoHeaders,...overrides}});
+    assert.equal(denied.status,403);assert.equal(denied.headers.get('access-control-allow-origin'),null);
+  }
+  for(let run=0;run<3;run++) {
+    const demo=await fetch(demoUrl,{method:'POST',headers:demoHeaders});
+    assert.equal(demo.status,200);assert.equal((await demo.json()).day.date,'2027-05-02');
+    assert.equal(demo.headers.get('x-api-month-limit'),null);
+    assert.equal(demo.headers.get('access-control-allow-origin'),null);
+  }
+  assert.equal((await fetch(demoUrl+'&unknown=1',{method:'POST',headers:demoHeaders})).status,400);
+  assert.equal((await fetch(origin+'/api/v1/calendar-demo/year?year=2027',{method:'POST',headers:demoHeaders})).status,404);
+  assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:demoHeaders})).status,401);
+  console.log('PASS hosted demo: origin/page checks, no key or quota, day-only scope, normal API still protected');
   const textsBase=origin+'/api/v1/calendar-texts/';
   assert.equal((await fetch(textsBase)).status,401);
   const textRequest=(suffix='',options={})=>fetch(textsBase+suffix,{...options,headers:{'X-API-Key':systemKey,...options.headers}});
@@ -136,9 +154,8 @@ try {
   browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
   const page = await browser.newPage({ viewport:{width:1200,height:1000} });
   await page.route('https://bible-desktop.com/api/**',route=>route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{data:[]}}));
-  await page.goto(pathToFileURL(resolve('public/calendar-api-test.html')).href);
-  await page.locator('#base').fill(base + '/');
-  await page.locator('#api-key').fill(key);
+  await page.goto(origin+'/calendar-api-test.html');
+  assert.equal(await page.locator('#api-key').count(),0);
   await page.locator('#date').fill('2027-05-02');
   await page.locator('#submit').click();
   await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Получено'));
@@ -155,7 +172,7 @@ try {
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:'tmp/calendar-api-local-mobile.png',fullPage:false});
   // Render hostile data as plain text even when pointed at an untrusted endpoint.
-  await page.route('**/api/v1/calendar/day*', route => route.fulfill({
+  await page.route('**/api/v1/calendar-demo/day*', route => route.fulfill({
     contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
     body:JSON.stringify({...first.body,day:{...first.body.day,events:[{...first.body.day.events[0],title:'<img src=x onerror="window.compromised=true">'}]}}),
   }));
@@ -164,7 +181,19 @@ try {
   assert.equal(await page.evaluate(()=>window.compromised),undefined);
   assert.equal(await page.locator('#events [onerror]').count(),0);
   assert.ok(!readFileSync('public/calendar-api-test.html','utf8').includes('innerHTML'));
-  console.log('PASS: standalone file:// HTML, real cross-origin fetch, Typikon images, complete JSON, mobile layout and escaped content');
+  console.log('PASS: hosted HTML without API key, real same-origin demo fetch, Typikon images, complete JSON, mobile layout and escaped content');
+  await page.route(origin+'/calendar-api',route=>route.fulfill({contentType:'text/html',body:readFileSync('dist/index.html','utf8')}));
+  let publishedPlans=[];
+  await page.route('**/api/v1/calendar-access/plans',route=>route.fulfill({json:{plans:publishedPlans,settings:{}}}));
+  await page.goto(origin+'/calendar-api');
+  await page.locator('#connection').waitFor();
+  assert.equal(await page.locator('#plans, a[href="#plans"]').count(),0);
+  publishedPlans=[{id:'demo',name:'Опубликованный тариф',priceCents:1000,currency:'EUR',perMinute:10,perDay:100,perMonth:1000}];
+  await page.reload();
+  await page.locator('#plans article').waitFor();
+  assert.equal(await page.locator('a[href="#plans"]').count(),1);
+  assert.ok(await page.locator('#plans').textContent().then(text=>text.includes('Опубликованный тариф')));
+  console.log('PASS: unpublished tariffs and navigation hidden, published tariffs visible');
 } catch (error) {
   console.error(logs.slice(-5000)); throw error;
 } finally {
