@@ -2261,8 +2261,12 @@ function renameLayer(layerId: string, name: string): void {
 }
 
 function deleteSelection(): void {
+  const selectedLocation = selectedElement.value
+    ? findLayerLocation(selectedPage.value, selectedElement.value.layerId)
+    : undefined;
+  const iconGroup = selectedLocation?.ancestors.find((group) => group.name.startsWith("Икона ·"));
   const ids = selectedElement.value
-    ? [selectedElement.value.layerId]
+    ? [iconGroup?.id ?? selectedElement.value.layerId]
     : [...selectedLayerIds.value];
   if (ids.length === 0) return;
   if (ids.some((id) => isProtectedBrandLayer(id))) {
@@ -3138,7 +3142,23 @@ function openIconLibrary(): void {
   void loadIconLibrary();
 }
 
-async function insertCalendarIcon(item: IconLibraryCard, caption: boolean): Promise<void> {
+function startCalendarIconDrag(item: IconLibraryCard, caption: boolean, event: DragEvent): void {
+  if (!event.dataTransfer) return;
+  event.dataTransfer.effectAllowed = "copy";
+  event.dataTransfer.setData("application/x-calendar-icon", JSON.stringify({ id: item.id, caption }));
+}
+
+function dropCalendarIcon(payload: string, point: { x: number; y: number }): void {
+  try {
+    const data = JSON.parse(payload) as { id?: string; caption?: boolean };
+    const item = data.id ? iconLibraryItems.value.find((candidate) => candidate.id === data.id) : undefined;
+    if (item && Number.isFinite(point.x) && Number.isFinite(point.y)) void insertCalendarIcon(item, Boolean(data.caption), point);
+  } catch {
+    operationNotice.value = "Не удалось распознать перетаскиваемую икону";
+  }
+}
+
+async function insertCalendarIcon(item: IconLibraryCard, caption: boolean, point?: { x: number; y: number }): Promise<void> {
   if (!['none', 'editing'].includes(sharedAccessMode.value) || !item.images[0]) return;
   const targetProject = project.value;
   const targetPage = selectedPage.value;
@@ -3151,30 +3171,47 @@ async function insertCalendarIcon(item: IconLibraryCard, caption: boolean): Prom
     if (!dimensions) throw new Error(`Не удалось определить размер иконы «${item.title}»`);
     if (project.value !== targetProject || selectedPage.value !== targetPage) return;
     const ratio = dimensions.widthPx / dimensions.heightPx;
-    const usableWidth = targetPage.width - targetPage.safeArea.left - targetPage.safeArea.right;
-    const usableHeight = targetPage.height - targetPage.safeArea.top - targetPage.safeArea.bottom;
+    const safeArea = targetPage.safeArea;
+    const usableWidth = targetPage.width - safeArea.left - safeArea.right;
+    const usableHeight = targetPage.height - safeArea.top - safeArea.bottom;
     const maxWidth = Math.min(usableWidth * .48, 125);
     const maxHeight = Math.min(usableHeight * .48, 150);
     let width = maxWidth, height = width / ratio;
     if (height > maxHeight) { height = maxHeight; width = height * ratio; }
-    const x = targetPage.safeArea.left + (targetPage.width - targetPage.safeArea.left - targetPage.safeArea.right - width) / 2;
-    const y = targetPage.safeArea.top + (targetPage.height - targetPage.safeArea.top - targetPage.safeArea.bottom - height - (caption ? 10 : 0)) / 2;
+    const captionHeight = caption ? 9 : 0;
+    const x = point
+      ? Math.max(safeArea.left, Math.min(targetPage.width - safeArea.right - width, point.x - width / 2))
+      : safeArea.left + (usableWidth - width) / 2;
+    const y = point
+      ? Math.max(safeArea.top, Math.min(targetPage.height - safeArea.bottom - height - captionHeight, point.y - (height + captionHeight) / 2))
+      : safeArea.top + (usableHeight - height - captionHeight) / 2;
     const created = mutateProject("Вставка иконы в календарь", () => {
       const existing = project.value.assets.find(asset => asset.libraryItemId === `icon-${item.id}` && asset.kind === "image");
       const asset = existing ?? {id:`asset-icon-${crypto.randomUUID()}`,name:item.title,mimeType:blob.type || "image/jpeg",kind:"image" as const,source,libraryItemId:`icon-${item.id}`,...dimensions};
       if (!existing) project.value.assets.push(asset);
+      const group = createLayerGroup(targetPage, `group-icon-${crypto.randomUUID()}`, `Икона · ${item.title}`);
       const result = createElementOnOwnLayer(targetPage, "image", {x,y,width,height});
-      result.layer.name = `Икона · ${item.title}`;
+      result.layer.name = `Образ · ${item.title}`;
       const image = result.element as ImageElement;
       image.assetId = asset.id; image.fit = "fit";
+      moveLayerNode(targetPage, result.layer.id, group.id, "inside");
       if (caption) {
-        const text = createElementOnOwnLayer(targetPage, "text", {x,y:y+height+1,width,height:8});
+        const text = createElementOnOwnLayer(targetPage, "text", {x,y:y+height+.6,width,height:8.4});
         text.layer.name = `Подпись · ${item.title}`;
-        if (text.element.type === "text") { text.element.content.title = item.title; text.element.typography.align = "center"; text.element.typography.fontSizePt = 10; }
+        if (text.element.type === "text") {
+          text.element.content.title = item.title;
+          text.element.typography.align = "center";
+          text.element.typography.fontSizePt = 10;
+          text.element.typography.fontWeight = 600;
+          text.element.typography.color = "#17201d";
+          text.element.typography.verticalAlign = "middle";
+          text.element.typography.paddingMm = .5;
+        }
+        moveLayerNode(targetPage, text.layer.id, group.id, "inside");
       }
-      return result;
+      return { result, group };
     });
-    selectedLayerIds.value = [created.layer.id]; selectedElementId.value = created.element.id; activeTool.value = "selection";
+    selectedLayerIds.value = [created.group.id]; selectedElementId.value = created.result.element.id; activeTool.value = "selection";
     operationNotice.value = `Добавлена икона «${item.title}»${caption ? " с подписью" : " без подписи"}`;
   } catch (error) { operationNotice.value = error instanceof Error ? error.message : "Не удалось вставить икону"; }
 }
@@ -4221,6 +4258,7 @@ onBeforeUnmount(() => {
         @geometry-end="endContinuousEdit"
         @photo-drop="placeProjectPhoto"
         @decor-drop="dropDecorLibraryItem"
+        @icon-drop="dropCalendarIcon"
       />
       <div v-else class="workspace-empty">
         <div class="workspace-empty__card">
@@ -4650,7 +4688,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-else-if="activeDockPanel === 'icons'" class="dock-content icon-library-dock">
-          <IconLibraryPanel :items="iconLibraryItems" :month="selectedPageMonth" :loading="iconLibraryLoading" :error="iconLibraryError" @refresh="loadIconLibrary" @insert="insertCalendarIcon" />
+          <IconLibraryPanel :items="iconLibraryItems" :month="selectedPageMonth" :loading="iconLibraryLoading" :error="iconLibraryError" @refresh="loadIconLibrary" @insert="insertCalendarIcon" @drag="startCalendarIconDrag" />
         </div>
 
         <div v-else-if="activeDockPanel === 'layers'" class="dock-content">

@@ -33,23 +33,26 @@ const emit = defineEmits<{
   geometryEnd: [];
   photoDrop: [id: string, point: { x: number; y: number }];
   decorDrop: [id: string, point: { x: number; y: number }];
+  iconDrop: [payload: string, point: { x: number; y: number }];
 }>();
 
 function allowPhotoDrop(event: DragEvent): void {
-  if (event.dataTransfer?.types.some(type => ['application/x-calendar-photo', 'application/x-calendar-decor'].includes(type))) {
+  if (event.dataTransfer?.types.some(type => ['application/x-calendar-photo', 'application/x-calendar-decor', 'application/x-calendar-icon'].includes(type))) {
     event.preventDefault(); event.dataTransfer.dropEffect = 'copy';
   }
 }
 function dropPhoto(event: DragEvent): void {
   const decorId = event.dataTransfer?.getData('application/x-calendar-decor');
   const id = event.dataTransfer?.getData('application/x-calendar-photo');
-  if (!id && !decorId) return;
+  const iconPayload = event.dataTransfer?.getData('application/x-calendar-icon');
+  if (!id && !decorId && !iconPayload) return;
   event.preventDefault();
   const svg = event.currentTarget as SVGSVGElement;
   const transform = svg.getScreenCTM();
   if (!transform) return;
   const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
   if (decorId) { emit('decorDrop', decorId, { x: point.x, y: point.y }); return; }
+  if (iconPayload) { emit('iconDrop', iconPayload, { x: point.x, y: point.y }); return; }
   if (id) emit('photoDrop', id, { x: point.x, y: point.y });
 }
 
