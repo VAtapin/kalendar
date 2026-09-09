@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.30';
+    const VERSION = '1.3.31';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -71,7 +71,8 @@ final class Orthocal_Plugin {
         $url = plugin_dir_url(self::$file);
         wp_register_style('orthocal', $url.'assets/calendar.css', [], self::VERSION);
         wp_register_script('orthocal', $url.'assets/calendar.js', [], self::VERSION, true);
-        wp_register_script('orthocal-editor', $url.'assets/editor.js', ['wp-blocks','wp-element','wp-block-editor','wp-components'], self::VERSION, true);
+        wp_register_script('orthocal-editor', $url.'assets/editor.js', ['wp-blocks','wp-element','wp-block-editor','wp-components','wp-server-side-render'], self::VERSION, true);
+        wp_add_inline_script('orthocal-editor', 'window.OrthocalEditor='.wp_json_encode(['hasApiKey'=>self::key() !== '', 'settingsUrl'=>admin_url('admin.php?page=orthocal&tab=connection')]).';', 'before');
         wp_register_style('orthocal-admin',$url.'assets/admin.css',[],self::VERSION);
         wp_register_script('orthocal-admin',$url.'assets/admin.js',[],self::VERSION,true);
         foreach (self::TITLES as $mode=>$title) {
