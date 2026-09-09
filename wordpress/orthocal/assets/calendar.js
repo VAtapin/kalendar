@@ -9,17 +9,17 @@
     if(!fonts.has(url))fonts.set(url,(async()=>{const face=new FontFace('OrthocalMonomakh','url('+JSON.stringify(url)+')');await face.load();document.fonts.add(face);})());
     return fonts.get(url);
   }
-  function popup(content,title) {
+  function popup(content,title,t=s=>s) {
     const dialog=document.createElement('dialog');dialog.className='oc-dialog'+(content.querySelector?.('.oc-horologion')?' oc-dialog--service':'');dialog.setAttribute('aria-label',title);
-    const close=document.createElement('button');close.type='button';close.className='oc-dialog-close';close.textContent='Закрыть ×';
+    const close=document.createElement('button');close.type='button';close.className='oc-dialog-close';close.textContent=t('Закрыть ×');
     close.addEventListener('click',()=>dialog.close());dialog.append(close,content);document.body.append(dialog);
     const active=document.activeElement;dialog.addEventListener('close',()=>{dialog.remove();active?.focus();},{once:true});
     dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
     dialog.showModal();return dialog;
   }
-  async function copy(text,status) {
-    try {await navigator.clipboard.writeText(text);status.textContent='Скопировано.';}
-    catch {status.textContent='Копирование недоступно. Выделите текст и скопируйте вручную.';}
+  async function copy(text,status,t=s=>s) {
+    try {await navigator.clipboard.writeText(text);status.textContent=t('Скопировано.');}
+    catch {status.textContent=t('Копирование недоступно. Выделите текст и скопируйте вручную.');}
   }
   function route(endpoint, action) {
     const url = new URL(endpoint);
@@ -85,6 +85,7 @@
     if (root.dataset.ocReady) return;
     root.dataset.ocReady='1';
     const cfg=JSON.parse(root.dataset.orthocal);
+    const t=text=>cfg.ui?.[text]||text;
     if(cfg.fontUrl)void font(cfg.fontUrl).catch(()=>{});
     // AJAX HTML is rendered at a REST URL; public date links must retain the page URL.
     root.querySelectorAll('[data-oc-date]').forEach(link=>{
@@ -94,26 +95,33 @@
     let generation=0;
     async function render(changes, detail=false, readingIndex=-1) {
       const current=++generation;
-      status.textContent='Загрузка…'; root.setAttribute('aria-busy','true');
+      status.textContent=t('Загрузка…'); root.setAttribute('aria-busy','true');
       try {
         const url=route(cfg.endpoint,'render');
         const attrs={...cfg,...changes};
-        for (const [name,value] of Object.entries(attrs)) if (!['endpoint','translation','liveDate','pageUrl','fontUrl'].includes(name)) url.searchParams.set(name,value);
+        for (const [name,value] of Object.entries(attrs)) if (!['endpoint','translation','liveDate','pageUrl','fontUrl','ui'].includes(name)) url.searchParams.set(name,value);
         const value=await json(url);
         if (current!==generation) return;
         // Only our escaped server-rendered markup is parsed. Remote API text is never HTML.
         const document=new DOMParser().parseFromString(value.html,'text/html');
         const next=document.querySelector('.orthocal');
-        if (!next) throw new Error('Не удалось отобразить календарь.');
+        if (!next) throw new Error(t('Не удалось отобразить календарь.'));
         if(detail==='modal') {
-          popup(next,readingIndex>=0?'Библейские чтения':'День календаря');init(next);
+          popup(next,t(readingIndex>=0?'Библейские чтения':'День календаря'),t);init(next);
           if(readingIndex>=0){const item=next.querySelectorAll('[data-oc-reading]')[readingIndex];if(item)item.open=true;}
         } else if (detail) {
           const slot=root.querySelector(':scope > .oc-detail'); slot.replaceChildren(next); init(next);
           next.tabIndex=-1; next.focus({preventScroll:true}); next.scrollIntoView({block:'nearest',behavior:'smooth'});
-        } else { root.replaceWith(next); init(next); }
+        } else {
+          root.replaceWith(next); init(next);
+          const dialog=next.closest('dialog');
+          if(dialog) {
+            const nextConfig=JSON.parse(next.dataset.orthocal);
+            dialog.querySelector('.oc-dialog-close').textContent=nextConfig.ui?.['Закрыть ×']||'Закрыть ×';
+          }
+        }
         status.textContent='';
-      } catch (error) { if (current===generation) status.textContent=error.name==='AbortError'?'Источник не ответил вовремя. Повторите запрос.':error.message; }
+      } catch (error) { if (current===generation) status.textContent=error.name==='AbortError'?t('Источник не ответил вовремя. Повторите запрос.'):error.message; }
       finally { if (current===generation) root.removeAttribute('aria-busy'); }
     }
     root.addEventListener('click',event=>{
@@ -125,11 +133,11 @@
         render({mode:'day',date:d,year:d.slice(0,4),month:Number(d.slice(5,7)),open:'inline'},cfg.open==='modal'?'modal':!!root.querySelector(':scope > .oc-detail'));
       }
       const icon=event.target.closest('[data-oc-icon]');
-      if(icon){event.preventDefault();const body=document.createElement('div');body.className='oc-icon-view';const image=document.createElement('img');image.src=icon.href;image.alt=icon.dataset.ocIconTitle||'';const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||'Икона';body.append(title,image);if(icon.dataset.ocIconDescription){const description=document.createElement('p');description.textContent=icon.dataset.ocIconDescription;body.append(description);}popup(body,icon.dataset.ocIconTitle||'Икона');}
+      if(icon){event.preventDefault();const body=document.createElement('div');body.className='oc-icon-view';const image=document.createElement('img');image.src=icon.href;image.alt=icon.dataset.ocIconTitle||'';const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||t('Икона');body.append(title,image);if(icon.dataset.ocIconDescription){const description=document.createElement('p');description.textContent=icon.dataset.ocIconDescription;body.append(description);}popup(body,icon.dataset.ocIconTitle||t('Икона'),t);}
       const day=event.target.closest('[data-oc-day]');if(day)render({date:day.dataset.ocDay});
       const library=event.target.closest('[data-oc-library]');if(library)void render({mode:library.dataset.ocLibrary,scope:'',tone:'',weekday:'',text_id:''},'modal');
-      if(event.target.closest('[data-oc-copy-link]'))void copy(root.querySelector('.oc-permalink a').href,status);
-      const copyReading=event.target.closest('[data-oc-copy-reading]');if(copyReading)void copy(copyReading.closest('.oc-reading-body').querySelector('.oc-verses').textContent,status);
+      if(event.target.closest('[data-oc-copy-link]'))void copy(root.querySelector('.oc-permalink a').href,status,t);
+      const copyReading=event.target.closest('[data-oc-copy-reading]');if(copyReading)void copy(copyReading.closest('.oc-reading-body').querySelector('.oc-verses').textContent,status,t);
       const summary=event.target.closest('[data-oc-reading] > summary');
       if(summary&&cfg.reading_open==='modal') {event.preventDefault();const index=[...root.querySelectorAll('[data-oc-reading]')].indexOf(summary.parentElement);void render({mode:'readings',reading_open:'inline'},'modal',index);}
       const period=event.target.closest('[data-oc-period]');
@@ -145,8 +153,8 @@
     });
     root.querySelector('[data-oc-picker]')?.addEventListener('change',event=>{if(event.target.checkValidity()&&event.target.value)void render({date:event.target.value});});
       root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:''})));
-    root.querySelector('[data-oc-service-lang]')?.addEventListener('change',event=>void render({lang:event.target.value},'modal'));
-    root.querySelector('[data-oc-service-office]')?.addEventListener('change',event=>void render({office:event.target.value},'modal'));
+    root.querySelector('[data-oc-service-lang]')?.addEventListener('change',event=>void render({lang:event.target.value}));
+    root.querySelector('[data-oc-service-office]')?.addEventListener('change',event=>void render({office:event.target.value}));
     root.querySelector('[data-oc-event-search]')?.addEventListener('input',event=>{
       const query=event.target.value.toLocaleLowerCase().trim();let shown=0;
       root.querySelectorAll('.oc-events li').forEach(item=>{item.hidden=!item.textContent.toLocaleLowerCase().includes(query);if(!item.hidden)shown++;});
@@ -164,9 +172,9 @@
     async function loadCatalogue() {
       if (translations) return translations;
       catalogue ||= bible(cfg.endpoint,'translations').then(value=>{
-        if (!Array.isArray(value)||value.some(t=>typeof t.code!=='string'||!t.language?.code)) throw new Error('Каталог переводов требует обновления.');
+        if (!Array.isArray(value)||value.some(t=>typeof t.code!=='string'||!t.language?.code)) throw new Error(t('Каталог переводов требует обновления.'));
         translations=value;
-        select.replaceChildren(new Option('Выберите язык и перевод',''));
+        select.replaceChildren(new Option(t('Выберите язык и перевод'),''));
         for (const t of value) select.add(new Option(t.language.code+' · '+t.name,t.code));
         if (value.some(t=>t.code===cfg.translation)) select.value=cfg.translation;
         else { const same=value.filter(t=>t.language.code===cfg.lang); if (same.length===1) select.value=same[0].code; }
@@ -176,11 +184,11 @@
     }
     async function loadReading(details) {
       const revision=readingGeneration;
-      const output=details.querySelector('.oc-verses'); output.textContent='Загрузка текста…';
+      const output=details.querySelector('.oc-verses'); output.textContent=t('Загрузка текста…');
       try {
         const all=await loadCatalogue();
         const translation=all.find(t=>t.code===select.value);
-        if (!translation) throw new Error('Выберите язык и перевод.');
+        if (!translation) throw new Error(t('Выберите язык и перевод.'));
         if(translation.language.code==='cu') {const value=await json(route(cfg.endpoint,'font'));await font(value.url);}
         const verses=await readingText(JSON.parse(details.dataset.ocReading),translation,cfg.endpoint);
         if (revision!==readingGeneration) return;
@@ -192,8 +200,8 @@
         }
       } catch(error) {
         if(revision!==readingGeneration) return;
-        output.textContent=error.message+' ';
-        const retry=document.createElement('button');retry.type='button';retry.textContent='Повторить';retry.addEventListener('click',()=>loadReading(details));output.append(retry);
+        output.textContent=t(error.message)+' ';
+        const retry=document.createElement('button');retry.type='button';retry.textContent=t('Повторить');retry.addEventListener('click',()=>loadReading(details));output.append(retry);
       }
     }
     select.addEventListener('focus',()=>loadCatalogue().catch(error=>{status.textContent=error.message;}));

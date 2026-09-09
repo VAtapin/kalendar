@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.27';
+    const VERSION = '1.3.28';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -181,36 +181,43 @@ final class Orthocal_Plugin {
         wp_enqueue_style('orthocal'); wp_enqueue_script('orthocal');
         $data = self::data($a);
         $page=(int)$a['day_page'];$pageUrl=$page && get_post_status($page)==='publish'?get_permalink($page):'';
-        $config = $a + ['endpoint'=>rest_url('orthocal/v1/'), 'liveDate'=>empty($attrs['date']) && empty($_GET['orthocal_date']), 'pageUrl'=>$pageUrl,'fontUrl'=>$a['lang']==='cu'||in_array($a['mode'],self::TEXT_MODES,true)?Orthocal_Media_Cache::url('/calendar-api-font.php'):''];
-        $html = '<section class="orthocal oc-theme-'.esc_attr($a['theme']).($a['css_mode']==='site'?' oc-site-css':'').($a['compact']==='1'?' oc-compact':'').'" style="--oc-accent:'.esc_attr($a['accent']).';--oc-image-size:'.($a['image_size']==='small'?'28px':($a['image_size']==='large'?'72px':'44px')).'" data-oc-language="'.esc_attr($a['lang']).'" data-orthocal="'.esc_attr(wp_json_encode($config)).'" aria-label="'.esc_attr(self::TITLES[$a['mode']]).'">';
-        if($a['heading']==='1')$html .= '<div class="oc-heading">'.($a['branding']!==''?'<span class="oc-eyebrow">'.esc_html($a['branding']).'</span>':'').(in_array($a['mode'],['today','day'],true)?'':'<h2>'.esc_html(self::TITLES[$a['mode']]).'</h2>').'</div>';
-        if (is_wp_error($data)) $html .= self::error_html($data->get_error_message()).'<button type="button" data-oc-retry>Повторить</button>';
-        elseif(in_array($a['mode'],self::SERVICE_MODES,true)&&isset($data['assignments']))$html.=self::service($data,$a);
+        $config = $a + ['endpoint'=>rest_url('orthocal/v1/'), 'liveDate'=>empty($attrs['date']) && empty($_GET['orthocal_date']), 'pageUrl'=>$pageUrl,'ui'=>self::ui_catalog($a['lang']),'fontUrl'=>$a['lang']==='cu'||in_array($a['mode'],array_merge(self::TEXT_MODES,self::SERVICE_MODES),true)?Orthocal_Media_Cache::url('/calendar-api-font.php'):''];
+        $html = '<section class="orthocal oc-theme-'.esc_attr($a['theme']).($a['css_mode']==='site'?' oc-site-css':'').($a['compact']==='1'?' oc-compact':'').'" style="--oc-accent:'.esc_attr($a['accent']).';--oc-image-size:'.($a['image_size']==='small'?'28px':($a['image_size']==='large'?'72px':'44px')).'" data-oc-language="'.esc_attr($a['lang']).'" data-orthocal="'.esc_attr(wp_json_encode($config)).'" aria-label="'.esc_attr(self::ui(self::TITLES[$a['mode']],$a['lang'])).'">';
+        if($a['heading']==='1')$html .= '<div class="oc-heading">'.($a['branding']!==''?'<span class="oc-eyebrow">'.esc_html(self::ui($a['branding'],$a['lang'])).'</span>':'').(in_array($a['mode'],['today','day'],true)?'':'<h2>'.esc_html(self::ui(self::TITLES[$a['mode']],$a['lang'])).'</h2>').'</div>';
+        if (is_wp_error($data)) $html .= self::error_html($data->get_error_message()).('<button type="button" data-oc-retry>'.self::ui('Повторить',$a['lang']).'</button>');
+        elseif(in_array($a['mode'],self::SERVICE_MODES,true))$html.=self::service($data,$a);
         elseif(in_array($a['mode'],self::TEXT_MODES,true)&&isset($data['texts']))$html.=self::texts($data,$a);
         elseif (isset($data['day']['events']) && is_array($data['day']['events'])) $html .= self::day($data['day'],$a);
-        elseif ($a['mode']==='pascha' && isset($data['pascha'])) $html.='<p class="oc-date">'.self::day_link($data['pascha'],self::date_label($data['pascha'])).'</p><div class="oc-detail"></div>';
+        elseif ($a['mode']==='pascha' && isset($data['pascha'])) $html.='<p class="oc-date">'.self::day_link($data['pascha'],self::date_label($data['pascha'],$a['lang'])).'</p><div class="oc-detail"></div>';
         elseif ($a['mode']==='fasts' && isset($data['fastingPeriods'])) $html.='<ul class="oc-periods">'.self::periods($data['fastingPeriods']).'</ul>';
         elseif (in_array($a['mode'],['upcoming','feasts','memorial'],true) && isset($data['items'])) {
             $html .= '<div class="oc-upcoming">';
             foreach ($data['items'] as $item) {
                 $days = (int)(new DateTimeImmutable($a['date']))->diff(new DateTimeImmutable($item['date']))->format('%a');
-                $html .= '<article><span class="oc-eyebrow">'.esc_html(self::date_label($item['date'])).' · '.($days ? 'через '.$days.' дн.' : 'сегодня').'</span>'.self::day_link($item['date'],$item['event']['title']).'</article>';
+                $html .= '<article><span class="oc-eyebrow">'.esc_html(self::date_label($item['date'],$a['lang'])).' · '.($days ? 'через '.$days.' дн.' : 'сегодня').'</span>'.self::day_link($item['date'],$item['event']['title']).'</article>';
             }
             $html .= empty($data['items']) ? '<p>В указанном диапазоне событий нет.</p>' : '';
             $html .= '</div><div class="oc-detail">'.($selected ? self::render(array_merge($a,['mode'=>'day']),true) : '').'</div>';
         } elseif (isset($data['days']) && is_array($data['days'])) {
             $html .= self::navigation($a);
             if ($a['mode']==='year') {
-                $html .= '<p class="oc-pascha">Пасха · '.esc_html(self::date_label($data['pascha'])).'</p><div class="oc-year">';
+                $html .= ('<p class="oc-pascha">'.self::ui('Пасха',$a['lang']).' · ').esc_html(self::date_label($data['pascha'],$a['lang'])).'</p><div class="oc-year">';
                 for ($m=1;$m<=12;$m++) $html .= self::month(array_values(array_filter($data['days'],static fn($day)=>(int)substr($day['date'],5,2)===$m)), $a, $m);
                 $html .= '</div>';
                 if (!empty($data['fastingPeriods'])) $html .= '<details><summary>Постные периоды</summary><ul>'.self::periods($data['fastingPeriods']).'</ul></details>';
             } else $html .= self::month($data['days'],$a,$a['month']);
-            $html .= '<details class="oc-legend"><summary>Как читать календарь</summary><p>✦ — великий праздник. Красным выделены воскресенья и великие праздники. Маленькое число — дата по старому стилю. Выберите день, чтобы увидеть все памяти, знаки Типикона и правило поста.</p></details><div class="oc-detail">'.($selected || $a['mode']==='calendar' ? self::render(array_merge($a,['mode'=>'day']),true) : '').'</div>';
+            $html .= ('<details class="oc-legend"><summary>Как читать календарь</summary><p>✦ — великий праздник. Красным выделены воскресенья и великие праздники. Маленькое число — дата '.self::ui('по старому стилю',$a['lang']).'. Выберите день, чтобы увидеть все памяти, знаки Типикона и правило поста.</p></details><div class="oc-detail">').($selected || $a['mode']==='calendar' ? self::render(array_merge($a,['mode'=>'day']),true) : '').'</div>';
         } else $html .= self::error_html('API требует обновления: ожидаемые поля отсутствуют.');
         return $html.'<p class="oc-status" role="status" aria-live="polite"></p></section>';
     }
-    static function date_label($date) {
+    static function ui_catalog($lang) {
+        static $catalog=null;
+        if ($catalog===null) $catalog=json_decode(file_get_contents(__DIR__.'/../assets/i18n.json'),true);
+        return $catalog[$lang]??[];
+    }
+    static function ui($text,$lang) { return self::ui_catalog($lang)[$text]??$text; }
+    static function date_label($date,$lang='ru') {
+        if ($lang==='de') return (int)substr($date,8,2).'. '.['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'][(int)substr($date,5,2)-1].' '.substr($date,0,4);
         $months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
         return (int)substr($date,8,2).' '.$months[(int)substr($date,5,2)-1].' '.substr($date,0,4);
     }
@@ -223,24 +230,25 @@ final class Orthocal_Plugin {
     }
     static function navigation($a) {
         $year = $a['mode']==='year'; $date = new DateTimeImmutable(sprintf('%04d-%02d-01',$a['year'],$a['month']));
-        $html = '<nav class="oc-nav" aria-label="Выбор периода">';
+        $html = ('<nav class="oc-nav" aria-label="'.self::ui('Выбор периода',$a['lang']).'">');
         foreach ([-1,1] as $step) {
             $target = $date->modify(($step<0?'-1':'+1').($year?' year':' month'));
             $disabled = (int)$target->format('Y')<1900 || (int)$target->format('Y')>2200;
-            $html .= '<button type="button" data-oc-period="'.$target->format('Y-m-d').'" '.($disabled?'disabled':'').'>'.($step<0?'← Назад':'Вперёд →').'</button>';
+            $html .= '<button type="button" data-oc-period="'.$target->format('Y-m-d').'" '.($disabled?'disabled':'').'>'.($step<0?(self::ui('← Назад',$a['lang'])):(self::ui('Вперёд →',$a['lang']))).'</button>';
         }
-        $html .= '<label>Год <input data-oc-year type="number" min="1900" max="2200" value="'.$a['year'].'"></label><button type="button" data-oc-now>Сегодня</button></nav>';
+        $html .= ('<label>'.self::ui('Год',$a['lang']).' <input data-oc-year type="number" min="1900" max="2200" value="').$a['year'].('"></label><button type="button" data-oc-now>'.self::ui('Сегодня',$a['lang']).'</button></nav>');
         return $html;
     }
     static function month($days,$a,$month) {
         $months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+        $months=$a['lang']==='de'?['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']:$months;
         $html = '<div class="oc-month"><h3>'.esc_html($months[$month-1].' '.$a['year']).'</h3><div class="oc-grid">';
-        foreach (['Пн','Вт','Ср','Чт','Пт','Сб','Вс'] as $name) $html .= '<span class="oc-weekday">'.$name.'</span>';
+        foreach (($a['lang']==='de'?['Mo','Di','Mi','Do','Fr','Sa','So']:['Пн','Вт','Ср','Чт','Пт','Сб','Вс']) as $name) $html .= '<span class="oc-weekday">'.$name.'</span>';
         if ($days) for ($i=0;$i<(($days[0]['weekday']+6)%7);$i++) $html .= '<span aria-hidden="true"></span>';
         foreach ($days as $day) {
             $events = $day['events'] ?? []; $feasts = array_values(array_filter($events,static fn($e)=>$e['category']==='commemoration' && $e['typeCode']>=0 && $e['typeCode']<=2));
             $red = $day['weekday']===0 || count($feasts)>0; $today = $day['date']===wp_date('Y-m-d');
-            $label = self::date_label($day['date']).'. '.($day['foodLabel'] ?? '').'. '.implode('. ',array_column($feasts,'title'));
+            $label = self::date_label($day['date'],$a['lang']).'. '.($day['foodLabel'] ?? '').'. '.implode('. ',array_column($feasts,'title'));
             $html .= '<a class="oc-cell'.($red?' oc-red':'').($today?' oc-today':'').'" href="'.esc_url(self::date_url($day['date'])).'" data-oc-date="'.esc_attr($day['date']).'" aria-label="'.esc_attr($label).'" title="'.esc_attr($label).'"'.($today?' aria-current="date"':'').'>';
             $html .= '<b>'.(int)substr($day['date'],8,2).'</b>'.($a['oldstyle']==='1'?'<small>'.(int)substr($day['oldStyleDate'],8,2).'</small>':'');
             if ($feasts) $html .= '<span class="oc-star" aria-hidden="true">✦</span>';
@@ -277,20 +285,20 @@ final class Orthocal_Plugin {
         $only=['fasting'=>'fasting','saints'=>'saints','readings'=>'readings','date'=>''];
         $sections=isset($only[$a['mode']])?[$only[$a['mode']]]:explode(',',$a['sections']);
         $hero = in_array('icons',$sections,true) ? self::hero_icon($day) : '';
-        $html = $hero.'<div class="oc-day"><div class="oc-date-row"><p class="oc-date">'.esc_html(self::date_label($day['date'])).'</p>';
-        if (in_array($a['mode'],['today','day'],true) && $a['show_picker']==='1') $html .= '<label class="oc-date-picker"><span class="screen-reader-text">Выбрать дату</span><input type="date" aria-label="Выбрать дату" title="Выбрать дату" data-oc-picker min="1900-01-01" max="2200-12-31" value="'.esc_attr($day['date']).'"></label>';
+        $html = $hero.'<div class="oc-day"><div class="oc-date-row"><p class="oc-date">'.esc_html(self::date_label($day['date'],$a['lang'])).'</p>';
+        if (in_array($a['mode'],['today','day'],true) && $a['show_picker']==='1') $html .= ('<label class="oc-date-picker"><span class="screen-reader-text">'.self::ui('Выбрать дату',$a['lang']).'</span><input type="date" aria-label="'.self::ui('Выбрать дату',$a['lang']).'" title="'.self::ui('Выбрать дату',$a['lang']).'" data-oc-picker min="1900-01-01" max="2200-12-31" value="').esc_attr($day['date']).'"></label>';
         $html .= '</div>';
-        if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).' по старому стилю</p>';
-        $meta=[];if(!empty($day['weekdayName']))$meta[]=mb_strtolower((string)$day['weekdayName']);if(!empty($day['weekAfterPentecost']))$meta[]=(int)$day['weekAfterPentecost'].'-я седмица по Пятидесятнице';if(!empty($day['tone']))$meta[]='глас '.(int)$day['tone'];if($meta)$html.='<p class="oc-day-meta">'.esc_html(implode(' · ',$meta)).'</p>';
+        if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).(' '.self::ui('по старому стилю',$a['lang']).'</p>');
+        $meta=[];if(!empty($day['weekdayName']))$meta[]=mb_strtolower((string)$day['weekdayName']);if(!empty($day['weekAfterPentecost']))$meta[]=(int)$day['weekAfterPentecost'].(self::ui('-я седмица по Пятидесятнице',$a['lang']));if(!empty($day['tone']))$meta[]=(self::ui('глас ',$a['lang'])).(int)$day['tone'];if($meta)$html.='<p class="oc-day-meta">'.esc_html(implode(' · ',$meta)).'</p>';
         if(in_array($a['mode'],['today','day'],true)) {
-            $date=new DateTimeImmutable($day['date']);$html.=$a['show_nav']==='1'?'<nav class="oc-day-nav" aria-label="Выбор дня">':'';
-            if($a['show_nav']==='1') foreach([-1=>'← Вчера',1=>'Завтра →'] as $step=>$label){$target=$date->modify(($step<0?'-1':'+1').' day')->format('Y-m-d');if(self::date_valid($target))$html.='<button type="button" data-oc-day="'.$target.'">'.($a['date']===wp_date('Y-m-d')?$label:($step<0?'← Предыдущий день':'Следующий день →')).'</button>';}
+            $date=new DateTimeImmutable($day['date']);$html.=$a['show_nav']==='1'?('<nav class="oc-day-nav" aria-label="'.self::ui('Выбор дня',$a['lang']).'">'):'';
+            if($a['show_nav']==='1') foreach([-1=>(self::ui('← Вчера',$a['lang'])),1=>(self::ui('Завтра →',$a['lang']))] as $step=>$label){$target=$date->modify(($step<0?'-1':'+1').' day')->format('Y-m-d');if(self::date_valid($target))$html.='<button type="button" data-oc-day="'.$target.'">'.($a['date']===wp_date('Y-m-d')?$label:($step<0?(self::ui('← Предыдущий день',$a['lang'])):(self::ui('Следующий день →',$a['lang'])))).'</button>';}
             $html.=$a['show_nav']==='1'?'</nav>':'';
         }
         if(in_array('saints',$sections,true)) {
             $events=array_values(array_filter($day['events'],static fn($event)=>self::event_allowed($event,$a['event_levels'])));
             usort($events,static function($left,$right){$rank=static function($event){$title=(string)($event['title']??'');$monk=preg_match('/^(?:прп\.|преподобн)/iu',$title)?0:1;return [$monk,(int)($event['typeCode']??99),$title];};return $rank($left)<=>$rank($right);});
-            $html.='<section class="oc-saints-section">'.($a['show_section_titles']==='1'?'<h3>Праздники и памяти</h3>':'').($a['show_search']==='1'?'<label class="oc-search">Найти в памятях дня <input type="search" data-oc-event-search placeholder="Имя или название"></label>':'').'<ul class="oc-events">';
+            $html.='<section class="oc-saints-section">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Праздники и памяти',$a['lang']).'</h3>'):'').($a['show_search']==='1'?('<label class="oc-search">'.self::ui('Найти в памятях дня',$a['lang']).' <input type="search" data-oc-event-search placeholder="'.self::ui('Имя или название',$a['lang']).'"></label>'):'').'<ul class="oc-events">';
             foreach ($events as $event) {
                 $mark=$event['typikonMark'] ?? null;
                 $html .= '<li'.(($event['typeCode']>=0 && $event['typeCode']<=2)?' class="oc-red"':'').'>';
@@ -301,38 +309,38 @@ final class Orthocal_Plugin {
                 if ($local) $html .= '<img width="20" height="20" src="'.esc_url($local).'" alt="'.esc_attr($mark['label'] ?? 'Знак Типикона').'" title="'.esc_attr($mark['label']??'Знак Типикона').'"> ';
                 $html .= esc_html($event['title']).'</li>';
             }
-            $html .= '</ul><p data-oc-no-events hidden>Совпадений нет.</p></section>';
+            $html .= ('</ul><p data-oc-no-events hidden>'.self::ui('Совпадений нет.',$a['lang']).'</p></section>');
         }
         if (in_array('fasting',$sections,true)) {
             $foodImage='';$markers=$day['foodMarkers']??[];$selected=array_values(array_filter($markers,static fn($marker)=>$marker['packId']===$a['image_pack']));
             $foodSource=$selected[0]['source']??$markers[0]['source']??'';
             $local=$a['images']==='1'?Orthocal_Media_Cache::url($foodSource):'';
             if ($local) $foodImage='<img src="'.esc_url($local).'" width="44" height="44" alt="">';
-            $profileLabel=$a['profile']==='parish'?'Приходской':'Монастырский';
-            $html .= '<section class="oc-fasting-section">'.($a['show_section_titles']==='1'?'<h3>Пост и трапеза</h3>':'').'<p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').'<sup class="oc-profile-mark" aria-label="'.$profileLabel.'">*</sup></p></section>';
+            $profileLabel=$a['profile']==='parish'?(self::ui('Приходской',$a['lang'])):(self::ui('Монастырский',$a['lang']));
+            $html .= '<section class="oc-fasting-section">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Пост и трапеза',$a['lang']).'</h3>'):'').'<p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').'<sup class="oc-profile-mark" aria-label="'.$profileLabel.'">*</sup></p></section>';
         }
         if(in_array('icons',$sections,true))$html.=self::icons_slot($day,$a['icon_limit']);
         $psalter=array_values(array_filter($day['events'],static fn($e)=>(int)($e['typeCode']??0)===302));
         $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'&&(int)($e['typeCode']??0)!==302));
         if (($readings || $psalter) && in_array('readings',$sections,true)) {
-            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?'<h3>Библейские чтения</h3>':'').'<label class="oc-reading-translation">Перевод <select data-oc-translation><option value="">Загрузить переводы…</option></select></label>'.($a['show_font_size']==='1'?'<label class="oc-reading-font">Размер текста <input data-oc-font type="range" min="16" max="30" value="19"></label>':'').'<p class="oc-muted">Текст Апостола и Евангелия открывается по выбранному переводу. Псалтирь приведена по богослужебному распределению дня.</p>';
-            foreach ($readings as $event) $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title']).'</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>Скопировать текст</button><div class="oc-verses" aria-live="polite"></div></div></details>';
+            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Библейские чтения',$a['lang']).'</h3>'):'').('<label class="oc-reading-translation">'.self::ui('Перевод',$a['lang']).' <select data-oc-translation><option value="">'.self::ui('Загрузить переводы…',$a['lang']).'</option></select></label>').($a['show_font_size']==='1'?('<label class="oc-reading-font">'.self::ui('Размер текста',$a['lang']).' <input data-oc-font type="range" min="16" max="30" value="19"></label>'):'').('<p class="oc-muted">'.self::ui('Текст Апостола и Евангелия открывается по выбранному переводу. Псалтирь приведена по богослужебному распределению дня.',$a['lang']).'</p>');
+            foreach ($readings as $event) $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title']).('</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>'.self::ui('Скопировать текст',$a['lang']).'</button><div class="oc-verses" aria-live="polite"></div></div></details>');
             foreach ($psalter as $event) {
                 $parts=array_values(array_filter(array_map('trim',explode(';',(string)($event['title']??'')))));
                 if (!$parts) continue;
                 $vespers=count($parts)>=3?array_pop($parts):null;
-                $html.='<section class="oc-psalter"><h4>Псалтирь</h4><p><strong>На утрене:</strong> '.esc_html(implode('; ',$parts)).'</p>';
-                if ($vespers!==null) $html.='<p><strong>На вечерне:</strong> '.esc_html($vespers).'</p>';
+                $html.=('<section class="oc-psalter"><h4>'.self::ui('Псалтирь',$a['lang']).'</h4><p><strong>'.self::ui('На утрене:',$a['lang']).'</strong> ').esc_html(implode('; ',$parts)).'</p>';
+                if ($vespers!==null) $html.=('<p><strong>'.self::ui('На вечерне:',$a['lang']).'</strong> ').esc_html($vespers).'</p>';
                 $html.='</section>';
             }
             $html .= '</div>';
-        } elseif ($a['mode']==='readings') $html .= '<p>В источнике нет чтений для этой даты.</p>';
+        } elseif ($a['mode']==='readings') $html .= ('<p>'.self::ui('В источнике нет чтений для этой даты.',$a['lang']).'</p>');
         if(in_array('texts',$sections,true)) {
-            $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?'<h3>Богослужебные тексты</h3>':'');
-            $html.='<p class="oc-muted">Откройте справочник и выберите нужный текст.</p><div class="oc-text-buttons">';foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';$html.='</div></section>';
+            $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Богослужебные тексты',$a['lang']).'</h3>'):'');
+            $html.=('<p class="oc-muted">'.self::ui('Откройте справочник и выберите нужный текст.',$a['lang']).'</p><div class="oc-text-buttons">');foreach(['troparia'=>(self::ui('Тропари',$a['lang'])),'kontakia'=>(self::ui('Кондаки',$a['lang'])),'prayers'=>(self::ui('Молитвы',$a['lang'])),'magnifications'=>(self::ui('Величания',$a['lang'])),'horologion'=>(self::ui('Часослов',$a['lang']))] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';$html.='</div></section>';
         }
-        $profileLabel=$a['profile']==='parish'?'Приходской':'Монастырский';
-        return $html.($a['show_copy']==='1'?'<p class="oc-permalink">'.self::day_link($day['date'],'Ссылка на этот день').' <button type="button" data-oc-copy-link>Скопировать ссылку</button> <small class="oc-profile-note">* '.$profileLabel.' профиль</small></p>':'<p class="oc-profile-note">* '.$profileLabel.' профиль</p>').'</div>';
+        $profileLabel=$a['profile']==='parish'?(self::ui('Приходской',$a['lang'])):(self::ui('Монастырский',$a['lang']));
+        return $html.($a['show_copy']==='1'?'<p class="oc-permalink">'.self::day_link($day['date'],(self::ui('Ссылка на этот день',$a['lang']))).(' <button type="button" data-oc-copy-link>'.self::ui('Скопировать ссылку',$a['lang']).'</button> <small class="oc-profile-note">* ').$profileLabel.(self::ui(' профиль',$a['lang']).'</small></p>'):'<p class="oc-profile-note">* '.$profileLabel.(self::ui(' профиль',$a['lang']).'</p>')).'</div>';
     }
     static function icons_slot($day,$limit='all') {
         // The API is the source of truth: show every icon it supplies for the day.
@@ -359,35 +367,53 @@ final class Orthocal_Plugin {
         return '<div class="oc-hero-icon"><a href="'.esc_url($url).'" data-oc-icon data-oc-icon-title="'.esc_attr($title).'" data-oc-icon-description="'.esc_attr($description).'" aria-label="Открыть икону: '.esc_attr($title).'" ><img src="'.esc_url($url).'" alt="'.esc_attr($title).'" loading="lazy"></a></div>';
     }
     static function texts($data,$a) {
-        $html='<p class="oc-muted">Справочная библиотека · церковнославянский текст. Выбор по гласу или дню недели не является указанием порядка конкретной службы.</p><div class="oc-text-filters"><label>Раздел <select data-oc-text-filter="scope">';
-        foreach([''=>'Все разделы','resurrection'=>'Воскресные','weekday'=>'Дни седмицы','common'=>'Общие и справочные'] as $value=>$label)$html.='<option value="'.$value.'" '.selected($a['scope'],$value,false).'>'.$label.'</option>';
-        $html.='</select></label><label>Глас <select data-oc-text-filter="tone"><option value="">Все гласы</option>';
+        $html=('<p class="oc-muted">'.self::ui('Справочная библиотека · церковнославянский текст. Выбор по гласу или дню недели не является указанием порядка конкретной службы.',$a['lang']).'</p><div class="oc-text-filters"><label>'.self::ui('Раздел',$a['lang']).' <select data-oc-text-filter="scope">');
+        foreach([''=>(self::ui('Все разделы',$a['lang'])),'resurrection'=>(self::ui('Воскресные',$a['lang'])),'weekday'=>(self::ui('Дни седмицы',$a['lang'])),'common'=>(self::ui('Общие и справочные',$a['lang']))] as $value=>$label)$html.='<option value="'.$value.'" '.selected($a['scope'],$value,false).'>'.$label.'</option>';
+        $html.=('</select></label><label>'.self::ui('Глас',$a['lang']).' <select data-oc-text-filter="tone"><option value="">'.self::ui('Все гласы',$a['lang']).'</option>');
         for($i=1;$i<=8;$i++)$html.='<option value="'.$i.'" '.selected((string)$a['tone'],(string)$i,false).'>'.$i.'</option>';
         $html.='</select></label></div>';
         foreach($data['texts'] as $text) {
-            $html.='<details class="oc-liturgical-text"><summary>'.esc_html($text['title']).'</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>Скопировать текст</button><div class="oc-verses" lang="cu">'.nl2br(esc_html($text['text'])).'</div><p class="oc-text-source">';
+            $html.='<details class="oc-liturgical-text"><summary>'.esc_html($text['title']).('</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>'.self::ui('Скопировать текст',$a['lang']).'</button><div class="oc-verses" lang="cu">').nl2br(esc_html($text['text'])).'</div><p class="oc-text-source">';
             foreach($text['sources']??[] as $source)$html.='<a href="'.esc_url($source['url']).'" target="_blank" rel="noopener noreferrer">'.esc_html($source['title']).'</a> ';
             $html.='</p></div></details>';
         }
-        return $html.(empty($data['texts'])?'<p>В этой части библиотеки пока нет текстов с выбранными параметрами.</p>':'');
+        return self::text_editions($a).$html.(empty($data['texts'])?('<p>'.self::ui('В этой части библиотеки пока нет текстов с выбранными параметрами.',$a['lang']).'</p>'):'');
+    }
+    static function text_editions($a) {
+        if ($a['lang']!=='de') return '';
+        $links=[
+            'Gebetbuch'=>'https://orthodoxia.de/gebete/gebetbuch',
+            'Sonntagstroparien und Kondakien'=>'https://orthodoxia.de/gebete/gebetbuch/sonntagstroparien-und-kondakien',
+            'Wochentagstroparien und Kondakien'=>'https://orthodoxia.de/gebete/gebetbuch/wochentagstroparien-und-kondakien',
+            'Festtroparien und Kondakien'=>'https://orthodoxia.de/gebete/gebetbuch/troparien-und-kondakien-zu-verschiedenen-festen-2',
+            'Liturgikon'=>'https://orthodoxia.de/gebete',
+        ];
+        $html='<details class="oc-text-editions"><summary>Orthodoxe Gebete auf Deutsch ↗</summary><p>Die eingebundenen Texte sind kirchenslawisch. Deutsche Ausgaben können Sie hier öffnen:</p><ul>';
+        foreach($links as $label=>$url)$html.='<li><a href="'.esc_url($url).'" target="_blank" rel="noopener noreferrer">'.esc_html($label).' ↗</a></li>';
+        return $html.'</ul></details>';
     }
     static function service($data,$a) {
-        $offices=['horologion'=>'Общие молитвы','first-hour'=>'Первый час','third-hour'=>'Третий час','sixth-hour'=>'Шестой час','ninth-hour'=>'Девятый час','matins'=>'Утреня','vespers'=>'Вечерня'];
-        $office=$data['office']??$a['office']; $officeLabel=$offices[$office]??'Часослов';
-        $html='<section class="oc-horologion"><header class="oc-service-header"><span class="oc-eyebrow">Часослов</span><h3>'.esc_html($officeLabel).'</h3><p>Молитвы и тексты дня на '.esc_html(self::date_label($data['date']??$a['date'])).'.</p></header><div class="oc-service-controls"><label>Язык календаря <select data-oc-service-lang><option value="ru" '.selected($a['lang'],'ru',false).'>Русский</option><option value="cu" '.selected($a['lang'],'cu',false).'>Церковнославянский</option><option value="de" '.selected($a['lang'],'de',false).'>Deutsch</option><option value="uk" '.selected($a['lang'],'uk',false).'>Українська</option><option value="pl" '.selected($a['lang'],'pl',false).'>Polski</option></select></label><label>Раздел <select data-oc-service-office><option value="horologion" '.selected($office,'horologion',false).'>Общие молитвы</option><option value="first-hour" '.selected($office,'first-hour',false).'>Первый час</option><option value="third-hour" '.selected($office,'third-hour',false).'>Третий час</option><option value="sixth-hour" '.selected($office,'sixth-hour',false).'>Шестой час</option><option value="ninth-hour" '.selected($office,'ninth-hour',false).'>Девятый час</option><option value="matins" '.selected($office,'matins',false).'>Утреня</option><option value="vespers" '.selected($office,'vespers',false).'>Вечерня</option></select></label></div>';
+        $offices=['horologion'=>(self::ui('Общие молитвы',$a['lang'])),'first-hour'=>(self::ui('Первый час',$a['lang'])),'third-hour'=>(self::ui('Третий час',$a['lang'])),'sixth-hour'=>(self::ui('Шестой час',$a['lang'])),'ninth-hour'=>(self::ui('Девятый час',$a['lang'])),'matins'=>(self::ui('Утреня',$a['lang'])),'vespers'=>(self::ui('Вечерня',$a['lang']))];
+        $office=$data['office']??$a['office']; $officeLabel=$offices[$office]??(self::ui('Часослов',$a['lang']));
+        $html=('<section class="oc-horologion"><header class="oc-service-header"><span class="oc-eyebrow">'.self::ui('Часослов',$a['lang']).'</span><h3>').esc_html($officeLabel).('</h3><p>'.self::ui('Молитвы и тексты дня на ',$a['lang'])).esc_html(self::date_label($data['date']??$a['date'],$a['lang'])).('.</p></header><div class="oc-service-controls"><label>'.self::ui('Язык календаря',$a['lang']).' <select data-oc-service-lang><option value="ru" ').selected($a['lang'],'ru',false).'>Русский</option><option value="cu" '.selected($a['lang'],'cu',false).'>Церковнославянский</option><option value="de" '.selected($a['lang'],'de',false).'>Deutsch</option><option value="uk" '.selected($a['lang'],'uk',false).'>Українська</option><option value="pl" '.selected($a['lang'],'pl',false).('>Polski</option></select></label><label>'.self::ui('Раздел',$a['lang']).' <select data-oc-service-office><option value="horologion" ').selected($office,'horologion',false).('>'.self::ui('Общие молитвы',$a['lang']).'</option><option value="first-hour" ').selected($office,'first-hour',false).('>'.self::ui('Первый час',$a['lang']).'</option><option value="third-hour" ').selected($office,'third-hour',false).('>'.self::ui('Третий час',$a['lang']).'</option><option value="sixth-hour" ').selected($office,'sixth-hour',false).('>'.self::ui('Шестой час',$a['lang']).'</option><option value="ninth-hour" ').selected($office,'ninth-hour',false).('>'.self::ui('Девятый час',$a['lang']).'</option><option value="matins" ').selected($office,'matins',false).('>'.self::ui('Утреня',$a['lang']).'</option><option value="vespers" ').selected($office,'vespers',false).('>'.self::ui('Вечерня',$a['lang']).'</option></select></label></div>');
+        $html.=self::text_editions($a);
+        $html.='<p class="oc-muted">'.esc_html($a['lang']==='de'
+            ? 'Hier stehen Grundgebete und kalenderbezogene Einfügungen in Kirchenslawisch; dies ist kein vollständiges Stundenbuch.'
+            : 'Здесь представлены общие молитвы и календарные вставки на церковнославянском языке; это не полное последование Часослова.').'</p>';
+        $html.='<p><a target="_blank" rel="noopener noreferrer" href="https://azbyka.ru/bogosluzhenie/1/chasoslov/">'.esc_html($a['lang']==='de'?'Vollständiges Stundenbuch (Kirchenslawisch) ↗':'Полный Часослов на церковнославянском ↗').'</a></p>';
         $assignments=$data['assignments']??[];
         if ($assignments) {
-            $html.='<section class="oc-service-section"><h4>Тексты дня</h4>';
-            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??'Текст службы').'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
+            $html.=('<section class="oc-service-section"><h4>'.self::ui('Тексты дня',$a['lang']).'</h4>');
+            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??(self::ui('Текст службы',$a['lang']))).'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
             $html.='</section>';
         }
         $expansions=$data['expansions']??[];
         if ($expansions) {
-            $html.='<section class="oc-service-section"><h4>Общие молитвы</h4>';
-            foreach ($expansions as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??$item['label']??'Молитва').'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
+            $html.=('<section class="oc-service-section"><h4>'.self::ui('Общие молитвы',$a['lang']).'</h4>');
+            foreach ($expansions as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??$item['label']??(self::ui('Молитва',$a['lang']))).'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
             $html.='</section>';
         }
-        if (!$assignments && !$expansions) $html.='<p class="oc-message">Для выбранного раздела пока нет текстов.</p>';
+        if (!$assignments && !$expansions) $html.=('<p class="oc-message">'.self::ui('Для выбранного раздела пока нет текстов.',$a['lang']).'</p>');
         return $html.'</section>';
     }
     static function throttle() {

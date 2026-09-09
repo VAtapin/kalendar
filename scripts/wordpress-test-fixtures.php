@@ -1,6 +1,15 @@
 <?php
 // Installed only in the disposable local test site. Never packaged in the plugin.
 add_filter('pre_http_request', function($pre,$args,$url) {
+    if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar/service')) {
+        require_once ORTHOCAL_TEST_ASSET_ROOT.'/api/calendar-service.php';
+        parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
+        $library=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
+        $value=['date'=>$query['date'],'office'=>$query['office'],'textLanguage'=>'cu',
+            'assignments'=>calendar_service_assignments($library,3,6,'cross'),
+            'expansions'=>calendar_service_expansions($query['expansion']??'short')];
+        return ['headers'=>[],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
+    }
     if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar-texts/')) {
         $value=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);

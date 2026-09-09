@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {chromium} from 'playwright';
+const php=process.env.PHP_BINARY||'php';
+const html=(lang='de',mode='day',office='horologion')=>execFileSync(php,['-n','scripts/wordpress-reader-fixture.php',lang,mode,office],{encoding:'utf8'});
+const german=html();
+assert.match(german,/9\. September 2026/);assert.match(german,/15\. Woche nach Pfingsten/);assert.match(german,/Ton 6/);
+assert.match(german,/Text kopieren/);assert.match(german,/Troparien/);assert.match(german,/Kalenderwerkstatt/);
+const browser=await chromium.launch(process.platform==='win32'?{channel:'msedge'}:{});
+try{
+ const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('https://reader.test/**',async route=>{
+   const url=new URL(route.request().url());
+   if(url.pathname==='/api/render')return route.fulfill({json:{html:html(url.searchParams.get('lang'),url.searchParams.get('mode'),url.searchParams.get('office'))}});
+   if(url.pathname==='/api/bible')return route.fulfill({json:[]});
+   return route.fulfill({contentType:'text/html',body:'<!doctype html><meta charset="utf-8">'+german});
+ });
+ await page.goto('https://reader.test/');
+ await page.addStyleTag({content:readFileSync('wordpress/orthocal/assets/calendar.css','utf8')});
+ await page.addScriptTag({path:resolve('wordpress/orthocal/assets/calendar.js')});
+ assert.equal(await page.locator('[data-oc-copy-reading]').textContent(),'Text kopieren');
+ assert.equal(await page.locator('[data-oc-library="troparia"]').innerText(),'Troparien');
+ assert.match(await page.locator('.oc-profile-note').innerText(),/Klosterprofil/);
+ assert.match(await page.locator('.oc-reading-translation').innerText(),/Übersetzung/);
+ assert.doesNotMatch(await page.locator('.orthocal').innerText(),/[А-Яа-яЁё]/);
+ await page.locator('[data-oc-library="horologion"]').click();
+ await page.locator('dialog .oc-service-text').first().waitFor();
+ assert.ok((await page.locator('dialog .oc-service-text').allTextContents()).join('').length>1000);
+ assert.equal(await page.locator('dialog').count(),1);
+ await page.locator('[data-oc-service-lang]').selectOption('ru');
+ await page.locator('dialog .oc-dialog-close',{hasText:'Закрыть'}).waitFor();
+ assert.equal(await page.locator('dialog').count(),1);
+ await page.locator('[data-oc-service-office]').selectOption('sixth-hour');
+ await page.locator('.oc-service-header h3',{hasText:'Шестой час'}).waitFor();
+ assert.equal(await page.locator('dialog').count(),1);
+ await page.locator('[data-oc-service-lang]').selectOption('de');
+ await page.locator('dialog .oc-dialog-close',{hasText:'Schließen'}).waitFor();
+ await page.screenshot({path:resolve('artifacts/wordpress-reader-de.png')});
+ await page.setViewportSize({width:390,height:844});
+ assert.equal(await page.locator('dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'Mobile reader must not overflow horizontally');
+ await page.locator('.oc-dialog-close').click();assert.equal(await page.locator('dialog[open]').count(),0);
+ await page.locator('[data-oc-library="horologion"]').click();await page.locator('dialog .oc-service-text').first().waitFor();
+ await page.keyboard.press('Escape');assert.equal(await page.locator('dialog[open]').count(),0);
+ assert.deepEqual(errors,[]);
+ console.log('PASS German server HTML, full prayer bodies, language/office updates in one dialog, one-click close, Escape, reopen');
+}finally{await browser.close();}
