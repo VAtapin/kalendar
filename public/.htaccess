@@ -10,6 +10,9 @@ DirectoryIndex index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Clean public document URLs, before the Vue application fallback.
+    RewriteRule ^(icons|icons-of-mother-of-god|web-calendar|wordpress-plugin|calendar-api-test|calendar-icons-test)/?$ $1.html [L]
+
     # PHP handles only the server functions requested by the editor.
     RewriteRule ^api(?:/.*)?$ api/index.php [QSA,L]
 

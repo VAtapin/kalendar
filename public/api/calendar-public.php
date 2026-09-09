@@ -127,7 +127,7 @@ function calendar_public_routes(string $method, string $path): void {
         if ($origin === '' || !in_array($origin, $allowedOrigins, true)
             || api_header('Sec-Fetch-Site') !== 'same-origin'
             || api_header('X-Calendar-Demo') !== '1'
-            || !in_array(strtok($referer, '?'), [$origin . '/calendar-api-test.html', $origin . '/web-calendar.html'], true)) {
+            || !in_array(strtok($referer, '?'), [$origin . '/calendar-api-test', $origin . '/web-calendar', $origin . '/calendar-api-test/', $origin . '/web-calendar/', $origin . '/calendar-api-test.html', $origin . '/web-calendar.html'], true)) {
             calendar_fail('demo_page_required', 403, 'Откройте тестовую страницу на сайте Календарной мастерской.');
         }
         $path = '/v1/calendar/day';

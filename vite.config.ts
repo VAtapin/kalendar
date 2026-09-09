@@ -1,8 +1,19 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { documentRoutes } from './src/document-routes';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), {
+    name: 'document-routes',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const url = new URL(req.url || '/', 'http://localhost');
+        const file = documentRoutes[url.pathname.replace(/\/$/, '')];
+        if (file) req.url = file + url.search;
+        next();
+      });
+    },
+  }],
   optimizeDeps: {
     entries: ["index.html"],
   },

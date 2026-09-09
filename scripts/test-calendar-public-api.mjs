@@ -39,12 +39,12 @@ try {
   assert.equal((await fetch(demoUrl)).status,405);
   assert.equal((await fetch(demoUrl,{method:'OPTIONS'})).status,405);
   assert.equal((await fetch(demoUrl,{method:'POST'})).status,403);
-  for(const overrides of [{Origin:'https://foreign.test'},{Origin:'null'},{Referer:origin+'/other.html'},{Referer:origin+'/calendar-api-test.html/other'},{'Sec-Fetch-Site':'cross-site'},{'X-Calendar-Demo':''}]) {
+  for(const overrides of [{Origin:'https://foreign.test'},{Origin:'null'},{Referer:origin+'/other.html'},{Referer:origin+'/calendar-api-test.html/other'},{Referer:origin+'/web-calendar/other'},{'Sec-Fetch-Site':'cross-site'},{'X-Calendar-Demo':''}]) {
     const denied=await fetch(demoUrl,{method:'POST',headers:{...demoHeaders,...overrides}});
     assert.equal(denied.status,403);assert.equal(denied.headers.get('access-control-allow-origin'),null);
   }
-  for(let run=0;run<3;run++) {
-    const demo=await fetch(demoUrl,{method:'POST',headers:demoHeaders});
+  for(const referer of ['/calendar-api-test.html','/calendar-api-test','/web-calendar']) {
+    const demo=await fetch(demoUrl,{method:'POST',headers:{...demoHeaders,Referer:origin+referer}});
     assert.equal(demo.status,200);assert.equal((await demo.json()).day.date,'2027-05-02');
     assert.equal(demo.headers.get('x-api-month-limit'),null);
     assert.equal(demo.headers.get('access-control-allow-origin'),null);

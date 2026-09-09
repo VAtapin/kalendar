@@ -2,6 +2,7 @@ import { ref, watch } from 'vue';
 import { interfaceLanguage, isInterfaceLanguage, type InterfaceLanguage } from './i18n/interface-language';
 import { domainRoute, splitLanguagePath as splitPath } from './i18n/domain-routing';
 import { sessionRequest } from './domain-session';
+import { documentRoutes } from './document-routes';
 
 // Internal routes omit the language; browser URLs always include it.
 export const routePath = ref(splitPath(location.pathname).path);
@@ -88,6 +89,6 @@ document.addEventListener('click', event => {
   if (url.origin !== location.origin || url.search || url.hash) return;
   // Standalone HTML pages and other files belong to the server, not the SPA.
   // pushState would only change their URL and render the public-page 404.
-  if (/\.[^/]+$/.test(url.pathname)) return;
+  if (documentRoutes[url.pathname.replace(/\/$/, '')] || /\.[^/]+$/.test(url.pathname)) return;
   event.preventDefault(); navigate(url.pathname);
 });

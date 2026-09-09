@@ -104,12 +104,12 @@ function changeInterfaceLanguage(event: Event): void {
         </div>
       </div>
       <div class="welcome-services__grid">
-        <a href="/icons.html">
+        <a href="/icons">
           <strong>Православные иконы</strong>
           <span>Иконная библиотека Богородичных образов и святых с днями празднования, историей и тематическими подборками.</span>
           <em>Открыть библиотеку →</em>
         </a>
-        <a href="/web-calendar.html">
+        <a href="/web-calendar">
           <strong>Веб‑календарь</strong>
           <span>Сегодня, праздники, пост, трапеза, чтения и календарь на месяц или год.</span>
           <em>Открыть календарь →</em>

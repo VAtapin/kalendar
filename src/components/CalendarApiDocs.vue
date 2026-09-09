@@ -17,7 +17,7 @@ onMounted(async()=>{try{const r=await fetch('/api/v1/calendar-access/plans',{cre
   <section id="connection"><h2>Подключение</h2><p>Ответы в JSON, API v1, годы 1900–2200. Даты запроса — по новому стилю (григорианские), старый стиль возвращается отдельно.</p><pre data-no-translate>{{base}}</pre>
   <ol><li>Получите индивидуальный ключ у администратора. Ключ создаётся для конкретного клиента и тарифа.</li><li>Отправляйте его в заголовке <code data-no-translate>X-API-Key</code> или <code data-no-translate>Authorization: Bearer YOUR_API_KEY</code>.</li><li>Храните ключ на сервере. Не вставляйте его в публичный JavaScript, URL или репозиторий.</li></ol>
   <pre data-no-translate>{{example}}</pre><p>Корневой запрос с метаданными и <code>today</code> доступны без ключа. Остальные запросы требуют ключа.</p>
-  <a href="/calendar-api-test.html" target="_blank" rel="noopener">Открыть тестовую HTML-страницу ↗</a></section>
+  <a href="/calendar-api-test" target="_blank" rel="noopener">Открыть тестовую HTML-страницу ↗</a></section>
   <section id="data"><h2>Данные и запросы</h2><div class="table-wrap"><table><thead><tr><th>GET-запрос</th><th>Результат</th></tr></thead><tbody><tr v-for="[path,label] in endpoints" :key="path"><td><code data-no-translate>{{path}}</code></td><td>{{label}}</td></tr></tbody></table></div>
   <p>Параметр <code>lang</code>: <code>ru, cu, de, uk, pl</code>. Параметр <code>profile</code>: <code>typikon-strict</code> (строгий устав) или <code>parish</code> (приходской профиль). По умолчанию: русский и строгий профиль.</p>
   <p>Месяц и год принимают <code>view=summary</code> для лёгкого представления. Для ближайших событий: <code>limit=1…10</code>, <code>filter=main|twelve|great|memorial|all</code>.</p>
