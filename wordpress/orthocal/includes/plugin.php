@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.2';
+    const VERSION = '1.3.3';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     private static $file;
@@ -45,7 +45,7 @@ final class Orthocal_Plugin {
     }
 
     static function options() {
-        return wp_parse_args(get_option('orthocal_options', []), ['key'=>'','lang'=>'ru','profile'=>'typikon-strict','theme'=>'book','css_mode'=>'plugin','accent'=>'#9a352d','translation'=>'','oldstyle'=>'1','compact'=>'0','show_nav'=>'1','show_picker'=>'1','show_copy'=>'1','show_search'=>'0','open'=>'inline','reading_open'=>'inline','day_page'=>'0','images'=>'1','image_size'=>'medium','image_pack'=>'ornamental','icons'=>'0','heading'=>'1','branding'=>'Календарная мастерская','sections'=>'fasting,saints,readings,texts,icons','event_levels'=>'0,1,2,3,4','media_hours'=>'24','bible_hours'=>'24']);
+        return wp_parse_args(get_option('orthocal_options', []), ['key'=>'','lang'=>'ru','profile'=>'typikon-strict','theme'=>'book','css_mode'=>'plugin','accent'=>'#9a352d','translation'=>'','oldstyle'=>'1','compact'=>'0','show_nav'=>'1','show_picker'=>'1','show_copy'=>'1','show_search'=>'0','show_section_titles'=>'1','open'=>'inline','reading_open'=>'inline','day_page'=>'0','images'=>'1','image_size'=>'medium','image_pack'=>'ornamental','icons'=>'0','heading'=>'1','branding'=>'Календарная мастерская','sections'=>'fasting,saints,readings,texts,icons','event_levels'=>'0,1,2,3,4','media_hours'=>'24','bible_hours'=>'24']);
     }
     static function sanitize_options($input) {
         $old = self::options(); $out = [];
@@ -55,7 +55,7 @@ final class Orthocal_Plugin {
         $out['key'] = !empty($input['clear_key']) ? '' : (empty($input['key']) ? $old['key'] : sanitize_text_field($input['key']));
         $out['translation'] = array_key_exists('translation',$input) ? sanitize_text_field($input['translation']) : $old['translation'];
         $out['accent'] = array_key_exists('accent',$input) ? (sanitize_hex_color($input['accent']) ?: '#9a352d') : $old['accent'];
-        foreach (['oldstyle','compact','show_nav','show_picker','show_copy','show_search','images','icons','heading'] as $name) $out[$name] = array_key_exists($name,$input) ? (empty($input[$name]) ? '0' : '1') : $old[$name];
+        foreach (['oldstyle','compact','show_nav','show_picker','show_copy','show_search','show_section_titles','images','icons','heading'] as $name) $out[$name] = array_key_exists($name,$input) ? (empty($input[$name]) ? '0' : '1') : $old[$name];
         $out['branding']=array_key_exists('branding',$input)?sanitize_text_field($input['branding']):$old['branding'];
         $out['day_page']=array_key_exists('day_page',$input)?(string)absint($input['day_page']):$old['day_page'];
         foreach(['media_hours'=>[6,12,24,168],'bible_hours'=>[0,1,6,24]] as $name=>$values) $out[$name]=(string)(in_array((int)($input[$name]??-1),$values,true)?(int)$input[$name]:(int)$old[$name]);
@@ -85,7 +85,7 @@ final class Orthocal_Plugin {
     static function config($attrs) {
         $o = self::options();
         $attrs = array_filter($attrs, static fn($value) => $value !== '');
-        $a = shortcode_atts(['mode'=>'today','date'=>'','year'=>'','month'=>'','limit'=>'5','filter'=>'main','scope'=>'','tone'=>'','weekday'=>'','text_id'=>'','translation'=>$o['translation'],'day_page'=>$o['day_page'],'accent'=>$o['accent'],'branding'=>$o['branding']]+array_intersect_key($o,array_flip(['lang','profile','theme','css_mode','compact','oldstyle','show_nav','show_picker','show_copy','show_search','open','reading_open','images','image_size','image_pack','icons','heading','sections','event_levels'])), $attrs);
+        $a = shortcode_atts(['mode'=>'today','date'=>'','year'=>'','month'=>'','limit'=>'5','filter'=>'main','scope'=>'','tone'=>'','weekday'=>'','text_id'=>'','translation'=>$o['translation'],'day_page'=>$o['day_page'],'accent'=>$o['accent'],'branding'=>$o['branding']]+array_intersect_key($o,array_flip(['lang','profile','theme','css_mode','compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','open','reading_open','images','image_size','image_pack','icons','heading','sections','event_levels'])), $attrs);
         if (!isset(self::TITLES[$a['mode']])) return new WP_Error('mode','Неизвестный блок.');
         if($a['mode']==='memorial')$a['filter']='memorial';
         if(!in_array($a['scope'],['','resurrection','weekday','common'],true)||($a['tone']!==''&&!preg_match('/^[1-8]$/D',(string)$a['tone']))||($a['weekday']!==''&&!preg_match('/^[0-6]$/D',(string)$a['weekday']))||($a['text_id']!==''&&!preg_match('/^[a-z0-9-]{1,100}$/D',$a['text_id'])))return new WP_Error('texts','Неверные параметры библиотеки текстов.');
@@ -101,7 +101,7 @@ final class Orthocal_Plugin {
         $a['branding']=sanitize_text_field((string)$a['branding']);
         $a['translation']=sanitize_key((string)$a['translation']);
         $a['day_page']=(string)absint($a['day_page']);
-        foreach (['compact','oldstyle','show_nav','show_picker','show_copy','show_search','images','icons','heading'] as $name) $a[$name] = in_array((string)$a[$name], ['1','true'],true) ? '1' : '0';
+        foreach (['compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','images','icons','heading'] as $name) $a[$name] = in_array((string)$a[$name], ['1','true'],true) ? '1' : '0';
         $a['event_levels']=implode(',',array_intersect(['0','1','2','3','4'],array_filter(explode(',',(string)$a['event_levels']),static fn($v)=>in_array($v,['0','1','2','3','4'],true))));
         if(!is_string($a['sections']) || array_diff(array_filter(explode(',',$a['sections'])),['fasting','saints','readings','texts','icons']))return new WP_Error('sections','Неизвестный раздел дня.');
         return $a;
@@ -285,10 +285,10 @@ final class Orthocal_Plugin {
             $foodSource=$selected[0]['source']??$markers[0]['source']??'';
             $local=$a['images']==='1'?Orthocal_Media_Cache::url($foodSource):'';
             if ($local) $foodImage='<img src="'.esc_url($local).'" width="44" height="44" alt="">';
-            $html .= '<section class="oc-fasting-section"><h3>Пост и трапеза</h3><p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').' <small>('.($a['profile']==='parish'?'приходской профиль':'Типикон').')</small></p></section>';
+            $html .= '<section class="oc-fasting-section">'.($a['show_section_titles']==='1'?'<h3>Пост и трапеза</h3>':'').'<p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').' <small>('.($a['profile']==='parish'?'приходской профиль':'Типикон').')</small></p></section>';
         }
         if(in_array('saints',$sections,true)) {
-            $html.='<section class="oc-saints-section"><h3>Праздники и памяти</h3>'.($a['show_search']==='1'?'<label class="oc-search">Найти в памятях дня <input type="search" data-oc-event-search placeholder="Имя или название"></label>':'').'<ul class="oc-events">';
+            $html.='<section class="oc-saints-section">'.($a['show_section_titles']==='1'?'<h3>Праздники и памяти</h3>':'').($a['show_search']==='1'?'<label class="oc-search">Найти в памятях дня <input type="search" data-oc-event-search placeholder="Имя или название"></label>':'').'<ul class="oc-events">';
             foreach ($day['events'] as $event) {
                 if (!self::event_allowed($event,$a['event_levels'])) continue;
                 $mark=$event['typikonMark'] ?? null;
@@ -301,12 +301,12 @@ final class Orthocal_Plugin {
         }
         $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'));
         if ($readings && in_array('readings',$sections,true)) {
-            $html .= '<div class="oc-readings"><h3>Библейские чтения</h3><label>Перевод <select data-oc-translation><option value="">Загрузить переводы…</option></select></label><label>Размер текста <input data-oc-font type="range" min="16" max="30" value="19"></label><p class="oc-muted">Язык текста выбирается вместе с переводом. Соответствие нумерации стихов календарному источнику пока не подтверждено.</p>';
+            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?'<h3>Библейские чтения</h3>':'').'<label>Перевод <select data-oc-translation><option value="">Загрузить переводы…</option></select></label><label>Размер текста <input data-oc-font type="range" min="16" max="30" value="19"></label><p class="oc-muted">Язык текста выбирается вместе с переводом. Соответствие нумерации стихов календарному источнику пока не подтверждено.</p>';
             foreach ($readings as $event) $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title']).'</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>Скопировать текст</button><div class="oc-verses" aria-live="polite"></div></div></details>';
             $html .= '</div>';
         } elseif ($a['mode']==='readings') $html .= '<p>В источнике нет чтений для этой даты.</p>';
         if(in_array('texts',$sections,true)) {
-            $html.='<section class="oc-texts-section"><h3>Богослужебные тексты</h3><p class="oc-muted">Откройте справочник и выберите нужный текст. Это библиотека, а не автоматически составленная служба дня.</p><div class="oc-text-buttons">';
+            $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?'<h3>Богослужебные тексты</h3>':'').'<p class="oc-muted">Откройте справочник и выберите нужный текст. Это библиотека, а не автоматически составленная служба дня.</p><div class="oc-text-buttons">';
             foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';
             $html.='</div></section>';
         }
