@@ -24,7 +24,7 @@
     root.querySelectorAll('[data-oc-build-wrap]').forEach(wrap=>wrap.hidden=enabled[wrap.dataset.ocBuildWrap]===false);
   }
   function generate(){
-    if(!code)return;visibility();const attrs=values();delete attrs.mode;code.value='[orthocal_'+mode()+Object.entries(attrs).filter(([,value])=>value!==''&&value!=='0').map(([name,value])=>' '+name+'="'+String(value).replace(/["<>\[\]]/g,'')+'"').join('')+']';
+    if(!code)return;visibility();const attrs=values();delete attrs.mode;const booleanAttrs=new Set(['compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','show_font_size','images','icons','heading']);code.value='[orthocal_'+mode()+Object.entries(attrs).filter(([name,value])=>value!==''&&(value!=='0'||booleanAttrs.has(name))).map(([name,value])=>' '+name+'="'+String(value).replace(/["<>\[\]]/g,'')+'"').join('')+']';
   }
   let previewTimer;
   async function updatePreview(){

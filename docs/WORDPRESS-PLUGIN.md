@@ -1,6 +1,6 @@
 # WordPress-плагин «Православный календарь»
 
-Исходники: `wordpress/orthocal/`. Установочный архив: `artifacts/orthocal-1.3.19.zip`.
+Исходники: `wordpress/orthocal/`. Установочный архив: `artifacts/orthocal-1.3.20.zip`.
 Обычная сборка не меняет публичные скачивания. Копирование в `public/downloads`
 включается отдельным флагом `--publish-downloads` после согласования выпуска.
 Плагин самостоятельный: PHP 8.0+, WordPress 6.3+, без Node, Vue, локального XML
