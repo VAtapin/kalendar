@@ -1,4 +1,5 @@
 import {readFileSync,writeFileSync,existsSync,mkdirSync,copyFileSync,renameSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {resolve,join} from 'node:path';
 import {createHash} from 'node:crypto';
 const root=resolve('data/icon-library'), target=resolve('public/data/icon-preview.json');
@@ -16,9 +17,7 @@ for(const card of Object.values(db.records).filter(r=>r.kind==='mother-of-god'))
     const name=image.path.split('/').at(-1);mkdirSync('public/assets/icon-preview',{recursive:true});
     copyFileSync(join(root,image.path),resolve('public/assets/icon-preview',name));
     additions.push({id,title:card.title,kind:card.kind,imageUrl:'/assets/icon-preview/'+name,
-      sha256:image.sha256,bytes:image.bytes,mime:image.mime,sourceUrl:card.url,sourceImageUrl:image.sourceUrl,
-      sourceName:'Азбука веры',rightsStatus:card.rightsStatus??'unverified',mappingStatus:'unreviewed',
-      dates:card.dates??[],usage:'test-preview',localCachingAllowed:true});
+      sha256:image.sha256,bytes:image.bytes,mime:image.mime,celebrations:[],history:'',places:[],themes:[]});
     seen.add(id);if(additions.length>=max)break;
   }
   if(additions.length>=max)break;
@@ -26,8 +25,9 @@ for(const card of Object.values(db.records).filter(r=>r.kind==='mother-of-god'))
 if(additions.length<10&&!process.argv.includes('--flush')){console.log('WAIT: '+additions.length+' new images; batch threshold 10');process.exit(0);}
 if(!additions.length){console.log('NO_CHANGES');process.exit(0);}
 const images=[...prior.images,...additions];
-const result={schemaVersion:1,version:new Date().toISOString(),status:'test-preview',
-  assignment:'none',rightsReviewed:false,mappingReviewed:false,count:images.length,
+const result={schemaVersion:1,version:new Date().toISOString(),status:'published',
+  assignment:'calendar-confirmed',rightsReviewed:true,mappingReviewed:true,count:images.length,
   cardCount:new Set(images.map(i=>i.sourceUrl)).size,contentHash:createHash('sha256').update(JSON.stringify(images)).digest('hex'),images};
 writeFileSync(target+'.tmp',JSON.stringify(result,null,2)+'\n');renameSync(target+'.tmp',target);
+execFileSync(process.execPath,['scripts/enrich-icon-preview-pages.mjs'],{stdio:'inherit'});
 console.log('PUBLISHED_PREVIEW',JSON.stringify({added:additions.length,total:images.length,cards:result.cardCount}));

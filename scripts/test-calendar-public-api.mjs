@@ -68,6 +68,17 @@ try {
   for(const query of ['?tone=9','?weekday=7','?type[]=prayer','?date=2027-05-02'])assert.equal((await textRequest(query)).status,400);
   assert.equal((await textRequest('',{method:'HEAD'})).status,200);
   console.log('PASS liturgical reference API: 98 texts, filters, auth, conditional cache, no automatic date assignment');
+  const serviceBase=base+'/service';
+  assert.equal((await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour')).status,401);
+  const serviceResponse=await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour&lang=cu&expansion=full',{headers:{'X-API-Key':systemKey}});
+  const service=await serviceResponse.json();
+  assert.equal(serviceResponse.status,200);assert.equal(service.schemaVersion,1);assert.equal(service.date,'2027-06-06');assert.equal(service.office,'sixth-hour');
+  assert.equal(service.textLanguage,'cu');assert.ok(service.cycles.daily);assert.ok(service.cycles.weekly);assert.ok(service.cycles.movable);assert.ok(service.cycles.annual);
+  assert.ok(Array.isArray(service.assignments));assert.ok(service.assignments.every(item=>['troparion-of-day','kontakion-of-day'].includes(item.slot)&&item.textId&&item.text));
+  assert.ok(service.expansions.find(item=>item.id==='come-worship').text.includes('Цареви нашему Богу'));
+  assert.ok(service.expansions.find(item=>item.id==='lord-have-mercy-12').text.split('\n').length===12);
+  for(const path of ['?date=2027-02-29&office=sixth-hour','?date=2027-06-06&office=mass','?date=2027-06-06&office=sixth-hour&expansion=other','?date=2027-06-06&office=sixth-hour&unexpected=1'])assert.equal((await fetch(serviceBase+path,{headers:{'X-API-Key':systemKey}})).status,400,path);
+  console.log('PASS date-bound service API: four liturgical cycles, office slots, full abbreviations, key and parameter checks');
   for (const path of ['/day?date=2027-05-02','/month?year=2027&month=5','/year?year=2027','/pascha?year=2027']) {
     const denied=await fetch(base+path);assert.equal(denied.status,401);assert.equal(denied.headers.get('cache-control'),'private, no-store');
   }
@@ -149,6 +160,8 @@ try {
   const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});
   assert.equal(privateSession.headers.get('access-control-allow-origin'),null,'Private routes must not inherit public CORS');
   assert.ok(readdirSync(resolve(data,'public-calendar-cache')).filter(file=>file.endsWith('.json')).length <= 32);
+  const iconsResponse=await fetch(origin+'/api/v1/icons/mother-of-god');const icons=await iconsResponse.json();
+  assert.equal(iconsResponse.status,200);assert.equal(icons.count,39);assert.equal(icons.cards.length,8);assert.ok(!JSON.stringify(icons).toLowerCase().includes('azbyka.ru'));
   console.log('PASS: real PHP/Node HTTP API, all endpoints, dates, profiles, five languages, CORS, cache/ETag/HEAD and public-data isolation');
 
   browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
@@ -171,6 +184,9 @@ try {
   await page.setViewportSize({width:390,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:'tmp/calendar-api-local-mobile.png',fullPage:false});
+  await page.setViewportSize({width:1200,height:1000});await page.goto(origin+'/icons-of-mother-of-god.html');await page.locator('#gallery .card').first().waitFor();
+  assert.equal(await page.locator('#gallery .card').count(),6);await page.locator('#gallery .picture').first().click();await page.locator('#lightbox[open] #large').waitFor();await page.waitForFunction(()=>document.querySelector('#large')?.naturalWidth>0);
+  await page.screenshot({path:'artifacts/icon-library-desktop.png',fullPage:true});await page.locator('#lightbox button').click();await page.locator('#place').selectOption({index:1});assert.ok(await page.locator('#gallery .card').count());
   // Render hostile data as plain text even when pointed at an untrusted endpoint.
   await page.route('**/api/v1/calendar-demo/day*', route => route.fulfill({
     contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},

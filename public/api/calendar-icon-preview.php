@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 function calendar_icon_preview_routes(string $method,string $path): void {
-    if(rtrim($path,'/')!=='/v1/calendar-icons/preview')return;
+    if(!in_array(rtrim($path,'/'),['/v1/calendar-icons/preview','/v1/icons/mother-of-god'],true))return;
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
     header('Access-Control-Allow-Headers: Accept, If-None-Match');
