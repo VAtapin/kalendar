@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.25';
+    const VERSION = '1.3.26';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -363,11 +363,22 @@ final class Orthocal_Plugin {
         return $html.(empty($data['texts'])?'<p>В этой части библиотеки пока нет текстов с выбранными параметрами.</p>':'');
     }
     static function service($data,$a) {
-        $html='<section class="oc-horologion"><div class="oc-service-controls"><label>Язык <select data-oc-service-lang><option value="ru" '.selected($a['lang'],'ru',false).'>Русский</option><option value="cu" '.selected($a['lang'],'cu',false).'>Церковнославянский</option><option value="de" '.selected($a['lang'],'de',false).'>Deutsch</option><option value="uk" '.selected($a['lang'],'uk',false).'>Українська</option><option value="pl" '.selected($a['lang'],'pl',false).'>Polski</option></select></label><label>Час <select data-oc-service-office><option value="horologion">Весь Часослов</option><option value="first-hour">Первый час</option><option value="third-hour">Третий час</option><option value="sixth-hour">Шестой час</option><option value="ninth-hour">Девятый час</option><option value="matins">Утреня</option><option value="vespers">Вечерня</option></select></label></div><p class="oc-muted">Часослов · '.esc_html($data['office']??$a['office']).' · '.esc_html(self::date_label($data['date']??$a['date'])).'</p>';
-        foreach (($data['assignments']??[]) as $item) {
-            $html.='<details><summary>'.esc_html($item['title']??'Текст службы').'</summary><div class="oc-verses" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></details>';
+        $offices=['horologion'=>'Общие молитвы','first-hour'=>'Первый час','third-hour'=>'Третий час','sixth-hour'=>'Шестой час','ninth-hour'=>'Девятый час','matins'=>'Утреня','vespers'=>'Вечерня'];
+        $office=$data['office']??$a['office']; $officeLabel=$offices[$office]??'Часослов';
+        $html='<section class="oc-horologion"><header class="oc-service-header"><span class="oc-eyebrow">Часослов</span><h3>'.esc_html($officeLabel).'</h3><p>Молитвы и тексты дня на '.esc_html(self::date_label($data['date']??$a['date'])).'.</p></header><div class="oc-service-controls"><label>Язык календаря <select data-oc-service-lang><option value="ru" '.selected($a['lang'],'ru',false).'>Русский</option><option value="cu" '.selected($a['lang'],'cu',false).'>Церковнославянский</option><option value="de" '.selected($a['lang'],'de',false).'>Deutsch</option><option value="uk" '.selected($a['lang'],'uk',false).'>Українська</option><option value="pl" '.selected($a['lang'],'pl',false).'>Polski</option></select></label><label>Раздел <select data-oc-service-office><option value="horologion" '.selected($office,'horologion',false).'>Общие молитвы</option><option value="first-hour" '.selected($office,'first-hour',false).'>Первый час</option><option value="third-hour" '.selected($office,'third-hour',false).'>Третий час</option><option value="sixth-hour" '.selected($office,'sixth-hour',false).'>Шестой час</option><option value="ninth-hour" '.selected($office,'ninth-hour',false).'>Девятый час</option><option value="matins" '.selected($office,'matins',false).'>Утреня</option><option value="vespers" '.selected($office,'vespers',false).'>Вечерня</option></select></label></div>';
+        $assignments=$data['assignments']??[];
+        if ($assignments) {
+            $html.='<section class="oc-service-section"><h4>Тексты дня</h4>';
+            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??'Текст службы').'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
+            $html.='</section>';
         }
-        foreach (($data['expansions']??[]) as $item) $html.='<p class="oc-muted">'.esc_html($item['title']??$item['label']??'').'</p>';
+        $expansions=$data['expansions']??[];
+        if ($expansions) {
+            $html.='<section class="oc-service-section"><h4>Общие молитвы</h4>';
+            foreach ($expansions as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??$item['label']??'Молитва').'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
+            $html.='</section>';
+        }
+        if (!$assignments && !$expansions) $html.='<p class="oc-message">Для выбранного раздела пока нет текстов.</p>';
         return $html.'</section>';
     }
     static function throttle() {

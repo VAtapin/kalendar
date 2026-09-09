@@ -10,7 +10,7 @@
     return fonts.get(url);
   }
   function popup(content,title) {
-    const dialog=document.createElement('dialog');dialog.className='oc-dialog';dialog.setAttribute('aria-label',title);
+    const dialog=document.createElement('dialog');dialog.className='oc-dialog'+(content.querySelector?.('.oc-horologion')?' oc-dialog--service':'');dialog.setAttribute('aria-label',title);
     const close=document.createElement('button');close.type='button';close.className='oc-dialog-close';close.textContent='Закрыть ×';
     close.addEventListener('click',()=>dialog.close());dialog.append(close,content);document.body.append(dialog);
     const active=document.activeElement;dialog.addEventListener('close',()=>{dialog.remove();active?.focus();},{once:true});
