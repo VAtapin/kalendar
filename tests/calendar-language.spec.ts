@@ -6,7 +6,10 @@ import {
   calendarWeekdayLabels,
   localizeCalendarEvent,
   localizeCalendarEventTitle,
+  calendarEventTitleLocalizationStatus,
 } from "../src/calendar/localization/calendar-language";
+import { createShortCalendarTitle, createVeryShortCalendarTitle, createLocalizedCalendarTitleVariants } from '../src/calendar/presentation/title-variants';
+import { buildGeneratedLiturgicalEvents } from '../src/calendar/engine/liturgical-cycle';
 import { createBlankCalendarProject } from "../src/document/factories";
 import type { ResolvedCalendarEvent } from "../src/calendar/types";
 import { createMonthTemplatePageWithPreset } from "../src/templates/calendar-templates";
@@ -67,6 +70,34 @@ describe("calendar content language", () => {
 
     const known = { ...event, title: "Святое Богоявление. Крещение Господа Бога и Спаса нашего Иисуса Христа", shortTitle: "Богоявление", veryShortTitle: undefined };
     expect(localizeCalendarEvent(known, "de").shortTitle).toBe("Theophanie");
+
+    const sourceTitle = 'Успение Пресвятой Владычицы нашей Богородицы и Приснодевы Марии';
+    const generated = { ...event, title: sourceTitle, shortTitle: createShortCalendarTitle(sourceTitle), veryShortTitle: createVeryShortCalendarTitle(sourceTitle) };
+    for (const language of ['uk', 'pl'] as const) {
+      const result = localizeCalendarEvent(generated, language);
+      expect(result.title).not.toBe(sourceTitle);
+      expect(result).toMatchObject(createLocalizedCalendarTitleVariants(result.title, language));
+      expect(generated.title).toBe(sourceTitle);
+      const custom = { ...generated, shortTitle: 'Моя особая подпись', veryShortTitle: 'Моя подпись' };
+      expect(localizeCalendarEvent(custom, language).shortTitle).toBeUndefined();
+      expect(localizeCalendarEvent(custom, language).veryShortTitle).toBeUndefined();
+      expect(localizeCalendarEvent({ ...custom, title: 'Новая пользовательская память' }, language))
+        .toEqual({ ...custom, title: 'Новая пользовательская память' });
+    }
+  });
+
+  it('covers generated liturgical-cycle titles and their editorial print forms in Ukrainian and Polish', () => {
+    for (const language of ['uk', 'pl'] as const) {
+      for (const event of buildGeneratedLiturgicalEvents(2027)) {
+        expect(calendarEventTitleLocalizationStatus(event.title, language), event.title).not.toBe('source-fallback');
+        const result = localizeCalendarEvent(event, language);
+        for (const key of ['title', 'shortTitle', 'veryShortTitle'] as const) {
+          if (!event[key]) continue;
+          expect(result[key], `${language}: ${event[key]}`).toBeTruthy();
+          if (language === 'pl') expect(result[key]).not.toMatch(/\p{Script=Cyrillic}/u);
+        }
+      }
+    }
   });
 
   it("marks generated month headings and saves the calendar language in the project", () => {

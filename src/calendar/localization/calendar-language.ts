@@ -5,6 +5,8 @@ import { CHURCH_SLAVONIC_CYCLE_TITLES, CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_
 import { sourceAttestedSlavonicTitle } from "./slavonic-corpus";
 import slavonicEditorialTitles from "./slavonic-editorial-titles.json";
 import { GERMAN_COMMEMORATIONS } from "./german-commemorations";
+import ukrainianCommemorations from './uk-commemorations.json';
+import polishCommemorations from './pl-commemorations.json';
 import { localizeScriptureTitle } from './scripture-titles';
 import { localizeFastingTitle } from './fasting-titles';
 import { localizeMarriageTitle } from './marriage-titles';
@@ -12,12 +14,11 @@ import { localizedReadingDescription } from './reading-descriptions';
 import { createShortCalendarTitle, createVeryShortCalendarTitle, createLocalizedCalendarTitleVariants } from '../presentation/title-variants';
 
 /**
- * Editorial vocabulary, not a fully translated or independently verified menologion.
+ * Editorial translations; corpus coverage is not independent scholarly verification.
  * Actual source access and bounded checks: docs/AUDIT-LANGUAGES-2026-09-08.md.
  * - cu: Ponomar language packs, https://github.com/typiconman/ponomar
  * - de: Orthodoxer Kirchenkalender and Menaion, orthodox-verlag.de / orthodoxe-kirche.de
- * - uk: Православний церковний календар ПЦУ, pomisna.info
- * - pl: Kalendarz Prawosławny and Horologion, liturgia.cerkiew.pl
+ * - uk/pl: ordinary translations of the source corpus requested by the user.
  * Russian source records remain immutable; localization is presentation-only.
  */
 
@@ -102,6 +103,33 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "о слепом": "ѡ҆ слѣпе́мъ",
   },
   uk: {
+    "Неделя о Страшном Суде (мясопустная)": "Неділя про Страшний Суд (м'ясопусна)",
+    "Неделя о Страшном Суде": "Неділя про Страшний Суд",
+    "О Страшном Суде": "Про Страшний Суд",
+    "Неделя сыропустная. Воспоминание Адамова изгнания. Прощеное воскресенье": "Неділя сиропусна. Спомин Адамового вигнання. Прощена неділя",
+    "Неделя сыропустная. Прощеное воскресенье": "Неділя сиропусна. Прощена неділя",
+    "2-я Неделя Великого поста": "2-га неділя Великого посту",
+    "4-я Неделя Великого поста": "4-та неділя Великого посту",
+    "5-я Неделя Великого поста": "5-та неділя Великого посту",
+    "Неделя Крестопоклонная": "Неділя Хрестопоклонна",
+    "Великий Четверток. Тайная Вечеря": "Великий четвер. Тайна Вечеря",
+    "Великий Пяток. Воспоминание Святых спасительных Страстей Господа Иисуса Христа": "Велика п'ятниця. Спомин Святих спасительних Страстей Господа Ісуса Христа",
+    "Великий Пяток. Распятие Христа": "Велика п'ятниця. Розп'яття Христа",
+    "Великая Суббота. Сошествие Христа во ад": "Велика субота. Зішестя Христа до пекла",
+    "Антипасха. Неделя апостола Фомы": "Антипасха. Неділя апостола Фоми",
+    "Антипасха": "Антипасха",
+    "Неделя святых жен-мироносиц": "Неділя святих жінок-мироносиць",
+    "Неделя жен-мироносиц": "Неділя жінок-мироносиць",
+    "Отдание Пасхи": "Віддання Пасхи",
+    "Неделя 7-я по Пасхе, святых отцов I Вселенского Собора": "Неділя 7-ма після Пасхи, святих отців I Вселенського Собору",
+    "Неделя святых отцов I Вселенского Собора": "Неділя святих отців I Вселенського Собору",
+    "Неделя святых отцов": "Неділя святих отців",
+    "Понедельник Пятидесятницы. День Святого Духа": "Понеділок П'ятдесятниці. День Святого Духа",
+    "Неделя 1-я по Пятидесятнице, Всех святых": "Неділя 1-ша після П'ятдесятниці, Усіх святих",
+    "Неделя 2-я по Пятидесятнице, Всех святых, в земле Русской просиявших": "Неділя 2-га після П'ятдесятниці, Усіх святих, що в землі Руській просіяли",
+    "Неделя Всех святых": "Неділя Усіх святих",
+    "Неделя Всех святых, в земле Русской просиявших": "Неділя Усіх святих, що в землі Руській просіяли",
+    "Неделя Всех русских святых": "Неділя Усіх руських святих",
     "Светлое Христово Воскресение. Пасха": "Світле Христове Воскресіння. Пасха",
     "Вход Господень в Иерусалим": "Вхід Господній в Єрусалим",
     "Вознесение Господне": "Вознесіння Господнє",
@@ -221,6 +249,33 @@ const CORE_EVENTS: Record<Exclude<CalendarLanguage, "ru">, Record<string, string
     "о слепом": "des Blindgeborenen",
   },
   pl: {
+    "Неделя о Страшном Суде (мясопустная)": "Niedziela o Sądzie Ostatecznym (mięsopustna)",
+    "Неделя о Страшном Суде": "Niedziela o Sądzie Ostatecznym",
+    "О Страшном Суде": "O Sądzie Ostatecznym",
+    "Неделя сыропустная. Воспоминание Адамова изгнания. Прощеное воскресенье": "Niedziela seropustna. Wspomnienie wygnania Adama. Niedziela przebaczenia",
+    "Неделя сыропустная. Прощеное воскресенье": "Niedziela seropustna. Niedziela przebaczenia",
+    "2-я Неделя Великого поста": "2. Niedziela Wielkiego Postu",
+    "4-я Неделя Великого поста": "4. Niedziela Wielkiego Postu",
+    "5-я Неделя Великого поста": "5. Niedziela Wielkiego Postu",
+    "Неделя Крестопоклонная": "Niedziela Adoracji Krzyża",
+    "Великий Четверток. Тайная Вечеря": "Wielki Czwartek. Ostatnia Wieczerza",
+    "Великий Пяток. Воспоминание Святых спасительных Страстей Господа Иисуса Христа": "Wielki Piątek. Wspomnienie Świętej zbawiennej Męki Pana Jezusa Chrystusa",
+    "Великий Пяток. Распятие Христа": "Wielki Piątek. Ukrzyżowanie Chrystusa",
+    "Великая Суббота. Сошествие Христа во ад": "Wielka Sobota. Zstąpienie Chrystusa do otchłani",
+    "Антипасха. Неделя апостола Фомы": "Antypascha. Niedziela apostoła Tomasza",
+    "Антипасха": "Antypascha",
+    "Неделя святых жен-мироносиц": "Niedziela świętych niewiast niosących wonności",
+    "Неделя жен-мироносиц": "Niedziela niewiast niosących wonności",
+    "Отдание Пасхи": "Zakończenie Paschy",
+    "Неделя 7-я по Пасхе, святых отцов I Вселенского Собора": "7. Niedziela po Passze, świętych ojców I Soboru Powszechnego",
+    "Неделя святых отцов I Вселенского Собора": "Niedziela świętych ojców I Soboru Powszechnego",
+    "Неделя святых отцов": "Niedziela świętych ojców",
+    "Понедельник Пятидесятницы. День Святого Духа": "Poniedziałek Pięćdziesiątnicy. Dzień Ducha Świętego",
+    "Неделя 1-я по Пятидесятнице, Всех святых": "1. Niedziela po Pięćdziesiątnicy, Wszystkich Świętych",
+    "Неделя 2-я по Пятидесятнице, Всех святых, в земле Русской просиявших": "2. Niedziela po Pięćdziesiątnicy, Wszystkich Świętych, którzy zajaśnieli na ziemi ruskiej",
+    "Неделя Всех святых": "Niedziela Wszystkich Świętych",
+    "Неделя Всех святых, в земле Русской просиявших": "Niedziela Wszystkich Świętych, którzy zajaśnieli na ziemi ruskiej",
+    "Неделя Всех русских святых": "Niedziela Wszystkich Świętych Ruskich",
     "Светлое Христово Воскресение. Пасха": "Święte Zmartwychwstanie Chrystusa. Pascha",
     "Вход Господень в Иерусалим": "Wjazd Pański do Jerozolimy",
     "Вознесение Господне": "Wniebowstąpienie Pańskie",
@@ -410,6 +465,10 @@ export function localizeCalendarEventTitleWithStatus(title: string, language: Ca
   const dictionary = CORE_EVENTS[resolvedLanguage];
   const exact = localizeFastingTitle(title,resolvedLanguage)
     ?? (resolvedLanguage === "de" && Object.hasOwn(GERMAN_COMMEMORATIONS, title) ? GERMAN_COMMEMORATIONS[title] : undefined)
+    ?? (resolvedLanguage === 'uk' && Object.hasOwn(ukrainianCommemorations, title)
+      ? (ukrainianCommemorations as Readonly<Record<string, string>>)[title] : undefined)
+    ?? (resolvedLanguage === 'pl' && Object.hasOwn(polishCommemorations, title)
+      ? (polishCommemorations as Readonly<Record<string, string>>)[title] : undefined)
     ?? (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
     ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined)
     ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined)
@@ -450,7 +509,7 @@ export function localizeCalendarEvent(event: ResolvedCalendarEvent, language: Ca
       // XML print variants are generated in Russian by the engine. Generate
       // them from the translated full title, never translate a clipped name.
       const generatedSource = key === 'shortTitle' ? createShortCalendarTitle(event.title) : createVeryShortCalendarTitle(event.title);
-      if ((resolvedLanguage === 'de' || resolvedLanguage === 'cu') && event[key] === generatedSource) {
+      if (event[key] === generatedSource) {
         localized[key] = createLocalizedCalendarTitleVariants(full.title, resolvedLanguage)[key];
       } else delete localized[key];
     }

@@ -29,11 +29,15 @@ describe("public calendar API contract", () => {
           expect(exposed.events[i]!.shortTitle).toBe(display.shortTitle);
           expect(exposed.events[i]!.veryShortTitle).toBe(display.veryShortTitle);
           expect(exposed.events[i]!.description).toBe(display.description ?? null);
-          if (language === 'de' || language === 'cu') {
-            expect(exposed.events[i]!.localization, day.events[i]!.title).not.toBe('source-fallback');
-            if (day.events[i]!.shortTitle) expect(display.shortTitle, day.events[i]!.title).toBeTruthy();
-            if (day.events[i]!.veryShortTitle) expect(display.veryShortTitle, day.events[i]!.title).toBeTruthy();
-            if (day.events[i]!.description) expect(display.description).not.toBe(day.events[i]!.description);
+          expect(exposed.events[i]!.localization, `${language}: ${day.events[i]!.title}`).not.toBe('source-fallback');
+          if (day.events[i]!.shortTitle) expect(display.shortTitle, day.events[i]!.title).toBeTruthy();
+          if (day.events[i]!.veryShortTitle) expect(display.veryShortTitle, day.events[i]!.title).toBeTruthy();
+          if (day.events[i]!.description && !(language === 'uk' && day.events[i]!.description === 'Покров')) {
+            expect(display.description).not.toBe(day.events[i]!.description);
+          }
+          if (language === 'pl') {
+            expect([display.title, display.shortTitle, display.veryShortTitle, display.description].filter(Boolean).join(' '))
+              .not.toMatch(/\p{Script=Cyrillic}/u);
           }
           if (exposed.events[i]!.localization !== 'source-fallback') translated++;
         }

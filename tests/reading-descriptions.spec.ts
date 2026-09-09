@@ -14,11 +14,22 @@ describe('lection occasion translations', () => {
       expect(localizedReadingDescription(label, 'ru')).toBe(label);
       const de = localizedReadingDescription(label, 'de');
       const cu = localizedReadingDescription(label, 'cu');
+      const uk = localizedReadingDescription(label, 'uk');
+      const pl = localizedReadingDescription(label, 'pl');
       expect(de, label).not.toMatch(/\p{Script=Cyrillic}/u);
+      expect(pl, label).not.toMatch(/\p{Script=Cyrillic}/u);
+      // «Покров» has the same spelling in Russian and Ukrainian.
+      if (label !== 'Покров') expect(uk, label).not.toBe(label);
+      expect(uk, label).not.toMatch(/[ыэёъ]/iu);
       expect(cu, label).not.toBe(label);
       expect(cu, label).toMatch(/\p{M}/u);
       expect(cu, label).not.toMatch(/(?:^|\s|[.,;:()])\p{M}/u);
     }
     expect(localizedReadingDescription('Новая пользовательская подпись', 'de')).toBe('Новая пользовательская подпись');
+    for (const language of ['uk', 'pl'] as const) {
+      expect(localizedReadingDescription('Новая пользовательская подпись', language)).toBe('Новая пользовательская подпись');
+    }
+    expect(localizedReadingDescription('Кирилла и Мефодия', 'uk')).toBe('Кирила і Мефодія');
+    expect(localizedReadingDescription('Усекновение главы Иоанна Предтечи', 'pl')).toBe('Ścięcie głowy Jana Poprzednika');
   });
 });

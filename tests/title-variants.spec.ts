@@ -6,6 +6,22 @@ import {
 } from "../src/calendar/presentation/title-variants";
 
 describe("calendar title variants", () => {
+  it('abbreviates Ukrainian and Polish ranks without removing names or dates from the short form', () => {
+    expect(createLocalizedCalendarTitleVariants('Священномучеників Петра і Павла, єпископа (1937)', 'uk').shortTitle)
+      .toBe('Сщмчч. Петра і Павла, єп. (1937)');
+    const title = 'Świętych męczenników Piotra i Pawła, arcybiskupa (ok. 1937)';
+    const result = createLocalizedCalendarTitleVariants(title, 'pl');
+    expect(result.shortTitle).toBe('Św. męczenników Piotra i Pawła, abp. (ok. 1937)');
+    expect(result.veryShortTitle).toBe('Św. męczenników Piotra i Pawła, abp.');
+    expect(createLocalizedCalendarTitleVariants('Najświętszej Bogurodzicy', 'pl').shortTitle)
+      .toBe('Najświętszej Bogurodzicy');
+    for (const language of ['uk', 'pl'] as const) {
+      const long = createLocalizedCalendarTitleVariants('Antoni '.repeat(20), language);
+      expect(long.shortTitle).toBe('Antoni '.repeat(20));
+      expect(long.veryShortTitle).toMatch(/…$/u);
+      expect([...long.veryShortTitle].length).toBeLessThanOrEqual(72);
+    }
+  });
   it('builds localized print variants without breaking Slavonic combining marks', () => {
     const title = 'Мч҃никѡвъ ' + 'а҆леѯа́ндра '.repeat(20) + '(1937)';
     const result = createLocalizedCalendarTitleVariants(title, 'cu');

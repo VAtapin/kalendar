@@ -76,13 +76,32 @@ export function createVeryShortCalendarTitle(title: string): string {
 /** Presentation-only variants of an already translated title. Never drops a
  * person or a qualifier from the short form; only the tiny-cell form is clipped,
  * visibly marked with an ellipsis, just as in the Russian layout. */
-export function createLocalizedCalendarTitleVariants(title: string, language: 'de' | 'cu'): { shortTitle: string; veryShortTitle: string } {
-  const shortTitle = language === 'de'
+export function createLocalizedCalendarTitleVariants(title: string, language: 'de' | 'cu' | 'uk' | 'pl'): { shortTitle: string; veryShortTitle: string } {
+  let shortTitle = language === 'de'
     ? title.replace(/\bHeilige[nrsm]?\b/gu, 'Hl.').replace(/\bheilige[nrsm]?\b/gu, 'hl.')
       .replace(/\bErzbischof\b/gu, 'Erzb.').replace(/\bBischof\b/gu, 'Bisch.')
     : title; // CU titles already use traditional titlo abbreviations.
-  const withoutYears = shortTitle.replace(/\s*\(\d{1,4}(?:[–—-]\d{1,4})?\)/gu, '').trim();
-  const glyphs = [...new Intl.Segmenter(language === 'cu' ? 'ru' : 'de', { granularity: 'grapheme' }).segment(withoutYears)].map(item => item.segment);
+  if (language === 'uk') {
+    const ranks: ReadonlyArray<readonly [string, string]> = [
+      ['Священномучеників', 'Сщмчч.'], ['Священномученика', 'Сщмч.'],
+      ['Преподобномучеників', 'Прмчч.'], ['Преподобномученика', 'Прмч.'],
+      ['Преподобних', 'Прпп.'], ['Преподобного', 'Прп.'], ['Преподобної', 'Прп.'],
+      ['Святителів', 'Свтт.'], ['Святителя', 'Свт.'],
+      ['Мучеників', 'Мчч.'], ['Мучениць', 'Мцц.'], ['Мученика', 'Мч.'], ['Мучениці', 'Мц.'],
+      ['Апостолів', 'Апп.'], ['Апостола', 'Ап.'],
+      ['архієпископа', 'архієп.'], ['єпископа', 'єп.'], ['митрополита', 'митр.'],
+    ];
+    for (const [rank, abbreviation] of ranks) {
+      shortTitle = shortTitle.replace(new RegExp(`(?<![\\p{L}\\p{M}])${rank}(?![\\p{L}\\p{M}])`, 'giu'), abbreviation);
+    }
+  } else if (language === 'pl') {
+    shortTitle = shortTitle.replace(/(?<![\p{L}\p{M}])(?:Święt(?:ego|ej|ych|y|a)|Święci)(?![\p{L}\p{M}])/gu, 'Św.')
+      .replace(/(?<![\p{L}\p{M}])(?:święt(?:ego|ej|ych|y|a)|święci)(?![\p{L}\p{M}])/gu, 'św.')
+      .replace(/\barcybiskupa\b/gu, 'abp.').replace(/\bbiskupa\b/gu, 'bp.')
+      .replace(/\bmetropolity\b/gu, 'metr.');
+  }
+  const withoutYears = shortTitle.replace(/\s*\((?:(?:бл\.|ok\.)\s*)?\d{1,4}(?:[–—-]\d{1,4})?\)/gu, '').trim();
+  const glyphs = [...new Intl.Segmenter(language === 'cu' ? 'ru' : language, { granularity: 'grapheme' }).segment(withoutYears)].map(item => item.segment);
   const clipped = glyphs.length > 72;
   const compact = clipped ? glyphs.slice(0, 69).join('').replace(/\s+\S*$/u, '').replace(/[.,;:!?\s]+$/u, '') + '…' : withoutYears;
   return { shortTitle, veryShortTitle: compact };
