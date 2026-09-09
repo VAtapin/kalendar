@@ -195,7 +195,7 @@
     select.addEventListener('focus',()=>loadCatalogue().catch(error=>{status.textContent=error.message;}));
     select.addEventListener('change',()=>{readingGeneration++;root.querySelectorAll('[data-oc-reading]').forEach(d=>{d.querySelector('.oc-verses').replaceChildren();if(d.open)void loadReading(d);});});
     root.querySelectorAll('[data-oc-reading]').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)void loadReading(d);}));
-    root.querySelector('[data-oc-font]').addEventListener('input',event=>root.style.setProperty('--oc-reading-size',event.target.value+'px'));
+    root.querySelector('[data-oc-font]')?.addEventListener('input',event=>root.style.setProperty('--oc-reading-size',event.target.value+'px'));
   }
   document.querySelectorAll('[data-orthocal]').forEach(init);
   window.OrthocalInit=container=>container.querySelectorAll('[data-orthocal]').forEach(init);
