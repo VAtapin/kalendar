@@ -10,7 +10,7 @@ final class Orthocal_Media_Cache {
         if (!is_string($path)) return false;
         if (str_starts_with($path,self::ORIGIN.'/')) $path=substr($path,strlen(self::ORIGIN));
         if ($path==='/calendar-api-font.php') return $path;
-        if (!preg_match('~^/assets/(?:markers|typikon)/[a-zA-Z0-9_/-]+\.(?:png|svg|webp|jpg|jpeg)$~D',$path) || str_contains($path,'//')) return false;
+        if (!preg_match('~^/assets/(?:markers|typikon|icons)/[a-zA-Z0-9_/-]+\.(?:png|svg|webp|jpg|jpeg)$~D',$path) || str_contains($path,'//')) return false;
         return $path;
     }
     static function directory() {

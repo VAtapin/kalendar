@@ -98,20 +98,22 @@ function calendar_service_movable_cycle(array $manifest, string $runtimeDirector
 }
 
 /** @return array<int, array<string,mixed>> */
-function calendar_service_assignments(array $library, int $weekday, ?int $tone): array {
+function calendar_service_assignments(array $library, int $weekday, ?int $tone, bool $full = false): array {
     $texts = $library['texts'] ?? [];
-    $selected = array_values(array_filter($texts, static function ($text) use ($weekday, $tone): bool {
-        if (!is_array($text) || !in_array($text['type'] ?? '', ['troparion', 'kontakion'], true)) return false;
+    $selected = array_values(array_filter($texts, static function ($text) use ($weekday, $tone, $full): bool {
+        if (!is_array($text)) return false;
+        if ($full && in_array($text['type'] ?? '', ['prayer', 'magnification'], true)) return true;
+        if (!in_array($text['type'] ?? '', ['troparion', 'kontakion'], true)) return false;
         if ($weekday === 0) return ($text['scope'] ?? '') === 'resurrection' && ($text['tone'] ?? null) === $tone;
         return ($text['scope'] ?? '') === 'weekday' && in_array($weekday, $text['weekdays'] ?? [], true);
     }));
     return array_map(static function (array $text) use ($weekday, $tone): array {
         return [
-            'slot' => $text['type'] === 'troparion' ? 'troparion-of-day' : 'kontakion-of-day',
+            'slot' => $text['type'] === 'troparion' ? 'troparion-of-day' : ($text['type'] === 'kontakion' ? 'kontakion-of-day' : $text['type'].'-reference'),
             'textId' => $text['id'], 'title' => $text['title'], 'text' => $text['text'],
             'language' => $text['language'], 'orthography' => $text['orthography'],
             'sources' => $text['sources'],
-            'reason' => $weekday === 0 ? 'Воскресный глас ' . $tone : 'Текст дня седмицы',
+            'reason' => in_array($text['type'], ['prayer','magnification'], true) ? 'Полный справочник Часослова' : ($weekday === 0 ? 'Воскресный глас ' . $tone : 'Текст дня седмицы'),
         ];
     }, $selected);
 }
@@ -133,7 +135,7 @@ function calendar_service_routes(string $method, string $path): void {
     $expansion = calendar_public_parameter('expansion', 'short');
     if (!preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $date) || !checkdate((int) substr($date, 5, 2), (int) substr($date, 8, 2), (int) substr($date, 0, 4))) calendar_fail('invalid_date', 400);
     if ((int) substr($date, 0, 4) < 1900 || (int) substr($date, 0, 4) > 2200) calendar_fail('invalid_year', 400);
-    if (!in_array($office, ['midnight-office', 'matins', 'first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'vespers', 'compline', 'typica'], true)
+    if (!in_array($office, ['horologion', 'midnight-office', 'matins', 'first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'vespers', 'compline', 'typica'], true)
         || !in_array($language, ['ru', 'cu', 'de', 'uk', 'pl'], true)
         || !in_array($profile, ['typikon-strict', 'parish'], true)
         || !in_array($expansion, ['short', 'full'], true)) calendar_fail('invalid_parameter', 400);
@@ -152,7 +154,7 @@ function calendar_service_routes(string $method, string $path): void {
     $movable = calendar_service_movable_cycle($manifest, $runtimeDirectory, $date, $profile, $language, $calendar);
     $weekday = (int) $day['weekday'];
     $subjects = ['Воскресение Христово', 'Небесные силы бесплотные', 'Святой Иоанн Предтеча', 'Честной Крест', 'Святые апостолы и святитель Николай', 'Честной Крест', 'Все святые и усопшие'];
-    $assignments = calendar_service_assignments($library, $weekday, $movable['tone']);
+    $assignments = calendar_service_assignments($library, $weekday, $movable['tone'], $office === 'horologion');
     $commemorations = array_values(array_map(static fn($event) => array_intersect_key($event, array_flip(['id', 'title', 'typeCode', 'typikonMark', 'category', 'localization'])), array_filter($day['events'], static fn($event) => ($event['category'] ?? null) === 'commemoration')));
     calendar_public_response([
         'schemaVersion' => 1, 'apiVersion' => '1.1.0', 'date' => $date, 'office' => $office,

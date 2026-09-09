@@ -121,6 +121,7 @@
       const date=event.target.closest('[data-oc-date]');
       if (date && cfg.open!=='page' && !event.ctrlKey && !event.metaKey && !event.shiftKey && event.button===0 && !date.closest('.oc-permalink')) {
         event.preventDefault(); const d=date.dataset.ocDate;
+        if (cfg.open==='new') { const url=new URL(date.href||window.location.href); url.searchParams.set('orthocal_date',d); window.open(url.href,'_blank','noopener'); return; }
         render({mode:'day',date:d,year:d.slice(0,4),month:Number(d.slice(5,7)),open:'inline'},cfg.open==='modal'?'modal':!!root.querySelector(':scope > .oc-detail'));
       }
       const day=event.target.closest('[data-oc-day]');if(day)render({date:day.dataset.ocDay});
