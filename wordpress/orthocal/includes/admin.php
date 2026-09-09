@@ -62,6 +62,25 @@ final class Orthocal_Admin {
         echo '</div><aside class="oc-generator-preview"><h3>Предпросмотр</h3><p data-oc-generator-status role="status">Настройте блок — результат появится здесь.</p><div data-oc-preview-slot aria-live="polite"></div><label for="oc-generated-code">Готовый шорткод</label><textarea id="oc-generated-code" rows="4" readonly></textarea><button type="button" class="button button-primary" data-oc-copy-code>Скопировать шорткод</button><button type="button" class="button" data-oc-preview>Обновить сейчас</button></aside></div></section>';
     }
     static function help() {
-        echo '<section data-oc-panel="help" class="oc-admin-card"><h2>Помощь</h2><p>Подключение хранит доступ к источникам и локальный кэш. Внешний вид, размер, картинки, содержание дня и поведение относятся к конкретному блоку и задаются в конструкторе.</p><h3>Как работать</h3><ol><li>Введите ключ календаря во вкладке «Подключение».</li><li>Откройте «Конструктор», выберите вид блока и настройте его слева.</li><li>Проверьте живой результат справа и скопируйте строку в блок WordPress «Шорткод».</li></ol><details><summary>Почему компактный блок выглядит иначе?</summary><p>Он предназначен для боковой колонки: уменьшает ячейки и скрывает длинные подписи сетки.</p></details><details><summary>Почему не загружается перевод Библии?</summary><p>Каталог приходит из BibleDesktop. Плагин покажет точную ошибку подключения; календарные данные от этого не останавливаются.</p></details><details><summary>Что означают иконы?</summary><p>Показываются только проверенные изображения с атрибуцией и однозначной привязкой. Непроверенные изображения не назначаются праздникам автоматически.</p></details></section>';
+        echo '<section data-oc-panel="help" class="oc-admin-card"><h2>Помощь</h2><p>Подключение хранит доступ к источникам и локальный кэш. Внешний вид, размер, картинки, содержание дня и поведение относятся к конкретному блоку и задаются в конструкторе.</p><h3>Как работать</h3><ol><li>Введите ключ календаря во вкладке «Подключение».</li><li>Откройте «Конструктор», выберите вид блока и настройте его слева.</li><li>Проверьте живой результат справа и скопируйте строку в блок WordPress «Шорткод».</li></ol><h3>Стандартные шорткоды</h3><p>Их можно вставить напрямую в блок «Шорткод», без конструктора:</p><pre class="oc-shortcode-list">[orthocal_today]
+[orthocal_upcoming limit="5" filter="main"]
+[orthocal_month year="2027" month="5"]
+[orthocal_year year="2027"]
+[orthocal_day date="2027-05-02"]
+[orthocal_readings date="2027-05-02"]
+[orthocal_calendar]
+[orthocal_fasting]
+[orthocal_saints]
+[orthocal_feasts limit="5"]
+[orthocal_memorial]
+[orthocal_pascha year="2027"]
+[orthocal_fasts year="2027"]
+[orthocal_date]
+[orthocal_texts]
+[orthocal_troparia]
+[orthocal_kontakia]
+[orthocal_prayers]
+[orthocal_magnifications]
+[orthocal_horologion]</pre><details><summary>Почему компактный блок выглядит иначе?</summary><p>Он предназначен для боковой колонки: уменьшает ячейки и скрывает длинные подписи сетки.</p></details><details><summary>Почему не загружается перевод Библии?</summary><p>Каталог приходит из BibleDesktop. Плагин покажет точную ошибку подключения; календарные данные от этого не останавливаются.</p></details><details><summary>Что означают иконы?</summary><p>Показываются только проверенные изображения с атрибуцией и однозначной привязкой. Непроверенные изображения не назначаются праздникам автоматически.</p></details></section>';
     }
 }
