@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.22';
+    const VERSION = '1.3.23';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -160,7 +160,12 @@ final class Orthocal_Plugin {
                 if (!is_wp_error($value) && ($value['day']['date'] ?? '') !== $a['date']) return new WP_Error('timezone','Для даты в часовом поясе этого сайта нужен API-ключ. Публичный день определяется по Europe/Berlin.');
                 return $value;
             }
-            return self::request('calendar','day',$q+['date'=>$a['date']]);
+            $value=self::request('calendar','day',$q+['date'=>$a['date']]);
+            if(!is_wp_error($value)&&in_array('texts',explode(',',$a['sections']),true)){
+                $service=self::request('service','',['date'=>$a['date'],'office'=>$a['office'],'lang'=>$a['lang'],'profile'=>$a['profile'],'expansion'=>'full']);
+                if(!is_wp_error($service)&&isset($value['day'])&&is_array($value['day']))$value['day']['service']=$service;
+            }
+            return $value;
         }
         if (in_array($mode,['upcoming','feasts','memorial'],true)) return self::request('calendar','upcoming',$q+['date'=>$a['date'],'limit'=>$a['limit'],'filter'=>$a['filter']]);
         if($mode==='pascha')return self::request('calendar','pascha',$q+['year'=>$a['year']]);
@@ -314,9 +319,9 @@ final class Orthocal_Plugin {
             $html .= '</div>';
         } elseif ($a['mode']==='readings') $html .= '<p>В источнике нет чтений для этой даты.</p>';
         if(in_array('texts',$sections,true)) {
-            $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?'<h3>Богослужебные тексты</h3>':'').'<p class="oc-muted">Откройте справочник и выберите нужный текст. Это библиотека, а не автоматически составленная служба дня.</p><div class="oc-text-buttons">';
-            foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';
-            $html.='</div></section>';
+            $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?'<h3>Богослужебные тексты</h3>':'');
+            $assignments=$day['service']['assignments']??[];
+            if(is_array($assignments)&&$assignments){$html.='<p class="oc-muted">Тексты службы на этот день</p><div class="oc-day-texts">';foreach($assignments as $item){if(!is_array($item))continue;$html.='<details><summary>'.esc_html($item['title']??'Текст службы').'</summary><p>'.nl2br(esc_html((string)($item['text']??''))).'</p></details>';} $html.='</div>';}else{$html.='<p class="oc-muted">Откройте справочник и выберите нужный текст.</p><div class="oc-text-buttons">';foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';$html.='</div>';} $html.='</section>';
         }
         $profileLabel=$a['profile']==='parish'?'Приходской':'Монастырский';
         return $html.($a['show_copy']==='1'?'<p class="oc-permalink">'.self::day_link($day['date'],'Ссылка на этот день').' <button type="button" data-oc-copy-link>Скопировать ссылку</button> <small class="oc-profile-note">* '.$profileLabel.' профиль</small></p>':'<p class="oc-profile-note">* '.$profileLabel.' профиль</p>').'</div>';
