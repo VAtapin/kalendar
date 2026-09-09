@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "version": "2026-09-09T14:04:42.383Z",
+  "version": "2026-09-09T16:46:40.469Z",
   "status": "test-preview",
   "assignment": "none",
   "rightsReviewed": false,
   "mappingReviewed": false,
-  "count": 19,
-  "cardCount": 5,
-  "contentHash": "ce601af652566911b5107179537394f01bf9e86279bb747601ace468c27d9d9d",
+  "count": 39,
+  "cardCount": 8,
+  "contentHash": "915ab9ca2eed0f9fffbd75ce16466bc4b104bc8eefe589bd4dadeda67f40154f",
   "images": [
     {
       "id": "cbae810bfd68a30705470d73133d4fcbcb6d28d886a7009aaa6bd3aae2420493",
@@ -504,6 +504,576 @@
       "mime": "image/jpeg",
       "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
       "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p1deercbc17vn1pkp1l4s9ncbmp3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "e4e5a40df2b5984aecc066cd79dd64718704387b2af480a5a059e00eb05f18a3",
+      "title": "Икона Богородицы Трех Радостей",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/b68f707d372d4eeffec52b2293c1e367f39bffef10a6c061f9904bb50424843c.jpg",
+      "sha256": "b68f707d372d4eeffec52b2293c1e367f39bffef10a6c061f9904bb50424843c",
+      "bytes": 68645,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p1deercbc11att89u2pb164b1eqg4.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "83fe91464cda798bf2bd978d3b27186818ae25d68d95f082394878923c177c50",
+      "title": "Икона Богородицы Трех Радостей",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/d845005974f7dfa540580df12e1a13310ebe1571f679690ee94b738b424c368b.jpg",
+      "sha256": "d845005974f7dfa540580df12e1a13310ebe1571f679690ee94b738b424c368b",
+      "bytes": 93145,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p188nnvrfu1pgt18b91772jtpnfu5.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "f17bb65da02d588ebf37c5f8e15017d4c253935084853157769d95d5876adc05",
+      "title": "Икона Богородицы Трех Радостей",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/249d038e8ac57ce098cdac2d520b59ad7a4bfbb29b0f4a8ed00a997c12f30e36.jpg",
+      "sha256": "249d038e8ac57ce098cdac2d520b59ad7a4bfbb29b0f4a8ed00a997c12f30e36",
+      "bytes": 129648,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p188nnvl8c8vl1de7pf41mvd1iss3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "e9db306839b62efa9973b4afb4541c25b07f66abbf13d92e1ae354a7cbfa0049",
+      "title": "Икона Богородицы Трех Радостей",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/ce1c2ce52d37dee59c2b02c9d30059c4f4fbf8ddd539d072e9c96e107e14589b.jpg",
+      "sha256": "ce1c2ce52d37dee59c2b02c9d30059c4f4fbf8ddd539d072e9c96e107e14589b",
+      "bytes": 136962,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p188nnvrfv1tqgopof9k1fbqi66.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "684eacd5bd9163ba42c007a0b9e5dbfcb47358e91e20a558f4e38ed4f628256c",
+      "title": "Икона Богородицы Трех Радостей",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/19fe03a19115b863af8bbd0ac1722f5cd529950f059067be6c518c076cfd387e.jpg",
+      "sha256": "19fe03a19115b863af8bbd0ac1722f5cd529950f059067be6c518c076cfd387e",
+      "bytes": 121704,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-treh-radostej",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/162/p188nnvrg0m5d1jacdk713ot1vge8.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "a122704fee18a6fd1d50a664395f6339c7dc24b2a00b9ca805a94e1ae4e8f0a8",
+      "title": "Икона Богородицы Байбузская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/d2bded9f0723949565f2d64311528ee72d1428ca49bcd1f33b28e9897d44a47a.jpg",
+      "sha256": "d2bded9f0723949565f2d64311528ee72d1428ca49bcd1f33b28e9897d44a47a",
+      "bytes": 85664,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-bajbuzskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/206/p1887qircd1igm1q94aj2mji1g6r3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "714b30649daabb1a68ed17e5b42324f32fb4438e68ef4ab36a445e7c8af71628",
+      "title": "Икона Богородицы Байбузская",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/64a841975eb8b3a4f2a2ecdeb935386d4cf1ac5f18dfceff460aa8a5dff10753.jpg",
+      "sha256": "64a841975eb8b3a4f2a2ecdeb935386d4cf1ac5f18dfceff460aa8a5dff10753",
+      "bytes": 45185,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-bajbuzskaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/206/p1887qiu0n14rk6fils4uj61e4m5.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "1b51cf97a0a3e289efea8b77a42899fa2929b3365817e1f750f3b21b2d7e375e",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/d32788acf9951e88f729cd5166fd9393686ed88654f406c0048d1ad1a6210569.png",
+      "sha256": "d32788acf9951e88f729cd5166fd9393686ed88654f406c0048d1ad1a6210569",
+      "bytes": 742540,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/p1b25panj2ocv45lbrdrg91dtf5.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "2251a9722cf7e7fd1c0ac47426507c767429dae89667651debf48bbe2ec1474c",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/d66a5401a322a91d176a13903816d6e9491b5985d9a0a7d6c4c89cce709cd23b.jpg",
+      "sha256": "d66a5401a322a91d176a13903816d6e9491b5985d9a0a7d6c4c89cce709cd23b",
+      "bytes": 155382,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/p1b25panj11ieq19fm1u60dq65ik3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "d10b0a9d5e8d831eaf091f1f0c8d7ff979731b001958b81976f8f45419efbfc3",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/8d4cf61259f7b6f8fd13a444736a2e4ed6f504efb989dcc7c0f30c2b176aceb7.png",
+      "sha256": "8d4cf61259f7b6f8fd13a444736a2e4ed6f504efb989dcc7c0f30c2b176aceb7",
+      "bytes": 3280133,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/66ffbdfa44e0d175495002.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "dad52d18f38f0fa51fbc08bdafc51c536cdc75859d3eefa0c56c82b6e21b5114",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/7cfbaba67f8d12bbb0d332238d3ebb6ee15419bce92a3e5f58379a736457b81c.png",
+      "sha256": "7cfbaba67f8d12bbb0d332238d3ebb6ee15419bce92a3e5f58379a736457b81c",
+      "bytes": 1034261,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/p1b25panj21iec5v63js17bl73i4.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "a48629762cc85c1f94612e544eb1c3c2b44c422f2efadf942208a1e7cd948e73",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/a73bf94d2bc08adfac6948c99b486aafbeff1c3c0f5e8cc9d27b17d417e5c744.jpg",
+      "sha256": "a73bf94d2bc08adfac6948c99b486aafbeff1c3c0f5e8cc9d27b17d417e5c744",
+      "bytes": 36701,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/ac870a3a954a6f7b71028341239d0466.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "f7dc554d97b1d6a49e7a73f3c5df281c9a2a357c92af2758cdeb1b99c1163dbe",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/e5dac345bb9594826465d02a328e6cd65fc9467e0481e0201928f761e7a37817.jpg",
+      "sha256": "e5dac345bb9594826465d02a328e6cd65fc9467e0481e0201928f761e7a37817",
+      "bytes": 39915,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/faaa1ccc65065e2dca3af75d2afb01ef.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "75c56f3062ad44f5a1fa9a01ce4acf034c222eb221c70201a1c93d089086bfd8",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/40af6c220bddf00e554afaf1b51f90e55d8b753ce4f0a8c2d701119aeed7abcb.jpg",
+      "sha256": "40af6c220bddf00e554afaf1b51f90e55d8b753ce4f0a8c2d701119aeed7abcb",
+      "bytes": 38618,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/f8aa6cfc0302c5aa6843b9ce712b7528.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "916b6370831ff87dca52601a3dd04006dd0e51560720d1e3e4cb1630147fff5a",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/a1a8a8f3f61fe9458dc91c92bb1c95183eae786e7ba2e953953582b3bd4639ba.png",
+      "sha256": "a1a8a8f3f61fe9458dc91c92bb1c95183eae786e7ba2e953953582b3bd4639ba",
+      "bytes": 2940351,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/66ffbdfa45dc9517100186.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "80d6b07527cc95ab8457f4f3c4bfc474303f60d84136510469e304a2dd4890a1",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/f8392c5fed6978118ba0394ae82b6a8d8864bb23aedf599f36a6d7b56e3e0135.png",
+      "sha256": "f8392c5fed6978118ba0394ae82b6a8d8864bb23aedf599f36a6d7b56e3e0135",
+      "bytes": 1043043,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/66ffbdfa463f0815777357.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "7240b2477b6b17fe95eca25bb617b0b492d1b56eef03b5bf2e20c102f1c7ad61",
+      "title": "Икона Богородицы Милостивая",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/12d41cd46fec25ee2aa6018b32540ce54b3cc9968397dea620ec52ad9ccf8e4a.png",
+      "sha256": "12d41cd46fec25ee2aa6018b32540ce54b3cc9968397dea620ec52ad9ccf8e4a",
+      "bytes": 3688576,
+      "mime": "image/png",
+      "sourceUrl": "https://azbyka.ru/days/ikona-milostivaja",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/212/66ffbdfa469bd056579155.png",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        },
+        {
+          "label": "25 ноября",
+          "sourceUrl": "https://azbyka.ru/days/2026-11-25",
+          "exampleGregorianDate": "2026-11-25",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "a342ea3b6208b3c4a8fb46af7f8dcaf5d4fc9fd8e3a564dc95304fef69541823",
+      "title": "Икона Богородицы Барловская (Блаженное Чрево)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/cee35e2a8956461b236271ca91066f2df86b764210c8e4ff972d33f18bc5a816.jpg",
+      "sha256": "cee35e2a8956461b236271ca91066f2df86b764210c8e4ff972d33f18bc5a816",
+      "bytes": 225192,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-barlovskaja-blazhennoe-chrevo",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/294/p1887qlu5ju3vjedjqaplrqjf3.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "2f9acdcfe1cf857f56301732ec10b3ca227e5b76b2b9a19ad19d456be6fd8a83",
+      "title": "Икона Богородицы Барловская (Блаженное Чрево)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/870c78e10fb7a34c1ba02d5f72c01c1cf6514e25a66b62982325821c2fbf6e3a.jpg",
+      "sha256": "870c78e10fb7a34c1ba02d5f72c01c1cf6514e25a66b62982325821c2fbf6e3a",
+      "bytes": 87811,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-barlovskaja-blazhennoe-chrevo",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/294/p1887qm1ibaqbe2l1bv91vur1m545.jpg",
+      "sourceName": "Азбука веры",
+      "rightsStatus": "unverified",
+      "mappingStatus": "unreviewed",
+      "dates": [
+        {
+          "label": "8 января",
+          "sourceUrl": "https://azbyka.ru/days/2027-01-08",
+          "exampleGregorianDate": "2027-01-08",
+          "movable": null,
+          "status": "source-displayed-not-a-recurrence-rule"
+        }
+      ],
+      "usage": "test-preview",
+      "localCachingAllowed": true
+    },
+    {
+      "id": "c7dd4de104c7495f1f7b68ac34acb0d9e7ce705b18e419c8b254e3f0a55fcafa",
+      "title": "Икона Богородицы Барловская (Блаженное Чрево)",
+      "kind": "mother-of-god",
+      "imageUrl": "/assets/icon-preview/1a3d58a241db667e5e455e15728ebbb4ece86a9a824888c37503f3ba7c77b530.jpg",
+      "sha256": "1a3d58a241db667e5e455e15728ebbb4ece86a9a824888c37503f3ba7c77b530",
+      "bytes": 53349,
+      "mime": "image/jpeg",
+      "sourceUrl": "https://azbyka.ru/days/ikona-barlovskaja-blazhennoe-chrevo",
+      "sourceImageUrl": "https://azbyka.ru/days/storage/images/icons-of-our-lady/294/p1887qm1idf9b89bhvo1lhn1fv96.jpg",
       "sourceName": "Азбука веры",
       "rightsStatus": "unverified",
       "mappingStatus": "unreviewed",
