@@ -18,7 +18,7 @@ try {
   await page.getByRole('heading',{name:'Free',exact:true}).waitFor();
   assert.ok(page.url().endsWith('/calendar-api'));
   assert.equal(await page.getByRole('link',{name:'Запросить API-ключ'}).getAttribute('href'),'mailto:test@example.invalid');
-  const zip=await fetch(origin+'/downloads/orthocal-1.1.0.zip');assert.equal(zip.status,200);const bytes=new Uint8Array(await zip.arrayBuffer());assert.equal(String.fromCharCode(...bytes.slice(0,2)),'PK');
+  const zip=await fetch(origin+'/downloads/orthocal-1.3.24.zip');assert.equal(zip.status,200);const bytes=new Uint8Array(await zip.arrayBuffer());assert.equal(String.fromCharCode(...bytes.slice(0,2)),'PK');
   const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);assert.ok((await guide.text()).includes('X-API-Key'));
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
   mkdirSync('artifacts',{recursive:true});await page.screenshot({path:'artifacts/calendar-api-docs-desktop.png',fullPage:true});
