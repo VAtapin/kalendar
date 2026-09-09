@@ -221,7 +221,10 @@ function calendar_service_routes(string $method, string $path): void {
     $calendar = calendar_public_year($manifest, $runtimeDirectory, $year, $profile, $language);
     $day = null; foreach ($calendar['days'] as $candidate) if (($candidate['date'] ?? null) === $date) { $day = $candidate; break; }
     if (!is_array($day)) calendar_fail('date_not_found', 404);
-    $apiLibrary = calendar_bible_desktop_texts(['language' => $language]);
+    // Calendar texts are currently verified in Church Slavonic. A Russian UI
+    // must receive that available text rather than silently producing no inserts.
+    $textLanguage = $language === 'ru' ? 'cu' : $language;
+    $apiLibrary = calendar_bible_desktop_texts(['language' => $textLanguage]);
     $library = ['version' => 'bible-desktop', 'contentHash' => null, 'texts' => $apiLibrary['texts']];
     $movable = calendar_service_movable_cycle($manifest, $runtimeDirectory, $date, $profile, $language, $calendar);
     $weekday = (int) $day['weekday'];
@@ -232,7 +235,7 @@ function calendar_service_routes(string $method, string $path): void {
     $commemorations = array_values(array_map(static fn($event) => array_intersect_key($event, array_flip(['id', 'title', 'typeCode', 'typikonMark', 'category', 'localization'])), array_filter($day['events'], static fn($event) => ($event['category'] ?? null) === 'commemoration')));
     calendar_public_response([
         'schemaVersion' => 1, 'apiVersion' => '1.2.0', 'date' => $date, 'office' => $office,
-        'language' => $language, 'textLanguage' => $language, 'profile' => $profile,
+        'language' => $language, 'textLanguage' => $textLanguage, 'profile' => $profile,
         'calendar' => ['oldStyleDate' => $day['oldStyleDate'], 'weekday' => $weekday, 'weekdayName' => $day['weekdayName'], 'fasting' => $day['fasting'], 'commemorations' => $commemorations],
         'cycles' => [
             'daily' => ['office' => $office, 'date' => $date],
