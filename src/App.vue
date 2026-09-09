@@ -3151,8 +3151,10 @@ async function insertCalendarIcon(item: IconLibraryCard, caption: boolean): Prom
     if (!dimensions) throw new Error(`Не удалось определить размер иконы «${item.title}»`);
     if (project.value !== targetProject || selectedPage.value !== targetPage) return;
     const ratio = dimensions.widthPx / dimensions.heightPx;
-    const maxWidth = Math.min(targetPage.safeArea.right - targetPage.safeArea.left, targetPage.width * .36);
-    const maxHeight = Math.min(targetPage.safeArea.bottom - targetPage.safeArea.top, targetPage.height * .42);
+    const usableWidth = targetPage.width - targetPage.safeArea.left - targetPage.safeArea.right;
+    const usableHeight = targetPage.height - targetPage.safeArea.top - targetPage.safeArea.bottom;
+    const maxWidth = Math.min(usableWidth * .48, 125);
+    const maxHeight = Math.min(usableHeight * .48, 150);
     let width = maxWidth, height = width / ratio;
     if (height > maxHeight) { height = maxHeight; width = height * ratio; }
     const x = targetPage.safeArea.left + (targetPage.width - targetPage.safeArea.left - targetPage.safeArea.right - width) / 2;
