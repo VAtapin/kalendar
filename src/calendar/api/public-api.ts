@@ -65,11 +65,13 @@ export interface CalendarApiDay {
   weekdayName: string;
   pascha: string;
   daysFromPascha: number;
+  weekAfterPentecost: number | null;
+  tone: number | null;
   dayStyle: ReturnType<typeof dayNumberTypikonStyle>;
   foodLabel: string;
   fastingColor: string;
   eventCount: number;
-  icons: { eventId: string; title: string; imageUrl: string | null;
+  icons: { eventId: string; title: string; description?: string; imageUrl: string | null;
     id?: string; width?: number; height?: number; sourceUrl?: string; license?: string; credit?: string;
     sha256?: string; localCachingAllowed?: boolean }[];
   foodMarkers: { packId: string; label: string; source: string }[];
@@ -152,6 +154,13 @@ export function createCalendarPublicApi(api: OrthodoxCalendarApi, language: Cale
     const day = api.getDay(date);
     const fasting = api.getFasting(date);
     if (!day || !fasting) return undefined;
+    const daysFromPascha = compareDates(date, api.getPascha(date.year));
+    const weekAfterPentecost = daysFromPascha >= 50 ? Math.floor((daysFromPascha - 49) / 7) + 1 : null;
+    const toneStartOffset = 56;
+    const serviceSundayOffset = daysFromPascha - day.weekday;
+    const tone = serviceSundayOffset >= toneStartOffset
+      ? (Math.floor((serviceSundayOffset - toneStartOffset) / 7) % 8) + 1
+      : null;
     return {
       date: day.isoDate,
       oldStyleDate: toIsoDate(day.oldStyleDate),
@@ -160,7 +169,9 @@ export function createCalendarPublicApi(api: OrthodoxCalendarApi, language: Cale
       fasting,
       weekdayName: calendarWeekdayLabels(language)[(day.weekday + 6) % 7]!,
       pascha: toIsoDate(api.getPascha(date.year)),
-      daysFromPascha: compareDates(date, api.getPascha(date.year)),
+      daysFromPascha,
+      weekAfterPentecost,
+      tone,
       dayStyle: dayNumberTypikonStyle(day),
       foodLabel: calendarFoodRuleLabel(fasting.foodRule.id, language) || fasting.foodRule.label,
       fastingColor: FASTING_COLORS[fasting.foodRule.id],
@@ -169,6 +180,7 @@ export function createCalendarPublicApi(api: OrthodoxCalendarApi, language: Cale
         const image = iconForEvent(event);
         if (!image && !isTheotokosIconCommemoration(event.title)) return [];
         return [{ eventId: event.id, title: localizeCalendarEventTitleWithStatus(event.title, language).title,
+          ...(image?.description ? { description: image.description } : {}),
           imageUrl: image?.imageUrl ?? null,
           ...(image ? { id: image.id, width: image.width, height: image.height,
             sourceUrl: image.sourceUrl, license: image.license, credit: image.credit,

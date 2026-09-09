@@ -10,6 +10,7 @@ export const ICON_CATALOG = [{
   sourceId: 'memory-day-0595',
   sourceTitle: 'Прп. Пимена Великого (ок. 450)',
   imageUrl: '/assets/icons/poemen-the-great.jpg',
+  description: 'Преподобный Пимен Великий. Иконописный образ из открытого каталога.',
   sha256: '9824ad5c14bdd42b9177e2bfbec66d9b55ce2f5ca1e45ed9dcdf203169b0caaa',
   localCachingAllowed: true,
   width: 261,

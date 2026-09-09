@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.21';
+    const VERSION = '1.3.22';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -276,10 +276,11 @@ final class Orthocal_Plugin {
     static function day($day,$a) {
         $only=['fasting'=>'fasting','saints'=>'saints','readings'=>'readings','date'=>''];
         $sections=isset($only[$a['mode']])?[$only[$a['mode']]]:explode(',',$a['sections']);
-        $html = '<div class="oc-day"><div class="oc-date-row"><p class="oc-date">'.esc_html(self::date_label($day['date'])).'</p>';
+        $hero = in_array('icons',$sections,true) ? self::hero_icon($day) : '';
+        $html = $hero.'<div class="oc-day"><div class="oc-date-row"><p class="oc-date">'.esc_html(self::date_label($day['date'])).'</p>';
         if (in_array($a['mode'],['today','day'],true) && $a['show_picker']==='1') $html .= '<label class="oc-date-picker"><span class="screen-reader-text">Выбрать дату</span><input type="date" aria-label="Выбрать дату" title="Выбрать дату" data-oc-picker min="1900-01-01" max="2200-12-31" value="'.esc_attr($day['date']).'"></label>';
         $html .= '</div>';
-        if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).' по старому стилю</p>';
+        if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).' по старому стилю · '.esc_html($day['weekdayName']??'').(!empty($day['weekAfterPentecost'])?' · '.(int)$day['weekAfterPentecost'].'-я седмица по Пятидесятнице':'').(!empty($day['tone'])?' · глас '.(int)$day['tone']:'').'</p>';
         if(in_array($a['mode'],['today','day'],true)) {
             $date=new DateTimeImmutable($day['date']);$html.=$a['show_nav']==='1'?'<nav class="oc-day-nav" aria-label="Выбор дня">':'';
             if($a['show_nav']==='1') foreach([-1=>'← Вчера',1=>'Завтра →'] as $step=>$label){$target=$date->modify(($step<0?'-1':'+1').' day')->format('Y-m-d');if(self::date_valid($target))$html.='<button type="button" data-oc-day="'.$target.'">'.($a['date']===wp_date('Y-m-d')?$label:($step<0?'← Предыдущий день':'Следующий день →')).'</button>';}
@@ -327,7 +328,8 @@ final class Orthocal_Plugin {
         $items=array_merge($items,apply_filters('orthocal_day_icons',[],$day));
         $html='';$upload=wp_upload_dir();
         $items=is_array($items)?$items:[];
-        if($limit!=='all')$items=array_slice($items,0,(int)$limit);
+        $items=array_slice($items,1);
+        if($limit!=='all')$items=array_slice($items,0,max(0,(int)$limit-1));
         foreach($items as $item) {
             if(!is_array($item)||empty($item['localUrl'])||empty($item['alt'])||!str_starts_with($item['localUrl'],$upload['baseurl'].'/orthocal-cache/'))continue;
             $name=substr($item['localUrl'],strlen($upload['baseurl'].'/orthocal-cache/'));
@@ -336,6 +338,12 @@ final class Orthocal_Plugin {
             $html.='<figure><a href="'.esc_url($item['localUrl']).'" data-oc-icon data-oc-icon-title="'.esc_attr($item['alt']).'" data-oc-icon-description="'.esc_attr($description).'" aria-label="Открыть икону: '.esc_attr($item['alt']).'"><img loading="lazy" src="'.esc_url($item['localUrl']).'" alt="'.esc_attr($item['alt']).'"></a><figcaption>'.esc_html($item['alt']).(!empty($item['attribution'])?' · '.esc_html($item['attribution']):'').'</figcaption></figure>';
         }
         return $html?'<div class="oc-icons">'.$html.'</div>':'';
+    }
+    static function hero_icon($day) {
+        $icon=$day['icons'][0]??null;
+        if(!is_array($icon)||empty($icon['imageUrl']))return '';
+        $url=Orthocal_Media_Cache::url($icon['imageUrl']);$title=$icon['title']??'Икона';$description=$icon['description']??$icon['caption']??'';
+        return '<div class="oc-hero-icon"><a href="'.esc_url($url).'" data-oc-icon data-oc-icon-title="'.esc_attr($title).'" data-oc-icon-description="'.esc_attr($description).'" aria-label="Открыть икону: '.esc_attr($title).'" ><img src="'.esc_url($url).'" alt="'.esc_attr($title).'" loading="lazy"></a></div>';
     }
     static function texts($data,$a) {
         $html='<p class="oc-muted">Справочная библиотека · церковнославянский текст. Выбор по гласу или дню недели не является указанием порядка конкретной службы.</p><div class="oc-text-filters"><label>Раздел <select data-oc-text-filter="scope">';
