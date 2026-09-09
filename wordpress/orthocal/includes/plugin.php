@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.24';
+    const VERSION = '1.3.25';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -295,7 +295,10 @@ final class Orthocal_Plugin {
                 $mark=$event['typikonMark'] ?? null;
                 $html .= '<li'.(($event['typeCode']>=0 && $event['typeCode']<=2)?' class="oc-red"':'').'>';
                 $local=$a['images']==='1'&&$mark?Orthocal_Media_Cache::url($mark['svgSource']??''):'';
-                if ($local) $html .= '<img width="20" height="20" src="'.esc_url($local).'" alt="'.esc_attr($mark['label'] ?? 'Знак Типикона').'" title="'.esc_attr($mark['label']??'Знак Типикона').'"> '; elseif (preg_match('/^(?:прп\.|преподобн)/iu',(string)$event['title'])) $html.='<span class="oc-memory-mark" aria-label="Преподобный">✣</span> ';
+                // A saint's rank is supplied solely by the calendar API. The former
+                // decorative cross for every venerable saint resembled the red
+                // polyeleos sign and falsely elevated ordinary commemorations.
+                if ($local) $html .= '<img width="20" height="20" src="'.esc_url($local).'" alt="'.esc_attr($mark['label'] ?? 'Знак Типикона').'" title="'.esc_attr($mark['label']??'Знак Типикона').'"> ';
                 $html .= esc_html($event['title']).'</li>';
             }
             $html .= '</ul><p data-oc-no-events hidden>Совпадений нет.</p></section>';

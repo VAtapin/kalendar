@@ -54,6 +54,7 @@ if(str_contains($html,'local-test-secret')||str_contains($html,'<script>alert'))
 if(!str_contains($html,'Светлое Христово')) throw new Exception('Missing source event');
 $bad=Orthocal_Plugin::day(['date'=>'2027-05-02','oldStyleDate'=>'2027-04-19','events'=>[['category'=>'commemoration','typeCode'=>7,'title'=>'<script>alert(1)</script>']]],Orthocal_Plugin::config(['mode'=>'day']));
 if(str_contains($bad,'<script>')||!str_contains($bad,'&lt;script&gt;')) throw new Exception('XSS escaping');
+if(str_contains($bad,'oc-memory-mark')||str_contains($bad,'✣')) throw new Exception('Ordinary commemoration received an invented Typikon sign');
 $attrs=Orthocal_Plugin::config(['theme'=>'','compact'=>'']); if(is_wp_error($attrs)) throw new Exception('Empty Gutenberg defaults');
 echo 'PASS WordPress registration, server rendering, validation, escaping and key isolation';
 `);
