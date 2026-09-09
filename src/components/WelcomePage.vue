@@ -11,7 +11,6 @@ import {
 const props = defineProps<{
   currentProjectName?: string;
   recentProjectNames: string[];
-  sharedProjects: Array<{ id: string; name: string }>;
   compactMode?: boolean;
 }>();
 
@@ -19,7 +18,6 @@ const emit = defineEmits<{
   create: [];
   continue: [];
   open: [];
-  openShared: [id: string];
   help: [];
   admin: [];
   account: [];
@@ -47,10 +45,6 @@ async function requestContinue(): Promise<void> {
 
 async function requestOpen(): Promise<void> {
   if (!(await requireDesktop())) emit("open");
-}
-
-async function requestOpenShared(id: string): Promise<void> {
-  if (!(await requireDesktop())) emit("openShared", id);
 }
 
 function changeInterfaceLanguage(event: Event): void {
@@ -102,6 +96,32 @@ function changeInterfaceLanguage(event: Event): void {
       <article><strong>Готово к печати</strong><span>Скачайте готовый PDF и передайте его в типографию.</span></article>
     </section>
 
+    <section class="welcome-services" aria-labelledby="services-title">
+      <div class="welcome-section-title">
+        <div>
+          <span>Календарная мастерская</span>
+          <h2 id="services-title">Наши православные сервисы</h2>
+        </div>
+      </div>
+      <div class="welcome-services__grid">
+        <a href="/icons-of-mother-of-god.html">
+          <strong>Иконы Богородицы</strong>
+          <span>Иконная библиотека с днями празднования, историей образов, поиском и тематическими подборками.</span>
+          <em>Открыть библиотеку →</em>
+        </a>
+        <a href="/calendar-api-test.html">
+          <strong>Веб‑календарь</strong>
+          <span>Сегодня, праздники, пост, трапеза, чтения и календарь на месяц или год.</span>
+          <em>Открыть календарь →</em>
+        </a>
+        <a :href="localizedPath('/calendar-api')">
+          <strong>API и плагин WordPress</strong>
+          <span>Подключайте точный православный календарь к сайту, блокам и собственным приложениям.</span>
+          <em>Посмотреть возможности →</em>
+        </a>
+      </div>
+    </section>
+
     <section class="welcome-mobile-about" aria-label="О проекте">
       <div>
         <span class="welcome-hero__eyebrow">О проекте</span>
@@ -119,25 +139,6 @@ function changeInterfaceLanguage(event: Event): void {
         <a href="tel:+491713517274">+49 171 351 72 74</a>
         <a href="mailto:atapin@gmail.com">atapin@gmail.com</a>
       </article>
-    </section>
-
-    <section class="welcome-projects">
-      <div class="welcome-section-title">
-        <div><h2>Мои календари</h2></div>
-        <button type="button" @click="emit('help')">Помощь</button>
-      </div>
-      <div class="welcome-projects__grid">
-        <button type="button" @click="emit('account')"><strong>Личный кабинет</strong><span>Все мои календари, фотографии и серверные версии</span></button>
-        <button v-if="currentProjectName" type="button" @click="requestContinue">
-          <strong>{{ currentProjectName }}</strong><span>Продолжить открытую работу</span>
-        </button>
-        <button v-for="item in sharedProjects" :key="item.id" type="button" @click="requestOpenShared(item.id)">
-          <strong>{{ item.name }}</strong><span>Совместная версия · доступна по ссылке</span>
-        </button>
-        <button type="button" @click="requestOpen">
-          <strong>Импортировать календарь с компьютера</strong><span>Добавьте файл календаря в свой личный кабинет</span>
-        </button>
-      </div>
     </section>
 
     <footer class="welcome-page__footer">

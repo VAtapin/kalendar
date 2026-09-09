@@ -186,8 +186,8 @@ try {
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:'tmp/calendar-api-local-mobile.png',fullPage:false});
   await page.setViewportSize({width:1200,height:1000});await page.goto(origin+'/icons-of-mother-of-god.html');await page.locator('#gallery .card').first().waitFor();
-  assert.equal(await page.locator('#gallery .card').count(),6);await page.locator('#gallery .picture').first().click();await page.locator('#lightbox[open] #large').waitFor();await page.waitForFunction(()=>document.querySelector('#large')?.naturalWidth>0);
-  await page.screenshot({path:'artifacts/icon-library-desktop.png',fullPage:true});await page.locator('#lightbox button').click();await page.locator('#place').selectOption({index:1});assert.ok(await page.locator('#gallery .card').count());
+  assert.equal(await page.locator('#page-size').inputValue(),'12');assert.equal(await page.locator('#gallery .card').count(),12);await page.locator('#gallery .picture').first().click();await page.locator('#lightbox[open] #large').waitFor();await page.waitForFunction(()=>document.querySelector('#large')?.naturalWidth>0);
+  await page.screenshot({path:'artifacts/icon-library-desktop.png',fullPage:true});await page.locator('#lightbox button').click();await page.locator('#page-size').selectOption('6');assert.equal(await page.locator('#gallery .card').count(),6);await page.locator('#place').selectOption({index:1});assert.ok(await page.locator('#gallery .card').count());
   // Render hostile data as plain text even when pointed at an untrusted endpoint.
   await page.route('**/api/v1/calendar-demo/day*', route => route.fulfill({
     contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
