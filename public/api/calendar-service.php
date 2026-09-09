@@ -110,7 +110,7 @@ function calendar_service_assignments(array $library, int $weekday, ?int $tone):
             'slot' => $text['type'] === 'troparion' ? 'troparion-of-day' : 'kontakion-of-day',
             'textId' => $text['id'], 'title' => $text['title'], 'text' => $text['text'],
             'language' => $text['language'], 'orthography' => $text['orthography'],
-            'sources' => $text['sources'], 'review' => $text['review'],
+            'sources' => $text['sources'],
             'reason' => $weekday === 0 ? 'Воскресный глас ' . $tone : 'Текст дня седмицы',
         ];
     }, $selected);

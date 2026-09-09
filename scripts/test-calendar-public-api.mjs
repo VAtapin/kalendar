@@ -58,9 +58,10 @@ try {
   const textRequest=(suffix='',options={})=>fetch(textsBase+suffix,{...options,headers:{'X-API-Key':systemKey,...options.headers}});
   const libraryResponse=await textRequest();const library=await libraryResponse.json();
   assert.equal(libraryResponse.status,200);assert.equal(library.count,98);
-  assert.equal(library.assignment,'reference-only');assert.equal(library.completeness.automaticAssignment,false);
+  assert.equal(library.assignment,'reference-only');assert.equal('completeness' in library,false);assert.equal('availability' in library,false);
   assert.equal(libraryResponse.headers.get('X-Calendar-Application-Cache-TTL'),'300');
   assert.equal(library.contentHash,JSON.parse(readFileSync('public/data/liturgical-texts.json','utf8')).contentHash);
+  assert.ok(library.texts.every(text=>!('review' in text)&&!('note' in text)));
   assert.equal((await textRequest('',{headers:{'If-None-Match':libraryResponse.headers.get('etag')}})).status,304);
   assert.equal((await (await textRequest('?scope=resurrection&tone=1&type=troparion')).json()).count,1);
   assert.equal((await (await textRequest('?language=de')).json()).count,0);

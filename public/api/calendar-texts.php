@@ -21,5 +21,8 @@ function calendar_texts_routes(string $method,string $path): void {
         return (empty($_GET['id'])||$text['id']===$_GET['id'])&&($type===''||$text['type']===$type)&&($scope===''||$text['scope']===$scope)&&($tone===''||$text['tone']===(int)$tone)&&($weekday===''||in_array((int)$weekday,$text['weekdays'],true))&&$text['language']===$language;
     }));
     if(!empty($_GET['id'])&&!$texts)calendar_fail('text_not_found',404);
-    calendar_public_response(['schemaVersion'=>1,'version'=>$library['version'],'contentHash'=>$library['contentHash'],'completeness'=>$library['completeness'],'availability'=>$library['availability']??[],'assignment'=>'reference-only','language'=>$language,'count'=>count($texts),'texts'=>$texts],$method);
+    // Editorial provenance and review state are administrative metadata. They
+    // stay in the local source file but never cross the public API boundary.
+    $texts=array_map(static function($text){if(!is_array($text))return $text;unset($text['review'],$text['note']);return $text;},$texts);
+    calendar_public_response(['schemaVersion'=>1,'version'=>$library['version'],'contentHash'=>$library['contentHash'],'assignment'=>'reference-only','language'=>$language,'count'=>count($texts),'texts'=>$texts],$method);
 }

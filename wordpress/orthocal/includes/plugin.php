@@ -337,7 +337,7 @@ final class Orthocal_Plugin {
         for($i=1;$i<=8;$i++)$html.='<option value="'.$i.'" '.selected((string)$a['tone'],(string)$i,false).'>'.$i.'</option>';
         $html.='</select></label></div>';
         foreach($data['texts'] as $text) {
-            $html.='<details class="oc-liturgical-text"><summary>'.esc_html($text['title']).'</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>Скопировать текст</button><div class="oc-verses" lang="cu">'.nl2br(esc_html($text['text'])).'</div><p class="oc-muted">'.(($text['review']['status']??'')==='editor-reviewed'?'Проверено редактором.':'Перенесено из источника; ожидает богослужебной редакционной проверки.').'</p><p class="oc-text-source">';
+            $html.='<details class="oc-liturgical-text"><summary>'.esc_html($text['title']).'</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>Скопировать текст</button><div class="oc-verses" lang="cu">'.nl2br(esc_html($text['text'])).'</div><p class="oc-text-source">';
             foreach($text['sources']??[] as $source)$html.='<a href="'.esc_url($source['url']).'" target="_blank" rel="noopener noreferrer">'.esc_html($source['title']).'</a> ';
             $html.='</p></div></details>';
         }
