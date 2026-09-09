@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.23';
+    const VERSION = '1.3.24';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -160,12 +160,7 @@ final class Orthocal_Plugin {
                 if (!is_wp_error($value) && ($value['day']['date'] ?? '') !== $a['date']) return new WP_Error('timezone','Для даты в часовом поясе этого сайта нужен API-ключ. Публичный день определяется по Europe/Berlin.');
                 return $value;
             }
-            $value=self::request('calendar','day',$q+['date'=>$a['date']]);
-            if(!is_wp_error($value)&&in_array('texts',explode(',',$a['sections']),true)){
-                $service=self::request('service','',['date'=>$a['date'],'office'=>$a['office'],'lang'=>$a['lang'],'profile'=>$a['profile'],'expansion'=>'full']);
-                if(!is_wp_error($service)&&isset($value['day'])&&is_array($value['day']))$value['day']['service']=$service;
-            }
-            return $value;
+            return self::request('calendar','day',$q+['date'=>$a['date']]);
         }
         if (in_array($mode,['upcoming','feasts','memorial'],true)) return self::request('calendar','upcoming',$q+['date'=>$a['date'],'limit'=>$a['limit'],'filter'=>$a['filter']]);
         if($mode==='pascha')return self::request('calendar','pascha',$q+['year'=>$a['year']]);
@@ -285,20 +280,22 @@ final class Orthocal_Plugin {
         $html = $hero.'<div class="oc-day"><div class="oc-date-row"><p class="oc-date">'.esc_html(self::date_label($day['date'])).'</p>';
         if (in_array($a['mode'],['today','day'],true) && $a['show_picker']==='1') $html .= '<label class="oc-date-picker"><span class="screen-reader-text">Выбрать дату</span><input type="date" aria-label="Выбрать дату" title="Выбрать дату" data-oc-picker min="1900-01-01" max="2200-12-31" value="'.esc_attr($day['date']).'"></label>';
         $html .= '</div>';
-        if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).' по старому стилю · '.esc_html($day['weekdayName']??'').(!empty($day['weekAfterPentecost'])?' · '.(int)$day['weekAfterPentecost'].'-я седмица по Пятидесятнице':'').(!empty($day['tone'])?' · глас '.(int)$day['tone']:'').'</p>';
+        if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).' по старому стилю</p>';
+        $meta=[];if(!empty($day['weekdayName']))$meta[]=mb_strtolower((string)$day['weekdayName']);if(!empty($day['weekAfterPentecost']))$meta[]=(int)$day['weekAfterPentecost'].'-я седмица по Пятидесятнице';if(!empty($day['tone']))$meta[]='глас '.(int)$day['tone'];if($meta)$html.='<p class="oc-day-meta">'.esc_html(implode(' · ',$meta)).'</p>';
         if(in_array($a['mode'],['today','day'],true)) {
             $date=new DateTimeImmutable($day['date']);$html.=$a['show_nav']==='1'?'<nav class="oc-day-nav" aria-label="Выбор дня">':'';
             if($a['show_nav']==='1') foreach([-1=>'← Вчера',1=>'Завтра →'] as $step=>$label){$target=$date->modify(($step<0?'-1':'+1').' day')->format('Y-m-d');if(self::date_valid($target))$html.='<button type="button" data-oc-day="'.$target.'">'.($a['date']===wp_date('Y-m-d')?$label:($step<0?'← Предыдущий день':'Следующий день →')).'</button>';}
             $html.=$a['show_nav']==='1'?'</nav>':'';
         }
         if(in_array('saints',$sections,true)) {
+            $events=array_values(array_filter($day['events'],static fn($event)=>self::event_allowed($event,$a['event_levels'])));
+            usort($events,static function($left,$right){$rank=static function($event){$title=(string)($event['title']??'');$monk=preg_match('/^(?:прп\.|преподобн)/iu',$title)?0:1;return [$monk,(int)($event['typeCode']??99),$title];};return $rank($left)<=>$rank($right);});
             $html.='<section class="oc-saints-section">'.($a['show_section_titles']==='1'?'<h3>Праздники и памяти</h3>':'').($a['show_search']==='1'?'<label class="oc-search">Найти в памятях дня <input type="search" data-oc-event-search placeholder="Имя или название"></label>':'').'<ul class="oc-events">';
-            foreach ($day['events'] as $event) {
-                if (!self::event_allowed($event,$a['event_levels'])) continue;
+            foreach ($events as $event) {
                 $mark=$event['typikonMark'] ?? null;
                 $html .= '<li'.(($event['typeCode']>=0 && $event['typeCode']<=2)?' class="oc-red"':'').'>';
                 $local=$a['images']==='1'&&$mark?Orthocal_Media_Cache::url($mark['svgSource']??''):'';
-                if ($local) $html .= '<img width="20" height="20" src="'.esc_url($local).'" alt="'.esc_attr($mark['label'] ?? 'Знак Типикона').'" title="'.esc_attr($mark['label']??'Знак Типикона').'"> ';
+                if ($local) $html .= '<img width="20" height="20" src="'.esc_url($local).'" alt="'.esc_attr($mark['label'] ?? 'Знак Типикона').'" title="'.esc_attr($mark['label']??'Знак Типикона').'"> '; elseif (preg_match('/^(?:прп\.|преподобн)/iu',(string)$event['title'])) $html.='<span class="oc-memory-mark" aria-label="Преподобный">✣</span> ';
                 $html .= esc_html($event['title']).'</li>';
             }
             $html .= '</ul><p data-oc-no-events hidden>Совпадений нет.</p></section>';
@@ -320,8 +317,7 @@ final class Orthocal_Plugin {
         } elseif ($a['mode']==='readings') $html .= '<p>В источнике нет чтений для этой даты.</p>';
         if(in_array('texts',$sections,true)) {
             $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?'<h3>Богослужебные тексты</h3>':'');
-            $assignments=$day['service']['assignments']??[];
-            if(is_array($assignments)&&$assignments){$html.='<p class="oc-muted">Тексты службы на этот день</p><div class="oc-day-texts">';foreach($assignments as $item){if(!is_array($item))continue;$html.='<details><summary>'.esc_html($item['title']??'Текст службы').'</summary><p>'.nl2br(esc_html((string)($item['text']??''))).'</p></details>';} $html.='</div>';}else{$html.='<p class="oc-muted">Откройте справочник и выберите нужный текст.</p><div class="oc-text-buttons">';foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';$html.='</div>';} $html.='</section>';
+            $html.='<p class="oc-muted">Откройте справочник и выберите нужный текст.</p><div class="oc-text-buttons">';foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';$html.='</div></section>';
         }
         $profileLabel=$a['profile']==='parish'?'Приходской':'Монастырский';
         return $html.($a['show_copy']==='1'?'<p class="oc-permalink">'.self::day_link($day['date'],'Ссылка на этот день').' <button type="button" data-oc-copy-link>Скопировать ссылку</button> <small class="oc-profile-note">* '.$profileLabel.' профиль</small></p>':'<p class="oc-profile-note">* '.$profileLabel.' профиль</p>').'</div>';
