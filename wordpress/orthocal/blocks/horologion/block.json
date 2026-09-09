@@ -1,9 +1,9 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "name": "orthocal/date",
+  "name": "orthocal/horologion",
   "version": "1.3.4",
-  "title": "Православный календарь: Дата по двум стилям",
+  "title": "Православный календарь: Часослов",
   "category": "widgets",
   "icon": "calendar-alt",
   "textdomain": "orthocal",

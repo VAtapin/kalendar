@@ -146,12 +146,12 @@ try {
   assert.deepEqual(remoteAssets,[],'All images and fonts must be served by installed WordPress');
   await page.goto(origin+'/wp-admin/post.php?post='+pageId+'&action=edit');
   await page.waitForFunction(()=>window.wp?.blocks?.getBlockType('orthocal/year'));
-  assert.equal(await page.evaluate(()=>wp.blocks.getBlockTypes().filter(b=>b.name.startsWith('orthocal/')).length),19);
+  assert.equal(await page.evaluate(()=>wp.blocks.getBlockTypes().filter(b=>b.name.startsWith('orthocal/')).length),20);
   const nojs=await browser.newContext({javaScriptEnabled:false});
   const plain=await nojs.newPage();await plain.goto(origin+'/?page_id='+pageId+'&orthocal_date=2027-05-02');
   assert.ok(await plain.locator('.oc-detail .oc-day').count());await nojs.close();
   assert.deepEqual(errors,[]);
-  console.log('PASS real WordPress/SQLite + Edge: 19 modes, persistent media, AJAX month/day, Bible text and missing verses, nested day/reading dialogs, library filters, admin preview/help/settings, key isolation, local-only assets, mobile layout and 19 Gutenberg blocks');
+  console.log('PASS real WordPress/SQLite + Edge: 20 modes, persistent media, AJAX month/day, Bible text and missing verses, nested day/reading dialogs, library filters, admin preview/help/settings, key isolation, local-only assets, mobile layout and 20 Gutenberg blocks');
 } catch(error) {
   if(browser) {const p=browser.contexts()[0]?.pages()[0];if(p){writeFileSync(resolve('tmp/orthocal-wp/failure.html'),await p.content());await p.screenshot({path:resolve('tmp/orthocal-wp/failure.png'),fullPage:true});}}
   console.error(logs.slice(-3000));throw error;

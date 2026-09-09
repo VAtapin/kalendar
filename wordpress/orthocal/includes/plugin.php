@@ -4,9 +4,10 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.3';
-    const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания'];
+    const VERSION = '1.3.4';
+    const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
+    const SERVICE_MODES=['horologion'];
     private static $file;
     private static $memo = [];
 
@@ -107,8 +108,8 @@ final class Orthocal_Plugin {
         return $a;
     }
     static function request($service, $path, $query = []) {
-        $calendar=in_array($service,['calendar','texts'],true);
-        $url = ($service === 'calendar' ? self::CALENDAR : ($service==='texts'?'https://kalender.georg-kloster.ru/api/v1/calendar-texts/':self::BIBLE)).$path;
+        $calendar=in_array($service,['calendar','texts','service'],true);
+        $url = ($service === 'calendar' ? self::CALENDAR : ($service==='texts'?'https://kalender.georg-kloster.ru/api/v1/calendar-texts/':($service==='service'?'https://kalender.georg-kloster.ru/api/v1/calendar/service':self::BIBLE))).$path;
         if ($query) $url = add_query_arg($query,$url);
         $cache = 'oc_'.md5($url.'|'.self::key().'|'.get_option('orthocal_cache_generation','0'));
         if (isset(self::$memo[$cache])) return self::$memo[$cache];
@@ -143,6 +144,9 @@ final class Orthocal_Plugin {
     }
     static function data($a) {
         $q = ['lang'=>$a['lang'],'profile'=>$a['profile']]; $mode = $a['mode'];
+        if(in_array($mode,self::SERVICE_MODES,true)) {
+            return self::request('service','',['date'=>$a['date'],'office'=>'sixth-hour','lang'=>'cu','profile'=>$a['profile'],'expansion'=>'short']);
+        }
         if(in_array($mode,self::TEXT_MODES,true)) {
             $types=['troparia'=>'troparion','kontakia'=>'kontakion','prayers'=>'prayer','magnifications'=>'magnification'];$query=['language'=>'cu'];
             if(isset($types[$mode]))$query['type']=$types[$mode];
@@ -181,6 +185,7 @@ final class Orthocal_Plugin {
         $html = '<section class="orthocal oc-theme-'.esc_attr($a['theme']).($a['css_mode']==='site'?' oc-site-css':'').($a['compact']==='1'?' oc-compact':'').'" style="--oc-accent:'.esc_attr($a['accent']).';--oc-image-size:'.($a['image_size']==='small'?'28px':($a['image_size']==='large'?'72px':'44px')).'" data-oc-language="'.esc_attr($a['lang']).'" data-orthocal="'.esc_attr(wp_json_encode($config)).'" aria-label="'.esc_attr(self::TITLES[$a['mode']]).'">';
         if($a['heading']==='1')$html .= '<div class="oc-heading">'.($a['branding']!==''?'<span class="oc-eyebrow">'.esc_html($a['branding']).'</span>':'').'<h2>'.esc_html(self::TITLES[$a['mode']]).'</h2></div>';
         if (is_wp_error($data)) $html .= self::error_html($data->get_error_message()).'<button type="button" data-oc-retry>Повторить</button>';
+        elseif(in_array($a['mode'],self::SERVICE_MODES,true)&&isset($data['assignments']))$html.=self::service($data,$a);
         elseif(in_array($a['mode'],self::TEXT_MODES,true)&&isset($data['texts']))$html.=self::texts($data,$a);
         elseif (isset($data['day']['events']) && is_array($data['day']['events'])) $html .= self::day($data['day'],$a);
         elseif ($a['mode']==='pascha' && isset($data['pascha'])) $html.='<p class="oc-date">'.self::day_link($data['pascha'],self::date_label($data['pascha'])).'</p><div class="oc-detail"></div>';
@@ -307,7 +312,7 @@ final class Orthocal_Plugin {
         } elseif ($a['mode']==='readings') $html .= '<p>В источнике нет чтений для этой даты.</p>';
         if(in_array('texts',$sections,true)) {
             $html.='<section class="oc-texts-section">'.($a['show_section_titles']==='1'?'<h3>Богослужебные тексты</h3>':'').'<p class="oc-muted">Откройте справочник и выберите нужный текст. Это библиотека, а не автоматически составленная служба дня.</p><div class="oc-text-buttons">';
-            foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';
+            foreach(['troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'] as $mode=>$label)$html.='<button type="button" data-oc-library="'.$mode.'">'.$label.'</button>';
             $html.='</div></section>';
         }
         return $html.($a['show_copy']==='1'?'<p class="oc-permalink">'.self::day_link($day['date'],'Ссылка на этот день').' <button type="button" data-oc-copy-link>Скопировать ссылку</button></p>':'').'</div>';
@@ -337,6 +342,14 @@ final class Orthocal_Plugin {
             $html.='</p></div></details>';
         }
         return $html.(empty($data['texts'])?'<p>В этой части библиотеки пока нет текстов с выбранными параметрами.</p>':'');
+    }
+    static function service($data,$a) {
+        $html='<section class="oc-horologion"><p class="oc-muted">Часослов · шестой час · '.esc_html(self::date_label($data['date']??$a['date'])).'</p>';
+        foreach (($data['assignments']??[]) as $item) {
+            $html.='<details><summary>'.esc_html($item['title']??'Текст службы').'</summary><div class="oc-verses" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></details>';
+        }
+        foreach (($data['expansions']??[]) as $item) $html.='<p class="oc-muted">'.esc_html($item['label']??$item['id']??'').'</p>';
+        return $html.'</section>';
     }
     static function throttle() {
         // Bound public proxy traffic. No forwarded headers or arbitrary upstream URL accepted.

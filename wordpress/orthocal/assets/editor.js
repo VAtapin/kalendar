@@ -1,6 +1,6 @@
 (() => {
   const el=wp.element.createElement;
-  const titles={today:'Сегодня',upcoming:'Ближайшие праздники',month:'Календарь на месяц',year:'Календарь на год',day:'День календаря',readings:'Чтения дня',calendar:'Православный календарь',fasting:'Пост и трапеза',saints:'Памяти святых',feasts:'Праздники',memorial:'Поминальные дни',pascha:'Пасха',fasts:'Посты на год',date:'Дата по двум стилям',texts:'Богослужебные тексты',troparia:'Тропари',kontakia:'Кондаки',prayers:'Молитвы',magnifications:'Величания'};
+  const titles={today:'Сегодня',upcoming:'Ближайшие праздники',month:'Календарь на месяц',year:'Календарь на год',day:'День календаря',readings:'Чтения дня',calendar:'Православный календарь',fasting:'Пост и трапеза',saints:'Памяти святых',feasts:'Праздники',memorial:'Поминальные дни',pascha:'Пасха',fasts:'Посты на год',date:'Дата по двум стилям',texts:'Богослужебные тексты',troparia:'Тропари',kontakia:'Кондаки',prayers:'Молитвы',magnifications:'Величания',horologion:'Часослов'};
   for(const [mode,title] of Object.entries(titles)) wp.blocks.registerBlockType('orthocal/'+mode,{
     title:'Православный календарь: '+title,icon:'calendar-alt',category:'widgets',
     edit({attributes,setAttributes}) {
