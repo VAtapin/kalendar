@@ -124,6 +124,8 @@
         if (cfg.open==='new') { const url=new URL(date.href||window.location.href); url.searchParams.set('orthocal_date',d); window.open(url.href,'_blank','noopener'); return; }
         render({mode:'day',date:d,year:d.slice(0,4),month:Number(d.slice(5,7)),open:'inline'},cfg.open==='modal'?'modal':!!root.querySelector(':scope > .oc-detail'));
       }
+      const icon=event.target.closest('[data-oc-icon]');
+      if(icon){event.preventDefault();const body=document.createElement('div');body.className='oc-icon-view';const image=document.createElement('img');image.src=icon.href;image.alt=icon.dataset.ocIconTitle||'';const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||'Икона';body.append(title,image);if(icon.dataset.ocIconDescription){const description=document.createElement('p');description.textContent=icon.dataset.ocIconDescription;body.append(description);}popup(body,icon.dataset.ocIconTitle||'Икона');}
       const day=event.target.closest('[data-oc-day]');if(day)render({date:day.dataset.ocDay});
       const library=event.target.closest('[data-oc-library]');if(library)void render({mode:library.dataset.ocLibrary,scope:'',tone:'',weekday:'',text_id:''},'modal');
       if(event.target.closest('[data-oc-copy-link]'))void copy(root.querySelector('.oc-permalink a').href,status);
