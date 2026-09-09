@@ -1,39 +1,42 @@
 (() => {
   const root=document.querySelector('[data-oc-admin]');if(!root)return;
-  function tab(name) {
-    root.querySelectorAll('[data-oc-panel]').forEach(panel=>panel.hidden=panel.dataset.ocPanel!==name);
-    root.querySelectorAll('[data-oc-tab]').forEach(link=>{link.classList.toggle('nav-tab-active',link.dataset.ocTab===name);if(link.dataset.ocTab===name)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
-    root.querySelector('[data-oc-save]').hidden=['shortcodes','help'].includes(name);
+  const endpoint=action=>{const url=new URL(root.dataset.endpoint);if(url.searchParams.has('rest_route'))url.searchParams.set('rest_route',url.searchParams.get('rest_route').replace(/\/$/,'')+'/'+action);else url.pathname+=action;return url;};
+  const panel=name=>{
+    root.querySelectorAll('[data-oc-panel]').forEach(item=>item.hidden=item.dataset.ocPanel!==name);
+    root.querySelectorAll('[data-oc-tab]').forEach(link=>link.classList.toggle('nav-tab-active',link.dataset.ocTab===name));
+  };
+  panel(root.dataset.activeTab);
+  root.querySelectorAll('[data-oc-tab]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();panel(link.dataset.ocTab);history.replaceState(null,'',link.href);}));
+  async function copy(text,status){try{await navigator.clipboard.writeText(text);status.textContent='Шорткод скопирован.';}catch{status.textContent='Выделите строку и скопируйте вручную.';}}
+  const fields=[...root.querySelectorAll('[data-oc-build]')], code=root.querySelector('#oc-generated-code'), status=root.querySelector('[data-oc-generator-status]'), preview=root.querySelector('[data-oc-preview-slot]');
+  const mode=()=>root.querySelector('[data-oc-build="mode"]')?.value||'today';
+  const values=()=>{
+    const value={};
+    for(const input of fields){if(input.closest('[data-oc-build-wrap]')?.hidden)continue;if(input.type==='checkbox')value[input.dataset.ocBuild]=input.checked?'1':'0';else if(input.value!=='')value[input.dataset.ocBuild]=input.value;}
+    const sections=[...root.querySelectorAll('[data-oc-build-section]')].filter(input=>input.checked).map(input=>input.dataset.ocBuildSection);
+    value.sections=sections.join(',');return value;
+  };
+  function visibility(){
+    const selected=mode(), texts=['texts','troparia','kontakia','prayers','magnifications'].includes(selected), day=['today','day','calendar','month','year','readings','fasting','saints','date'].includes(selected);
+    const enabled={date:!texts,year:['month','year','calendar','fasts','pascha'].includes(selected),month:['month','calendar'].includes(selected),limit:['upcoming','feasts','memorial'].includes(selected),filter:['upcoming','feasts'].includes(selected),image_pack:['today','day','fasting','calendar'].includes(selected),sections:day,images:day,icons:day,reading_open:['today','day','readings','calendar','month','year'].includes(selected),open:['upcoming','feasts','memorial','pascha','month','year','calendar'].includes(selected),day_page:['upcoming','feasts','memorial','pascha','month','year','calendar'].includes(selected),translation:['today','day','readings','calendar','month','year'].includes(selected),scope:texts,tone:texts,weekday:texts,text_id:texts,profile:!texts,oldstyle:!texts};
+    root.querySelectorAll('[data-oc-build-wrap]').forEach(wrap=>wrap.hidden=enabled[wrap.dataset.ocBuildWrap]===false);
   }
-  tab(root.dataset.activeTab);
-  root.querySelectorAll('[data-oc-tab]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();tab(link.dataset.ocTab);history.replaceState(null,'',link.href);}));
-  const fields=[...root.querySelectorAll('[data-oc-build]')];const output=root.querySelector('#oc-generated-code');
-  function values(){return Object.fromEntries(fields.filter(input=>!input.closest('label').hidden).map(input=>[input.dataset.ocBuild,input.value]).filter(([,v])=>v!==''));}
   function generate(){
-    const mode=root.querySelector('[data-oc-build="mode"]').value;
-    const texts=['texts','troparia','kontakia','prayers','magnifications'].includes(mode);
-    const allowed={date:!texts,year:['month','year','calendar','fasts','pascha'].includes(mode),month:['month','calendar'].includes(mode),limit:['upcoming','feasts','memorial'].includes(mode),filter:['upcoming','feasts'].includes(mode),tone:texts,weekday:texts,scope:texts,text_id:texts,image_pack:['today','day','fasting','calendar'].includes(mode)};
-    fields.forEach(input=>input.closest('label').hidden=allowed[input.dataset.ocBuild]===false);
-    const {mode:_,...attrs}=values();output.value='[orthocal_'+mode+Object.entries(attrs).map(([key,value])=>' '+key+'="'+value.replace(/["<>\[\]]/g,'')+'"').join('')+']';
+    if(!code)return;visibility();const attrs=values();delete attrs.mode;code.value='[orthocal_'+mode()+Object.entries(attrs).filter(([,value])=>value!==''&&value!=='0').map(([name,value])=>' '+name+'="'+String(value).replace(/["<>\[\]]/g,'')+'"').join('')+']';
   }
-  fields.forEach(input=>input.addEventListener('input',generate));generate();
-  async function copy(text,status){try{await navigator.clipboard.writeText(text);status.textContent='Скопировано.';}catch{status.textContent='Выделите строку и скопируйте вручную.';}}
-  root.querySelector('[data-oc-copy-code]').addEventListener('click',()=>copy(output.value,root.querySelector('[data-oc-generator-status]')));
-  root.querySelectorAll('[data-oc-copy-example]').forEach(button=>button.addEventListener('click',()=>copy(button.dataset.ocCopyExample,root.querySelector('[data-oc-help-status]'))));
-  root.querySelector('[data-oc-help-search]').addEventListener('input',event=>root.querySelectorAll('[data-oc-help-item]').forEach(item=>item.hidden=!item.textContent.toLocaleLowerCase().includes(event.target.value.toLocaleLowerCase())));
-  function endpoint(action){const url=new URL(root.dataset.endpoint);if(url.searchParams.has('rest_route'))url.searchParams.set('rest_route',url.searchParams.get('rest_route').replace(/\/$/,'')+'/'+action);else url.pathname+=action;return url;}
-  root.querySelector('[data-oc-preview]').addEventListener('click',async()=>{
-    const status=root.querySelector('[data-oc-generator-status]');status.textContent='Загрузка…';
-    try{const url=endpoint('render');for(const [key,value] of Object.entries(values()))url.searchParams.set(key,value);const response=await fetch(url);const value=await response.json();if(!response.ok)throw new Error(value.message||'Ошибка запроса');
-      const doc=new DOMParser().parseFromString(value.html,'text/html');const block=doc.querySelector('.orthocal');if(!block)throw new Error('Блок не получен.');
-      const slot=root.querySelector('[data-oc-preview-slot]');slot.replaceChildren(block);window.OrthocalInit?.(slot);status.textContent='Предпросмотр по сохранённым настройкам.';
-    }catch(error){status.textContent=error.message;}
+  let previewTimer;
+  async function updatePreview(){
+    if(!preview)return;const attrs=values();attrs.mode=mode();status.textContent='Обновляю предпросмотр…';
+    try{const url=endpoint('render');for(const [name,value] of Object.entries(attrs))url.searchParams.set(name,value);const response=await fetch(url,{headers:{Accept:'application/json'}});const data=await response.json();if(!response.ok)throw new Error(data.message||'Не удалось получить блок.');const doc=new DOMParser().parseFromString(data.html,'text/html'),block=doc.querySelector('.orthocal');if(!block)throw new Error('Блок не получен.');preview.replaceChildren(block);window.OrthocalInit?.(preview);status.textContent='Предпросмотр обновлён.';}catch(error){preview.replaceChildren();status.textContent=error.message;}
+  }
+  function changed(){generate();clearTimeout(previewTimer);previewTimer=setTimeout(updatePreview,350);}
+  fields.forEach(input=>input.addEventListener(input.type==='checkbox'||input.tagName==='SELECT'?'change':'input',changed));root.querySelectorAll('[data-oc-build-section]').forEach(input=>input.addEventListener('change',changed));
+  root.querySelector('[data-oc-copy-code]')?.addEventListener('click',()=>copy(code.value,status));root.querySelector('[data-oc-preview]')?.addEventListener('click',()=>{clearTimeout(previewTimer);updatePreview();});
+  generate();if(root.dataset.activeTab==='shortcodes')void updatePreview();
+  root.querySelectorAll('[data-oc-tab="shortcodes"]').forEach(link=>link.addEventListener('click',()=>{if(!preview?.children.length)void updatePreview();}));
+  root.querySelector('[data-oc-load-translations]')?.addEventListener('click',async()=>{
+    const info=root.querySelector('[data-oc-admin-status]'), button=root.querySelector('[data-oc-load-translations]');info.textContent='Загрузка каталога…';button.disabled=true;
+    try{const response=await fetch(endpoint('bible')+'?path=translations',{headers:{Accept:'application/json'}}),data=await response.json();if(!response.ok)throw new Error(data.message||'BibleDesktop вернул ошибку.');if(!Array.isArray(data))throw new Error('BibleDesktop вернул неожиданный формат каталога.');const select=root.querySelector('[data-oc-admin-translations]');select.replaceChildren(new Option('Выберите перевод',''));for(const item of data)if(typeof item.code==='string'&&item.language?.code)select.add(new Option(item.language.code+' · '+item.name+' ('+item.code+')',item.code));select.hidden=false;info.textContent=data.length?'Каталог загружен: '+data.length+' переводов.':'В BibleDesktop пока нет активных переводов.';}catch(error){info.textContent=error.message;}finally{button.disabled=false;}
   });
-  root.querySelector('[data-oc-load-translations]').addEventListener('click',async()=>{
-    const status=root.querySelector('[data-oc-admin-status]');status.textContent='Загрузка каталога…';
-    try{const url=endpoint('bible');url.searchParams.set('path','translations');const response=await fetch(url);const value=await response.json();if(!response.ok||!Array.isArray(value))throw new Error(value.message||'Каталог недоступен');
-      const select=root.querySelector('[data-oc-admin-translations]');select.replaceChildren(new Option('Выберите перевод',''));for(const t of value)select.add(new Option((t.language?.code||'')+' · '+t.name+' ('+t.code+')',t.code));select.hidden=false;status.textContent='Выбор подставит код в поле. Затем сохраните настройки.';
-    }catch(error){status.textContent=error.message;}
-  });
-  root.querySelector('[data-oc-admin-translations]').addEventListener('change',event=>root.querySelector('[name="orthocal_options[translation]"]').value=event.target.value);
+  root.querySelector('[data-oc-admin-translations]')?.addEventListener('change',event=>root.querySelector('[name="orthocal_options[translation]"]').value=event.target.value);
 })();

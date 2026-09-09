@@ -53,5 +53,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
             for($n=1;$n<=180;$n++) if($code!=='test-missing'||$n!==2) $value['verses'][]=['number'=>$n,'plain_text'=>'Тестовый стих '.$n.'. Текст получен через отдельный API.'];
         }
     }
+    // BibleDesktop production wraps successful API payloads in {data: ...}; calendar API does not.
+    if(!$calendar)$value=['data'=>$value];
     return ['headers'=>['x-calendar-application-cache-ttl'=>$calendar?'300':'0'],'body'=>wp_json_encode($value),'response'=>['code'=>$status,'message'=>'OK'],'cookies'=>[]];
 },10,3);

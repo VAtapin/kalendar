@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Православный календарь — Календарная мастерская
  * Description: Сегодня, праздники, месяц, год и библейские чтения через API календаря и BibleDesktop.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * License: GPL-2.0-or-later
