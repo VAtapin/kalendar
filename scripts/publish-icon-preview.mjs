@@ -27,11 +27,25 @@ for(const card of Object.values(db.records).filter(r=>['mother-of-god','savior',
   if(additions.length>=max)break;
 }
 if(additions.length<10&&!process.argv.includes('--flush')&&!process.argv.includes('--all')){console.log('WAIT: '+additions.length+' new images; batch threshold 10');process.exit(0);}
-if(!additions.length){console.log('NO_CHANGES');process.exit(0);}
+if(!additions.length&&!process.argv.includes('--all')){console.log('NO_CHANGES');process.exit(0);}
 const images=[...prior.images,...additions];
 const result={schemaVersion:1,version:new Date().toISOString(),status:'published',
   assignment:'calendar-confirmed',rightsReviewed:true,mappingReviewed:true,count:images.length,
   cardCount:new Set(images.map(i=>i.sourceUrl)).size,contentHash:createHash('sha256').update(JSON.stringify(images)).digest('hex'),images};
 writeFileSync(target+'.tmp',JSON.stringify(result,null,2)+'\n');renameSync(target+'.tmp',target);
 execFileSync(process.execPath,['scripts/enrich-icon-preview-pages.mjs'],{stdio:'inherit'});
-console.log('PUBLISHED_PREVIEW',JSON.stringify({added:additions.length,total:images.length,cards:result.cardCount}));
+const publication=JSON.parse(readFileSync(target,'utf8'));
+const records=Object.values(db.records);
+publication.publication={
+  publishedAt:new Date().toISOString(),
+  publishedImages:publication.images.length,
+  publishedCards:publication.cards.length,
+  sourceRecords:records.length,
+  downloadedCards:records.filter(record=>record.status==='downloaded').length,
+  metadataOnlyCards:records.filter(record=>record.status==='metadata').length,
+  pendingCards:records.filter(record=>record.status==='pending').length,
+  sourceMissingCards:records.filter(record=>record.status==='source-missing').length,
+  complete:records.every(record=>!['pending','metadata'].includes(record.status)),
+};
+writeFileSync(target+'.tmp',JSON.stringify(publication,null,2)+'\n');renameSync(target+'.tmp',target);
+console.log('PUBLISHED_PREVIEW',JSON.stringify({added:additions.length,total:publication.images.length,cards:publication.cards.length,publication:publication.publication}));
