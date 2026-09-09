@@ -142,7 +142,9 @@
       if (event.target.checkValidity()) render({year:event.target.value});
     });
     root.querySelector('[data-oc-picker]')?.addEventListener('change',event=>{if(event.target.checkValidity()&&event.target.value)void render({date:event.target.value});});
-    root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:''})));
+      root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:''})));
+    root.querySelector('[data-oc-service-lang]')?.addEventListener('change',event=>void render({lang:event.target.value},'modal'));
+    root.querySelector('[data-oc-service-office]')?.addEventListener('change',event=>void render({office:event.target.value},'modal'));
     root.querySelector('[data-oc-event-search]')?.addEventListener('input',event=>{
       const query=event.target.value.toLocaleLowerCase().trim();let shown=0;
       root.querySelectorAll('.oc-events li').forEach(item=>{item.hidden=!item.textContent.toLocaleLowerCase().includes(query);if(!item.hidden)shown++;});
