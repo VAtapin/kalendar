@@ -108,16 +108,18 @@ function calendar_public_year(array $manifest, string $runtimeDirectory, int $ye
 }
 
 function calendar_public_routes(string $method, string $path): void {
-    if (($path === '/v1/calendar-demo' || str_starts_with($path, '/v1/calendar-demo/')) && $path !== '/v1/calendar-demo/day') {
+    $demoActions = ['/v1/calendar-demo/day' => '/v1/calendar/day', '/v1/calendar-demo/month' => '/v1/calendar/month'];
+    if (($path === '/v1/calendar-demo' || str_starts_with($path, '/v1/calendar-demo/')) && !isset($demoActions[$path])) {
         calendar_fail('not_found', 404);
     }
-    $demo = $path === '/v1/calendar-demo/day';
+    $demoAction = $demoActions[$path] ?? null;
+    $demo = $demoAction !== null;
     if ($demo) {
         header('Cache-Control: private, no-store');
         header('Allow: POST');
         if ($method !== 'POST') calendar_fail('method_not_allowed', 405);
         // Browser-only demo boundary, not an API credential. Non-browser clients
-        // can imitate headers; this route intentionally exposes only public day data.
+        // can imitate headers; these routes intentionally expose only public day/month data.
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $origin = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
         $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
@@ -128,9 +130,9 @@ function calendar_public_routes(string $method, string $path): void {
             || api_header('Sec-Fetch-Site') !== 'same-origin'
             || api_header('X-Calendar-Demo') !== '1'
             || !in_array(strtok($referer, '?'), [$origin . '/calendar-api-test', $origin . '/web-calendar', $origin . '/calendar-api-test/', $origin . '/web-calendar/', $origin . '/calendar-api-test.html', $origin . '/web-calendar.html'], true)) {
-            calendar_fail('demo_page_required', 403, 'Откройте тестовую страницу на сайте Календарной мастерской.');
+            calendar_fail('demo_page_required', 403, 'Откройте страницу календаря на сайте Календарной мастерской.');
         }
-        $path = '/v1/calendar/day';
+        $path = $demoAction;
         $method = 'GET';
     }
     if ($path !== '/v1/calendar' && !str_starts_with($path, '/v1/calendar/')) return;

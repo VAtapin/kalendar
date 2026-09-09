@@ -11,7 +11,7 @@ try {
   const page=await browser.newPage({locale:'ru-RU'});
   // Only navigation is under test; no live calendar service or account is needed.
   await page.route('**/api/**',route=>route.fulfill({status:503,json:{error:'offline-test'}}));
-  for(const [path,title] of [['/icons','Православные иконы'],['/web-calendar','Веб-календарь']]) {
+  for(const [path,title] of [['/icons','Православные иконы'],['/web-calendar','Православный веб-календарь']]) {
     await page.goto(origin+'/');
     const response=page.waitForResponse(r=>r.request().isNavigationRequest()&&new URL(r.url()).pathname===path,{timeout:5000});
     await Promise.all([response,page.locator(`a[href="${path}"]`).click()]);
