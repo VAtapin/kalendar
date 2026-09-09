@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.0';
+    const VERSION = '1.3.1';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     private static $file;
@@ -261,6 +261,13 @@ final class Orthocal_Plugin {
         if($code>=6&&$code<=8)return '3';
         return '4';
     }
+    static function event_allowed($event,$levels): bool {
+        if (!is_array($event) || ($event['category']??'')!=='commemoration') return false;
+        $levels=array_values(array_filter(array_map('trim',explode(',',(string)$levels))));
+        // An empty selection is treated as “all”, so an incomplete shortcode
+        // can never make the whole holidays and memorials section disappear.
+        return !$levels || in_array(self::event_level($event['typeCode']??-1),$levels,true);
+    }
     static function day($day,$a) {
         $only=['fasting'=>'fasting','saints'=>'saints','readings'=>'readings','date'=>''];
         $sections=isset($only[$a['mode']])?[$only[$a['mode']]]:explode(',',$a['sections']);
@@ -283,7 +290,7 @@ final class Orthocal_Plugin {
         if(in_array('saints',$sections,true)) {
             $html.='<section class="oc-saints-section"><h3>Праздники и памяти</h3><label class="oc-search">Найти в памятях дня <input type="search" data-oc-event-search placeholder="Имя или название"></label><ul class="oc-events">';
             foreach ($day['events'] as $event) {
-                if ($event['category']!=='commemoration' || !in_array(self::event_level($event['typeCode']??-1),explode(',',$a['event_levels'],true),true)) continue;
+                if (!self::event_allowed($event,$a['event_levels'])) continue;
                 $mark=$event['typikonMark'] ?? null;
                 $html .= '<li'.(($event['typeCode']>=0 && $event['typeCode']<=2)?' class="oc-red"':'').'>';
                 $local=$a['images']==='1'&&$mark?Orthocal_Media_Cache::url($mark['svgSource']??''):'';
