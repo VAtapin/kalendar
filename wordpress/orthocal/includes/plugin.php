@@ -284,7 +284,7 @@ final class Orthocal_Plugin {
             if($a['show_picker']==='1')$html.='<label class="oc-date-picker"><span class="screen-reader-text">Выбрать дату</span><input type="date" aria-label="Выбрать дату" data-oc-picker min="1900-01-01" max="2200-12-31" value="'.esc_attr($day['date']).'"></label>';
             $html.=($a['show_nav']==='1'||$a['show_picker']==='1')?'</nav>':'';
         }
-        if(in_array('icons',$sections,true) && $a['icons']==='1')$html.=self::icons_slot($day,$a['icon_limit']);
+        if(in_array('icons',$sections,true))$html.=self::icons_slot($day,$a['icon_limit']);
         if (in_array('fasting',$sections,true)) {
             $foodImage='';$markers=$day['foodMarkers']??[];$selected=array_values(array_filter($markers,static fn($marker)=>$marker['packId']===$a['image_pack']));
             $foodSource=$selected[0]['source']??$markers[0]['source']??'';
