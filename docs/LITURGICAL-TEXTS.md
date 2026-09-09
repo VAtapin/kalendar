@@ -86,7 +86,8 @@
 300 секунд. Фильтры HTTP: `id`, `type`, `scope`, `tone`, `weekday`, `language`;
 `subject` доступен только в чистом TypeScript-модуле. Неверный параметр даёт 400,
 неизвестный ID — 404, язык без текстов — пустую выдачу. Назначения по `date` нет.
-Ответ дополнен `assignment: reference-only`, `language`, `count`.
+Ответ дополнен `assignment: reference-only`, `language`, `count`; для
+календарного плана службы используется `/api/v1/calendar/service`.
 
 Пример: `/api/v1/calendar-texts/?type=troparion&scope=resurrection&tone=1`.
 WordPress получает корпус с сервера календаря, показывает источники, статус

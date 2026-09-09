@@ -166,7 +166,7 @@ function calendar_public_routes(string $method, string $path): void {
         'languages' => ['ru', 'cu', 'de', 'uk', 'pl'], 'defaultLanguage' => 'ru',
         'profiles' => ['typikon-strict', 'parish'], 'defaultProfile' => 'typikon-strict',
         'authentication' => ['header' => 'X-API-Key', 'public' => ['/', '/today'], 'todayTimezone' => 'Europe/Berlin'],
-        'endpoints' => ['today', 'day?date=2027-05-02', 'month?year=2027&month=5', 'year?year=2027', 'pascha?year=2027', 'upcoming?date=2027-01-01&limit=5'],
+        'endpoints' => ['today', 'day?date=2027-05-02', 'month?year=2027&month=5', 'year?year=2027', 'pascha?year=2027', 'upcoming?date=2027-01-01&limit=5', 'service?date=2027-05-02&office=sixth-hour'],
         'applicationCache' => ['maxAgeSeconds' => 300, 'staleOnError' => false, 'revocationDelaySeconds' => 300],
         'optionalParameters' => ['lang', 'profile'], 'iconImagesAvailable' => false,
         'scope' => 'Public calendar data only; no private calendars, photos or project-specific events.',
