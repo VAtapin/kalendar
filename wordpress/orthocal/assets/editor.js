@@ -23,6 +23,7 @@
           control('Навигация по дням','show_nav',[['1','Показывать'],['0','Скрыть']]),
           control('Переход к дате','show_picker',[['1','Показывать'],['0','Скрыть']]),
           control('Ссылка на день','show_copy',[['1','Показывать'],['0','Скрыть']]),
+          control('Поиск по памятям','show_search',[['1','Показывать'],['0','Скрыть']]),
           el(wp.components.TextControl,{label:'Уровни памятей (0,1,2,3,4)',value:attributes.event_levels||'0,1,2,3,4',onChange:event_levels=>setAttributes({event_levels})}),
           control('Заголовок','heading',[['1','Показывать'],['0','Скрыть']]),
           el(wp.components.TextControl,{label:'Разделы: fasting,saints,readings,texts,icons',value:attributes.sections||'',onChange:sections=>setAttributes({sections})}),
