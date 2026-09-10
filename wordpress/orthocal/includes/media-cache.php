@@ -4,13 +4,15 @@ if (!defined('ABSPATH')) exit;
 /** Public calendar media only. No arbitrary remote URLs, credentials or PHP uploads. */
 final class Orthocal_Media_Cache {
     const ORIGIN = 'https://kalender.georg-kloster.ru';
+    const BIBLE_DESKTOP_ORIGIN = 'https://bible-desktop.com';
     private static $started;
     static function boot() { add_action('orthocal_refresh_asset',[self::class,'refresh'],10,1); }
     static function source($path) {
         if (!is_string($path)) return false;
         if (str_starts_with($path,self::ORIGIN.'/')) $path=substr($path,strlen(self::ORIGIN));
+        if (preg_match('#^https://bible-desktop\.com/storage/calendar-icons/[a-f0-9]{64}\.(?:png|svg|webp|jpg|jpeg|gif)$#D',$path)) return $path;
         if ($path==='/calendar-api-font.php') return $path;
-        if (!preg_match('~^/assets/(?:markers|typikon|icons)/[a-zA-Z0-9_/-]+\.(?:png|svg|webp|jpg|jpeg)$~D',$path) || str_contains($path,'//')) return false;
+        if (!preg_match('~^/assets/(?:markers|typikon|icons)/[a-zA-Z0-9_/-]+\.(?:png|svg|webp|jpg|jpeg|gif)$~D',$path) || str_contains($path,'//')) return false;
         return $path;
     }
     static function directory() {
@@ -22,7 +24,7 @@ final class Orthocal_Media_Cache {
         return ['path'=>$dir,'url'=>$upload['baseurl'].'/orthocal-cache'];
     }
     static function metadata($path) { return get_option('orthocal_media_'.hash('sha256',$path),[]); }
-    static function file_valid($name) { return is_string($name) && preg_match('/^[a-f0-9]{64}\.(png|svg|webp|jpg|jpeg|ttf)$/D',$name); }
+    static function file_valid($name) { return is_string($name) && preg_match('/^[a-f0-9]{64}\.(png|svg|webp|jpg|jpeg|gif|ttf)$/D',$name); }
     static function local($meta,$dir) {
         return !empty($meta['file']) && self::file_valid($meta['file']) && is_file($dir['path'].'/'.$meta['file']) && !is_link($dir['path'].'/'.$meta['file']) ? $dir['url'].'/'.$meta['file'] : '';
     }
@@ -45,11 +47,11 @@ final class Orthocal_Media_Cache {
         return self::local(self::metadata($path),$dir);
     }
     static function validate_body($body,$ext) {
-        if (!is_string($body) || $body==='' || strlen($body)>5*1024*1024) return false;
+        if (!is_string($body) || $body==='' || strlen($body)>10*1024*1024) return false;
         if ($ext==='ttf') return in_array(substr($body,0,4),["\x00\x01\x00\x00",'OTTO'],true) ? $body : false;
         if ($ext!=='svg') {
             $info=@getimagesizefromstring($body);
-            $mime=['png'=>'image/png','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','webp'=>'image/webp'];
+            $mime=['png'=>'image/png','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','webp'=>'image/webp','gif'=>'image/gif'];
             return $info && ($info['mime']??'')===($mime[$ext]??'') && $info[0]*$info[1]<=24000000 ? $body : false;
         }
         if (!class_exists('DOMDocument') || preg_match('/<!DOCTYPE|<!ENTITY/i',$body)) return false;
@@ -96,7 +98,8 @@ final class Orthocal_Media_Cache {
                 if (!empty($meta['etag'])) $headers['If-None-Match']=$meta['etag'];
                 if (!empty($meta['modified'])) $headers['If-Modified-Since']=$meta['modified'];
             }
-            $response=wp_safe_remote_get(self::ORIGIN.$path,['timeout'=>5,'redirection'=>0,'headers'=>$headers,'limit_response_size'=>5*1024*1024+1]);
+            $remote=str_starts_with($path,'https://')?$path:self::ORIGIN.$path;
+            $response=wp_safe_remote_get($remote,['timeout'=>5,'redirection'=>0,'headers'=>$headers,'limit_response_size'=>10*1024*1024+1]);
             $code=is_wp_error($response)?0:wp_remote_retrieve_response_code($response);
             $key='orthocal_media_'.hash('sha256',$path);
             if ($code===304 && self::local($meta,$dir)) {

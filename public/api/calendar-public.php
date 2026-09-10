@@ -174,7 +174,7 @@ function calendar_public_routes(string $method, string $path): void {
         'authentication' => ['header' => 'X-API-Key', 'public' => ['/', '/today'], 'todayTimezone' => 'Europe/Berlin'],
         'endpoints' => ['today', 'day?date=2027-05-02', 'month?year=2027&month=5', 'year?year=2027', 'pascha?year=2027', 'upcoming?date=2027-01-01&limit=5', 'service?date=2027-05-02&office=sixth-hour'],
         'applicationCache' => ['maxAgeSeconds' => 300, 'staleOnError' => false, 'revocationDelaySeconds' => 300],
-        'optionalParameters' => ['lang', 'profile'], 'iconImagesAvailable' => false,
+        'optionalParameters' => ['lang', 'profile'], 'iconImagesAvailable' => true,
         'scope' => 'Public calendar data only; no private calendars, photos or project-specific events.',
     ], $method);
     $language = calendar_public_parameter('lang', 'ru'); $profile = calendar_public_parameter('profile', 'typikon-strict');
@@ -227,7 +227,10 @@ function calendar_public_routes(string $method, string $path): void {
         calendar_public_response(['metadata' => $value['metadata'], 'from' => $date, 'until' => min($end, '2200-12-31'), 'items' => $items], $method);
     }
     if ($action === '/day') {
-        foreach ($value['days'] as $day) if ($day['date'] === $date) calendar_public_response(['metadata' => $value['metadata'], 'day' => $day], $method);
+        foreach ($value['days'] as $day) if ($day['date'] === $date) {
+            $day['icons'] = calendar_bible_desktop_icons($date);
+            calendar_public_response(['metadata' => $value['metadata'], 'day' => $day], $method);
+        }
         calendar_fail('date_not_found', 404);
     }
     if ($action === '/pascha') calendar_public_response(['metadata' => $value['metadata'], 'year' => $year, 'pascha' => $value['pascha']], $method);

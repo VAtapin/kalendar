@@ -15,6 +15,27 @@ function calendar_bible_desktop_texts(array $query = []): array {
     return $payload;
 }
 
+/** Standard Bible Desktop icon catalog; an unavailable catalog must not stop calendar calculation. */
+function calendar_bible_desktop_icons(string $date): array {
+    if (!preg_match('/^\d{4}-(\d{2}-\d{2})$/', $date, $match)) return [];
+    $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');
+    $url = $base.'/calendar/icons?'.http_build_query(['month_day'=>$match[1], 'per_page'=>100], '', '&', PHP_QUERY_RFC3986);
+    $headers = ['Accept: application/json'];
+    $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
+    if ($key !== '') $headers[] = 'X-API-Key: '.$key;
+    $context = stream_context_create(['http'=>['method'=>'GET','timeout'=>15,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)], 'https'=>['method'=>'GET','timeout'=>15,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)]]);
+    $body = @file_get_contents($url, false, $context);
+    $payload = is_string($body) ? json_decode($body, true) : null;
+    if (!is_array($payload) || !is_array($payload['data'] ?? null)) return [];
+    return array_values(array_filter(array_map(static function ($entry): ?array {
+        if (!is_array($entry) || !is_string($entry['title'] ?? null) || !is_array($entry['images'] ?? null)) return null;
+        $image = $entry['images'][0] ?? null;
+        if (!is_array($image) || !is_string($image['url'] ?? null) || !preg_match('#^https://bible-desktop\.com/storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)$#D', $image['url'])) return null;
+        return ['eventId'=>'calendar-icon-'.$entry['id'], 'id'=>$entry['id'], 'title'=>$entry['title'], 'description'=>$entry['description'] ?? '', 'imageUrl'=>$image['url'],
+            'width'=>$image['width'] ?? null, 'height'=>$image['height'] ?? null, 'sha256'=>$image['sha256'] ?? null];
+    }, $payload['data'])));
+}
+
 /** Reference texts are proxied only for calendar clients during the cutover. */
 function calendar_texts_routes(string $method,string $path): void {
     if(!in_array($path,['/v1/calendar-texts','/v1/calendar-texts/'],true))return;
