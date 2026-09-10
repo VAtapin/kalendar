@@ -1,138 +1,105 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Православные иконы — Календарная мастерская</title><meta name="description" content="Иконная библиотека: образы Богородицы, святые, дни празднования, история и тематические подборки."><link rel="canonical" href="https://kalender.georg-kloster.ru/icons"><style>
 :root{--ink:#19372c;--muted:#617168;--paper:#f5f2ea;--card:#fff;--line:#d9d4c4;--accent:#8c3d2d}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1280px;margin:auto;padding:32px 20px 64px}a{color:#285d46}h1{font:clamp(32px,5vw,52px)/1.1 Georgia,serif;margin:16px 0 8px}.lead{max-width:760px;color:var(--muted)}.filters{display:grid;grid-template-columns:2fr repeat(5,minmax(140px,1fr));gap:12px;background:#fffdf8;border:1px solid var(--line);border-radius:14px;padding:16px;margin:28px 0 18px}input,select,button{font:inherit}input,select{width:100%;padding:10px;border:1px solid #b9c5ba;border-radius:8px;background:#fff}.status{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}.picture{padding:0;border:0;background:#eee8db;cursor:zoom-in}.picture img{display:block;width:100%;height:320px;object-fit:contain}.card-body{padding:16px}.card h2{font:700 20px/1.25 Georgia,serif;margin:0 0 9px}.meta{margin:8px 0;color:var(--muted);font-size:14px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{font-size:13px;padding:2px 8px;border-radius:999px;background:#edf1ec}.history{margin-top:12px}.history summary{cursor:pointer;font-weight:600}.history p{white-space:pre-line}.pages{display:flex;gap:8px;justify-content:center;margin-top:28px}.pages button{min-width:38px;padding:7px;border:1px solid var(--line);border-radius:7px;background:white;cursor:pointer}.pages button[aria-current]{background:var(--accent);color:white;border-color:var(--accent)}dialog{width:min(96vw,1050px);border:0;border-radius:14px;padding:0;background:#1f201e;color:white}dialog::backdrop{background:#000b}.modal{position:relative;padding:18px}.modal button{position:absolute;right:15px;top:12px;border:0;border-radius:50%;background:#fff;color:#222;width:36px;height:36px;cursor:pointer}.modal img{display:block;width:100%;max-height:82vh;object-fit:contain}.thumbs{display:flex;gap:8px;overflow:auto;margin-top:10px}.thumbs img{width:72px;height:72px;object-fit:cover;border:2px solid transparent;cursor:pointer}.thumbs img.active{border-color:#e4bb71}@media(max-width:850px){.filters{grid-template-columns:1fr 1fr}.filters label:first-child{grid-column:1/-1}.picture img{height:280px}}@media(max-width:480px){.filters{grid-template-columns:1fr}}
-</style></head><body><main><a href="https://kalender.georg-kloster.ru/">← Календарная мастерская</a><h1>Православные иконы</h1><p class="lead">Образы Богородицы, святые и другие иконы: дни празднования, история образов и тематические подборки Календарной мастерской.</p><section class="filters" aria-label="Фильтры"><label>Поиск<input id="search" type="search" placeholder="Название иконы"></label><label>Раздел<select id="kind"><option value="">Все иконы</option></select></label><label>Место<select id="place"><option value="">Все места</option></select></label><label>Тема<select id="theme"><option value="">Все темы</option></select></label><label>Празднование<select id="day"><option value="">Все дни</option></select></label><label>На странице<select id="page-size"><option value="6">6 икон</option><option value="12" selected>12 икон</option><option value="24">24 иконы</option><option value="48">48 икон</option></select></label></section><p class="status" id="status" role="status">Загрузка библиотеки…</p><div class="grid" id="gallery"></div><nav class="pages" id="pages" aria-label="Страницы"></nav></main><dialog id="lightbox"><div class="modal"><button aria-label="Закрыть">×</button><img id="large" alt=""><div class="thumbs" id="thumbs"></div></div></dialog><script>const $ = id => document.getElementById(id);
-const state = { cards: [], page: 1, size: 12 };
-const kindLabel = kind => ({ "mother-of-god": "Иконы Богородицы", savior: "Иконы Спасителя", saint: "Иконы святых" }[kind] || kind);
+</style></head><body><main><a href="https://kalender.georg-kloster.ru/">← Календарная мастерская</a><h1>Православные иконы</h1><p class="lead">Образы Богородицы, святые и другие иконы: дни празднования, история образов и тематические подборки Календарной мастерской.</p><section class="filters" aria-label="Фильтры"><label>Поиск<input id="search" type="search" placeholder="Название иконы"></label><label>Раздел<select id="kind"><option value="">Все иконы</option><option value="mother-of-god">Иконы Богородицы</option><option value="savior">Иконы Спасителя</option><option value="saint">Иконы святых</option><option value="other">Другие иконы</option></select></label><label>Празднование<input id="day" type="text" inputmode="numeric" pattern="[0-9]{2}-[0-9]{2}" placeholder="ММ-ДД, например 07-01"></label><label>На странице<select id="page-size"><option value="6">6 икон</option><option value="12" selected>12 икон</option><option value="24">24 иконы</option><option value="48">48 икон</option></select></label></section><p class="status" id="status" role="status">Загрузка библиотеки…</p><div class="grid" id="gallery"></div><nav class="pages" id="pages" aria-label="Страницы"></nav></main><dialog id="lightbox"><div class="modal"><button aria-label="Закрыть">×</button><img id="large" alt=""><div class="thumbs" id="thumbs"></div></div></dialog><script>
+const $ = id => document.getElementById(id);
+const API = "https://bible-desktop.com/api/calendar/icons";
+const state = { page: 1, size: 12, total: 0, cards: [] };
+const kindLabel = kind => ({ "mother-of-god": "Иконы Богородицы", savior: "Иконы Спасителя", saint: "Иконы святых", other: "Другие иконы" }[kind] || kind);
 
-const values = key => [...new Set(
-  key === "celebrations"
-    ? state.cards.flatMap(card => (card.celebrations || []).map(day => day.label))
-    : state.cards.flatMap(card => card[key] || [])
-)].sort((left, right) => left.localeCompare(right, "ru"));
-
-function fill(id, items) {
-  for (const value of items) {
-    const option = new Option(id === "kind" ? kindLabel(value) : value, value);
-    $(id).add(option);
-  }
-}
-
-function filtered() {
-  const query = $("search").value.trim().toLocaleLowerCase();
+function requestParams() {
+  const params = new URLSearchParams({ page: String(state.page), per_page: String(state.size) });
+  const query = $("search").value.trim();
   const kind = $("kind").value;
-  const place = $("place").value;
-  const theme = $("theme").value;
   const day = $("day").value;
-  return state.cards.filter(card =>
-    (!query || [card.title, card.history, ...(card.places || []), ...(card.themes || [])].join(" ").toLocaleLowerCase().includes(query)) &&
-    (!kind || card.kind === kind) &&
-    (!place || (card.places || []).includes(place)) &&
-    (!theme || (card.themes || []).includes(theme)) &&
-    (!day || (card.celebrations || []).some(item => item.label === day))
-  );
+  if (query) params.set("query", query);
+  if (kind) params.set("kind", kind);
+  if (day) params.set("month_day", day);
+  return params;
 }
 
 function showLightbox(card) {
-  const dialog = $("lightbox");
-  const large = $("large");
-  const thumbs = $("thumbs");
+  const images = card.images || [];
+  if (!images.length) return;
+  const dialog = $("lightbox"), large = $("large"), thumbs = $("thumbs");
   const showImage = image => {
-    large.src = image.imageUrl;
-    large.alt = image.alt;
+    large.src = image.url;
+    large.alt = card.title;
     [...thumbs.children].forEach(node => node.classList.toggle("active", node.src === large.src));
   };
-  thumbs.replaceChildren(...card.images.map(image => {
+  thumbs.replaceChildren(...images.map(image => {
     const thumb = new Image();
-    thumb.src = image.imageUrl;
-    thumb.alt = image.alt;
+    thumb.src = image.url;
+    thumb.alt = card.title;
     thumb.onclick = () => showImage(image);
     return thumb;
   }));
-  showImage(card.images[0]);
+  showImage(images[0]);
   dialog.showModal();
 }
 
 function render() {
-  const cards = filtered();
-  const maxPage = Math.max(1, Math.ceil(cards.length / state.size));
-  state.page = Math.min(state.page, maxPage);
-  const view = cards.slice((state.page - 1) * state.size, state.page * state.size);
   const gallery = $("gallery");
-  gallery.replaceChildren(...view.map(card => {
+  gallery.replaceChildren(...state.cards.map(card => {
     const article = document.createElement("article");
     article.className = "card";
-    const picture = document.createElement("button");
-    picture.className = "picture";
-    const image = new Image();
-    image.src = card.images[0].imageUrl;
-    image.alt = card.title;
-    image.loading = "lazy";
-    picture.append(image);
-    picture.onclick = () => showLightbox(card);
     const body = document.createElement("div");
     body.className = "card-body";
+    const images = card.images || [];
+    if (images.length) {
+      const picture = document.createElement("button"), image = new Image();
+      picture.className = "picture";
+      image.src = images[0].url;
+      image.alt = card.title;
+      image.loading = "lazy";
+      picture.append(image);
+      picture.onclick = () => showLightbox(card);
+      article.append(picture);
+    }
     const title = document.createElement("h2");
     title.textContent = card.title;
     const dates = document.createElement("p");
     dates.className = "meta";
-    dates.textContent = "Празднование: " + (card.celebrations || []).map(item => item.label + (item.movable ? " (переходящее)" : "")).join(", ");
-    const chips = document.createElement("div");
-    chips.className = "chips";
-    for (const tag of [kindLabel(card.kind), ...(card.places || []), ...(card.themes || [])]) {
-      const chip = document.createElement("span");
-      chip.className = "chip";
-      chip.textContent = tag;
-      chips.append(chip);
+    const celebrations = card.dates || [];
+    dates.textContent = celebrations.length ? "Празднование: " + celebrations.map(item => item.label || item.monthDay).join(", ") : "Дата празднования не указана";
+    const chips = document.createElement("div"), chip = document.createElement("span");
+    chips.className = "chips"; chip.className = "chip"; chip.textContent = kindLabel(card.kind); chips.append(chip);
+    body.append(title, dates, chips);
+    if (card.description) {
+      const details = document.createElement("details"), summary = document.createElement("summary"), description = document.createElement("p");
+      details.className = "history"; summary.textContent = "История образа"; description.textContent = card.description;
+      details.append(summary, description); body.append(details);
     }
-    const details = document.createElement("details");
-    details.className = "history";
-    const summary = document.createElement("summary");
-    summary.textContent = "История образа";
-    const history = document.createElement("p");
-    history.textContent = card.history;
-    details.append(summary, history);
-    body.append(title, dates, chips, details);
-    article.append(picture, body);
+    article.append(body);
     return article;
   }));
-  $("status").textContent = cards.length + " образов · страница " + state.page + " из " + maxPage;
-  const pages = $("pages");
-  pages.replaceChildren(...Array.from({ length: maxPage }, (_, index) => {
-    const button = document.createElement("button");
-    button.textContent = index + 1;
-    if (index + 1 === state.page) button.setAttribute("aria-current", "page");
-    button.onclick = () => {
-      state.page = index + 1;
-      render();
-      scrollTo({ top: 0, behavior: "smooth" });
-    };
-    return button;
-  }));
+  $("status").textContent = `Найдено: ${state.total} · страница ${state.page}`;
+  const pages = $("pages"), maxPage = Math.max(1, Math.ceil(state.total / state.size));
+  const previous = document.createElement("button"), next = document.createElement("button");
+  previous.textContent = "← Назад"; previous.disabled = state.page === 1;
+  previous.onclick = () => { state.page--; load(); };
+  next.textContent = "Вперёд →"; next.disabled = state.page >= maxPage;
+  next.onclick = () => { state.page++; load(); };
+  pages.replaceChildren(previous, next);
 }
 
-for (const id of ["search", "kind", "place", "theme", "day"]) {
-  $(id).addEventListener(id === "search" ? "input" : "change", () => {
-    state.page = 1;
+async function load() {
+  $("status").textContent = "Загрузка из Bible Desktop…";
+  try {
+    const response = await fetch(`${API}?${requestParams()}`, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error(String(response.status));
+    const data = await response.json();
+    state.cards = Array.isArray(data.data) ? data.data : [];
+    state.total = Number(data.total || 0);
     render();
-  });
-}
-$("page-size").addEventListener("change", () => {
-  state.size = Number($("page-size").value);
-  state.page = 1;
-  render();
-});
-$("lightbox").querySelector("button").onclick = () => $("lightbox").close();
-fetch("/api/v1/icons")
-  .then(response => response.ok ? response.json() : Promise.reject(new Error(String(response.status))))
-  .then(data => {
-    state.cards = Array.isArray(data.cards) ? data.cards : [];
-    fill("kind", values("kind"));
-    fill("place", values("places"));
-    fill("theme", values("themes"));
-    fill("day", values("celebrations"));
-    render();
-  })
-  .catch(error => {
+  } catch (error) {
     $("status").textContent = "Не удалось загрузить библиотеку: " + error.message;
-  });
+  }
+}
+
+for (const id of ["search", "kind", "day"]) $(id).addEventListener(id === "search" ? "input" : "change", () => {
+  state.page = 1; load();
+});
+$("page-size").addEventListener("change", () => { state.size = Number($("page-size").value); state.page = 1; load(); });
+$("lightbox").querySelector("button").onclick = () => $("lightbox").close();
+load();
 </script></body></html>
