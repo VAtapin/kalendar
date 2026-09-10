@@ -31,6 +31,7 @@ import {
 } from "../document/text-effects";
 import type { EditorTool } from "../editor/types";
 import type { ElementFrame } from "../editor/element-creation";
+import { groupBounds } from "../editor/group-geometry";
 import { flattenObjectLayers } from "../document/layer-operations";
 import { buildPageScene } from "../rendering/page-scene";
 import type { OrthodoxCalendarYear } from "../calendar";
@@ -96,6 +97,8 @@ const props = defineProps<{
   showGuides: boolean;
   activeTool: EditorTool;
   selectedElementId?: string;
+  /** Logical icon groups keyed by child object id. The objects remain separate layers. */
+  groupElementIdsByElementId?: Record<string, string[]>;
   previewViewport?: { x:number; y:number; width:number; height:number };
 }>();
 
@@ -213,6 +216,24 @@ function normalizeFrame(start: Point, end: Point): ElementFrame {
   };
 }
 
+function elementFrame(element: LayoutElementNode): ElementFrame {
+  return { x: element.x, y: element.y, width: element.width, height: element.height };
+}
+
+function selectionMemberIds(element: LayoutElementNode): string[] {
+  return props.groupElementIdsByElementId?.[element.id] ?? [element.id];
+}
+
+function interactionFrame(element: LayoutElementNode): ElementFrame {
+  const memberIds = selectionMemberIds(element);
+  const members = scene.value.elements.filter((candidate) => memberIds.includes(candidate.id));
+  return groupBounds(members) ?? elementFrame(element);
+}
+
+function selectionIsLocked(element: LayoutElementNode): boolean {
+  return selectionMemberIds(element).some((id) => effectivelyLockedElementIds.value.has(id));
+}
+
 function defaultFrame(tool: EditorTool, origin: Point): ElementFrame {
   const sizes: Partial<Record<EditorTool, { width: number; height: number }>> = {
     text: { width: 55, height: 24 },
@@ -282,18 +303,16 @@ function beginElementInteraction(event: PointerEvent, element: LayoutElementNode
   if (props.activeTool !== "selection") return;
   event.stopPropagation();
   emit("select", element.id);
-  if (element.locked || effectivelyLockedElementIds.value.has(element.id)) return;
+  if (element.locked || selectionIsLocked(element)) return;
   const pointerStart = toDocumentPoint(event, false);
   if (!pointerStart) return;
+  const original = interactionFrame(element);
   geometryInteraction.value = {
     kind: "move",
     elementId: element.id,
     pointerStart,
     original: {
-      x: element.x,
-      y: element.y,
-      width: element.width,
-      height: element.height,
+      ...original,
       ...(element.type === "shape" && element.shape === "line" && element.lineDirection
         ? { lineDirection: element.lineDirection }
         : {}),
@@ -308,16 +327,14 @@ function beginResize(
   element: LayoutElementNode,
   handle: ResizeHandle,
 ): void {
-  if (element.locked || effectivelyLockedElementIds.value.has(element.id)) return;
+  if (element.locked || selectionIsLocked(element)) return;
+  const original = interactionFrame(element);
   geometryInteraction.value = {
     kind: "resize",
     elementId: element.id,
     handle,
     original: {
-      x: element.x,
-      y: element.y,
-      width: element.width,
-      height: element.height,
+      ...original,
       ...(element.type === "shape" && element.shape === "line" && element.lineDirection
         ? { lineDirection: element.lineDirection }
         : {}),
@@ -394,8 +411,9 @@ function snapMovedFrame(elementId: string, x: number, y: number, width: number, 
     props.page.height - props.page.safeArea.bottom,
     props.page.height,
   ];
+  const ignoredElementIds = new Set(props.groupElementIdsByElementId?.[elementId] ?? [elementId]);
   for (const element of scene.value.elements) {
-    if (element.id === elementId) continue;
+    if (ignoredElementIds.has(element.id)) continue;
     xTargets.push(element.x, element.x + element.width / 2, element.x + element.width);
     yTargets.push(element.y, element.y + element.height / 2, element.y + element.height);
   }
@@ -1171,21 +1189,21 @@ function weekdayFontSizeMm(element: CalendarGridElement): number {
 
         <rect
           v-if="selectedElementId === element.id"
-          :x="element.x"
-          :y="element.y"
-          :width="element.width"
-          :height="element.height"
+          :x="interactionFrame(element).x"
+          :y="interactionFrame(element).y"
+          :width="interactionFrame(element).width"
+          :height="interactionFrame(element).height"
           class="page-element__selection"
         />
         <g v-if="selectedElementId === element.id" class="page-element__handles">
-          <circle :cx="element.x" :cy="element.y" r="1.7" class="resize-handle resize-handle--nw" @pointerdown.stop="beginResize($event, element, 'nw')" />
-          <circle :cx="element.x + element.width / 2" :cy="element.y" r="1.7" class="resize-handle resize-handle--n" @pointerdown.stop="beginResize($event, element, 'n')" />
-          <circle :cx="element.x + element.width" :cy="element.y" r="1.7" class="resize-handle resize-handle--ne" @pointerdown.stop="beginResize($event, element, 'ne')" />
-          <circle :cx="element.x + element.width" :cy="element.y + element.height / 2" r="1.7" class="resize-handle resize-handle--e" @pointerdown.stop="beginResize($event, element, 'e')" />
-          <circle :cx="element.x + element.width" :cy="element.y + element.height" r="1.7" class="resize-handle resize-handle--se" @pointerdown.stop="beginResize($event, element, 'se')" />
-          <circle :cx="element.x + element.width / 2" :cy="element.y + element.height" r="1.7" class="resize-handle resize-handle--s" @pointerdown.stop="beginResize($event, element, 's')" />
-          <circle :cx="element.x" :cy="element.y + element.height" r="1.7" class="resize-handle resize-handle--sw" @pointerdown.stop="beginResize($event, element, 'sw')" />
-          <circle :cx="element.x" :cy="element.y + element.height / 2" r="1.7" class="resize-handle resize-handle--w" @pointerdown.stop="beginResize($event, element, 'w')" />
+          <circle :cx="interactionFrame(element).x" :cy="interactionFrame(element).y" r="1.7" class="resize-handle resize-handle--nw" @pointerdown.stop="beginResize($event, element, 'nw')" />
+          <circle :cx="interactionFrame(element).x + interactionFrame(element).width / 2" :cy="interactionFrame(element).y" r="1.7" class="resize-handle resize-handle--n" @pointerdown.stop="beginResize($event, element, 'n')" />
+          <circle :cx="interactionFrame(element).x + interactionFrame(element).width" :cy="interactionFrame(element).y" r="1.7" class="resize-handle resize-handle--ne" @pointerdown.stop="beginResize($event, element, 'ne')" />
+          <circle :cx="interactionFrame(element).x + interactionFrame(element).width" :cy="interactionFrame(element).y + interactionFrame(element).height / 2" r="1.7" class="resize-handle resize-handle--e" @pointerdown.stop="beginResize($event, element, 'e')" />
+          <circle :cx="interactionFrame(element).x + interactionFrame(element).width" :cy="interactionFrame(element).y + interactionFrame(element).height" r="1.7" class="resize-handle resize-handle--se" @pointerdown.stop="beginResize($event, element, 'se')" />
+          <circle :cx="interactionFrame(element).x + interactionFrame(element).width / 2" :cy="interactionFrame(element).y + interactionFrame(element).height" r="1.7" class="resize-handle resize-handle--s" @pointerdown.stop="beginResize($event, element, 's')" />
+          <circle :cx="interactionFrame(element).x" :cy="interactionFrame(element).y + interactionFrame(element).height" r="1.7" class="resize-handle resize-handle--sw" @pointerdown.stop="beginResize($event, element, 'sw')" />
+          <circle :cx="interactionFrame(element).x" :cy="interactionFrame(element).y + interactionFrame(element).height / 2" r="1.7" class="resize-handle resize-handle--w" @pointerdown.stop="beginResize($event, element, 'w')" />
         </g>
       </g>
     </g>

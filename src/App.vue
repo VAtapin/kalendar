@@ -76,6 +76,7 @@ import {
 } from "./document/paint";
 import { createElementOnOwnLayer, duplicateElementOnOwnLayer } from "./editor/element-creation";
 import type { ElementFrame } from "./editor/element-creation";
+import { applyGroupGeometry, snapshotGroupGeometry, type GroupGeometrySnapshot } from "./editor/group-geometry";
 import { alignElements, distributeElements, type AlignMode, type DistributeMode } from "./editor/alignment";
 import type { DockPanelId, EditorTool } from "./editor/types";
 import { FOOD_RULES, type FoodRuleId } from "./calendar/presentation/fasting";
@@ -517,6 +518,7 @@ const redoStack = ref<HistoryEntry[]>([]);
 const historyCodec = new ProjectHistoryCodec();
 let continuousEditSnapshot: string | undefined;
 let continuousEditPageId: string | undefined;
+let calendarIconGroupGeometry: { elementId: string; snapshot: GroupGeometrySnapshot } | undefined;
 let autosaveTimer: number | undefined;
 let sharedSaveTimer: number | undefined;
 let sharedHeartbeatTimer: number | undefined;
@@ -601,6 +603,7 @@ const selectedPageIndex = computed(() =>
 const selectedElement = computed(() =>
   selectedPage.value.elements.find((element) => element.id === selectedElementId.value),
 );
+const iconGroupElementIdsByElementId = computed(() => iconGroupMembersByElementId());
 const protectedBrandLayerIds = computed(() =>
   calendarWorkshopBrandProtectedLayerIds(selectedPage.value),
 );
@@ -953,6 +956,13 @@ function redo(): void {
 function beginContinuousEdit(): void {
   continuousEditSnapshot = serializeEditableProject();
   continuousEditPageId = selectedPageId.value;
+  const elementId = selectedElement.value?.id;
+  const iconElementIds = iconGroupElementIds(elementId);
+  const elements = selectedPage.value.elements.filter((element) => iconElementIds.includes(element.id));
+  const snapshot = snapshotGroupGeometry(elements);
+  calendarIconGroupGeometry = elementId && snapshot && elements.length > 1
+    ? { elementId, snapshot }
+    : undefined;
 }
 
 function endContinuousEdit(label = "Изменение геометрии"): void {
@@ -960,6 +970,7 @@ function endContinuousEdit(label = "Изменение геометрии"): voi
   const pageId = continuousEditPageId ?? selectedPageId.value;
   continuousEditSnapshot = undefined;
   continuousEditPageId = undefined;
+  calendarIconGroupGeometry = undefined;
   if (!before || before === serializeEditableProject()) return;
   undoStack.value.push({ snapshot: before, label, pageId });
   if (undoStack.value.length > 40) undoStack.value.shift();
@@ -2168,6 +2179,34 @@ function findLayer(layerId: string) {
   return findLayerLocation(selectedPage.value, layerId)?.node;
 }
 
+function layerElementIds(node: PageLayerNode): string[] {
+  if (node.kind === "layer") return node.elementId ? [node.elementId] : [];
+  return node.children.flatMap(layerElementIds);
+}
+
+function iconGroupElementIds(elementId: string | undefined): string[] {
+  if (!elementId) return [];
+  const element = selectedPage.value.elements.find((candidate) => candidate.id === elementId);
+  if (!element) return [];
+  const location = findLayerLocation(selectedPage.value, element.layerId);
+  const iconGroup = location?.ancestors.find((group) => group.name.startsWith("Икона ·"));
+  return iconGroup ? layerElementIds(iconGroup) : [];
+}
+
+function iconGroupMembersByElementId(): Record<string, string[]> {
+  const members: Record<string, string[]> = {};
+  const visit = (node: PageLayerNode): void => {
+    if (node.kind !== "group") return;
+    if (node.name.startsWith("Икона ·")) {
+      const ids = layerElementIds(node);
+      for (const id of ids) members[id] = ids;
+    }
+    node.children.forEach(visit);
+  };
+  selectedPage.value.layers.forEach(visit);
+  return members;
+}
+
 function rejectProtectedBrandChange(): void {
   operationNotice.value = "Фирменный знак обязателен: он всегда виден, заблокирован и находится выше остальных слоёв";
 }
@@ -2406,6 +2445,11 @@ function updateElementGeometry(elementId: string, frame: ElementFrame): void {
   if (!element) return;
   if (isCalendarWorkshopBrandElement(selectedPage.value, element)) {
     rejectProtectedBrandChange();
+    return;
+  }
+  const iconGroup = calendarIconGroupGeometry;
+  if (iconGroup?.elementId === elementId) {
+    applyGroupGeometry(selectedPage.value, iconGroup.snapshot, frame);
     return;
   }
   element.x = frame.x;
@@ -4277,6 +4321,7 @@ onBeforeUnmount(() => {
         :show-guides="showGuides"
         :active-tool="activeTool"
         :selected-element-id="selectedElementId"
+        :group-element-ids-by-element-id="iconGroupElementIdsByElementId"
         @create="createElement"
         @select="selectElement"
         @update-geometry="updateElementGeometry"
