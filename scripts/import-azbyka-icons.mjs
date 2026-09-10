@@ -37,11 +37,14 @@ function links(html){const table=html.match(/<tbody\b[^>]*>([\s\S]*?)<\/tbody>/i
 async function index(url,kind){if(db.indexes[url])return;const html=await get(url);const list=links(html);if(!list.length)throw new Error('Index layout changed: '+url);for(const item of list)db.records[item.url]??={...item,kind,status:'pending',rightsStatus:'unverified',images:[],dates:[],mappingStatus:'unreviewed',calendarRecordIds:[]};db.indexes[url]={count:list.length,fetchedAt:new Date().toISOString()};save();console.log('INDEX',kind,list.length,Object.keys(db.records).length);}
 // Scope: the three user-selected icon catalogues. Do not scrape biographies or
 // other sections. Re-running is safe: completed cards are skipped.
-await index('https://azbyka.ru/days/menology/ikons','mother-of-god');
-await index('https://azbyka.ru/days/menology/ikons-savior','savior');
-for(let page=1;page<=16;page++)await index('https://azbyka.ru/days/menology/saints-with-ikon'+(page===1?'':`?page=${page}`),'saint');
+const selectedKind=process.argv.find(x=>x.startsWith('--kind='))?.split('=')[1]||'';
+if(selectedKind&&!['mother-of-god','savior','saint'].includes(selectedKind))throw new Error('Unknown --kind: '+selectedKind);
+if(!selectedKind||selectedKind==='mother-of-god')await index('https://azbyka.ru/days/menology/ikons','mother-of-god');
+if(!selectedKind||selectedKind==='savior')await index('https://azbyka.ru/days/menology/ikons-savior','savior');
+if(!selectedKind||selectedKind==='saint')for(let page=1;page<=16;page++)await index('https://azbyka.ru/days/menology/saints-with-ikon'+(page===1?'':`?page=${page}`),'saint');
 const max=Number(process.argv.find(x=>x.startsWith('--max='))?.split('=')[1]||Infinity);let done=0;
 for(const record of Object.values(db.records)){
+  if(selectedKind&&record.kind!==selectedKind)continue;
   if(record.status==='downloaded'&&record.parserVersion===2&&record.images.every(i=>i.path&&existsSync(join(root,i.path))))continue;if(done>=max)break;
   if(!record.parserVersion)record.status='pending';
   try {
