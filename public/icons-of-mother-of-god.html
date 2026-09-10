@@ -7,7 +7,7 @@ const state = { page: 1, size: 12, total: 0, cards: [] };
 const kindLabel = kind => ({ "mother-of-god": "Иконы Богородицы", savior: "Иконы Спасителя", saint: "Иконы святых", other: "Другие иконы" }[kind] || kind);
 
 function requestParams() {
-  const params = new URLSearchParams({ page: String(state.page), per_page: String(state.size) });
+  const params = new URLSearchParams({ page: String(state.page), per_page: String(state.size), with_images: "1" });
   const query = $("search").value.trim();
   const kind = $("kind").value;
   const day = $("day").value;
