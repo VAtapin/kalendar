@@ -3,7 +3,7 @@
 </style></head><body><main><a href="https://kalender.georg-kloster.ru/">← Календарная мастерская</a><h1>Православные иконы</h1><p class="lead">Образы Богородицы, святые и другие иконы: дни празднования, история образов и тематические подборки Календарной мастерской.</p><section class="filters" aria-label="Фильтры"><label>Поиск<input id="search" type="search" placeholder="Название иконы"></label><label>Раздел<select id="kind"><option value="">Все иконы</option><option value="mother-of-god">Иконы Богородицы</option><option value="savior">Иконы Спасителя</option><option value="saint">Иконы святых</option><option value="other">Другие иконы</option></select></label><label>Празднование<input id="day" type="text" inputmode="numeric" pattern="[0-9]{2}-[0-9]{2}" placeholder="ММ-ДД, например 07-01"></label><label>На странице<select id="page-size"><option value="6">6 икон</option><option value="12" selected>12 икон</option><option value="24">24 иконы</option><option value="48">48 икон</option></select></label></section><p class="status" id="status" role="status">Загрузка библиотеки…</p><div class="grid" id="gallery"></div><nav class="pages" id="pages" aria-label="Страницы"></nav></main><dialog id="lightbox"><div class="modal"><button class="close" aria-label="Закрыть">×</button><button class="nav previous" aria-label="Предыдущее изображение">←</button><button class="nav next" aria-label="Следующее изображение">→</button><div class="lightbox-history" id="lightbox-history" hidden><h2>История образа</h2><p id="lightbox-history-text"></p></div><img id="large" alt=""><div class="thumbs" id="thumbs"></div></div></dialog><script>
 const $ = id => document.getElementById(id);
 const API = "https://bible-desktop.com/api/calendar/icons";
-const state = { page: 1, size: 12, total: 0, cards: [] };
+const state = { page: 1, size: 12, total: 0, imageTotal: 0, cards: [] };
 const kindLabel = kind => ({ "mother-of-god": "Иконы Богородицы", savior: "Иконы Спасителя", saint: "Иконы святых", other: "Другие иконы" }[kind] || kind);
 
 function requestParams() {
@@ -128,7 +128,7 @@ function render() {
     article.append(body);
     return article;
   }));
-  $("status").textContent = `Найдено: ${state.total} · страница ${state.page}`;
+  $("status").textContent = `Найдено: ${state.total} образа · ${state.imageTotal} изображений · страница ${state.page}`;
   const pages = $("pages"), maxPage = Math.max(1, Math.ceil(state.total / state.size));
   const previous = document.createElement("button"), next = document.createElement("button");
   previous.textContent = "← Назад"; previous.disabled = state.page === 1;
@@ -146,6 +146,7 @@ async function load() {
     const data = await response.json();
     state.cards = Array.isArray(data.data) ? data.data : [];
     state.total = Number(data.total || 0);
+    state.imageTotal = Number(data.imageTotal || state.cards.reduce((total, card) => total + (card.images || []).length, 0));
     render();
   } catch (error) {
     $("status").textContent = "Не удалось загрузить библиотеку: " + error.message;
