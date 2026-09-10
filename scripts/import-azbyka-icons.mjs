@@ -45,7 +45,9 @@ if(!selectedKind||selectedKind==='saint')for(let page=1;page<=16;page++)await in
 const max=Number(process.argv.find(x=>x.startsWith('--max='))?.split('=')[1]||Infinity);let done=0;
 for(const record of Object.values(db.records)){
   if(selectedKind&&record.kind!==selectedKind)continue;
-  if(record.status==='downloaded'&&record.parserVersion===2&&record.images.every(i=>i.path&&existsSync(join(root,i.path))))continue;if(done>=max)break;
+  if((record.status==='downloaded'||record.status==='no-images')&&record.parserVersion===2&&(record.images||[]).every(i=>i.path&&existsSync(join(root,i.path))))continue;
+  if(record.status==='source-missing')continue;
+  if(done>=max)break;
   if(!record.parserVersion)record.status='pending';
   try {
   if(record.status==='pending'){
@@ -61,7 +63,11 @@ for(const record of Object.values(db.records)){
     record.error={message:error.message,at:new Date().toISOString()};save();
     console.error(new Date().toISOString(),'ERROR',record.url,error.message);
     if(error.status===404||error.status===410){record.status='source-missing';save();continue;}
-    throw error;
+    // A source page can time out temporarily. Preserve all downloaded files and
+    // continue with the following card; a later run resumes this one.
+    record.status='retry';
+    save();
+    continue;
   }
 }
 console.log(JSON.stringify({records:Object.keys(db.records).length,downloaded:Object.values(db.records).filter(r=>r.status==='downloaded').length,images:Object.keys(db.blobs).length}));
