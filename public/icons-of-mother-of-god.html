@@ -37,11 +37,34 @@ function showLightbox(card) {
     thumb.onclick = () => showImage(position);
     return thumb;
   }));
+  const navigate = offset => showImage(index + offset);
   previous.disabled = next.disabled = images.length < 2;
-  previous.onclick = () => showImage(index - 1);
-  next.onclick = () => showImage(index + 1);
+  previous.onclick = () => navigate(-1);
+  next.onclick = () => navigate(1);
+  dialog.navigateImage = images.length < 2 ? undefined : navigate;
   showImage(0);
   dialog.showModal();
+}
+
+function installLightboxNavigation() {
+  const dialog = $("lightbox"), large = $("large");
+  let touchStartX = null;
+  document.addEventListener("keydown", event => {
+    if (!dialog.open || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === "ArrowLeft") { event.preventDefault(); dialog.navigateImage?.(-1); }
+    if (event.key === "ArrowRight") { event.preventDefault(); dialog.navigateImage?.(1); }
+  });
+  large.addEventListener("touchstart", event => {
+    if (event.touches.length === 1) touchStartX = event.touches[0].clientX;
+  }, { passive: true });
+  large.addEventListener("touchend", event => {
+    if (touchStartX === null || event.changedTouches.length !== 1) return;
+    const distance = event.changedTouches[0].clientX - touchStartX;
+    touchStartX = null;
+    if (Math.abs(distance) < 48) return;
+    dialog.navigateImage?.(distance < 0 ? 1 : -1);
+  }, { passive: true });
+  dialog.addEventListener("close", () => { touchStartX = null; });
 }
 
 function render() {
@@ -111,5 +134,6 @@ for (const id of ["search", "kind", "day"]) $(id).addEventListener(id === "searc
 });
 $("page-size").addEventListener("change", () => { state.size = Number($("page-size").value); state.page = 1; load(); });
 $("lightbox").querySelector(".close").onclick = () => $("lightbox").close();
+installLightboxNavigation();
 load();
 </script></body></html>

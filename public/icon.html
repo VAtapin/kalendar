@@ -3,7 +3,55 @@
 </style></head><body><main><a href="/icons.html">← Все иконы</a><p class="meta" id="status">Загрузка иконы…</p><article class="content" id="content" hidden><h1 id="title"></h1><button class="copy" id="copy">Скопировать ссылку</button><p class="meta" id="kind"></p><p id="dates"></p><div class="gallery" id="gallery"></div><section id="about" hidden><h2>История образа</h2><p class="description" id="description"></p></section></article></main><dialog id="lightbox"><div class="modal"><button class="close" aria-label="Закрыть">×</button><button class="nav previous" aria-label="Предыдущее изображение">←</button><button class="nav next" aria-label="Следующее изображение">→</button><img id="large" alt=""><div class="thumbs" id="thumbs"></div></div></dialog><script>
 const $=id=>document.getElementById(id), API="https://bible-desktop.com/api/calendar/icons/";
 const kindLabel=kind=>({"mother-of-god":"Икона Богородицы",savior:"Икона Спасителя",saint:"Икона святого",other:"Икона"}[kind]||kind);
-function showLightbox(card,initial=0){const images=card.images||[];if(!images.length)return;const dialog=$("lightbox"),large=$("large"),thumbs=$("thumbs"),previous=dialog.querySelector(".previous"),next=dialog.querySelector(".next");let index=initial;const showImage=position=>{index=(position+images.length)%images.length;large.src=images[index].url;large.alt=card.title;[...thumbs.children].forEach((node,i)=>node.classList.toggle("active",i===index));};thumbs.replaceChildren(...images.map((image,i)=>{const thumb=new Image();thumb.src=image.url;thumb.alt=card.title;thumb.onclick=()=>showImage(i);return thumb;}));previous.disabled=next.disabled=images.length<2;previous.onclick=()=>showImage(index-1);next.onclick=()=>showImage(index+1);showImage(index);dialog.showModal();}
+function showLightbox(card, initial = 0) {
+  const images = card.images || [];
+  if (!images.length) return;
+  const dialog = $("lightbox"), large = $("large"), thumbs = $("thumbs");
+  const previous = dialog.querySelector(".previous"), next = dialog.querySelector(".next");
+  let index = initial;
+  const showImage = position => {
+    index = (position + images.length) % images.length;
+    large.src = images[index].url;
+    large.alt = card.title;
+    [...thumbs.children].forEach((node, itemIndex) => node.classList.toggle("active", itemIndex === index));
+  };
+  thumbs.replaceChildren(...images.map((image, imageIndex) => {
+    const thumb = new Image();
+    thumb.src = image.url;
+    thumb.alt = card.title;
+    thumb.onclick = () => showImage(imageIndex);
+    return thumb;
+  }));
+  const navigate = offset => showImage(index + offset);
+  previous.disabled = next.disabled = images.length < 2;
+  previous.onclick = () => navigate(-1);
+  next.onclick = () => navigate(1);
+  dialog.navigateImage = images.length < 2 ? undefined : navigate;
+  showImage(index);
+  dialog.showModal();
+}
+
+function installLightboxNavigation() {
+  const dialog = $("lightbox"), large = $("large");
+  let touchStartX = null;
+  document.addEventListener("keydown", event => {
+    if (!dialog.open || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === "ArrowLeft") { event.preventDefault(); dialog.navigateImage?.(-1); }
+    if (event.key === "ArrowRight") { event.preventDefault(); dialog.navigateImage?.(1); }
+  });
+  large.addEventListener("touchstart", event => {
+    if (event.touches.length === 1) touchStartX = event.touches[0].clientX;
+  }, { passive: true });
+  large.addEventListener("touchend", event => {
+    if (touchStartX === null || event.changedTouches.length !== 1) return;
+    const distance = event.changedTouches[0].clientX - touchStartX;
+    touchStartX = null;
+    if (Math.abs(distance) < 48) return;
+    dialog.navigateImage?.(distance < 0 ? 1 : -1);
+  }, { passive: true });
+  dialog.addEventListener("close", () => { touchStartX = null; });
+}
+
 async function load(){const id=new URLSearchParams(location.search).get("id");if(!/^\d+$/.test(id||"")){ $("status").textContent="Икона не выбрана.";$("status").className="error";return;}try{const response=await fetch(API+encodeURIComponent(id),{headers:{Accept:"application/json"}});if(!response.ok)throw new Error(response.status===404?"Икона не найдена.":"Ошибка "+response.status);const {data:card}=await response.json();document.title=card.title+" — Иконы";$("title").textContent=card.title;$("kind").textContent=kindLabel(card.kind);const dates=card.dates||[];$("dates").textContent=dates.length?"Празднование: "+dates.map(item=>item.label||item.monthDay).join(", "):"Дата празднования не указана";$("gallery").replaceChildren(...(card.images||[]).map((image,index)=>{const button=document.createElement("button"),photo=new Image();photo.src=image.url;photo.alt=card.title;photo.loading="lazy";button.append(photo);button.onclick=()=>showLightbox(card,index);return button;}));if(card.description){$("description").textContent=card.description;$("about").hidden=false;}$("content").hidden=false;$("status").remove();$("copy").onclick=async()=>{await navigator.clipboard.writeText(location.href);$("copy").textContent="Ссылка скопирована";};}catch(error){$("status").textContent=error.message;$("status").className="error";}}
-$("lightbox").querySelector(".close").onclick=()=>$("lightbox").close();load();
+$("lightbox").querySelector(".close").onclick=()=>$("lightbox").close();installLightboxNavigation();load();
 </script></body></html>
