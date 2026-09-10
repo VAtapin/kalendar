@@ -165,6 +165,7 @@ import type {
 } from "./collaboration/shared-project-types";
 import { DECOR_LIBRARY_ITEMS, type DecorLibraryItem } from "./decor/decor-library";
 import { recolorSvgMarkup, svgMarkupDataUrl } from "./decor/svg-recolor";
+import {loadBibleDesktopIconLibrary} from "./icons/bible-desktop-icon-api";
 import type {IconLibraryCard} from "./icons/icon-library";
 import { FONT_OPTIONS } from "./typography/font-catalog";
 import {
@@ -3128,10 +3129,7 @@ async function loadIconLibrary(): Promise<void> {
   iconLibraryLoading.value = true;
   iconLibraryError.value = "";
   try {
-    const response = await fetch("/api/v1/icons");
-    if (!response.ok) throw new Error(`Каталог недоступен: ${response.status}`);
-    const data = await response.json() as { cards?: IconLibraryCard[] };
-    iconLibraryItems.value = Array.isArray(data.cards) ? data.cards : [];
+    iconLibraryItems.value = await loadBibleDesktopIconLibrary();
   } catch (error) {
     iconLibraryError.value = error instanceof Error ? error.message : "Не удалось загрузить каталог икон";
   } finally { iconLibraryLoading.value = false; }
