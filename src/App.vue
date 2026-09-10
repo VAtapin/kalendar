@@ -3168,7 +3168,10 @@ function openIconLibrary(): void {
 function startCalendarIconDrag(item: IconLibraryCard, caption: boolean, event: DragEvent): void {
   if (!event.dataTransfer) return;
   event.dataTransfer.effectAllowed = "copy";
-  event.dataTransfer.setData("application/x-calendar-icon", JSON.stringify({ id: item.id, caption }));
+  const payload = JSON.stringify({ id: item.id, caption });
+  event.dataTransfer.setData("application/x-calendar-icon", payload);
+  // Firefox starts a drag reliably only when a standard text payload is present.
+  event.dataTransfer.setData("text/plain", payload);
 }
 
 function dropCalendarIcon(payload: string, point: { x: number; y: number }): void {

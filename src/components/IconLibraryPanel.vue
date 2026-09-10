@@ -25,7 +25,6 @@ const query = ref(props.filters.query);
 const kind = ref(props.filters.kind);
 const celebrationMonth = ref(props.filters.month ? String(props.filters.month) : "");
 const dateKind = ref(props.filters.movable === undefined ? "" : props.filters.movable ? "movable" : "fixed");
-const withHistory = ref(props.filters.withHistory);
 const caption = ref(true);
 const perPage = ref(props.perPage);
 const monthNames = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
@@ -36,7 +35,6 @@ watch(() => props.filters, (filters) => {
   kind.value = filters.kind;
   celebrationMonth.value = filters.month ? String(filters.month) : "";
   dateKind.value = filters.movable === undefined ? "" : filters.movable ? "movable" : "fixed";
-  withHistory.value = filters.withHistory;
 }, {deep: true});
 watch(() => props.perPage, value => { perPage.value = value; });
 
@@ -46,7 +44,7 @@ const pageNumbers = computed<Array<number | null>>(() => {
   const ordered = [...values].filter(value => value >= 1 && value <= pageCount.value).sort((a, b) => a - b);
   return ordered.flatMap((value, index) => index && value > ordered[index - 1]! + 1 ? [null, value] : [value]);
 });
-const hasFilters = computed(() => Boolean(query.value || kind.value || celebrationMonth.value || dateKind.value || withHistory.value));
+const hasFilters = computed(() => Boolean(query.value || kind.value || celebrationMonth.value || dateKind.value));
 
 function filters(): IconLibraryFilters {
   return {
@@ -54,7 +52,7 @@ function filters(): IconLibraryFilters {
     kind: kind.value,
     month: celebrationMonth.value ? Number(celebrationMonth.value) : undefined,
     movable: dateKind.value === "" ? undefined : dateKind.value === "movable",
-    withHistory: withHistory.value,
+    withHistory: false,
   };
 }
 
@@ -67,7 +65,6 @@ function resetFilters(): void {
   kind.value = "";
   celebrationMonth.value = "";
   dateKind.value = "";
-  withHistory.value = false;
   applyFilters();
 }
 </script>
@@ -97,7 +94,6 @@ function resetFilters(): void {
         <option value="fixed">Только неподвижные</option>
         <option value="movable">Только переходящие</option>
       </select>
-      <label><input v-model="withHistory" type="checkbox" @change="applyFilters" /> Только с историей образа</label>
       <label><input v-model="caption" type="checkbox" /> Подпись под иконой</label>
       <div class="icon-library-panel__filter-actions">
         <button v-if="hasFilters" type="button" @click="resetFilters">Сбросить фильтры</button>
