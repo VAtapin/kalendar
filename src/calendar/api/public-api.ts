@@ -15,7 +15,7 @@ import { TYPIKON_MARKERS } from '../presentation/typikon-markers';
 import { FASTING_COLORS } from '../presentation/fasting-colors';
 import { FOOD_MARKER_PACKS } from '../presentation/marker-packs';
 import { parseScriptureReading, type ScriptureReading } from './scripture-reading';
-import { iconForEvent, isTheotokosIconCommemoration } from './icon-catalog';
+import { isTheotokosIconCommemoration } from './icon-catalog';
 
 export const ORTHODOX_CALENDAR_API_VERSION = "1.0.0" as const;
 
@@ -176,17 +176,13 @@ export function createCalendarPublicApi(api: OrthodoxCalendarApi, language: Cale
       foodLabel: calendarFoodRuleLabel(fasting.foodRule.id, language) || fasting.foodRule.label,
       fastingColor: FASTING_COLORS[fasting.foodRule.id],
       eventCount: day.events.length,
-      icons: day.events.flatMap(event => {
-        const image = iconForEvent(event);
-        if (!image && !isTheotokosIconCommemoration(event.title)) return [];
-        return [{ eventId: event.id, title: localizeCalendarEventTitleWithStatus(event.title, language).title,
-          ...(image?.description ? { description: image.description } : {}),
-          imageUrl: image?.imageUrl ?? null,
-          ...(image ? { id: image.id, width: image.width, height: image.height,
-            sourceUrl: image.sourceUrl, license: image.license, credit: image.credit,
-            sha256: image.sha256, localCachingAllowed: image.localCachingAllowed } : {}),
-        }];
-      }),
+      // The calendar consumer obtains actual image cards from Bible Desktop's standard API.
+      // This local engine retains only the event classification for clients without that API.
+      icons: day.events.filter(event => isTheotokosIconCommemoration(event.title)).map(event => ({
+        eventId: event.id,
+        title: localizeCalendarEventTitleWithStatus(event.title, language).title,
+        imageUrl: null,
+      })),
       foodMarkers: FOOD_MARKER_PACKS.map(pack => ({ packId: pack.id, label: pack.label, source: pack.sources[fasting.foodRule.id] })),
       memorialMarkers: fasting.memorial ? FOOD_MARKER_PACKS.map(pack => ({ packId: pack.id, label: pack.label, source: pack.sources.memorial })) : [],
     };
