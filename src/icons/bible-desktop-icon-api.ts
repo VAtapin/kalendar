@@ -2,6 +2,21 @@ import type {IconLibraryCard} from "./icon-library";
 
 const endpoint = "https://bible-desktop.com/api/calendar/icons";
 
+export type IconLibraryFilters = {
+  query: string;
+  kind: string;
+  month?: number;
+  movable?: boolean;
+  withHistory: boolean;
+};
+
+export type IconLibraryPage = {
+  items: IconLibraryCard[];
+  total: number;
+  page: number;
+  perPage: number;
+};
+
 type ApiDate = { label?: string | null; exampleGregorianDate?: string | null; movable?: boolean | null };
 type ApiImage = { url?: string | null };
 type ApiCard = {
@@ -26,22 +41,26 @@ function cardFromApi(card: ApiCard): IconLibraryCard {
   };
 }
 
-/** Reads the public, standard Bible Desktop icon API; no Calendar-specific endpoint is involved. */
-export async function loadBibleDesktopIconLibrary(): Promise<IconLibraryCard[]> {
-  const cards: IconLibraryCard[] = [];
-  let page = 1;
-  let total = Number.POSITIVE_INFINITY;
-  const perPage = 100;
-  while ((page - 1) * perPage < total) {
-    const params = new URLSearchParams({with_images: "1", page: String(page), per_page: String(perPage)});
-    const response = await fetch(`${endpoint}?${params}`, {headers: {Accept: "application/json"}});
-    if (!response.ok) throw new Error(`Каталог недоступен: ${response.status}`);
-    const result = await response.json() as ApiPage;
-    const data = Array.isArray(result.data) ? result.data : [];
-    cards.push(...data.map(cardFromApi));
-    total = Number(result.total ?? cards.length);
-    if (!data.length) break;
-    page++;
-  }
-  return cards;
+/** Reads one standard, filtered page of the public Bible Desktop icon API. */
+export async function loadBibleDesktopIconLibrary(
+  filters: IconLibraryFilters,
+  page = 1,
+  perPage = 48,
+): Promise<IconLibraryPage> {
+  const params = new URLSearchParams({with_images: "1", page: String(page), per_page: String(perPage)});
+  if (filters.query.trim()) params.set("query", filters.query.trim());
+  if (filters.kind) params.set("kind", filters.kind);
+  if (filters.month) params.set("month", String(filters.month));
+  if (filters.movable !== undefined) params.set("movable", filters.movable ? "1" : "0");
+  if (filters.withHistory) params.set("with_history", "1");
+  const response = await fetch(`${endpoint}?${params}`, {headers: {Accept: "application/json"}});
+  if (!response.ok) throw new Error(`Каталог недоступен: ${response.status}`);
+  const result = await response.json() as ApiPage;
+  const data = Array.isArray(result.data) ? result.data : [];
+  return {
+    items: data.map(cardFromApi),
+    total: Number(result.total ?? data.length),
+    page: Math.max(1, Number(result.page ?? page)),
+    perPage: Math.max(1, Number(result.perPage ?? perPage)),
+  };
 }

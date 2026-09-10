@@ -165,7 +165,7 @@ import type {
 } from "./collaboration/shared-project-types";
 import { DECOR_LIBRARY_ITEMS, type DecorLibraryItem } from "./decor/decor-library";
 import { recolorSvgMarkup, svgMarkupDataUrl } from "./decor/svg-recolor";
-import {loadBibleDesktopIconLibrary} from "./icons/bible-desktop-icon-api";
+import {loadBibleDesktopIconLibrary, type IconLibraryFilters} from "./icons/bible-desktop-icon-api";
 import type {IconLibraryCard} from "./icons/icon-library";
 import { FONT_OPTIONS } from "./typography/font-catalog";
 import {
@@ -577,6 +577,11 @@ const decorLibraryItems = computed(() => [
 const iconLibraryItems = ref<IconLibraryCard[]>([]);
 const iconLibraryLoading = ref(false);
 const iconLibraryError = ref("");
+const iconLibraryTotal = ref(0);
+const iconLibraryPage = ref(1);
+const iconLibraryPerPage = ref(48);
+const iconLibraryFilters = ref<IconLibraryFilters>({query: "", kind: "", withHistory: false});
+let iconLibraryRequest = 0;
 
 const selectedPage = computed(() => {
   const page =
@@ -3125,14 +3130,34 @@ async function loadDecorImage(item: DecorLibraryItem): Promise<string> {
 }
 
 async function loadIconLibrary(): Promise<void> {
-  if (iconLibraryLoading.value) return;
+  const request = ++iconLibraryRequest;
   iconLibraryLoading.value = true;
   iconLibraryError.value = "";
   try {
-    iconLibraryItems.value = await loadBibleDesktopIconLibrary();
+    const result = await loadBibleDesktopIconLibrary(iconLibraryFilters.value, iconLibraryPage.value, iconLibraryPerPage.value);
+    if (request !== iconLibraryRequest) return;
+    iconLibraryItems.value = result.items;
+    iconLibraryTotal.value = result.total;
+    iconLibraryPage.value = result.page;
+    iconLibraryPerPage.value = result.perPage;
   } catch (error) {
-    iconLibraryError.value = error instanceof Error ? error.message : "Не удалось загрузить каталог икон";
-  } finally { iconLibraryLoading.value = false; }
+    if (request === iconLibraryRequest) iconLibraryError.value = error instanceof Error ? error.message : "Не удалось загрузить каталог икон";
+  } finally {
+    if (request === iconLibraryRequest) iconLibraryLoading.value = false;
+  }
+}
+
+function updateIconLibraryFilters(filters: IconLibraryFilters, perPage: number): void {
+  iconLibraryFilters.value = filters;
+  iconLibraryPerPage.value = perPage;
+  iconLibraryPage.value = 1;
+  void loadIconLibrary();
+}
+
+function changeIconLibraryPage(page: number): void {
+  if (page < 1 || page === iconLibraryPage.value) return;
+  iconLibraryPage.value = page;
+  void loadIconLibrary();
 }
 
 function openIconLibrary(): void {
@@ -4686,7 +4711,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-else-if="activeDockPanel === 'icons'" class="dock-content icon-library-dock">
-          <IconLibraryPanel :items="iconLibraryItems" :month="selectedPageMonth" :loading="iconLibraryLoading" :error="iconLibraryError" @refresh="loadIconLibrary" @insert="insertCalendarIcon" @drag="startCalendarIconDrag" />
+          <IconLibraryPanel :items="iconLibraryItems" :month="selectedPageMonth" :loading="iconLibraryLoading" :error="iconLibraryError" :total="iconLibraryTotal" :page="iconLibraryPage" :per-page="iconLibraryPerPage" :filters="iconLibraryFilters" @refresh="loadIconLibrary" @filters="updateIconLibraryFilters" @page="changeIconLibraryPage" @insert="insertCalendarIcon" @drag="startCalendarIconDrag" />
         </div>
 
         <div v-else-if="activeDockPanel === 'layers'" class="dock-content">
