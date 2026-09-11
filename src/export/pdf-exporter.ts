@@ -1,4 +1,5 @@
 import fontkit from "@pdf-lib/fontkit";
+import { loadCalendarDictionary } from '../calendar/localization/corpus-data';
 import { installSlavonicCorpus, loadSlavonicCorpus } from "../calendar/localization/slavonic-corpus";
 import { FASTING_COLORS } from '../calendar/presentation/fasting-colors';
 import {
@@ -1368,6 +1369,7 @@ export async function exportCalendarProjectPdf(
   fontFiles: PdfFontFiles,
   options: PdfExportOptions = {},
 ): Promise<PdfExportResult> {
+  await loadCalendarDictionary(project.calendarLanguage ?? 'ru');
   if (project.calendarLanguage === "cu") {
     if (options.slavonicCorpus) installSlavonicCorpus(options.slavonicCorpus);
     await loadSlavonicCorpus();

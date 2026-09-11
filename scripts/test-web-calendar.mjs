@@ -4,12 +4,16 @@ import {chromium} from 'playwright';
 const browser=await chromium.launch(process.platform==='win32'?{channel:'msedge'}:{});
 try{
  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+ let serviceAvailable=false;
  page.on('pageerror',e=>errors.push(e.message));
  const makeDay=date=>({date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:'пища с маслом',dayStyle:{rank:'great-feast'},events:[{category:'commemoration',title:'Память дня',typeCode:2}],icons:[{title:'Икона дня',imageUrl:'https://bible-desktop.com/api/calendar/icons/1/images/2'}]});
  await page.route('https://web.test/**',async route=>{
   const url=new URL(route.request().url());
+  if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync('public'+url.pathname)});
   if(url.pathname==='/calendar-api-font.php')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
-  if(url.pathname.endsWith('/service'))return route.fulfill({status:503,json:{message:'Temporarily unavailable'}});
+  if(url.pathname.endsWith('/service'))return serviceAvailable
+   ? route.fulfill({json:{assignments:[{title:'Назначенный тропарь',text:'Текст тропаря',insert:true,rubric:'Слава:'}],properCoverage:{status:'partial'}}})
+   : route.fulfill({status:503,json:{message:'Temporarily unavailable'}});
   if(url.pathname.endsWith('/day'))return route.fulfill({json:{day:makeDay(url.searchParams.get('date'))}});
   if(url.pathname.endsWith('/month')||url.pathname.endsWith('/year')){
    const year=Number(url.searchParams.get('year')),month=url.searchParams.get('month');let days=[];
@@ -41,6 +45,12 @@ try{
  await page.locator('.week-day').first().click();await page.locator('dialog[open] .event-card').waitFor();
  assert.match(await page.locator('dialog').innerText(),/Heilige und Feste/);
  assert.match(await page.locator('dialog').innerText(),/Liturgische Texte sind derzeit nicht verfügbar/);
+ await page.locator('#close').click();
+ serviceAvailable=true;
+ await page.locator('.week-day').first().click();
+ await page.locator('dialog[open] .rubric').waitFor();
+ assert.equal(await page.locator('dialog .rubric').innerText(),'Слава:');
+ assert.match(await page.locator('dialog').innerText(),/Textzuordnung/);
  await page.locator('#close').click();
  assert.deepEqual(errors,[]);
  await page.screenshot({path:'artifacts/web-calendar-verified.png'});

@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.33';
+    const VERSION = '1.3.34';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -404,9 +404,10 @@ final class Orthocal_Plugin {
         $html.='<p><a target="_blank" rel="noopener noreferrer" href="https://azbyka.ru/bogosluzhenie/1/chasoslov/">'.esc_html($a['lang']==='de'?'Vollständiges Stundenbuch (Kirchenslawisch) ↗':'Полный Часослов на церковнославянском ↗').'</a></p>';
         $assignments=$data['assignments']??[];
         if(!empty($data['serviceMode']['message']))$html.='<p class="oc-message">'.esc_html($a['lang']==='de'?'Für diesen Tag gilt eine besondere Ordnung der Stunden. Die allgemeinen Gebete ersetzen nicht den vollständigen Gottesdienst.':$data['serviceMode']['message']).'</p>';
+        if (!empty($data['properCoverage']['status']) && !in_array($data['properCoverage']['status'],['available','not-applicable'],true)) $html.='<p class="oc-message">'.esc_html(self::ui('Назначения текстов для этого дня ещё требуют уточнения. Справочные тексты приведены отдельно.',$a['lang'])).'</p>';
         if ($assignments) {
             $html.=('<section class="oc-service-section"><h4>'.self::ui('Тексты дня',$a['lang']).'</h4>');
-            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??(self::ui('Текст службы',$a['lang']))).'</h5>'.(($item['insert']??false)?'':'<p class="oc-muted">'.esc_html($a['lang']==='de'?'Referenztext; für diesen Gottesdienst nicht zugeordnet.':'Справочный текст; в последование этого дня не назначен.').'</p>').'<div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
+            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??(self::ui('Текст службы',$a['lang']))).'</h5>'.(!empty($item['insert'])&&!empty($item['rubric'])?'<p class="oc-service-rubric" lang="cu">'.esc_html($item['rubric']).'</p>':'').(($item['insert']??false)?'':'<p class="oc-muted">'.esc_html($a['lang']==='de'?'Referenztext; für diesen Gottesdienst nicht zugeordnet.':'Справочный текст; в последование этого дня не назначен.').'</p>').'<div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
             $html.='</section>';
         }
         $expansions=$data['expansions']??[];

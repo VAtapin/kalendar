@@ -108,10 +108,10 @@ describe("safe production publication", () => {
 
   it("revalidates HTML and excludes missing static assets from Apache's SPA fallback", async () => {
     const htaccess = await readFile("public/.htaccess", "utf8");
-    expect(htaccess).toContain('<Files "index.html">');
+    expect(htaccess).toContain('<FilesMatch "\\.html$">');
     expect(htaccess).toContain('Header always set Cache-Control "no-cache, max-age=0, must-revalidate"');
     const api = htaccess.indexOf("RewriteRule ^api");
-    const missing = htaccess.indexOf("RewriteRule ^(?:assets|fonts|brand|data|downloads)(?:/|$) - [R=404,L]");
+    const missing = htaccess.indexOf("RewriteRule ^(?:assets|fonts|brand|data|downloads|calendar-ui)(?:/|$) - [R=404,L]");
     const fallback = htaccess.indexOf("RewriteRule ^ index.html [L]");
     expect(api).toBeGreaterThan(-1);
     expect(missing).toBeGreaterThan(api);

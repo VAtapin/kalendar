@@ -1,8 +1,13 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { documentRoutes } from './src/document-routes';
+import { fileURLToPath } from 'node:url';
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
+  resolve: { alias: !isSsrBuild && !process.env.VITEST ? [{
+    find: /^.*\/corpus-data$/,
+    replacement: fileURLToPath(new URL('./src/calendar/localization/corpus-data.browser.ts', import.meta.url)),
+  }] : [] },
   plugins: [vue(), {
     name: 'document-routes',
     configureServer(server) {
@@ -30,4 +35,4 @@ export default defineConfig({
       ignored: ["**/public/data/**"],
     },
   },
-});
+}));

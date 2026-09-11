@@ -1,0 +1,4 @@
+<IfModule mod_headers.c>
+    # Stable module URLs must revalidate after deployment.
+    Header always set Cache-Control "no-cache, max-age=0, must-revalidate"
+</IfModule>

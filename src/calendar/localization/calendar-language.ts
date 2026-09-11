@@ -1,12 +1,9 @@
+import { calendarDictionary } from './corpus-data';
 import type { CalendarLanguage, PageModel, TextElement } from "../../document/types";
 import type { ResolvedCalendarEvent } from "../types";
 import type { FoodRuleId } from "../fasting/fasting-api";
 import { CHURCH_SLAVONIC_CYCLE_TITLES, CHURCH_SLAVONIC_FOOD_CORRECTIONS, CHURCH_SLAVONIC_SHORT_WEEKDAYS, verifiedChurchSlavonicTitle } from "./church-slavonic";
 import { sourceAttestedSlavonicTitle } from "./slavonic-corpus";
-import slavonicEditorialTitles from "./slavonic-editorial-titles.json";
-import { GERMAN_COMMEMORATIONS } from "./german-commemorations";
-import ukrainianCommemorations from './uk-commemorations.json';
-import polishCommemorations from './pl-commemorations.json';
 import { localizeScriptureTitle } from './scripture-titles';
 import { localizeFastingTitle } from './fasting-titles';
 import { localizeMarriageTitle } from './marriage-titles';
@@ -464,16 +461,16 @@ export function localizeCalendarEventTitleWithStatus(title: string, language: Ca
   if (resolvedLanguage === "ru" || !title.trim()) return { title, status: "source" };
   const dictionary = CORE_EVENTS[resolvedLanguage];
   const exact = localizeFastingTitle(title,resolvedLanguage)
-    ?? (resolvedLanguage === "de" && Object.hasOwn(GERMAN_COMMEMORATIONS, title) ? GERMAN_COMMEMORATIONS[title] : undefined)
-    ?? (resolvedLanguage === 'uk' && Object.hasOwn(ukrainianCommemorations, title)
-      ? (ukrainianCommemorations as Readonly<Record<string, string>>)[title] : undefined)
-    ?? (resolvedLanguage === 'pl' && Object.hasOwn(polishCommemorations, title)
-      ? (polishCommemorations as Readonly<Record<string, string>>)[title] : undefined)
+    ?? (resolvedLanguage === "de" && Object.hasOwn(calendarDictionary("de"), title) ? calendarDictionary("de")[title] : undefined)
+    ?? (resolvedLanguage === 'uk' && Object.hasOwn(calendarDictionary("uk"), title)
+      ? (calendarDictionary("uk") as Readonly<Record<string, string>>)[title] : undefined)
+    ?? (resolvedLanguage === 'pl' && Object.hasOwn(calendarDictionary("pl"), title)
+      ? (calendarDictionary("pl") as Readonly<Record<string, string>>)[title] : undefined)
     ?? (resolvedLanguage === "cu" ? verifiedChurchSlavonicTitle(title) : undefined)
     ?? (Object.hasOwn(dictionary, title) ? dictionary[title] : undefined)
     ?? (resolvedLanguage === "cu" ? sourceAttestedSlavonicTitle(title) : undefined)
-    ?? (resolvedLanguage === "cu" && Object.hasOwn(slavonicEditorialTitles, title)
-      ? (slavonicEditorialTitles as Readonly<Record<string, string>>)[title] : undefined);
+    ?? (resolvedLanguage === "cu" && Object.hasOwn(calendarDictionary("cu"), title)
+      ? (calendarDictionary("cu") as Readonly<Record<string, string>>)[title] : undefined);
   if (exact) return { title: exact, status: "exact" };
   const structured = localizeMarriageTitle(title, resolvedLanguage)
     ?? localizeScriptureTitle(title, resolvedLanguage)

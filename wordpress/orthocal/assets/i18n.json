@@ -88,6 +88,7 @@
     "Не удалось отобразить календарь.": "Der Kalender konnte nicht angezeigt werden.",
     "Каталог переводов требует обновления.": "Das Übersetzungsverzeichnis muss aktualisiert werden.",
     "Не удалось получить данные.": "Daten konnten nicht geladen werden.",
-    "Икона": "Ikone"
+    "Икона": "Ikone",
+    "Назначения текстов для этого дня ещё требуют уточнения. Справочные тексты приведены отдельно.": "Die Textzuordnung für diesen Tag ist noch unvollständig. Referenztexte werden gesondert gekennzeichnet."
   }
 }

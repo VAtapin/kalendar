@@ -26,7 +26,7 @@ await build({ root, logLevel: 'error', build: { copyPublicDir: false,
     return visited;
   }
   const routes = reports.filter(item => item.entry || item.modules.some(module =>
-    /components\/(HomeRoute|CalendarApiDocs|PublicSitePage)\.vue/.test(module.id)));
+    /components\/(HomeRoute|CalendarApiDocs|PublicSitePage)\.vue|^src\/App\.vue/.test(module.id)));
   const routeTotals = routes.map(route => {
     const files = closure(route.file);
     reports.filter(item => item.entry).forEach(item => closure(item.file, files));
@@ -42,6 +42,12 @@ await build({ root, logLevel: 'error', build: { copyPublicDir: false,
     const homeChunks = reports.filter(item => home.files.includes(item.file));
     if (homeChunks.some(item => item.modules.some(module => /calendar\/localization\/|pdf-lib\/|@pdf-lib\/fontkit\//.test(module.id)))) {
       throw new Error('Home unexpectedly loads calendar corpora or PDF libraries');
+    }
+    const editor = routeTotals.find(item => /\/App-/.test(item.file));
+    if (!editor || editor.bytes > 1_000_000) throw new Error('Initial editor JavaScript exceeds 1 MB');
+    const editorChunks = reports.filter(item => editor.files.includes(item.file));
+    if (editorChunks.some(item => item.modules.some(module => /(?:uk-commemorations|pl-commemorations|german-additions|slavonic-editorial-titles)\.json|pdf-lib\/|@pdf-lib\/fontkit\//.test(module.id)))) {
+      throw new Error('Initial editor unexpectedly loads optional corpora or PDF libraries');
     }
   }
 } }] });

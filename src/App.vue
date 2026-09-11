@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { createApplicationMenus, type ApplicationMenuId, type MenuCommandId } from "./editor/application-menus";
+import { ServerProjectSaver } from './editor/server-project-saver';
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
 import { loadPdfExporter } from './export/load-pdf-exporter';
+import { loadCalendarDictionary } from './calendar/localization/corpus-data';
 import { setManualTextTitle } from './document/text-title';
 import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
@@ -133,8 +136,8 @@ import {
   ensureCalendarWorkshopBranding,
   isCalendarWorkshopBrandElement,
 } from "./document/branding";
-import { compactProjectAssets } from "./document/project-assets";
-import { ProjectHistoryCodec } from "./persistence/project-history";
+
+import { useProjectHistory } from "./editor/use-project-history";
 import {
   SharedProjectApiError,
   confirmEmailVerification,
@@ -243,24 +246,6 @@ const globalGridTemplatesError = ref<string>();
 const projectBackups = ref<ProjectBackup[]>([]);
 const RECENT_PROJECTS_KEY = "orthodox-calendar-layout:recent-projects";
 const recentProjectNames = ref<string[]>([]);
-type ApplicationMenuId = "file" | "edit" | "layout" | "object" | "text" | "view" | "window" | "help";
-type MenuCommandId =
-  | "order-print"
-  | "administrator"
-  | "new-project" | "open-project" | "save-project" | "save-as-project" | "download-project" | "recovery" | "share-project" | "export-pdf" | "program-settings"
-  | "save-user-template" | "clone-year"
-  | "undo" | "redo" | "duplicate" | "delete"
-  | "full-template" | "add-cover" | "add-month" | "add-blank-page" | "delete-page"
-  | "apply-month-master"
-  | "bring-front" | "send-back" | "group" | "toggle-lock" | "toggle-visible"
-  | "align-object-left" | "align-object-center" | "align-object-right"
-  | "align-object-top" | "align-object-middle" | "align-object-bottom"
-  | "distribute-horizontal" | "distribute-vertical"
-  | "bold" | "italic" | "align-left" | "align-center" | "align-right"
-  | "toggle-guides" | "zoom-in" | "zoom-out" | "fit-page"
-  | "calendar-properties" | "toggle-tools" | "toggle-properties" | "toggle-library" | "toggle-layers" | "toggle-templates" | "toggle-pages" | "toggle-events" | "toggle-preflight" | "toggle-all-panels"
-  | "help-guide" | "video-lessons" | "shortcuts" | "about";
-
 interface WritableProjectFile {
   write(data: Blob): Promise<void>;
   close(): Promise<void>;
@@ -280,24 +265,6 @@ interface ProjectPickerWindow extends Window {
 }
 
 let projectFileReferenceUpdate: Promise<void> = Promise.resolve();
-interface MenuItemDefinition {
-  command?: MenuCommandId;
-  label?: string;
-  shortcut?: string;
-  checked?: boolean;
-  disabled?: boolean;
-  separator?: boolean;
-}
-interface ApplicationMenuDefinition {
-  id: ApplicationMenuId;
-  label: string;
-  items: MenuItemDefinition[];
-}
-interface HistoryEntry {
-  snapshot: string;
-  label: string;
-  pageId: string;
-}
 const activeMenu = ref<ApplicationMenuId>();
 const helpDialogPage = ref<HelpDialogPage>();
 const recoveryDialogOpen = ref(false);
@@ -309,19 +276,25 @@ const accountError = ref('');
 const accountReauthenticate = ref(false);
 const accountUser = ref<AccountUser | null>(null);
 const accountToken = ref(new URLSearchParams(location.search).get('account-token') ?? undefined);
-const serverCalendarId = ref<string>();
-let serverRevision = 0;
-let serverSaving: Promise<void> = Promise.resolve();
+const serverSave = new ServerProjectSaver({
+  project: () => project.value, userId: () => accountUser.value?.id,
+  switching: () => switchingCalendar, serialize: () => serializeEditableProject(),
+  status: value => { persistenceState.value = value; },
+  notice: value => { operationNotice.value = value; },
+});
+const serverCalendarId = serverSave.id;
+
+
 let switchingCalendar = false;
-let savedServerAssets = new Map<string, string>();
-let savedServerSnapshot: string | undefined;
-let serverContext = 0;
+
+
+
 let calendarOpenRequest = 0;
 function resetServerCalendar(): void {
   calendarOpenRequest++;
   switchingCalendar = false;
-  serverContext++; serverCalendarId.value = undefined; serverRevision = 0;
-  savedServerAssets.clear(); savedServerSnapshot = undefined;
+  serverSave.context++; serverCalendarId.value = undefined; serverSave.revision = 0;
+  serverSave.assets.clear(); serverSave.snapshot = undefined;
 }
 function accountCalendarDeleted(id: string): void {
   if (serverCalendarId.value !== id) return;
@@ -337,34 +310,7 @@ async function saveAccountLibrary(): Promise<void> {
     accountLibraryRevision = result.revision; operationNotice.value = 'Личные шаблоны сохранены на сервере';
   } catch (error) { if (accountUser.value?.id === userId) operationNotice.value = `Шаблоны не сохранены на сервере: ${String(error)}`; }
 }
-async function saveServerCalendar(): Promise<void> {
-  const user = accountUser.value;
-  if (!user || switchingCalendar) return;
-  const current = project.value;
-  const context = serverContext;
-  const snapshot = createPersistentProjectSnapshot(current);
-  const editableSnapshot = serializeEditableProject();
-  const operation = serverSaving.catch(() => {}).then(async () => {
-    if (project.value !== current || accountUser.value?.id !== user.id || serverContext !== context) return;
-    if (serverCalendarId.value && savedServerSnapshot === editableSnapshot) { persistenceState.value = serializeEditableProject() === editableSnapshot ? 'saved' : 'saving'; return; }
-    persistenceState.value = 'saving';
-    const id = serverCalendarId.value;
-    const reuseAssets: string[] = [];
-    const assetSources = new Map(snapshot.assets.map(asset => [asset.id, asset.source]));
-    if (id) for (const asset of snapshot.assets) {
-      if (savedServerAssets.get(asset.id) === asset.source) { reuseAssets.push(asset.id); asset.source = ''; }
-    }
-    try {
-      const result = await accountRequest<{id: string; revision: number}>(id ? `calendars/${id}` : 'calendars', id ? 'PUT' : 'POST', { project: snapshot, revision: serverRevision, reuseAssets });
-      if (serverContext === context && accountUser.value?.id === user.id) {
-        serverCalendarId.value = result.id; serverRevision = result.revision; savedServerAssets = assetSources;
-        savedServerSnapshot = editableSnapshot;
-        persistenceState.value = serializeEditableProject() === editableSnapshot ? 'saved' : 'saving';
-      }
-    } catch (error) { if (serverContext === context && accountUser.value?.id === user.id) { persistenceState.value = 'error'; operationNotice.value = `Не сохранено на сервере: ${String(error)}. Можно скачать копию через меню «Файл».`; } throw error; }
-  });
-  serverSaving = operation; return operation;
-}
+async function saveServerCalendar(): Promise<void> { await serverSave.save(); }
 async function openAccountCabinet(): Promise<void> {
   accountError.value = '';
   if (serverCalendarId.value) {
@@ -381,13 +327,13 @@ async function openAccountCalendar(id: string): Promise<void> {
     switchingCalendar = true;
     const value = await accountRequest<{project: CalendarProject; revision: number}>(`calendars/${id}`);
     if (request !== calendarOpenRequest || accountUser.value?.id !== userId) return;
-    serverContext++;
+    serverSave.context++;
     project.value = normalizeCalendarProject(value.project);
-    serverCalendarId.value = id; serverRevision = value.revision;
-    savedServerAssets = new Map(project.value.assets.map(asset => [asset.id, asset.source]));
+    serverCalendarId.value = id; serverSave.revision = value.revision;
+    serverSave.assets = new Map(project.value.assets.map(asset => [asset.id, asset.source]));
     detachActiveProjectFile(); clearProjectHistory(); resetPageTabs();
     selectedElementId.value = undefined; selectedLayerIds.value = [];
-    savedServerSnapshot = serializeEditableProject(); persistenceState.value = 'saved';
+    serverSave.snapshot = serializeEditableProject(); persistenceState.value = 'saved';
     projectBackups.value = []; accountOpen.value = false; welcomeVisible.value = false;
     await registerProjectFonts(project.value); await loadCalendarData();
     operationNotice.value = 'Календарь открыт с сервера';
@@ -401,22 +347,22 @@ function accountAuthenticated(user: AccountUser): void {
     operationNotice.value = 'Вход восстановлен. Открытая работа остаётся в редакторе; нажмите «Сохранить».';
     return;
   }
-  accountReauthenticate.value = false; savedServerSnapshot = undefined;
+  accountReauthenticate.value = false; serverSave.snapshot = undefined;
   setStorageAccount(user.id); userProjectTemplates.value = []; userCalendarGridTemplates.value = [];
   accountLibraryRevision = 0;
   void accountRequest<{revision: number; templates: UserProjectTemplate[]; grids: UserCalendarGridTemplate[]}>('library').then(value => {
     if (accountUser.value?.id === user.id) { userProjectTemplates.value = value.templates; userCalendarGridTemplates.value = value.grids; accountLibraryRevision = value.revision; }
   }).catch(error => { operationNotice.value = `Не удалось загрузить личные шаблоны: ${String(error)}`; });
   accountUser.value = user; resetServerCalendar();
-  savedServerAssets.clear();
+  serverSave.assets.clear();
   project.value = createBlankCalendarProject(); clearProjectHistory(); resetPageTabs(); projectBackups.value = [];
   accountToken.value = undefined; history.replaceState(history.state, '', location.pathname);
 }
 function accountLoggedOut(): void {
-  accountReauthenticate.value = false; savedServerSnapshot = undefined;
+  accountReauthenticate.value = false; serverSave.snapshot = undefined;
   setStorageAccount(null); userProjectTemplates.value = []; userCalendarGridTemplates.value = [];
   accountUser.value = null; resetServerCalendar();
-  savedServerAssets.clear();
+  serverSave.assets.clear();
   project.value = createBlankCalendarProject(); clearProjectHistory(); resetPageTabs(); projectBackups.value = [];
   welcomeVisible.value = true;
 }
@@ -513,9 +459,7 @@ const fontOptionGroups = computed(() => [
   },
   { label: "Системные", options: enabledFontOptions.value.filter((option) => option.kind === "system") },
 ].filter((group) => group.options.length > 0));
-const undoStack = ref<HistoryEntry[]>([]);
-const redoStack = ref<HistoryEntry[]>([]);
-const historyCodec = new ProjectHistoryCodec();
+const { undoStack, redoStack, serializeEditableProject, clearProjectHistory, pruneProjectHistoryAssets, mutateProject, undo, redo } = useProjectHistory(project, selectedPageId, selectedElementId, selectedLayerIds, operationNotice, () => continuousEditSnapshot);
 let continuousEditSnapshot: string | undefined;
 let continuousEditPageId: string | undefined;
 let calendarIconGroupGeometry: { elementId: string; snapshot: GroupGeometrySnapshot } | undefined;
@@ -757,201 +701,22 @@ const selectedElementOverflowState = computed(() => {
   if (selectedElementIssues.value.some((item) => item.code.includes("overflow"))) return "warning";
   return "none";
 });
-const applicationMenus = computed<ApplicationMenuDefinition[]>(() => {
-  const hasSelection = Boolean(selectedElement.value || selectedLayerIds.value.length > 0);
-  const protectedSelection = selectionIncludesProtectedBrand.value;
-  const protectedElementSelection = selectedLayerElements.value.some((element) =>
-    isCalendarWorkshopBrandElement(selectedPage.value, element),
-  );
-  const textSelected =
-    selectedElement.value?.type === "text" || selectedElement.value?.type === "month-text";
-  return [
-    {
-      id: "file",
-      label: "Файл",
-      items: [
-        { command: "new-project", label: "Новый календарь", shortcut: "Ctrl+N" },
-        { command: "open-project", label: "Импортировать файл календаря…", shortcut: "Ctrl+O" },
-        { command: "save-project", label: "Сохранить", shortcut: "Ctrl+S" },
-        { command: "save-as-project", label: "Скачать копию…", shortcut: "Ctrl+Shift+S" },
-        { command: "recovery", label: "Восстановление…", disabled: !accountUser.value && projectBackups.value.length === 0 },
-        { command: "program-settings", label: "Настройки программы…" },
-        { command: "administrator", label: "Администратор…" },
-        { separator: true },
-        { command: "save-user-template", label: "Сохранить дизайн как шаблон…" },
-        { command: "clone-year", label: "Создать копию для другого года…" },
-        { separator: true },
-        { command: "export-pdf", label: "Экспортировать печатный PDF…", shortcut: "Ctrl+E", disabled: pdfExportState.value === "exporting" },
-        { label: "Заказать печать календаря…", command: "order-print" },
-      ],
-    },
-    {
-      id: "edit",
-      label: "Правка",
-      items: [
-        { command: "calendar-properties", label: "Свойства календаря" },
-        { separator: true },
-        { command: "undo", label: "Отменить", shortcut: "Ctrl+Z", disabled: undoStack.value.length === 0 },
-        { command: "redo", label: "Повторить", shortcut: "Ctrl+Y", disabled: redoStack.value.length === 0 },
-        { separator: true },
-        { command: "duplicate", label: "Дублировать", shortcut: "Ctrl+D", disabled: !selectedElement.value || protectedSelection },
-        { command: "delete", label: "Удалить", shortcut: "Delete", disabled: !hasSelection || protectedSelection },
-      ],
-    },
-    {
-      id: "layout",
-      label: "Макет",
-      items: [
-        { command: "apply-month-master", label: "Сделать выбранный месяц мастер-страницей", disabled: selectedPage.value.kind !== "month" },
-        { separator: true },
-        { command: "full-template", label: "Создать календарь: обложка + 12 месяцев" },
-        { command: "add-cover", label: "Добавить обложку" },
-        { command: "add-month", label: "Добавить страницу месяца" },
-        { command: "add-blank-page", label: "Добавить пустую страницу" },
-        { separator: true },
-        { command: "delete-page", label: "Удалить текущую страницу", disabled: project.value.document.pages.length <= 1 },
-      ],
-    },
-    {
-      id: "object",
-      label: "Объект",
-      items: [
-        { command: "bring-front", label: "На самый верх", disabled: !hasSelection || protectedSelection },
-        { command: "send-back", label: "На самый низ", disabled: !hasSelection || protectedSelection },
-        { command: "group", label: "Объединить слои в папку", disabled: selectedLayerIds.value.length < 2 || protectedSelection },
-        { separator: true },
-        { command: "align-object-left", label: "Выровнять по левому краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
-        { command: "align-object-center", label: "Выровнять по центру горизонтально", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
-        { command: "align-object-right", label: "Выровнять по правому краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
-        { command: "align-object-top", label: "Выровнять по верхнему краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
-        { command: "align-object-middle", label: "Выровнять по центру вертикально", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
-        { command: "align-object-bottom", label: "Выровнять по нижнему краю", disabled: selectedLayerElements.value.length < 2 || protectedElementSelection },
-        { command: "distribute-horizontal", label: "Распределить по горизонтали", disabled: selectedLayerElements.value.length < 3 || protectedElementSelection },
-        { command: "distribute-vertical", label: "Распределить по вертикали", disabled: selectedLayerElements.value.length < 3 || protectedElementSelection },
-        { separator: true },
-        { command: "toggle-lock", label: "Блокировать / разблокировать", disabled: !hasSelection || protectedSelection },
-        { command: "toggle-visible", label: "Показать / скрыть", disabled: !hasSelection || protectedSelection },
-        { command: "duplicate", label: "Дублировать", disabled: !selectedElement.value || protectedSelection },
-        { command: "delete", label: "Удалить", disabled: !hasSelection || protectedSelection },
-      ],
-    },
-    {
-      id: "text",
-      label: "Текст",
-      items: [
-        { command: "bold", label: "Полужирный", checked: textSelected && (selectedElement.value?.type === "text" || selectedElement.value?.type === "month-text") ? (selectedElement.value.typography.fontWeight ?? 400) >= 600 : false, disabled: !textSelected },
-        { command: "italic", label: "Курсив", checked: textSelected && (selectedElement.value?.type === "text" || selectedElement.value?.type === "month-text") ? selectedElement.value.typography.fontStyle === "italic" : false, disabled: !textSelected },
-        { separator: true },
-        { command: "align-left", label: "По левому краю", disabled: !textSelected },
-        { command: "align-center", label: "По центру", disabled: !textSelected },
-        { command: "align-right", label: "По правому краю", disabled: !textSelected },
-      ],
-    },
-    {
-      id: "view",
-      label: "Вид",
-      items: [
-        { command: "toggle-guides", label: "Направляющие", checked: showGuides.value },
-        { separator: true },
-        { command: "zoom-in", label: "Увеличить", shortcut: "+" },
-        { command: "zoom-out", label: "Уменьшить", shortcut: "−" },
-        { command: "fit-page", label: "Страница целиком", shortcut: "Ctrl+0" },
-      ],
-    },
-    {
-      id: "window",
-      label: "Окно",
-      items: [
-        { command: "toggle-tools", label: "Инструменты", checked: panelVisibility.value.tools },
-        { separator: true },
-        { command: "toggle-properties", label: "Свойства", checked: panelVisibility.value.properties },
-        { command: "toggle-library", label: "Библиотека элементов", checked: panelVisibility.value.library },
-        { command: "toggle-layers", label: "Слои", checked: panelVisibility.value.layers },
-        { command: "toggle-templates", label: "Шаблоны", checked: panelVisibility.value.templates },
-        { command: "toggle-pages", label: "Страницы", checked: panelVisibility.value.pages },
-        { command: "toggle-events", label: "События монастыря", checked: panelVisibility.value.events },
-        { command: "toggle-preflight", label: "Предпечатная проверка", checked: panelVisibility.value.preflight },
-        { separator: true },
-        { command: "toggle-all-panels", label: chromePanelsHidden.value ? "Показать все панели" : "Скрыть все панели", shortcut: "Tab" },
-      ],
-    },
-    {
-      id: "help",
-      label: "Помощь",
-      items: [
-        { command: "help-guide", label: "Как пользоваться?" },
-        { command: "video-lessons", label: "Видеоуроки" },
-        { command: "shortcuts", label: "Горячие клавиши…" },
-        { separator: true },
-        { command: "about", label: "О программе" },
-      ],
-    },
-  ];
-});
-
-function serializeEditableProject(): string {
-  return historyCodec.serialize(project.value);
-}
-
-function clearProjectHistory(): void {
-  undoStack.value = [];
-  redoStack.value = [];
-  historyCodec.clear();
-}
-
-function pruneProjectHistoryAssets(): void {
-  historyCodec.prune([
-    ...undoStack.value.map((entry) => entry.snapshot),
-    ...redoStack.value.map((entry) => entry.snapshot),
-    ...(continuousEditSnapshot ? [continuousEditSnapshot] : []),
-  ], project.value);
-}
-
-function mutateProject<T>(label: string, mutation: () => T): T {
-  const before = serializeEditableProject();
-  const result = mutation();
-  compactProjectAssets(project.value);
-  const after = serializeEditableProject();
-  if (before !== after) {
-    undoStack.value.push({ snapshot: before, label, pageId: selectedPageId.value });
-    if (undoStack.value.length > 40) undoStack.value.shift();
-    redoStack.value = [];
-    pruneProjectHistoryAssets();
-  }
-  return result;
-}
-
-function restoreProjectSnapshot(snapshot: string, pageId?: string): void {
-  const currentProgramSettings = project.value.programSettings;
-  const restored = normalizeCalendarProject(historyCodec.deserialize(snapshot));
-  restored.programSettings = currentProgramSettings;
-  ensureCalendarWorkshopBranding(restored);
-  project.value = restored;
-  selectedPageId.value =
-    restored.document.pages.find((page) => page.id === pageId)?.id ??
-    restored.document.pages[0]?.id ??
-    "";
-  selectedElementId.value = undefined;
-  selectedLayerIds.value = [];
-}
-
-function undo(): void {
-  const entry = undoStack.value.pop();
-  if (!entry) return;
-  redoStack.value.push({ snapshot: serializeEditableProject(), label: entry.label, pageId: selectedPageId.value });
-  restoreProjectSnapshot(entry.snapshot, entry.pageId);
-  pruneProjectHistoryAssets();
-  operationNotice.value = `Отменено: ${entry.label}`;
-}
-
-function redo(): void {
-  const entry = redoStack.value.pop();
-  if (!entry) return;
-  undoStack.value.push({ snapshot: serializeEditableProject(), label: entry.label, pageId: selectedPageId.value });
-  restoreProjectSnapshot(entry.snapshot, entry.pageId);
-  pruneProjectHistoryAssets();
-  operationNotice.value = `Повторено: ${entry.label}`;
-}
+const applicationMenus = computed(() => createApplicationMenus({
+  selectedElement: selectedElement.value,
+  selectedLayerIds: selectedLayerIds.value,
+  selectionIncludesProtectedBrand: selectionIncludesProtectedBrand.value,
+  selectedLayerElements: selectedLayerElements.value,
+  selectedPage: selectedPage.value,
+  accountUser: accountUser.value,
+  projectBackups: projectBackups.value,
+  pdfExportState: pdfExportState.value,
+  undoStack: undoStack.value,
+  redoStack: redoStack.value,
+  project: project.value,
+  showGuides: showGuides.value,
+  panelVisibility: panelVisibility.value,
+  chromePanelsHidden: chromePanelsHidden.value,
+}));
 
 function beginContinuousEdit(): void {
   continuousEditSnapshot = serializeEditableProject();
@@ -2067,7 +1832,10 @@ function deleteCurrentPage(pageId = selectedPage.value.id): void {
   operationNotice.value = "Страница удалена. Ctrl+Z — отменить удаление";
 }
 
+let calendarDataRequest = 0;
 async function loadCalendarData(): Promise<void> {
+  const request = ++calendarDataRequest;
+  const targetProject = project.value;
   calendarLoadState.value = "loading";
   const requestedYear = project.value.year;
   try {
@@ -2090,6 +1858,7 @@ async function loadCalendarData(): Promise<void> {
       throw error;
     });
     const [dataset, runtime] = await Promise.all([calendarDatasetPromise, calendarRuntimePromise,
+      loadCalendarDictionary(project.value.calendarLanguage ?? 'ru'),
       project.value.calendarLanguage === "cu" ? loadSlavonicCorpus() : Promise.resolve()]);
     let year = calendarYearCache.get(requestedYear);
     if (!year) {
@@ -2101,12 +1870,13 @@ async function loadCalendarData(): Promise<void> {
         if (oldestYear !== undefined) calendarYearCache.delete(oldestYear);
       }
     }
-    if (project.value.year !== requestedYear) return;
+    if (request !== calendarDataRequest || project.value !== targetProject || project.value.year !== requestedYear) return;
     calendarDataset.value = dataset;
     calendarYear.value = year;
     calendarLoadState.value = "ready";
     operationNotice.value = `Загружено ${dataset.statistics.recordCount} календарных записей`;
   } catch (error) {
+    if (request !== calendarDataRequest || project.value !== targetProject) return;
     calendarLoadState.value = "error";
     operationNotice.value = `Ошибка календарных данных: ${error instanceof Error ? error.message : String(error)}`;
   }
@@ -2153,12 +1923,12 @@ async function updateCalendarLanguage(event: Event): Promise<void> {
   const targetProject = project.value;
   const language = normalizeCalendarLanguage((event.target as HTMLSelectElement).value) as CalendarLanguage;
   if (language === project.value.calendarLanguage) return;
-  if (language === "cu") {
-    try { await loadSlavonicCorpus(); }
+  {
+    try { await Promise.all([loadCalendarDictionary(language), language === 'cu' ? loadSlavonicCorpus() : Promise.resolve()]); }
     catch (error) {
       if (request !== calendarLanguageRequest || project.value !== targetProject) return;
       (event.target as HTMLSelectElement).value = project.value.calendarLanguage ?? "ru";
-      operationNotice.value = `Не удалось загрузить церковнославянские названия: ${String(error)}`;
+      operationNotice.value = `Не удалось загрузить названия календаря: ${String(error)}`;
       return;
     }
   }

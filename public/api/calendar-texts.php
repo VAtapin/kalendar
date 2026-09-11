@@ -1,29 +1,29 @@
 <?php
 declare(strict_types=1);
 
-/** Kalendar is a client of the Bible Desktop liturgical API. */
-function calendar_bible_desktop_texts(array $query = []): array {
+/** Shared transport; each endpoint retains its own validation and failure policy. */
+function calendar_bible_desktop_get(string $path, array $query = [], int $timeout = 15): ?array {
     $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');
     $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
-    $url = $base.'/liturgical/calendar-texts'.($query ? '?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986) : '');
     $headers = ['Accept: application/json'];
     if ($key !== '') $headers[] = 'X-API-Key: '.$key;
-    $context = stream_context_create(['http'=>['method'=>'GET','timeout'=>15,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)], 'https'=>['method'=>'GET','timeout'=>15,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)]]);
+    $context = stream_context_create(['http'=>['method'=>'GET','timeout'=>$timeout,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)]]);
+    $url = $base.$path.($query ? '?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986) : '');
     $body = @file_get_contents($url, false, $context);
     $payload = is_string($body) ? json_decode($body, true) : null;
+    return is_array($payload) ? $payload : null;
+}
+
+/** Kalendar is a client of the Bible Desktop liturgical API. */
+function calendar_bible_desktop_texts(array $query = []): array {
+    $payload = calendar_bible_desktop_get('/liturgical/calendar-texts', $query);
     if (!is_array($payload) || !is_array($payload['texts'] ?? null)) calendar_fail('bible_desktop_liturgical_unavailable', 503, 'Богослужебные тексты Bible Desktop временно недоступны.');
     return $payload;
 }
 
 /** Read the central Hour plan, including rubric selection and special office mode. */
 function calendar_bible_desktop_service(array $query): array {
-    $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');
-    $headers = ['Accept: application/json'];
-    $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
-    if ($key !== '') $headers[] = 'X-API-Key: '.$key;
-    $context = stream_context_create(['http'=>['timeout'=>20,'ignore_errors'=>true,'header'=>implode("\r\n",$headers)]]);
-    $body = @file_get_contents($base.'/calendar/service?'.http_build_query($query,'','&',PHP_QUERY_RFC3986), false, $context);
-    $payload = is_string($body) ? json_decode($body,true) : null;
+    $payload = calendar_bible_desktop_get('/calendar/service', $query, 20);
     $data = $payload['data'] ?? null;
     if (!is_array($data) || ($data['date'] ?? null) !== $query['date'] || ($data['office'] ?? null) !== $query['office']
         || ($data['textLanguage'] ?? null) !== $query['lang'] || ($data['profile'] ?? null) !== $query['profile'] || !is_array($data['assignments'] ?? null)) {
@@ -35,14 +35,7 @@ function calendar_bible_desktop_service(array $query): array {
 /** Icons are selected through resolved memory IDs, never by a movable date's month/day. */
 function calendar_bible_desktop_icons(string $date): array {
     if (!preg_match('/^\d{4}-(\d{2}-\d{2})$/', $date, $match)) return [];
-    $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');
-    $url = $base.'/calendar/day?'.http_build_query(['date'=>$date, 'lang'=>'ru'], '', '&', PHP_QUERY_RFC3986);
-    $headers = ['Accept: application/json'];
-    $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
-    if ($key !== '') $headers[] = 'X-API-Key: '.$key;
-    $context = stream_context_create(['http'=>['method'=>'GET','timeout'=>15,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)], 'https'=>['method'=>'GET','timeout'=>15,'ignore_errors'=>true,'header'=>implode("\r\n", $headers)]]);
-    $body = @file_get_contents($url, false, $context);
-    $payload = is_string($body) ? json_decode($body, true) : null;
+    $payload = calendar_bible_desktop_get('/calendar/day', ['date'=>$date, 'lang'=>'ru']);
     if (!is_array($payload) || ($payload['data']['date'] ?? null) !== $date || !is_array($payload['data']['icons'] ?? null)) return [];
     return array_values(array_filter(array_map(static function ($entry): ?array {
         if (!is_array($entry) || !is_string($entry['title'] ?? null)) return null;

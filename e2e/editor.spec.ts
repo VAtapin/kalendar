@@ -7,6 +7,37 @@ async function openEditor(page: import("@playwright/test").Page): Promise<void> 
   await expect(page.locator(".workspace")).toBeVisible();
 }
 
+test("loads only the selected calendar dictionary and keeps a later language choice", async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', request => requests.push(request.url()));
+  await page.route('**/api/v1/account/session', route => route.fulfill({ json: { user: {
+    id: 'dictionary-test', email: 'editor@example.com', createdAt: '2026-01-01', blocked: false,
+  } } }));
+  await page.route('**/api/v1/account/library', route => route.fulfill({ json: { revision: 0, templates: [], grids: [] } }));
+  await page.route('**/api/v1/account/calendars**', route => route.fulfill({ json: { id: 'dictionary-test', revision: 1, calendars: [] } }));
+  await page.route('**/api/v1/calendar-grid-templates', route => route.fulfill({ json: { templates: [], canManage: false } }));
+  await page.goto('/calendar/new');
+  await expect(page.locator('.workspace')).toBeVisible();
+  await page.getByRole('button', { name: 'Правка', exact: true }).click();
+  await page.getByTestId('menu-command-calendar-properties').click();
+  const language = page.getByTestId('calendar-language-select');
+  expect(requests.some(url => /german-additions|uk-commemorations|pl-commemorations|slavonic-editorial-titles/.test(url))).toBe(false);
+  await language.selectOption('de');
+  await expect(page.locator('body')).toContainText('Язык календаря: Deutsch');
+  expect(requests.some(url => url.includes('german-additions'))).toBe(true);
+  expect(requests.some(url => /uk-commemorations|pl-commemorations|slavonic-editorial-titles/.test(url))).toBe(false);
+  await page.route('**/slavonic-editorial-titles.json*', async route => {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    await route.continue();
+  });
+  const slowCorpus = page.waitForResponse(response => response.url().includes('slavonic-editorial-titles.json'));
+  await language.selectOption('cu');
+  await language.selectOption('pl');
+  await expect(page.locator('body')).toContainText('Язык календаря: Polski');
+  await (await slowCorpus).finished();
+  await expect(language).toHaveValue('pl');
+});
+
 test("opens calendar properties from an object and resizes every page with one undo", async ({ page }) => {
   // Keep this editor regression independent of account and PHP services.
   await page.route("**/api/v1/calendar-grid-templates", (route) => route.fulfill({

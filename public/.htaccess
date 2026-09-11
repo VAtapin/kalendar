@@ -1,10 +1,10 @@
 DirectoryIndex index.html
 
 <IfModule mod_headers.c>
-    # A new navigation must revalidate the entry point, including SPA routes.
-    <Files "index.html">
+    # Revalidate both the SPA and standalone document entry points.
+    <FilesMatch "\.html$">
         Header always set Cache-Control "no-cache, max-age=0, must-revalidate"
-    </Files>
+    </FilesMatch>
 </IfModule>
 
 <IfModule mod_rewrite.c>
@@ -20,7 +20,7 @@ DirectoryIndex index.html
     # This must precede the SPA fallback (which is only for application routes).
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(?:assets|fonts|brand|data|downloads)(?:/|$) - [R=404,L]
+    RewriteRule ^(?:assets|fonts|brand|data|downloads|calendar-ui)(?:/|$) - [R=404,L]
 
     # Keep real files and directories intact; everything else opens the app.
     RewriteCond %{REQUEST_FILENAME} !-f
