@@ -1,6 +1,6 @@
 # WordPress-плагин «Православный календарь»
 
-Исходники: `wordpress/orthocal/`. Установочный архив: `artifacts/orthocal-1.3.37.zip`.
+Исходники: `wordpress/orthocal/`. Установочный архив: `artifacts/orthocal-1.3.38.zip`.
 Обычная сборка не меняет публичные скачивания. Копирование в `public/downloads`
 включается отдельным флагом `--publish-downloads` после согласования выпуска.
 Плагин самостоятельный: PHP 8.0+, WordPress 6.3+, без Node, Vue, локального XML
@@ -145,7 +145,7 @@ permalink без rewrite, REST-навигацию, чтения, отсутст�
 
 Блоки тропарей, кондаков, молитв и Часослова получают тексты из Bible Desktop API. Kalendar остаётся источником расчёта календарного дня и печати, но не хранит богослужебный корпус.
 
-## Библиотека в 1.3.37
+## Библиотека в 1.3.38
 
 Сначала обновите Bible Desktop и выполните `liturgical:import-library --publish`
 и `liturgical:import-public-prayers --publish`. Это подключает сохранённые
