@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.32';
+    const VERSION = '1.3.33';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications'];
     const SERVICE_MODES=['horologion'];
@@ -277,7 +277,7 @@ final class Orthocal_Plugin {
     }
     static function event_allowed($event,$levels): bool {
         if (!is_array($event) || ($event['category']??'')!=='commemoration') return false;
-        $levels=array_values(array_filter(array_map('trim',explode(',',(string)$levels))));
+        $levels=array_values(array_filter(array_map('trim',explode(',',(string)$levels)),static fn($level)=>$level!==''));
         // An empty selection is treated as “all”, so an incomplete shortcode
         // can never make the whole holidays and memorials section disappear.
         return !$levels || in_array(self::event_level($event['typeCode']??-1),$levels,true);

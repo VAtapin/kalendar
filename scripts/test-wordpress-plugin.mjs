@@ -132,6 +132,7 @@ try {
   await page.locator('[data-oc-build="year"]').fill('2027');
   await page.locator('[data-oc-build="month"]').fill('5');
   await page.locator('[data-oc-build="open"]').selectOption('modal');
+  await page.locator('[data-oc-build="reading_open"]').selectOption('modal');
   await page.locator('[data-oc-preview]').click();
   await page.locator('[data-oc-preview-slot] [data-oc-date="2027-05-02"]').click();
   await page.locator('dialog[open] .oc-day').waitFor();
@@ -148,6 +149,10 @@ try {
   await page.goto(origin+'/wp-admin/post.php?post='+pageId+'&action=edit');
   await page.waitForFunction(()=>window.wp?.blocks?.getBlockType('orthocal/year'));
   assert.equal(await page.evaluate(()=>wp.blocks.getBlockTypes().filter(b=>b.name.startsWith('orthocal/')).length),20);
+  await page.evaluate(()=>wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/day',{date:'2027-05-02'})));
+  await page.waitForFunction(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>[...doc.querySelectorAll('.orthocal')].some(el=>el.textContent.includes('Светлое Христово'))));
+  await page.evaluate(()=>{window.OrthocalEditor.hasApiKey=false;wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/month'));});
+  await page.waitForFunction(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>doc.body?.textContent.includes('API-ключ календаря не задан')));
   const nojs=await browser.newContext({javaScriptEnabled:false});
   const plain=await nojs.newPage();await plain.goto(origin+'/?page_id='+pageId+'&orthocal_date=2027-05-02');
   assert.ok(await plain.locator('.oc-detail .oc-day').count());await nojs.close();

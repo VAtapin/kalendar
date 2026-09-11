@@ -7,10 +7,11 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $library=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
         $value=['date'=>$query['date'],'office'=>$query['office'],'textLanguage'=>'cu',
             'assignments'=>calendar_service_assignments($library,3,6,'cross'),
-            'expansions'=>calendar_service_expansions($query['expansion']??'short')];
+            'expansions'=>calendar_service_expansions($query['expansion']??'short', 'cu')];
         return ['headers'=>[],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar-texts/')) {
+    if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar-texts/') || str_starts_with($url,'https://bible-desktop.com/api/liturgical/calendar-texts')) {
+        if(str_starts_with($url,'https://bible-desktop.com/') && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible texts');
         $value=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
         $value['texts']=array_values(array_filter($value['texts'],static function($text)use($query){
@@ -29,6 +30,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $body=file_get_contents($file);$etag='"'.hash('sha256',$body).'"';$same=($args['headers']['If-None-Match']??'')===$etag;
         return ['headers'=>['etag'=>$etag,'last-modified'=>'Wed, 09 Sep 2026 00:00:00 GMT'],'body'=>$same?'':$body,'response'=>['code'=>$same?304:200,'message'=>'OK'],'cookies'=>[]];
     }
+    if(str_starts_with($url,'https://bible-desktop.com/api/calendar/icons')) return ['headers'=>[],'body'=>'{"data":[],"total":0}','response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     if (!str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar/') && !str_starts_with($url,'https://bible-desktop.com/api/')) return new WP_Error('offline_test','External requests disabled in test');
     $calendar=str_contains($url,'kalender.georg');
     if (!$calendar && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible');
