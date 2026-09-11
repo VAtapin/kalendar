@@ -89,6 +89,21 @@
     "Каталог переводов требует обновления.": "Das Übersetzungsverzeichnis muss aktualisiert werden.",
     "Не удалось получить данные.": "Daten konnten nicht geladen werden.",
     "Икона": "Ikone",
-    "Назначения текстов для этого дня ещё требуют уточнения. Справочные тексты приведены отдельно.": "Die Textzuordnung für diesen Tag ist noch unvollständig. Referenztexte werden gesondert gekennzeichnet."
+    "Назначения текстов для этого дня ещё требуют уточнения. Справочные тексты приведены отдельно.": "Die Textzuordnung für diesen Tag ist noch unvollständig. Referenztexte werden gesondert gekennzeichnet.",
+    "Акафисты": "Akathistoi",
+    "Каноны": "Kanones",
+    "Язык текста": "Textsprache",
+    "На выбранном языке текст пока не добавлен.": "In dieser Sprache ist noch kein Text verfügbar.",
+    "Праздники и святые": "Feste und Heilige"
+  },
+  "pl": {
+    "Акафисты": "Akatysty",
+    "Каноны": "Kanony",
+    "Часослов": "Horologion",
+    "Молитвы": "Modlitwy",
+    "Язык текста": "Język tekstu",
+    "Раздел": "Część",
+    "Скопировать текст": "Kopiuj tekst",
+    "На выбранном языке текст пока не добавлен.": "Tekst w tym języku nie został jeszcze dodany."
   }
 }

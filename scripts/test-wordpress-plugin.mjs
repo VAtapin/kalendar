@@ -120,6 +120,7 @@ try {
   await page.waitForFunction(()=>document.querySelectorAll('[data-oc-preview-slot] .oc-fasting-section').length===0);
   assert.equal(await page.locator('[data-oc-preview-slot] .oc-fasting-section').count(),0);
   await page.locator('[data-oc-build="mode"]').selectOption('troparia');
+  await page.locator('[data-oc-build="text_language"]').selectOption('cu-civil');
   await page.locator('[data-oc-build="scope"]').selectOption('resurrection');
   await page.locator('[data-oc-build="tone"]').fill('1');
   assert.match(await page.locator('#oc-generated-code').inputValue(),/orthocal_troparia.*scope="resurrection".*tone="1"|orthocal_troparia.*tone="1".*scope="resurrection"/);
@@ -148,7 +149,7 @@ try {
   assert.deepEqual(remoteAssets,[],'All images and fonts must be served by installed WordPress');
   await page.goto(origin+'/wp-admin/post.php?post='+pageId+'&action=edit');
   await page.waitForFunction(()=>window.wp?.blocks?.getBlockType('orthocal/year'));
-  assert.equal(await page.evaluate(()=>wp.blocks.getBlockTypes().filter(b=>b.name.startsWith('orthocal/')).length),20);
+  assert.equal(await page.evaluate(()=>wp.blocks.getBlockTypes().filter(b=>b.name.startsWith('orthocal/')).length),22);
   await page.evaluate(()=>wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/day',{date:'2027-05-02'})));
   await page.waitForFunction(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>[...doc.querySelectorAll('.orthocal')].some(el=>el.textContent.includes('Светлое Христово'))));
   await page.evaluate(()=>{window.OrthocalEditor.hasApiKey=false;wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/month'));});
@@ -157,7 +158,7 @@ try {
   const plain=await nojs.newPage();await plain.goto(origin+'/?page_id='+pageId+'&orthocal_date=2027-05-02');
   assert.ok(await plain.locator('.oc-detail .oc-day').count());await nojs.close();
   assert.deepEqual(errors,[]);
-  console.log('PASS real WordPress/SQLite + Edge: 20 modes, persistent media, AJAX month/day, Bible text and missing verses, nested day/reading dialogs, library filters, admin preview/help/settings, key isolation, local-only assets, mobile layout and 20 Gutenberg blocks');
+  console.log('PASS real WordPress/SQLite + Edge: 22 modes, persistent media, AJAX month/day, Bible text and missing verses, nested day/reading dialogs, library filters, admin preview/help/settings, key isolation, local-only assets, mobile layout and 22 Gutenberg blocks');
 } catch(error) {
   if(browser) {const p=browser.contexts()[0]?.pages()[0];if(p){writeFileSync(resolve('tmp/orthocal-wp/failure.html'),await p.content());await p.screenshot({path:resolve('tmp/orthocal-wp/failure.png'),fullPage:true});}}
   console.error(logs.slice(-3000));throw error;

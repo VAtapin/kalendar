@@ -50,7 +50,7 @@ try{
  await page.locator('.week-day').first().click();
  await page.locator('dialog[open] .rubric').waitFor();
  assert.equal(await page.locator('dialog .rubric').innerText(),'Слава:');
- assert.match(await page.locator('dialog').innerText(),/Textzuordnung/);
+ assert.doesNotMatch(await page.locator('dialog').innerText(),/Textzuordnung|Справочный текст|требуют уточнения/);
  await page.locator('#close').click();
  assert.deepEqual(errors,[]);
  await page.screenshot({path:'artifacts/web-calendar-verified.png'});

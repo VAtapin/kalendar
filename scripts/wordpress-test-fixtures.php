@@ -1,6 +1,21 @@
 <?php
 // Installed only in the disposable local test site. Never packaged in the plugin.
 add_filter('pre_http_request', function($pre,$args,$url) {
+    if(str_starts_with($url,'https://bible-desktop.com/api/liturgical/works')) {
+        if(isset($args['headers']['X-API-Key']))throw new Exception('Calendar key leaked to library');
+        parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
+        $corpus=json_decode(file_get_contents(dirname(ORTHOCAL_TEST_ASSET_ROOT).'/scripts/fixtures/liturgical-reader.json'),true);
+        $parts=explode('/',trim(parse_url($url,PHP_URL_PATH),'/'));$value=[];
+        if(count($parts)===3)foreach($corpus['works'] as $work) {
+            if(!in_array($query['collection']??'', $work['collections'],true))continue;
+            $value[]=['slug'=>$work['slug'],'title'=>$work['title'],'available_languages'=>['ru','cu-civil']];
+        }
+        else foreach($corpus['works'] as $work)if($work['slug']===($parts[3]??'')) {
+            $language=$parts[5]??'ru';$blocks=$work['versions'][$language==='cu-civil'?'cu':$language]??[];
+            $value=['slug'=>$work['slug'],'title'=>$work['title'],'language'=>$language,'orthography'=>'civil','blocks'=>$blocks,'source_url'=>$work['url'],'credit'=>'Азбука веры'];
+        }
+        return ['headers'=>[],'body'=>wp_json_encode(['data'=>$value]),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
+    }
     if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar/service')) {
         require_once ORTHOCAL_TEST_ASSET_ROOT.'/api/calendar-service.php';
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
@@ -13,6 +28,8 @@ add_filter('pre_http_request', function($pre,$args,$url) {
     if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar-texts/') || str_starts_with($url,'https://bible-desktop.com/api/liturgical/calendar-texts')) {
         if(str_starts_with($url,'https://bible-desktop.com/') && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible texts');
         $value=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
+        foreach($value['texts'] as &$text)if($text['language']==='cu'&&($text['orthography']??'')!=='traditional')$text['language']='cu-civil';
+        unset($text);
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
         $value['texts']=array_values(array_filter($value['texts'],static function($text)use($query){
             foreach(['id','type','scope','language'] as $field)if(isset($query[$field])&&$query[$field]!==''&&$text[$field]!==$query[$field])return false;

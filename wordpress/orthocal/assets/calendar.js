@@ -10,7 +10,7 @@
     return fonts.get(url);
   }
   function popup(content,title,t=s=>s) {
-    const dialog=document.createElement('dialog');dialog.className='oc-dialog'+(content.querySelector?.('.oc-horologion')?' oc-dialog--service':'');dialog.setAttribute('aria-label',title);
+    const dialog=document.createElement('dialog');dialog.className='oc-dialog'+(content.querySelector?.('.oc-service-controls')?' oc-dialog--service':'');dialog.setAttribute('aria-label',title);
     const close=document.createElement('button');close.type='button';close.className='oc-dialog-close';close.textContent=t('Закрыть ×');
     close.addEventListener('click',()=>dialog.close());dialog.append(close,content);document.body.append(dialog);
     const active=document.activeElement;dialog.addEventListener('close',()=>{dialog.remove();active?.focus();},{once:true});
@@ -135,7 +135,8 @@
       const icon=event.target.closest('[data-oc-icon]');
       if(icon){event.preventDefault();const body=document.createElement('div');body.className='oc-icon-view';const image=document.createElement('img');image.src=icon.href;image.alt=icon.dataset.ocIconTitle||'';const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||t('Икона');body.append(title,image);if(icon.dataset.ocIconDescription){const description=document.createElement('p');description.textContent=icon.dataset.ocIconDescription;body.append(description);}popup(body,icon.dataset.ocIconTitle||t('Икона'),t);}
       const day=event.target.closest('[data-oc-day]');if(day)render({date:day.dataset.ocDay});
-      const library=event.target.closest('[data-oc-library]');if(library)void render({mode:library.dataset.ocLibrary,scope:'',tone:'',weekday:'',text_id:''},'modal');
+      const textPage=event.target.closest('[data-oc-text-page]');if(textPage)void render({text_page:textPage.dataset.ocTextPage});
+      const library=event.target.closest('[data-oc-library]');if(library)void render({mode:library.dataset.ocLibrary,scope:'',tone:'',weekday:'',text_id:'',work:'',text_page:'1'},'modal');
       if(event.target.closest('[data-oc-copy-link]'))void copy(root.querySelector('.oc-permalink a').href,status,t);
       const copyReading=event.target.closest('[data-oc-copy-reading]');if(copyReading)void copy(copyReading.closest('.oc-reading-body').querySelector('.oc-verses').textContent,status,t);
       const summary=event.target.closest('[data-oc-reading] > summary');
@@ -152,9 +153,9 @@
       if (event.target.checkValidity()) render({year:event.target.value});
     });
     root.querySelector('[data-oc-picker]')?.addEventListener('change',event=>{if(event.target.checkValidity()&&event.target.value)void render({date:event.target.value});});
-      root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:''})));
-    root.querySelector('[data-oc-service-lang]')?.addEventListener('change',event=>void render({lang:event.target.value}));
-    root.querySelector('[data-oc-service-office]')?.addEventListener('change',event=>void render({office:event.target.value}));
+      root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:'',text_page:'1'})));
+    root.querySelector('[data-oc-library-language]')?.addEventListener('change',event=>void render({text_language:event.target.value,work:'',scope:'',tone:'',text_page:'1'}));
+    root.querySelector('[data-oc-library-work]')?.addEventListener('change',event=>void render({work:event.target.value}));
     root.querySelector('[data-oc-event-search]')?.addEventListener('input',event=>{
       const query=event.target.value.toLocaleLowerCase().trim();let shown=0;
       root.querySelectorAll('.oc-events li').forEach(item=>{item.hidden=!item.textContent.toLocaleLowerCase().includes(query);if(!item.hidden)shown++;});

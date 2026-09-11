@@ -61,17 +61,13 @@ function eventCard(event) { const card = e('article', '', 'event-card'); card.ap
     card.append(e('small', annotation)); if (event.description)
     card.append(e('p', event.description)); const reference = event.reading?.reference || event.reference; if (reference)
     card.append(e('p', reference, 'hint')); return card; }
-function addService(root, service) { const card = e('section', '', 'section-card'); card.append(e('h3', 'Богослужение дня')); const metadata = e('div', '', 'service-meta'); [service.cycles?.weekly?.subject, service.cycles?.movable?.label, service.cycles?.movable?.tone ? ('глас ' + service.cycles.movable.tone) : ''].filter(Boolean).forEach(value => metadata.append(e('span', value))); card.append(metadata); if (service.serviceMode?.message)
-    card.append(e('p', state.lang === 'de' ? 'Für diesen Tag gilt eine besondere Ordnung der Stunden. Die allgemeinen Gebete ersetzen nicht den vollständigen Gottesdienst.' : service.serviceMode.message, 'hint')); if (service.properCoverage?.status && service.properCoverage.status !== 'available' && service.properCoverage.status !== 'not-applicable')
-    card.append(e('p', 'Назначения текстов для этого дня ещё требуют уточнения. Справочные тексты приведены отдельно.', 'hint')); if (service.assignments?.length) {
+function addService(root, service) { const appointed=(service.assignments||[]).filter(item=>item.insert===true); const card = e('section', '', 'section-card'); card.append(e('h3', 'Богослужение дня')); const metadata = e('div', '', 'service-meta'); [service.cycles?.weekly?.subject, service.cycles?.movable?.label, service.cycles?.movable?.tone ? ('глас ' + service.cycles.movable.tone) : ''].filter(Boolean).forEach(value => metadata.append(e('span', value))); card.append(metadata);   if (appointed.length) {
     const list = e('div', '', 'service-list');
-    service.assignments.forEach(item => { const assignment = e('article', '', 'assignment'); assignment.append(e('strong', item.title || item.slot)); if (item.insert === true && item.rubric)
-        assignment.append(e('p', item.rubric, 'rubric')); assignment.append(e('p', item.text || '')); if (item.insert !== true)
-        assignment.append(e('small', 'Справочный текст; в последование этого дня не назначен.')); list.append(assignment); });
+    appointed.forEach(item => { const assignment = e('article', '', 'assignment'); assignment.append(e('strong', item.title || item.slot)); if (item.insert === true && item.rubric)
+        assignment.append(e('p', item.rubric, 'rubric')); assignment.append(e('p', item.text || ''));  list.append(assignment); });
     card.append(list);
 }
-else
-    card.append(e('p', 'Для этого дня проверенные календарные вставки пока не назначены.', 'hint')); if (service.expansions?.length) {
+if (service.expansions?.length) {
     const expansion = e('div', '', 'expansion');
     service.expansions.forEach(item => { const details = e('details'); details.append(e('summary', item.title || item.id), e('p', item.text || '')); expansion.append(details); });
     card.append(expansion);
