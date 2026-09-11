@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 export type BlockStyle = {align?:'left'|'center'|'right';fontSize?:number;color?:string;bold?:boolean;italic?:boolean};
 export type ContentBlock = { type: 'heading' | 'text' | 'image' | 'button'; text: string; url: string; style?:BlockStyle };
 export function blockStyle(style?:BlockStyle) {

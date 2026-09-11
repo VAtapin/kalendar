@@ -16,6 +16,7 @@
     "api": "php -S 127.0.0.1:8787 scripts/php-dev-router.php",
     "export:sample": "tsx scripts/generate-sample-pdf.ts",
     "typecheck": "vue-tsc -b",
+    "audit:bundle": "tsx scripts/audit-browser-bundle.ts",
     "test": "vitest run tests",
     "test:e2e": "playwright test",
     "test:build-update": "tsx scripts/test-build-update.ts",

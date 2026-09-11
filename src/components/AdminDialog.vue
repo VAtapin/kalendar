@@ -13,7 +13,7 @@ const AdminAiSettings = defineAsyncComponent(() => import('./AdminAiSettings.vue
 const AdminCalendarApi = defineAsyncComponent(() => import('./AdminCalendarApi.vue'));
 const AiDraftAssistant = defineAsyncComponent(() => import('./AiDraftAssistant.vue'));
 import type { PageTranslation } from '../content/site-pages';
-import { catalogRequest } from "../collaboration/catalog-client";
+import { catalogRequest } from "../collaboration/catalog-request";
 import type { CalendarProject } from "../document/types";
 import type { OrthodoxCalendarYear } from "../calendar/types";
 import { mergeMonasteryEvents } from "../calendar/engine/merge-monastery-events";

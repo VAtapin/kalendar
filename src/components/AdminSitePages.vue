@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed,onMounted,onBeforeUnmount,ref,watch } from 'vue';
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 import { loadSitePages,type SitePage,type PageTranslation } from '../content/site-pages';
 import type { InterfaceLanguage } from '../document/types';
 import PageTextEditor from './PageTextEditor.vue';

@@ -1,4 +1,6 @@
 import { createBlankPage } from "../document/factories";
+import type { CalendarTemplateId } from './calendar-template-presets';
+export { CALENDAR_TEMPLATE_PRESETS, type CalendarTemplateId, type CalendarTemplatePreset } from './calendar-template-presets';
 import { attachElementToLayer, createEmptyLayer } from "../document/layer-operations";
 import type {
   LegendElement,
@@ -30,32 +32,6 @@ export const RUSSIAN_MONTH_NAMES = [
   "Октябрь",
   "Ноябрь",
   "Декабрь",
-] as const;
-
-export type CalendarTemplateId = "editorial-photo" | "classic-grid" | "photo-feature";
-
-export interface CalendarTemplatePreset {
-  id: CalendarTemplateId;
-  name: string;
-  description: string;
-}
-
-export const CALENDAR_TEMPLATE_PRESETS: readonly CalendarTemplatePreset[] = [
-  {
-    id: "editorial-photo",
-    name: "Фото + издательская сетка",
-    description: "Крупное фото, открытая газетная верстка и текст месяца.",
-  },
-  {
-    id: "classic-grid",
-    name: "Классическая таблица",
-    description: "Больше места календарю, ячейки с полной рамкой.",
-  },
-  {
-    id: "photo-feature",
-    name: "Акцент на фотографии",
-    description: "Половина страницы под фото, компактная сетка без рамок.",
-  },
 ] as const;
 
 function defaultId(): string {

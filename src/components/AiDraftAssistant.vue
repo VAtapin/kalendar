@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 import type { PageTranslation } from '../content/site-pages';
 import ContentBlocks from './ContentBlocks.vue';
 const props=defineProps<{source:string;language?:string;disabled?:boolean}>();

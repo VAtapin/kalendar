@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 const enabled=ref(false),model=ref(''),key=ref(''),hasKey=ref(false),clearKey=ref(false),busy=ref(false),message=ref('');
 async function save(){busy.value=true;message.value='';try{const r=await catalogRequest<{hasKey:boolean}>('admin/ai-settings','PUT',{enabled:enabled.value,model:model.value,key:key.value,clearKey:clearKey.value});hasKey.value=r.hasKey;key.value='';clearKey.value=false;message.value='Настройки сохранены';}catch(e){message.value=String(e);}finally{busy.value=false;}}
 onMounted(async()=>{try{const r=await catalogRequest<{enabled:boolean;model:string;hasKey:boolean}>('admin/ai-settings');enabled.value=r.enabled;model.value=r.model;hasKey.value=r.hasKey;}catch(e){message.value=String(e);}});

@@ -1,7 +1,9 @@
+import { catalogRequest } from './catalog-request';
+export { catalogRequest } from './catalog-request';
 import { computed, ref } from 'vue';
 import { DECOR_LIBRARY_ITEMS } from '../decor/decor-library';
 import { FONT_OPTIONS } from '../typography/font-catalog';
-import { CALENDAR_TEMPLATE_PRESETS } from '../templates/calendar-templates';
+import { CALENDAR_TEMPLATE_PRESETS } from '../templates/calendar-template-presets';
 import { FOOD_MARKER_PACKS } from '../calendar/presentation/marker-packs';
 export interface CatalogItem { id: string; name: string; kind: 'image' | 'svg' | 'font' | 'template'; category: string; enabled: boolean; uploaded?: boolean; family?: string; source?: string; widthPx?: number; heightPx?: number; bytes?: number; mimeType?: string }
 export const fontCatalogId = (family: string) => {
@@ -26,10 +28,5 @@ export const catalogItems = computed<CatalogItem[]>(() => {
   return [...merged.values()];
 });
 export function catalogEnabled(id: string): boolean { return catalogOverrides.value.find(item => item.id === id)?.enabled !== false; }
-export async function catalogRequest<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
-  const response = await fetch(`/api/v1/${path}`, {method, credentials: 'same-origin', headers: body === undefined ? {} : {'Content-Type': 'application/json'}, body: body === undefined ? undefined : JSON.stringify(body)});
-  if (response.status === 204) return undefined as T;
-  const data = await response.json(); if (!response.ok) throw new Error(data.message || data.error || 'Ошибка каталога'); return data;
-}
 export async function refreshCatalog(): Promise<void> { catalogOverrides.value = (await catalogRequest<{items: CatalogItem[]}>('catalog')).items; }
 export const catalogContentUrl = (id: string) => `/api/v1/catalog/${encodeURIComponent(id)}/content`;

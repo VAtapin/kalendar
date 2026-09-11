@@ -1,4 +1,4 @@
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 import { interfaceLanguage, INTERFACE_LANGUAGE_LOCALES } from '../i18n/interface-language';
 export interface PrintConfig {
   revision:number; enabled:boolean; currency:string; taxNote:string; terms:string; notificationEmail?:string; maxPages:number; minQuantity:number; weights:Record<string,number>; stripeReady?:boolean;

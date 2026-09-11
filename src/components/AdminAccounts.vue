@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 import type { AccountUser } from '../collaboration/account-client';
 const users = ref<AccountUser[]>([]); const error = ref(''); const busy = ref(false);
 const search = ref('');

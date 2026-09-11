@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { catalogRequest } from '../collaboration/catalog-client';
+import { catalogRequest } from '../collaboration/catalog-request';
 type Plan = {id:string;name:string;priceCents:number;currency:string;perMinute:number;perDay:number;perMonth:number;enabled:boolean;published:boolean};
 type Client = {id:string;name:string;email:string;kind:'standard'|'system';planId:string|null;enabled:boolean;expiresAt:string|null;revision:number;keyPrefix:string;createdAt:string;keyCreatedAt:string;lastUsedAt?:string;totalRequests?:number;usage?:Record<string,{bucket:string;count:number}>};
 type Overview = {revision:number;plans:Plan[];clients:Client[];settings:{contactEmail:string;wordpressUrl:string};serverTime:string};
