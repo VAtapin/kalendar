@@ -15,7 +15,24 @@ function calendar_bible_desktop_texts(array $query = []): array {
     return $payload;
 }
 
-/** Standard Bible Desktop icon catalog; an unavailable catalog must not stop calendar calculation. */
+/** Read the central Hour plan, including rubric selection and special office mode. */
+function calendar_bible_desktop_service(array $query): array {
+    $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');
+    $headers = ['Accept: application/json'];
+    $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
+    if ($key !== '') $headers[] = 'X-API-Key: '.$key;
+    $context = stream_context_create(['http'=>['timeout'=>20,'ignore_errors'=>true,'header'=>implode("\r\n",$headers)]]);
+    $body = @file_get_contents($base.'/calendar/service?'.http_build_query($query,'','&',PHP_QUERY_RFC3986), false, $context);
+    $payload = is_string($body) ? json_decode($body,true) : null;
+    $data = $payload['data'] ?? null;
+    if (!is_array($data) || ($data['date'] ?? null) !== $query['date'] || ($data['office'] ?? null) !== $query['office']
+        || ($data['textLanguage'] ?? null) !== $query['lang'] || ($data['profile'] ?? null) !== $query['profile'] || !is_array($data['assignments'] ?? null)) {
+        calendar_fail('bible_desktop_service_unavailable',503,'План службы Bible Desktop временно недоступен.');
+    }
+    return $data;
+}
+
+/** Icons are selected through resolved memory IDs, never by a movable date's month/day. */
 function calendar_bible_desktop_icons(string $date): array {
     if (!preg_match('/^\d{4}-(\d{2}-\d{2})$/', $date, $match)) return [];
     $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');

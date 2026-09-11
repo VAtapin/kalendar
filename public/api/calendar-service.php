@@ -214,6 +214,13 @@ function calendar_service_routes(string $method, string $path): void {
         $access = (new CalendarApiAccessStore())->authorize($key);
         if ($access['monthLimit'] !== null) { header('X-API-Month-Limit: ' . $access['monthLimit']); header('X-API-Month-Remaining: ' . $access['monthRemaining']); }
     }
+    if ($office !== 'horologion') {
+        $data = calendar_bible_desktop_service(['date'=>$date, 'office'=>$office, 'profile'=>$profile,
+            'lang'=>$language === 'cu' ? 'cu' : 'cu-civil', 'expansion'=>$expansion]);
+        $data['language'] = $language;
+        calendar_public_response($data, $method);
+        return;
+    }
     $runtimeDirectory = is_file(__DIR__ . '/calendar-runtime.json') ? __DIR__ : calendar_project_root() . '/dist/api';
     $manifest = calendar_read_json_file($runtimeDirectory . '/calendar-runtime.json', null);
     if (!is_array($manifest) || !preg_match('/^[a-f0-9]{64}$/', $manifest['dataVersion'] ?? '')) calendar_fail('calendar_not_built', 503);

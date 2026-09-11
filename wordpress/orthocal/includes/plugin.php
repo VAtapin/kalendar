@@ -403,9 +403,10 @@ final class Orthocal_Plugin {
             : 'Здесь представлены общие молитвы и календарные вставки на церковнославянском языке; это не полное последование Часослова.').'</p>';
         $html.='<p><a target="_blank" rel="noopener noreferrer" href="https://azbyka.ru/bogosluzhenie/1/chasoslov/">'.esc_html($a['lang']==='de'?'Vollständiges Stundenbuch (Kirchenslawisch) ↗':'Полный Часослов на церковнославянском ↗').'</a></p>';
         $assignments=$data['assignments']??[];
+        if(!empty($data['serviceMode']['message']))$html.='<p class="oc-message">'.esc_html($a['lang']==='de'?'Für diesen Tag gilt eine besondere Ordnung der Stunden. Die allgemeinen Gebete ersetzen nicht den vollständigen Gottesdienst.':$data['serviceMode']['message']).'</p>';
         if ($assignments) {
             $html.=('<section class="oc-service-section"><h4>'.self::ui('Тексты дня',$a['lang']).'</h4>');
-            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??(self::ui('Текст службы',$a['lang']))).'</h5><div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
+            foreach ($assignments as $item) $html.='<article class="oc-service-prayer"><h5>'.esc_html($item['title']??(self::ui('Текст службы',$a['lang']))).'</h5>'.(($item['insert']??false)?'':'<p class="oc-muted">'.esc_html($a['lang']==='de'?'Referenztext; für diesen Gottesdienst nicht zugeordnet.':'Справочный текст; в последование этого дня не назначен.').'</p>').'<div class="oc-service-text" lang="cu">'.nl2br(esc_html($item['text']??'')).'</div></article>';
             $html.='</section>';
         }
         $expansions=$data['expansions']??[];
