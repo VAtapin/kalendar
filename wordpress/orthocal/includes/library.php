@@ -5,21 +5,28 @@ if (!defined('ABSPATH')) exit;
 final class Orthocal_Library {
     const LANGUAGES = ['ru'=>'Русский','cu'=>'Церковнославянский','cu-civil'=>'Церковнославянский — гражданский шрифт','de'=>'Deutsch','pl'=>'Polski','uk'=>'Українська'];
 
-    static function language($a) { return ($a['text_language'] ?? '') ?: $a['lang']; }
+    static function language($a) {
+        $language=($a['text_language'] ?? '') ?: $a['lang'];
+        return in_array($a['mode']??'', ['texts','troparia','kontakia','magnifications'], true) && $language==='cu' ? 'cu-civil' : $language;
+    }
 
-    static function language_control($a) {
+    static function language_control($a,$languages=null) {
+        if($languages===null && in_array($a['mode']??'', ['troparia','kontakia'], true))$languages=['ru','cu-civil'];
+        $languages=$languages===null?array_keys(self::LANGUAGES):array_values(array_intersect(array_keys(self::LANGUAGES),$languages));
         $html='<label>'.esc_html(Orthocal_Plugin::ui('Язык текста',$a['lang'])).' <select data-oc-library-language>';
-        foreach(self::LANGUAGES as $code=>$label)$html.='<option value="'.esc_attr($code).'" '.selected(self::language($a),$code,false).'>'.esc_html($label).'</option>';
+        foreach($languages as $code)$html.='<option value="'.esc_attr($code).'" '.selected(self::language($a),$code,false).'>'.esc_html(self::LANGUAGES[$code]).'</option>';
         return $html.'</select></label>';
     }
 
     static function data($a) {
         $language=self::language($a);
-        $collection=$a['mode']==='horologion'?'horologion':($a['mode']==='prayers'?'prayers':(in_array($a['mode'],['troparia','kontakia'],true)?($language==='de'?'hymnography':'horologion-appendix'):$a['mode']));
+        $collection=$a['mode']==='horologion'?'horologion':($a['mode']==='prayers'?'prayers':(in_array($a['mode'],['troparia','kontakia'],true)?'horologion-appendix':$a['mode']));
         $catalog=Orthocal_Plugin::request('bible','liturgical/works',['collection'=>$collection]);
         if(is_wp_error($catalog))return $catalog;
-        $works=array_values(array_filter($catalog['data']??[],static fn($work)=>in_array($language,$work['available_languages']??[],true)));
-        if(in_array($a['mode'],['troparia','kontakia'],true)&&$language!=='de')$works=array_values(array_filter($works,static fn($work)=>str_starts_with($work['slug'],'tropari-i-kondaki-')));
+        $catalogWorks=$catalog['data']??[];
+        $languages=array_values(array_unique(array_merge(...array_map(static fn($work)=>$work['available_languages']??[],$catalogWorks))));
+        $works=array_values(array_filter($catalogWorks,static fn($work)=>in_array($language,$work['available_languages']??[],true)));
+        if(in_array($a['mode'],['troparia','kontakia'],true))$works=array_values(array_filter($works,static fn($work)=>str_starts_with($work['slug'],'tropari-i-kondaki-')));
         $slug=$a['work']??'';
         $selected=null;
         foreach($works as $work)if($work['slug']===$slug)$selected=$work;
@@ -35,11 +42,31 @@ final class Orthocal_Library {
             $version=$response['data']??null;
             if(($version['language']??null)!==$language)return new WP_Error('language','Источник вернул другую языковую версию.');
         }
-        return ['library'=>true,'works'=>$works,'version'=>$version,'language'=>$language];
+        return ['library'=>true,'works'=>$works,'version'=>$version,'language'=>$language,'languages'=>$languages];
+    }
+
+    static function hymn_blocks($blocks,$mode) {
+        if(!in_array($mode,['troparia','kontakia'],true))return $blocks;
+        $target=$mode==='troparia'?'troparia':'kontakia';$active=null;$pending=[];$result=[];
+        foreach($blocks as $block) {
+            $text=trim((string)($block['text']??''));$type=null;
+            if(preg_match('/^(?:(?:иной|другой)\s+)?тропар/iu',$text))$type='troparia';
+            elseif(preg_match('/^(?:(?:иной|другой)\s+)?кондак/iu',$text))$type='kontakia';
+            if(($block['kind']??'')==='heading') {
+                if($type)$active=$type;
+                $pending[]=$block;
+                continue;
+            }
+            if($type)$active=$type;
+            if($active===$target)foreach(array_merge($pending,[$block]) as $item)$result[]=$item;
+            $pending=[];
+        }
+        return $result;
     }
 
     static function render($data,$a) {
-        $html='<div class="oc-service-controls">'.self::language_control($a);
+        $languages=in_array($a['mode'],['troparia','kontakia'],true)?['ru','cu-civil']:($data['languages']??null);
+        $html='<div class="oc-service-controls">'.self::language_control($a,$languages);
         if($data['works']) {
             $html.='<label>'.esc_html(Orthocal_Plugin::ui('Раздел',$a['lang'])).' <select data-oc-library-work>';
             foreach($data['works'] as $work)$html.='<option value="'.esc_attr($work['slug']).'" '.selected($data['version']['slug']??'',$work['slug'],false).'>'.esc_html($work['title']).'</option>';
@@ -50,7 +77,8 @@ final class Orthocal_Library {
         if(!$version)return $html.'<p class="oc-message">'.esc_html(Orthocal_Plugin::ui('На выбранном языке текст пока не добавлен.',$a['lang'])).'</p>'.self::sources($a);
         $traditional=($version['orthography']??'')==='traditional';
         $html.='<article class="oc-reading-body oc-library-reader"><h3>'.esc_html($version['title']).'</h3><button type="button" data-oc-copy-reading>'.esc_html(Orthocal_Plugin::ui('Скопировать текст',$a['lang'])).'</button><div class="oc-verses oc-library-content" lang="'.esc_attr($data['language']==='cu-civil'?'cu':$data['language']).'" data-orthography="'.($traditional?'traditional':'civil').'">';
-        foreach($version['blocks']??[] as $index=>$block) {
+        $blocks=self::hymn_blocks($version['blocks']??[],$a['mode']);
+        foreach($blocks as $index=>$block) {
             if($index===0 && ($block['kind']??'')==='heading' && trim($block['text']??'')===trim($version['title']))continue;
             $tag=($block['kind']??'')==='heading'?'h4':'p';
             $html.='<'.$tag.(($block['kind']??'')==='rubric'?' class="oc-service-rubric"':'').'>';
