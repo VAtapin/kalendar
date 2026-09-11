@@ -5,7 +5,7 @@ require_once __DIR__.'/library.php';
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.35';
+    const VERSION = '1.3.36';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
     const SERVICE_MODES=['horologion'];
@@ -149,7 +149,7 @@ final class Orthocal_Plugin {
     }
     static function data($a) {
         $q = ['lang'=>$a['lang'],'profile'=>$a['profile']]; $mode = $a['mode'];
-        if(in_array($mode,['troparia','kontakia'],true)&&Orthocal_Library::language($a)==='ru')return Orthocal_Library::data($a);
+        if(in_array($mode,['troparia','kontakia'],true)&&in_array(Orthocal_Library::language($a),['ru','de'],true))return Orthocal_Library::data($a);
         if(in_array($mode,['horologion','akathists','canons','prayers'],true)) return Orthocal_Library::data($a);
         if(in_array($mode,self::TEXT_MODES,true)) {
             $types=['troparia'=>'troparion','kontakia'=>'kontakion','prayers'=>'prayer','magnifications'=>'magnification'];$query=['language'=>Orthocal_Library::language($a),'per_page'=>100,'page'=>$a['text_page']];

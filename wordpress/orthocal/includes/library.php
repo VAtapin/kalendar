@@ -14,12 +14,12 @@ final class Orthocal_Library {
     }
 
     static function data($a) {
-        $collection=$a['mode']==='horologion'?'horologion':($a['mode']==='prayers'?'prayers':(in_array($a['mode'],['troparia','kontakia'],true)?'horologion-appendix':$a['mode']));
+        $language=self::language($a);
+        $collection=$a['mode']==='horologion'?'horologion':($a['mode']==='prayers'?'prayers':(in_array($a['mode'],['troparia','kontakia'],true)?($language==='de'?'hymnography':'horologion-appendix'):$a['mode']));
         $catalog=Orthocal_Plugin::request('bible','liturgical/works',['collection'=>$collection]);
         if(is_wp_error($catalog))return $catalog;
-        $language=self::language($a);
         $works=array_values(array_filter($catalog['data']??[],static fn($work)=>in_array($language,$work['available_languages']??[],true)));
-        if(in_array($a['mode'],['troparia','kontakia'],true))$works=array_values(array_filter($works,static fn($work)=>str_starts_with($work['slug'],'tropari-i-kondaki-')));
+        if(in_array($a['mode'],['troparia','kontakia'],true)&&$language!=='de')$works=array_values(array_filter($works,static fn($work)=>str_starts_with($work['slug'],'tropari-i-kondaki-')));
         $slug=$a['work']??'';
         $selected=null;
         foreach($works as $work)if($work['slug']===$slug)$selected=$work;
