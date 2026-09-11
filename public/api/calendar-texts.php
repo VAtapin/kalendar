@@ -30,7 +30,7 @@ function calendar_bible_desktop_icons(string $date): array {
     return array_values(array_filter(array_map(static function ($entry): ?array {
         if (!is_array($entry) || !is_string($entry['title'] ?? null) || !is_array($entry['images'] ?? null)) return null;
         $image = $entry['images'][0] ?? null;
-        if (!is_array($image) || !is_string($image['url'] ?? null) || !preg_match('#^https://bible-desktop\.com/storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)$#D', $image['url'])) return null;
+        if (!is_array($image) || !is_string($image['url'] ?? null) || !preg_match('#^https://bible-desktop\.com/(?:storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)|api/calendar/icons/[0-9]+/images/[0-9]+)$#D', $image['url'])) return null;
         return ['eventId'=>'calendar-icon-'.$entry['id'], 'id'=>$entry['id'], 'title'=>$entry['title'], 'description'=>$entry['description'] ?? '', 'imageUrl'=>$image['url'],
             'width'=>$image['width'] ?? null, 'height'=>$image['height'] ?? null, 'sha256'=>$image['sha256'] ?? null];
     }, $payload['data'])));
