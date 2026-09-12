@@ -5,7 +5,8 @@ require_once __DIR__.'/library.php';
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.40';
+    const VERSION = '1.3.41';
+    const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
     const SERVICE_MODES=['horologion'];
@@ -46,14 +47,23 @@ final class Orthocal_Plugin {
         });
     }
 
+    static function image_height($value) {
+        if (!is_scalar($value)) return 44;
+        $value=trim((string)$value);
+        if (isset(self::LEGACY_IMAGE_HEIGHTS[$value])) return self::LEGACY_IMAGE_HEIGHTS[$value];
+        if (!preg_match('/^[1-9][0-9]*$/D',$value)) return 44;
+        $height=(int)$value;
+        return $height > 0 ? $height : 44;
+    }
     static function options() {
-        return wp_parse_args(get_option('orthocal_options', []), ['key'=>'','lang'=>'ru','profile'=>'typikon-strict','theme'=>'book','css_mode'=>'plugin','accent'=>'#9a352d','translation'=>'','oldstyle'=>'1','compact'=>'0','show_nav'=>'1','show_picker'=>'1','show_copy'=>'1','show_search'=>'0','show_section_titles'=>'1','show_font_size'=>'1','open'=>'inline','reading_open'=>'inline','day_page'=>'0','images'=>'1','image_size'=>'medium','image_pack'=>'ornamental','icons'=>'0','icon_limit'=>'all','office'=>'horologion','heading'=>'1','branding'=>'Календарная мастерская','sections'=>'fasting,saints,readings,texts,icons','event_levels'=>'0,1,2,3,4','media_hours'=>'24','bible_hours'=>'24']);
+        return wp_parse_args(get_option('orthocal_options', []), ['key'=>'','lang'=>'ru','profile'=>'typikon-strict','theme'=>'book','css_mode'=>'plugin','accent'=>'#9a352d','translation'=>'','oldstyle'=>'1','compact'=>'0','show_nav'=>'1','show_picker'=>'1','show_copy'=>'1','show_search'=>'0','show_section_titles'=>'1','show_font_size'=>'1','open'=>'inline','reading_open'=>'inline','day_page'=>'0','images'=>'1','image_size'=>'44','image_pack'=>'ornamental','icons'=>'0','icon_limit'=>'all','office'=>'horologion','heading'=>'1','branding'=>'Календарная мастерская','sections'=>'fasting,saints,readings,texts,icons','event_levels'=>'0,1,2,3,4','media_hours'=>'24','bible_hours'=>'24']);
     }
     static function sanitize_options($input) {
         $old = self::options(); $out = [];
-        foreach (['lang'=>['ru','cu','de','uk','pl'], 'profile'=>['typikon-strict','parish'], 'theme'=>['book','modern','inherit'],'css_mode'=>['plugin','site'],'open'=>['inline','modal','new','page'],'reading_open'=>['inline','modal'],'image_pack'=>array_keys(Orthocal_Admin::packs()),'image_size'=>['small','medium','large']] as $name=>$allowed) {
+        foreach (['lang'=>['ru','cu','de','uk','pl'], 'profile'=>['typikon-strict','parish'], 'theme'=>['book','modern','inherit'],'css_mode'=>['plugin','site'],'open'=>['inline','modal','new','page'],'reading_open'=>['inline','modal'],'image_pack'=>array_keys(Orthocal_Admin::packs())] as $name=>$allowed) {
             $out[$name] = in_array($input[$name] ?? '', $allowed, true) ? $input[$name] : $old[$name];
         }
+        $out['image_size']=(string)self::image_height($input['image_size'] ?? $old['image_size']);
         $out['key'] = !empty($input['clear_key']) ? '' : (empty($input['key']) ? $old['key'] : sanitize_text_field($input['key']));
         $out['translation'] = array_key_exists('translation',$input) ? sanitize_text_field($input['translation']) : $old['translation'];
         $out['accent'] = array_key_exists('accent',$input) ? (sanitize_hex_color($input['accent']) ?: '#9a352d') : $old['accent'];
@@ -89,6 +99,7 @@ final class Orthocal_Plugin {
         $o = self::options();
         $attrs = array_filter($attrs, static fn($value) => $value !== '');
         $a = shortcode_atts(['mode'=>'today','date'=>'','year'=>'','month'=>'','limit'=>'5','filter'=>'main','scope'=>'','tone'=>'','weekday'=>'','text_id'=>'','work'=>'','text_language'=>'','text_page'=>'1','translation'=>$o['translation'],'day_page'=>$o['day_page'],'accent'=>$o['accent'],'branding'=>$o['branding']]+array_intersect_key($o,array_flip(['lang','profile','theme','css_mode','compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','show_font_size','open','reading_open','images','image_size','image_pack','icons','icon_limit','office','heading','sections','event_levels'])), $attrs);
+        $a['image_size']=(string)self::image_height($a['image_size']);
         if (!isset(self::TITLES[$a['mode']])) return new WP_Error('mode','Неизвестный блок.');
         if($a['mode']==='memorial')$a['filter']='memorial';
         if(!in_array($a['scope'],['','resurrection','weekday','common','annual'],true)||($a['tone']!==''&&!preg_match('/^[1-8]$/D',(string)$a['tone']))||($a['weekday']!==''&&!preg_match('/^[0-6]$/D',(string)$a['weekday']))||($a['text_id']!==''&&!preg_match('/^[a-z0-9-]{1,100}$/D',$a['text_id'])))return new WP_Error('texts','Неверные параметры библиотеки текстов.');
@@ -99,7 +110,7 @@ final class Orthocal_Plugin {
         $a['month'] = $a['month'] === '' ? (int)substr($date,5,2) : filter_var($a['month'], FILTER_VALIDATE_INT);
         $a['limit'] = filter_var($a['limit'], FILTER_VALIDATE_INT);
         if ($a['year'] < 1900 || $a['year'] > 2200 || $a['month'] < 1 || $a['month'] > 12 || $a['limit'] < 1 || $a['limit'] > 10) return new WP_Error('range','Неверный год, месяц или количество праздников.');
-        foreach (['lang'=>['ru','cu','de','uk','pl'],'profile'=>['typikon-strict','parish'],'theme'=>['book','modern','inherit'],'css_mode'=>['plugin','site'],'filter'=>['main','twelve','great','memorial','all'],'open'=>['inline','modal','new','page'],'reading_open'=>['inline','modal'],'image_pack'=>array_keys(Orthocal_Admin::packs()),'image_size'=>['small','medium','large'],'icon_limit'=>['1','3','5','8','all'],'office'=>['horologion','first-hour','third-hour','sixth-hour','ninth-hour','matins','vespers','compline','typica']] as $name=>$allowed) if (!in_array($a[$name],$allowed,true)) return new WP_Error('option','Неверный параметр календаря.');
+        foreach (['lang'=>['ru','cu','de','uk','pl'],'profile'=>['typikon-strict','parish'],'theme'=>['book','modern','inherit'],'css_mode'=>['plugin','site'],'filter'=>['main','twelve','great','memorial','all'],'open'=>['inline','modal','new','page'],'reading_open'=>['inline','modal'],'image_pack'=>array_keys(Orthocal_Admin::packs()),'icon_limit'=>['1','3','5','8','all'],'office'=>['horologion','first-hour','third-hour','sixth-hour','ninth-hour','matins','vespers','compline','typica']] as $name=>$allowed) if (!in_array($a[$name],$allowed,true)) return new WP_Error('option','Неверный параметр календаря.');
         if (!in_array($a['text_language'],array_merge([''],array_keys(Orthocal_Library::LANGUAGES)),true) || ($a['work']!==''&&!preg_match('/^[a-z0-9-]{1,150}$/D',$a['work']))) return new WP_Error('library','Неверный параметр библиотеки.');
         $a['text_page']=(string)max(1,min(10000,(int)$a['text_page']));
         $a['accent']=sanitize_hex_color((string)$a['accent']) ?: '#9a352d';
@@ -186,7 +197,7 @@ final class Orthocal_Plugin {
         $data = self::data($a);
         $page=(int)$a['day_page'];$pageUrl=$page && get_post_status($page)==='publish'?get_permalink($page):'';
         $config = $a + ['endpoint'=>rest_url('orthocal/v1/'), 'liveDate'=>empty($attrs['date']) && empty($_GET['orthocal_date']), 'pageUrl'=>$pageUrl,'ui'=>self::ui_catalog($a['lang']),'fontUrl'=>$a['lang']==='cu'||in_array($a['mode'],array_merge(self::TEXT_MODES,self::SERVICE_MODES),true)?Orthocal_Media_Cache::url('/calendar-api-font.php'):''];
-        $html = '<section class="orthocal oc-theme-'.esc_attr($a['theme']).($a['css_mode']==='site'?' oc-site-css':'').($a['compact']==='1'?' oc-compact':'').'" style="--oc-accent:'.esc_attr($a['accent']).';--oc-image-size:'.($a['image_size']==='small'?'28px':($a['image_size']==='large'?'72px':'44px')).'" data-oc-language="'.esc_attr($a['lang']).'" data-orthocal="'.esc_attr(wp_json_encode($config)).'" aria-label="'.esc_attr(self::ui(self::TITLES[$a['mode']],$a['lang'])).'">';
+        $html = '<section class="orthocal oc-theme-'.esc_attr($a['theme']).($a['css_mode']==='site'?' oc-site-css':'').($a['compact']==='1'?' oc-compact':'').'" style="--oc-accent:'.esc_attr($a['accent']).';--oc-image-height:'.(int)$a['image_size'].'px" data-oc-language="'.esc_attr($a['lang']).'" data-orthocal="'.esc_attr(wp_json_encode($config)).'" aria-label="'.esc_attr(self::ui(self::TITLES[$a['mode']],$a['lang'])).'">';
         if($a['heading']==='1')$html .= '<div class="oc-heading">'.($a['branding']!==''?'<span class="oc-eyebrow">'.esc_html(self::ui($a['branding'],$a['lang'])).'</span>':'').(in_array($a['mode'],['today','day'],true)?'':'<h2>'.esc_html(self::ui(self::TITLES[$a['mode']],$a['lang'])).'</h2>').'</div>';
         if (is_wp_error($data)) $html .= self::error_html($data->get_error_message()).('<button type="button" data-oc-retry>'.self::ui('Повторить',$a['lang']).'</button>');
         elseif(!empty($data['library']))$html.=Orthocal_Library::render($data,$a);
@@ -320,7 +331,7 @@ final class Orthocal_Plugin {
             $foodRule=$day['fasting']['foodRule']['id']??'';
             $foodSource=$foodRule==='no-fast'?'':($selected[0]['source']??$markers[0]['source']??'');
             $local=$a['images']==='1'?Orthocal_Media_Cache::url($foodSource):'';
-            if ($local) $foodImage='<img src="'.esc_url($local).'" width="44" height="44" alt="">';
+            if ($local) $foodImage='<img src="'.esc_url($local).'" height="'.(int)$a['image_size'].'" alt="">';
             $profileLabel=$a['profile']==='parish'?(self::ui('Приходской',$a['lang'])):(self::ui('Монастырский',$a['lang']));
             $html .= '<section class="oc-fasting-section">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Пост и трапеза',$a['lang']).'</h3>'):'').'<p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').'<sup class="oc-profile-mark" aria-label="'.$profileLabel.'">*</sup></p></section>';
         }

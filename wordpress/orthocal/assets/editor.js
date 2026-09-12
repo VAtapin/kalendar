@@ -23,7 +23,7 @@
           control('Открытие дня','open',[['inline','Под блоком'],['modal','В окне'],['page','На странице']]),
           control('Открытие чтений','reading_open',[['inline','Под ссылкой'],['modal','В окне']]),
           control('Картинки','images',[['1','Показывать'],['0','Скрыть']]),
-          control('Размер картинок','image_size',[['small','Маленький'],['medium','Средний'],['large','Большой']]),
+          el(wp.components.TextControl,{label:'Высота картинки поста, px',help:'Ширина определяется автоматически по пропорциям изображения.',type:'number',min:1,step:1,value:attributes.image_size||'',onChange:image_size=>setAttributes({image_size})}),
           control('Навигация по дням','show_nav',[['1','Показывать'],['0','Скрыть']]),
           control('Переход к дате','show_picker',[['1','Показывать'],['0','Скрыть']]),
           control('Ссылка на день','show_copy',[['1','Показывать'],['0','Скрыть']]),
