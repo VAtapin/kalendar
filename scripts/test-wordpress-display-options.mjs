@@ -12,15 +12,16 @@ export async function testDisplayOptions({page,origin,site,phpArgs,screenshotRoo
   const preview=page.locator('[data-oc-preview-slot]');
   const field=name=>page.locator(`[data-oc-build="${name}"]`);
   const year=JSON.parse(readFileSync(site+'/wp-content/calendar-fixture.json','utf8'));
-  const fish=year.days.find(day=>day.foodMarkers[0].source.endsWith('/fish.png'));
+  const noFast=year.days.find(day=>day.foodMarkers[0].source.endsWith('/no-fast.png'));
+  assert.ok(noFast,'fixture has a day without a fast');
   await field('mode').selectOption('day');
-  await field('date').fill(fish.date);
+  await field('date').fill(noFast.date);
   const packs=await field('image_pack').locator('option').evaluateAll(options=>options.map(option=>option.value));
   assert.equal(packs.length,16);
   const shortcodes=[];
   const expected=new Map();
   for(const pack of packs) {
-    const marker=fish.foodMarkers.find(marker=>marker.packId===pack);
+    const marker=noFast.foodMarkers.find(marker=>marker.packId===pack);
     assert.ok(marker,`${pack}: API mapping exists`);
     const bytes=readFileSync(resolve('public',marker.source.slice(1)));
     expected.set(pack,createHash('sha256').update(bytes).digest('hex')+'.png');
@@ -30,7 +31,7 @@ export async function testDisplayOptions({page,origin,site,phpArgs,screenshotRoo
       const root=document.querySelector('[data-oc-preview-slot] .orthocal');
       const cfg=JSON.parse(root?.dataset.orthocal||'{}');
       return cfg.image_pack===pack && cfg.date===date;
-    },{pack,date:fish.date});
+    },{pack,date:noFast.date});
     const image=preview.locator('.oc-fast img');
     await image.waitFor();
     assert.ok((await image.getAttribute('src')).endsWith(expected.get(pack)),`${pack}: selected file in admin preview`);
@@ -63,7 +64,7 @@ echo $id;
   await publicPage.screenshot({path:resolve(screenshotRoot,'orthocal-all-packs.png'),fullPage:true});
   await publicPage.reload();
   assert.equal(await publicPage.locator('.oc-fast img').count(),16);
-  console.log('PASS all 16 packs: API mapping, local bytes, admin preview, saved settings/shortcodes, public page and reload');
+  console.log('PASS all 16 packs on a no-fast day: API mapping, local bytes, admin preview, saved settings/shortcodes, public page and reload');
 
   // Deliberately return an older preview after the most recent selection.
   let release,started;

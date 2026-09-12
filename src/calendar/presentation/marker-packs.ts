@@ -54,8 +54,11 @@ function packSources(folder: string): Record<FoodRuleId, string> {
       id,
       id === "caviar" || id === "total-abstinence"
         ? `/assets/markers/shared/${fileName}`
+        // The imported packs contain their own dairy-and-eggs sign rather than
+        // a separate unrestricted-food file. On an ordinary day that sign is
+        // the pack-specific indication that all food is permitted.
         : id === "no-fast" && folder !== "ornamental" && folder !== "dark"
-        ? "/assets/markers/ornamental/no-fast.png"
+        ? `/assets/markers/${folder}/dairy-eggs.png`
         : `/assets/markers/${folder}/${fileName}`,
     ]),
   ) as Record<FoodRuleId, string>;
