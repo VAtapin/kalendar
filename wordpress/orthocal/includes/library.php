@@ -77,6 +77,7 @@ final class Orthocal_Library {
             foreach($data['works'] as $work)$html.='<option value="'.esc_attr($work['slug']).'" '.selected($data['version']['slug']??'',$work['slug'],false).'>'.esc_html($work['title']).'</option>';
             $html.='</select></label>';
         }
+        if($a['show_font_size']==='1')$html.='<label class="oc-library-font">'.esc_html(Orthocal_Plugin::ui('Размер текста',$a['lang'])).' <input data-oc-library-font type="range" min="16" max="40" value="24"></label>';
         $html.='</div>';
         $version=$data['version'];
         if(!$version)return $html.'<p class="oc-message">'.esc_html(Orthocal_Plugin::ui('На выбранном языке текст пока не добавлен.',$a['lang'])).'</p>'.self::sources($a);

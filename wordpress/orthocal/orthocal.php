@@ -3,7 +3,7 @@
  * Plugin Name: Православный календарь — Календарная мастерская
  * Plugin URI: https://atapin.de/
  * Description: 22 блока Gutenberg и шорткодов: календарь, день, посты, памяти, чтения и богослужебные тексты.
- * Version: 1.3.46
+ * Version: 1.3.47
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author: atapin.de

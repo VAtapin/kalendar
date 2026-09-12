@@ -161,7 +161,11 @@ echo $id;
       const civilText=dialog.locator('.oc-library-content').first();
       assert.equal(await civilText.getAttribute('lang'),'cu-civil');
       assert.match(await civilText.evaluate(el=>getComputedStyle(el).fontFamily),/OrthocalCivil/);
-      assert.ok(await dialog.locator('.oc-library-reader').evaluate(element=>element.getBoundingClientRect().width>=Math.min(window.innerWidth,1100)-1),`${mode}: library reader uses the expanded text column`);
+      assert.ok(await dialog.locator('.oc-library-reader').evaluate(element=>element.getBoundingClientRect().width/window.innerWidth>.9),`${mode}: library reader uses the full dialog width`);
+      const libraryFont=dialog.locator('[data-oc-library-font]');
+      assert.equal(await libraryFont.count(),1,'library dialog shows one font control');
+      await libraryFont.evaluate((input,value)=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));},'34');
+      assert.equal(await civilText.evaluate(element=>getComputedStyle(element).fontSize),'34px','library font control changes the text size');
       assert.equal(await publicPage.evaluate(()=>performance.timeOrigin),documentOrigin);
     }
     if(mode==='canons')await dialog.screenshot({path:resolve(screenshotRoot,'orthocal-canon-civil.png')});

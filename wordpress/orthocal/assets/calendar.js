@@ -159,9 +159,10 @@
       if (event.target.checkValidity()) render({year:event.target.value});
     });
     root.querySelector('[data-oc-picker]')?.addEventListener('change',event=>{if(event.target.checkValidity()&&event.target.value)void render({date:event.target.value});});
-      root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:'',text_page:'1'})));
+    root.querySelectorAll('[data-oc-text-filter]').forEach(input=>input.addEventListener('change',()=>void render({[input.dataset.ocTextFilter]:input.value,text_id:'',text_page:'1'})));
     root.querySelector('[data-oc-library-language]')?.addEventListener('change',event=>void render({text_language:event.target.value,work:'',scope:'',tone:'',text_page:'1'}));
     root.querySelector('[data-oc-library-work]')?.addEventListener('change',event=>void render({work:event.target.value}));
+    root.querySelector('[data-oc-library-font]')?.addEventListener('input',event=>root.style.setProperty('--oc-library-size',event.target.value+'px'));
     root.querySelector('[data-oc-event-search]')?.addEventListener('input',event=>{
       const query=event.target.value.toLocaleLowerCase().trim();let shown=0;
       root.querySelectorAll('.oc-events li').forEach(item=>{item.hidden=!item.textContent.toLocaleLowerCase().includes(query);if(!item.hidden)shown++;});
