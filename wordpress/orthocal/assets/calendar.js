@@ -6,7 +6,12 @@
   const fonts=new Map();
   async function font(name,url) {
     if(!url)return;
-    if(!fonts.has(url))fonts.set(url,(async()=>{const face=new FontFace(name,'url('+JSON.stringify(url)+')');await face.load();document.fonts.add(face);})());
+    if(!fonts.has(url))fonts.set(url,(async()=>{
+      const style=document.createElement('style');
+      style.textContent='@font-face{font-family:'+JSON.stringify(name)+';src:url('+JSON.stringify(url)+') format("truetype");font-style:normal;font-weight:400;font-display:swap}';
+      document.head.append(style);
+      if(document.fonts?.load)await document.fonts.load('1em '+JSON.stringify(name));
+    })());
     return fonts.get(url);
   }
   function popup(content,title,t=s=>s) {
