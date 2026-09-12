@@ -2,6 +2,23 @@
 
 Этот файл содержит постоянные правила для Codex и подходит для разных репозиториев. Конкретные требования проекта брать из его документации, кода, тестов и текущего задания пользователя.
 
+## Публикация проекта Kalendar
+
+- Production-корень: `/var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru`.
+- После проверенного commit и push обновление календарного сайта выполняется под системным пользователем сайта, не `root`:
+
+```bash
+cd /var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru
+git pull --ff-only origin main
+nodenv local 22
+npm ci --include=dev
+npm run build
+```
+
+- Полный порядок, проверки доменов и ограничения публикации брать из `docs/DEPLOYMENT.md`.
+- Если меняется устанавливаемый WordPress-плагин, перед commit выполнить `node scripts/build-wordpress-plugin.mjs --publish-downloads`: актуальный ZIP должен находиться и в `artifacts`, и в `public/downloads`, чтобы серверная сборка опубликовала его на сайте.
+- После серверной сборки проверить публичный календарный API и наличие актуального ZIP. Сам WordPress обновляется установкой этого ZIP отдельно.
+
 ## Продолжение работы между чатами
 
 - В начале каждой задачи прочитать `PROJECT_STATUS.md`, если он существует.
