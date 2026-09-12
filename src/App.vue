@@ -1958,6 +1958,9 @@ function iconGroupElementIds(elementId: string | undefined): string[] {
   if (!elementId) return [];
   const element = selectedPage.value.elements.find((candidate) => candidate.id === elementId);
   if (!element) return [];
+  // The image owns the logical group. The caption remains a normal text
+  // object so it can be selected, resized and styled independently.
+  if (element.type !== "image") return [];
   const location = findLayerLocation(selectedPage.value, element.layerId);
   const iconGroup = location?.ancestors.find((group) => group.name.startsWith("Икона ·"));
   return iconGroup ? layerElementIds(iconGroup) : [];
@@ -1969,7 +1972,8 @@ function iconGroupMembersByElementId(): Record<string, string[]> {
     if (node.kind !== "group") return;
     if (node.name.startsWith("Икона ·")) {
       const ids = layerElementIds(node);
-      for (const id of ids) members[id] = ids;
+      const imageId = ids.find((id) => selectedPage.value.elements.find((element) => element.id === id)?.type === "image");
+      if (imageId) members[imageId] = ids;
     }
     node.children.forEach(visit);
   };
@@ -2079,7 +2083,9 @@ function deleteSelection(): void {
   const selectedLocation = selectedElement.value
     ? findLayerLocation(selectedPage.value, selectedElement.value.layerId)
     : undefined;
-  const iconGroup = selectedLocation?.ancestors.find((group) => group.name.startsWith("Икона ·"));
+  const iconGroup = selectedElement.value?.type === "image"
+    ? selectedLocation?.ancestors.find((group) => group.name.startsWith("Икона ·"))
+    : undefined;
   const ids = selectedElement.value
     ? [iconGroup?.id ?? selectedElement.value.layerId]
     : [...selectedLayerIds.value];

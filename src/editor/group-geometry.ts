@@ -6,8 +6,6 @@ export interface GroupGeometrySnapshot {
   elements: Array<{
     id: string;
     frame: ElementFrame;
-    fontSizePt?: number;
-    paddingMm?: number;
   }>;
 }
 
@@ -39,19 +37,14 @@ export function snapshotGroupGeometry(elements: readonly LayoutElementNode[]): G
     elements: elements.map((element) => ({
       id: element.id,
       frame: frameOf(element),
-      ...(element.type === "text" || element.type === "month-text"
-        ? {
-            fontSizePt: element.typography.fontSizePt,
-            paddingMm: element.typography.paddingMm,
-          }
-        : {}),
     })),
   };
 }
 
 /**
  * Moves or scales every object in a group into a new outer frame.
- * Text keeps its own layer but follows the group and scales its typography with it.
+ * Text keeps its own typography: a manually selected font size must not be
+ * overwritten by a later icon resize.
  */
 export function applyGroupGeometry(
   page: PageModel,
@@ -60,7 +53,6 @@ export function applyGroupGeometry(
 ): void {
   const scaleX = Math.max(.001, target.width) / Math.max(.2, snapshot.frame.width);
   const scaleY = Math.max(.001, target.height) / Math.max(.2, snapshot.frame.height);
-  const typographyScale = Math.sqrt(scaleX * scaleY);
 
   for (const original of snapshot.elements) {
     const element = page.elements.find((candidate) => candidate.id === original.id);
@@ -69,9 +61,5 @@ export function applyGroupGeometry(
     element.y = target.y + (original.frame.y - snapshot.frame.y) * scaleY;
     element.width = Math.max(.2, original.frame.width * scaleX);
     element.height = Math.max(.2, original.frame.height * scaleY);
-    if ((element.type === "text" || element.type === "month-text") && original.fontSizePt !== undefined) {
-      element.typography.fontSizePt = Math.max(1, original.fontSizePt * typographyScale);
-      if (original.paddingMm !== undefined) element.typography.paddingMm = Math.max(0, original.paddingMm * typographyScale);
-    }
   }
 }

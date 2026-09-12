@@ -6,6 +6,7 @@
 @font-face { font-family: "ST-Cyberillic"; src: url("/fonts/ST-Cyberillic.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: "ST-Postoronnim"; src: url("/fonts/ST-Postoronnim.otf") format("opentype"); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: "Monomakh Unicode"; src: url("/fonts/MonomakhUnicode.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Ponomar"; src: url("/fonts/Ponomar-Regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: "IzhitsaShadowCTT"; src: url("/fonts/IzhitsaShadowCTT.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: "OldCyr"; src: url("/fonts/OldCyr.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
 @font-face { font-family: "Wooden Ship Decorated"; src: url("/fonts/WoodenShipDecorated.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }

@@ -44,9 +44,9 @@ describe("bundled print fonts", () => {
 
   it("offers decorative, book and system choices in the editor", () => {
     const decorativeFamilies = FONT_OPTIONS.filter((font) => font.kind === "decorative").map((font) => font.family);
-    expect(decorativeFamilies).toHaveLength(38);
+    expect(decorativeFamilies).toHaveLength(39);
     expect(decorativeFamilies).toEqual(expect.arrayContaining([
-      "Ruslan Display", "Yeseva One", "Marck Script", "Monomakh Unicode", "Afisha", "Lavka 2021", "TD Elena2021",
+      "Ruslan Display", "Yeseva One", "Marck Script", "Monomakh Unicode", "Ponomar", "Afisha", "Lavka 2021", "TD Elena2021",
     ]));
     expect(FONT_OPTIONS.some((font) => font.family === "Cormorant Garamond" && font.kind === "text")).toBe(true);
   });

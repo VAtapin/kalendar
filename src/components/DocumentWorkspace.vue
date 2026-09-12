@@ -23,6 +23,7 @@ const props = defineProps<{
   showGuides: boolean;
   activeTool: EditorTool;
   selectedElementId?: string;
+  groupElementIdsByElementId?: Record<string, string[]>;
 }>();
 
 const emit = defineEmits<{
@@ -101,6 +102,7 @@ const mediaEndY = computed(() => props.page.height + props.page.bleed.bottom);
         :show-guides="showGuides"
         :active-tool="activeTool"
         :selected-element-id="selectedElementId"
+        :group-element-ids-by-element-id="groupElementIdsByElementId"
         @create="forwardCreate"
         @select="emit('select', $event)"
         @geometry-start="emit('geometryStart')"

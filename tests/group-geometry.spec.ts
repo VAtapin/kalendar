@@ -20,14 +20,15 @@ describe("icon group geometry", () => {
     expect(caption).toMatchObject({ x: 30, y: 141, width: 100, height: 10 });
   });
 
-  it("scales the caption frame and type together with the image", () => {
+  it("scales the caption frame without changing its manually selected type", () => {
     const page = createBlankA3Page();
     let sequence = 0;
     const id = () => String(++sequence);
     const image = createElementOnOwnLayer(page, "image", { x: 10, y: 20, width: 100, height: 100 }, { idFactory: id }).element;
     const caption = createElementOnOwnLayer(page, "text", { x: 10, y: 121, width: 100, height: 10 }, { idFactory: id }).element;
     if (caption.type !== "text") throw new Error("Expected text caption");
-    const originalFontSize = caption.typography.fontSizePt;
+    caption.typography.fontSizePt = 24;
+    caption.typography.paddingMm = 1.5;
     const snapshot = snapshotGroupGeometry([image, caption]);
     if (!snapshot) throw new Error("Expected icon group snapshot");
 
@@ -36,6 +37,7 @@ describe("icon group geometry", () => {
     expect(groupBounds(page.elements)).toEqual({ x: 30, y: 40, width: 200, height: 222 });
     expect(image).toMatchObject({ x: 30, y: 40, width: 200, height: 200 });
     expect(caption).toMatchObject({ x: 30, y: 242, width: 200, height: 20 });
-    expect(caption.typography.fontSizePt).toBe(originalFontSize * 2);
+    expect(caption.typography.fontSizePt).toBe(24);
+    expect(caption.typography.paddingMm).toBe(1.5);
   });
 });
