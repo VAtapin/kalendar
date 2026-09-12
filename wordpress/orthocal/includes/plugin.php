@@ -5,7 +5,7 @@ require_once __DIR__.'/library.php';
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.41';
+    const VERSION = '1.3.42';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -184,6 +184,10 @@ final class Orthocal_Plugin {
         return self::request('calendar',in_array($mode,['month','calendar'],true)?'month':'year',$q);
     }
     static function error_html($message) { return '<p class="oc-message" role="status">'.esc_html($message).'</p>'; }
+    static function reading_controls($a) {
+        if ($a['reading_open']!=='inline') return '';
+        return '<div class="oc-reading-controls"><label class="oc-reading-translation">'.self::ui('Перевод',$a['lang']).' <select data-oc-translation><option value="">'.self::ui('Загрузить переводы…',$a['lang']).'</option></select></label>'.($a['show_font_size']==='1'?('<label class="oc-reading-font">'.self::ui('Размер текста',$a['lang']).' <input data-oc-font type="range" min="16" max="30" value="19"></label>'):'').'<p class="oc-muted">'.self::ui('Текст Апостола и Евангелия открывается по выбранному переводу. Псалтирь приведена по богослужебному распределению дня.',$a['lang']).'</p></div>';
+    }
     static function render($attrs, $ajax = false) {
         $a = self::config($attrs);
         if (is_wp_error($a)) return self::error_html($a->get_error_message());
@@ -339,7 +343,7 @@ final class Orthocal_Plugin {
         $psalter=array_values(array_filter($day['events'],static fn($e)=>(int)($e['typeCode']??0)===302));
         $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'&&(int)($e['typeCode']??0)!==302));
         if (($readings || $psalter) && in_array('readings',$sections,true)) {
-            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Библейские чтения',$a['lang']).'</h3>'):'').('<label class="oc-reading-translation">'.self::ui('Перевод',$a['lang']).' <select data-oc-translation><option value="">'.self::ui('Загрузить переводы…',$a['lang']).'</option></select></label>').($a['show_font_size']==='1'?('<label class="oc-reading-font">'.self::ui('Размер текста',$a['lang']).' <input data-oc-font type="range" min="16" max="30" value="19"></label>'):'').('<p class="oc-muted">'.self::ui('Текст Апостола и Евангелия открывается по выбранному переводу. Псалтирь приведена по богослужебному распределению дня.',$a['lang']).'</p>');
+            $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Библейские чтения',$a['lang']).'</h3>'):'').self::reading_controls($a);
             foreach ($readings as $event) $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title']).('</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>'.self::ui('Скопировать текст',$a['lang']).'</button><div class="oc-verses" aria-live="polite"></div></div></details>');
             foreach ($psalter as $event) {
                 $parts=array_values(array_filter(array_map('trim',explode(';',(string)($event['title']??'')))));
