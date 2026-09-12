@@ -5,7 +5,7 @@ require_once __DIR__.'/library.php';
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.39';
+    const VERSION = '1.3.40';
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
     const SERVICE_MODES=['horologion'];
@@ -317,7 +317,8 @@ final class Orthocal_Plugin {
         }
         if (in_array('fasting',$sections,true)) {
             $foodImage='';$markers=$day['foodMarkers']??[];$selected=array_values(array_filter($markers,static fn($marker)=>$marker['packId']===$a['image_pack']));
-            $foodSource=$selected[0]['source']??$markers[0]['source']??'';
+            $foodRule=$day['fasting']['foodRule']['id']??'';
+            $foodSource=$foodRule==='no-fast'?'':($selected[0]['source']??$markers[0]['source']??'');
             $local=$a['images']==='1'?Orthocal_Media_Cache::url($foodSource):'';
             if ($local) $foodImage='<img src="'.esc_url($local).'" width="44" height="44" alt="">';
             $profileLabel=$a['profile']==='parish'?(self::ui('Приходской',$a['lang'])):(self::ui('Монастырский',$a['lang']));
