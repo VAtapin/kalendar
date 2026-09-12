@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {readFileSync} from 'node:fs';
+import {readFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {chromium} from 'playwright';
 const php=process.env.PHP_BINARY||'php';
+const screenshotRoot=resolve(process.env.ORTHOCAL_TEST_ARTIFACTS||'artifacts');
+mkdirSync(screenshotRoot,{recursive:true});
 const html=(lang='de',mode='day',office='horologion',textLanguage='',work='')=>execFileSync(php,['-n','scripts/wordpress-reader-fixture.php',lang,mode,office,textLanguage,work],{encoding:'utf8'});
 const german=html();
 const hour=html('ru','horologion','sixth-hour');
@@ -39,6 +41,7 @@ try{
  await page.locator('[data-oc-library-language]').selectOption('cu-civil');
  await page.waitForFunction(()=>document.querySelector('.oc-library-content')?.textContent.includes('Боже, во имя'));
  assert.notEqual(await page.locator('dialog .oc-library-content').innerText(),russian);
+ assert.doesNotMatch(await page.locator('dialog .oc-library-content').evaluate(el=>getComputedStyle(el).fontFamily),/Monomakh/);
  assert.equal(await page.locator('dialog').count(),1);
  await page.locator('[data-oc-library-work]').selectOption('chas-pervyj');
  await page.locator('dialog h3',{hasText:'Час первый'}).waitFor();
@@ -46,7 +49,7 @@ try{
  await page.waitForFunction(()=>!document.querySelector('dialog .oc-library-content'));
  await page.locator('[data-oc-library-language]').selectOption('ru');
  await page.locator('dialog .oc-library-content').waitFor();
- await page.screenshot({path:resolve('artifacts/wordpress-reader-de.png')});
+ await page.screenshot({path:resolve(screenshotRoot,'wordpress-reader-de.png')});
  await page.setViewportSize({width:390,height:844});
  assert.equal(await page.locator('dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'Mobile reader must not overflow horizontally');
  await page.locator('.oc-dialog-close').click();assert.equal(await page.locator('dialog[open]').count(),0);

@@ -4,6 +4,9 @@ import {resolve} from 'node:path';
 import {execFileSync,spawn} from 'node:child_process';
 import {createServer} from 'node:net';
 import {chromium} from 'playwright';
+import {testDisplayOptions} from './test-wordpress-display-options.mjs';
+const screenshotRoot=resolve(process.env.ORTHOCAL_TEST_ARTIFACTS||'artifacts');
+mkdirSync(screenshotRoot,{recursive:true});
 
 // Disposable real WordPress + official SQLite drop-in. No production credentials.
 const site=resolve('tmp/orthocal-wp/wordpress');
@@ -98,13 +101,13 @@ try {
   assert.equal(await month.locator(':scope > .oc-month [data-oc-date]').count(),30);
   assert.equal(await month.locator(':scope > .oc-detail .orthocal').count(),0);
   // Capture full-width plugin at desktop and a narrow phone viewport.
-  await page.screenshot({path:resolve('artifacts/orthocal-desktop.png'),fullPage:true});
-  await month.screenshot({path:resolve('artifacts/orthocal-month.png')});
-  await page.locator('.orthocal').filter({has:page.locator('h2',{hasText:'Календарь на год'})}).screenshot({path:resolve('artifacts/orthocal-year.png')});
+  await page.screenshot({path:resolve(screenshotRoot,'orthocal-desktop.png'),fullPage:true});
+  await month.screenshot({path:resolve(screenshotRoot,'orthocal-month.png')});
+  await page.locator('.orthocal').filter({has:page.locator('h2',{hasText:'Календарь на год'})}).screenshot({path:resolve(screenshotRoot,'orthocal-year.png')});
   await page.setViewportSize({width:390,height:844});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
-  await page.screenshot({path:resolve('artifacts/orthocal-mobile.png'),fullPage:true});
-  await page.locator('.orthocal').first().screenshot({path:resolve('artifacts/orthocal-today-mobile.png')});
+  await page.screenshot({path:resolve(screenshotRoot,'orthocal-mobile.png'),fullPage:true});
+  await page.locator('.orthocal').first().screenshot({path:resolve(screenshotRoot,'orthocal-today-mobile.png')});
   // Exercise actual settings form and the editor's client-side block registrations.
   await page.setViewportSize({width:1440,height:1000});
   await page.goto(origin+'/wp-login.php');
@@ -115,6 +118,7 @@ try {
   assert.ok(!(await page.content()).includes('local-test-secret'));
   assert.equal(await page.locator('#toplevel_page_orthocal').count(),1);
   await page.locator('[data-oc-tab="shortcodes"]').click();
+  await testDisplayOptions({page,origin,site,phpArgs,screenshotRoot});
   await page.locator('[data-oc-build="compact"]').selectOption('1');
   await page.locator('[data-oc-build-section="fasting"]').uncheck();
   await page.waitForFunction(()=>document.querySelectorAll('[data-oc-preview-slot] .oc-fasting-section').length===0);
@@ -128,7 +132,7 @@ try {
   await page.locator('.oc-liturgical-text').waitFor();
   assert.equal(await page.locator('.oc-liturgical-text').count(),1);
   await page.locator('.oc-liturgical-text summary').click();
-  await page.screenshot({path:resolve('artifacts/orthocal-library-admin.png'),fullPage:true});
+  await page.screenshot({path:resolve(screenshotRoot,'orthocal-library-admin.png'),fullPage:true});
   await page.locator('[data-oc-build="mode"]').selectOption('month');
   await page.locator('[data-oc-build="year"]').fill('2027');
   await page.locator('[data-oc-build="month"]').fill('5');
@@ -137,7 +141,7 @@ try {
   await page.locator('[data-oc-preview]').click();
   await page.locator('[data-oc-preview-slot] [data-oc-date="2027-05-02"]').click();
   await page.locator('dialog[open] .oc-day').waitFor();
-  await page.screenshot({path:resolve('artifacts/orthocal-day-modal.png')});
+  await page.screenshot({path:resolve(screenshotRoot,'orthocal-day-modal.png')});
   await page.locator('dialog[open] [data-oc-reading] summary').first().click();
   await page.locator('dialog[open]').nth(1).locator('.oc-verses').filter({hasText:'Тестовый стих'}).first().waitFor();
   await page.keyboard.press('Escape');

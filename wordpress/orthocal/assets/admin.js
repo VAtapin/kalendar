@@ -26,12 +26,12 @@
   function generate(){
     if(!code)return;visibility();const attrs=values();delete attrs.mode;const booleanAttrs=new Set(['compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','show_font_size','images','icons','heading']);code.value='[orthocal_'+mode()+Object.entries(attrs).filter(([name,value])=>value!==''&&(value!=='0'||booleanAttrs.has(name))).map(([name,value])=>' '+name+'="'+String(value).replace(/["<>\[\]]/g,'')+'"').join('')+']';
   }
-  let previewTimer;
+  let previewTimer, previewVersion=0;
   async function updatePreview(){
-    if(!preview)return;const attrs=values();attrs.mode=mode();status.textContent='Обновляю предпросмотр…';
-    try{const url=endpoint('render');for(const [name,value] of Object.entries(attrs))url.searchParams.set(name,value);const response=await fetch(url,{headers:{Accept:'application/json'}});const data=await response.json();if(!response.ok)throw new Error(data.message||'Не удалось получить блок.');const doc=new DOMParser().parseFromString(data.html,'text/html'),block=doc.querySelector('.orthocal');if(!block)throw new Error('Блок не получен.');preview.replaceChildren(block);window.OrthocalInit?.(preview);status.textContent='Предпросмотр обновлён.';}catch(error){preview.replaceChildren();status.textContent=error.message;}
+    if(!preview)return;const version=++previewVersion,attrs=values();attrs.mode=mode();status.textContent='Обновляю предпросмотр…';
+    try{const url=endpoint('render');for(const [name,value] of Object.entries(attrs))url.searchParams.set(name,value);const response=await fetch(url,{headers:{Accept:'application/json'}});const data=await response.json();if(version!==previewVersion)return;if(!response.ok)throw new Error(data.message||'Не удалось получить блок.');const doc=new DOMParser().parseFromString(data.html,'text/html'),block=doc.querySelector('.orthocal');if(!block)throw new Error('Блок не получен.');preview.replaceChildren(block);window.OrthocalInit?.(preview);status.textContent='Предпросмотр обновлён.';}catch(error){if(version!==previewVersion)return;preview.replaceChildren();status.textContent=error.message;}
   }
-  function changed(){generate();clearTimeout(previewTimer);previewTimer=setTimeout(updatePreview,350);}
+  function changed(){previewVersion++;generate();clearTimeout(previewTimer);previewTimer=setTimeout(updatePreview,350);}
   fields.forEach(input=>input.addEventListener(input.type==='checkbox'||input.tagName==='SELECT'?'change':'input',changed));root.querySelectorAll('[data-oc-build-section]').forEach(input=>input.addEventListener('change',changed));
   root.querySelectorAll('[data-oc-event-level]').forEach(input=>input.addEventListener('change',changed));
   root.querySelector('[data-oc-copy-code]')?.addEventListener('click',()=>copy(code.value,status));root.querySelector('[data-oc-preview]')?.addEventListener('click',()=>{clearTimeout(previewTimer);updatePreview();});

@@ -5,14 +5,16 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Calendar key leaked to library');
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
         $corpus=json_decode(file_get_contents(dirname(ORTHOCAL_TEST_ASSET_ROOT).'/scripts/fixtures/liturgical-reader.json'),true);
+        $display=json_decode(file_get_contents(dirname(ORTHOCAL_TEST_ASSET_ROOT).'/scripts/fixtures/liturgical-display.json'),true);
+        $corpus['works']=array_merge($corpus['works'],$display['works']);
         $parts=explode('/',trim(parse_url($url,PHP_URL_PATH),'/'));$value=[];
         if(count($parts)===3)foreach($corpus['works'] as $work) {
             if(!in_array($query['collection']??'', $work['collections'],true))continue;
-            $value[]=['slug'=>$work['slug'],'title'=>$work['title'],'available_languages'=>['ru','cu-civil']];
+            $value[]=['slug'=>$work['slug'],'title'=>$work['title'],'available_languages'=>array_map(static fn($language)=>$language==='traditional'?'cu':($language==='cu'?'cu-civil':$language),array_keys($work['versions']))];
         }
         else foreach($corpus['works'] as $work)if($work['slug']===($parts[3]??'')) {
-            $language=$parts[5]??'ru';$blocks=$work['versions'][$language==='cu-civil'?'cu':$language]??[];
-            $value=['slug'=>$work['slug'],'title'=>$work['title'],'language'=>$language,'orthography'=>'civil','blocks'=>$blocks,'source_url'=>$work['url'],'credit'=>'Азбука веры'];
+            $language=$parts[5]??'ru';$blocks=$work['versions'][$language==='cu'?'traditional':($language==='cu-civil'?'cu':$language)]??[];
+            $value=['slug'=>$work['slug'],'title'=>$work['title'],'language'=>$language,'orthography'=>$language==='cu'?'traditional':'civil','blocks'=>$blocks,'source_url'=>$work['url'],'credit'=>'Азбука веры'];
         }
         return ['headers'=>[],'body'=>wp_json_encode(['data'=>$value]),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
