@@ -5,17 +5,23 @@
 ## Публикация проекта Kalendar
 
 - Production-корень: `/var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru`.
-- После проверенного commit и push обновление календарного сайта выполняется под системным пользователем сайта, не `root`:
+- Сервер работает в Plesk. Команды выполняются системным пользователем сайта, не `root`.
+- Для этого проекта подтверждённый способ выбрать Node.js — `nodenv local 22` из `docs/DEPLOYMENT.md`. Не заменять его общим `export PATH="/opt/plesk/node/22/bin:$PATH"`, пока этот путь не подтверждён именно на сервере Kalendar.
+- Не добавлять в эту процедуру PHP CLI или `export PATH` для PHP 8.4: текущая публикация запускает только Git и Node-сборку. Production PHP обслуживается конфигурацией Plesk, а не этой SSH-командой.
+- Node необходим и для `npm run build`, и для последующего холодного расчёта календарного API: сборка записывает фактический путь Node в `dist/api/calendar-runtime.json`, откуда его запускает PHP.
+- Если `package.json` или lockfile не менялись и `node_modules` на сервере исправен, не запускать `npm ci`. Если зависимости менялись либо `node_modules` отсутствует/повреждён, перед сборкой выполнить `npm ci --include=dev`.
+- Обычное обновление исходников или публичных файлов, включая ZIP WordPress-плагина:
 
 ```bash
-cd /var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru
-git pull --ff-only origin main
-nodenv local 22
-npm ci --include=dev
+cd /var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru && \
+git pull --ff-only origin main && \
+nodenv local 22 && \
+node -v && \
 npm run build
 ```
 
-- Полный порядок, проверки доменов и ограничения публикации брать из `docs/DEPLOYMENT.md`.
+- Ожидаемая версия Node — 22.x. После публикации проверить `https://kalender.georg-kloster.ru/api/v1/calendar/today` и требуемый публичный файл. Для выпуска WordPress-плагина — `https://kalender.georg-kloster.ru/downloads/orthocal-<version>.zip`.
+- Полный порядок, проверки доменов и ограничения публикации брать из `docs/DEPLOYMENT.md`. Не выполнять deployment самостоятельно без прямой команды пользователя; после commit и push всегда давать готовую команду для этой процедуры.
 - Если меняется устанавливаемый WordPress-плагин, перед commit выполнить `node scripts/build-wordpress-plugin.mjs --publish-downloads`: актуальный ZIP должен находиться и в `artifacts`, и в `public/downloads`, чтобы серверная сборка опубликовала его на сайте.
 - После серверной сборки проверить публичный календарный API и наличие актуального ZIP. Сам WordPress обновляется установкой этого ZIP отдельно.
 
