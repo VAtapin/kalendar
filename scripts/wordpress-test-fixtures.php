@@ -42,9 +42,9 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $value['count']=count($value['texts']);$value['assignment']='reference-only';
         return ['headers'=>['x-calendar-application-cache-ttl'=>'300'],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,'https://kalender.georg-kloster.ru/assets/')||$url==='https://kalender.georg-kloster.ru/calendar-api-font.php') {
+    if(str_starts_with($url,'https://kalender.georg-kloster.ru/assets/')||in_array($url,['https://kalender.georg-kloster.ru/calendar-api-font.php','https://kalender.georg-kloster.ru/calendar-api-civil-font.php'],true)) {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Key sent to static media');
-        $path=parse_url($url,PHP_URL_PATH);$file=ORTHOCAL_TEST_ASSET_ROOT.($path==='/calendar-api-font.php'?'/fonts/MonomakhUnicode.ttf':$path);
+        $path=parse_url($url,PHP_URL_PATH);$file=ORTHOCAL_TEST_ASSET_ROOT.($path==='/calendar-api-font.php'?'/fonts/MonomakhUnicode.ttf':($path==='/calendar-api-civil-font.php'?'/fonts/DejaVuSerif.ttf':$path));
         if(!is_file($file))return new WP_Error('fixture_missing','Missing media fixture');
         $body=file_get_contents($file);$etag='"'.hash('sha256',$body).'"';$same=($args['headers']['If-None-Match']??'')===$etag;
         return ['headers'=>['etag'=>$etag,'last-modified'=>'Wed, 09 Sep 2026 00:00:00 GMT'],'body'=>$same?'':$body,'response'=>['code'=>$same?304:200,'message'=>'OK'],'cookies'=>[]];

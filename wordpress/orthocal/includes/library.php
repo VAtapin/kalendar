@@ -11,9 +11,8 @@ final class Orthocal_Library {
 
     static function text_attributes($a,$text) {
         $language=$text['language']??self::language($a);
-        $slavonic=in_array($language,['cu','cu-civil'],true);
         $orthography=$language==='cu'?'traditional':'civil';
-        return 'lang="'.esc_attr($slavonic?'cu':$language).'" data-orthography="'.$orthography.'"';
+        return 'lang="'.esc_attr($language).'" data-orthography="'.$orthography.'"';
     }
 
     static function language_control($a,$languages=null) {
