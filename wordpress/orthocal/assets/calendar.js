@@ -76,7 +76,7 @@
         const last=chapter===b.chapter&&b.verse!==null?b.verse:data.verses.at(-1).number;
         const verses=data.verses.filter(v=>v.number>=first&&v.number<=last);
         if (!verses.length || verses[0].number!==first || verses.at(-1).number!==last || verses.some((v,i)=>(i&&v.number!==verses[i-1].number+1)||typeof v.plain_text!=='string'||!v.plain_text.trim())) throw new Error('В переводе отсутствуют запрошенные стихи. Неполный текст не показан.');
-        result.push(...verses.map(v=>({reference:passage.book+' '+chapter+':'+v.number,text:v.plain_text})));
+        result.push(...verses.map(v=>({reference:String(v.number),text:v.plain_text})));
       }
     }
     return result;
