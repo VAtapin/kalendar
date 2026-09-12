@@ -76,7 +76,7 @@
         const last=chapter===b.chapter&&b.verse!==null?b.verse:data.verses.at(-1).number;
         const verses=data.verses.filter(v=>v.number>=first&&v.number<=last);
         if (!verses.length || verses[0].number!==first || verses.at(-1).number!==last || verses.some((v,i)=>(i&&v.number!==verses[i-1].number+1)||typeof v.plain_text!=='string'||!v.plain_text.trim())) throw new Error('В переводе отсутствуют запрошенные стихи. Неполный текст не показан.');
-        result.push(...verses.map(v=>({reference:String(v.number),text:v.plain_text})));
+        result.push(...verses.map(v=>({chapter,reference:String(v.number),text:v.plain_text})));
       }
     }
     return result;
@@ -194,10 +194,12 @@
         const verses=await readingText(JSON.parse(details.dataset.ocReading),translation,cfg.endpoint);
         if (revision!==readingGeneration) return;
         output.lang=translation.language.code;
-        output.replaceChildren();
+        output.replaceChildren();let previousChapter=null;
         for (const verse of verses) {
+          if(previousChapter!==null&&verse.chapter!==previousChapter){const heading=document.createElement('h4');heading.className='oc-reading-chapter';heading.textContent=t('Глава')+' '+verse.chapter;output.append(heading);}
           const p=document.createElement('p'), ref=document.createElement('small');
           ref.textContent=verse.reference+' '; p.append(ref,document.createTextNode(verse.text));output.append(p);
+          previousChapter=verse.chapter;
         }
       } catch(error) {
         if(revision!==readingGeneration) return;

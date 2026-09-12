@@ -146,6 +146,7 @@ echo $id;
   for(const mode of ['horologion','kontakia','troparia','canons','akathists','prayers','magnifications']) {
     await publicPage.locator('.orthocal').first().locator(`[data-oc-library="${mode}"]`).click();
     const dialog=publicPage.locator('dialog[open]');
+    assert.ok(await dialog.evaluate(element=>element.getBoundingClientRect().width/window.innerWidth>.95),`${mode}: library dialog uses the full reading-dialog width`);
     if(mode==='horologion') {
       await dialog.locator('[data-oc-library-language]').selectOption('cu');
       await dialog.locator('.oc-library-content[data-orthography="traditional"]').first().waitFor({state:'attached'});
@@ -166,18 +167,19 @@ echo $id;
   await page.locator('[data-oc-preview]').click();
   await preview.locator('.oc-day').waitFor();
   await field('mode').selectOption('readings');
-  await field('date').fill('2027-05-02');
+  await field('date').fill('2027-01-04');
   await field('reading_open').selectOption('inline');
   await page.locator('[data-oc-preview]').click();
   await page.waitForFunction(()=>{
     const root=document.querySelector('[data-oc-preview-slot] .orthocal');
     const cfg=JSON.parse(root?.dataset.orthocal||'{}');
-    return cfg.mode==='readings'&&cfg.date==='2027-05-02'&&cfg.reading_open==='inline';
+    return cfg.mode==='readings'&&cfg.date==='2027-01-04'&&cfg.reading_open==='inline';
   });
   await preview.locator('.oc-reading-translation').waitFor();
   assert.equal(await preview.locator('[data-oc-font]').count(),1,'inline readings show one font control on the page');
-  await preview.locator('[data-oc-reading] > summary').first().click();
+  await preview.locator('[data-oc-reading] > summary').filter({hasText:'Мк.9:42-10:1'}).click();
   await preview.locator('.oc-verses').filter({hasText:'Тестовый стих'}).first().waitFor();
+  await preview.locator('.oc-reading-chapter').filter({hasText:'Глава 10'}).waitFor();
   const inlineFont=preview.locator('[data-oc-font]');
   await inlineFont.evaluate((input,value)=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));},'26');
   assert.equal(await preview.locator('.oc-readings .oc-verses').first().evaluate(element=>getComputedStyle(element).fontSize),'26px','inline font control changes the text size');
@@ -186,12 +188,12 @@ echo $id;
   await page.waitForFunction(()=>{
     const root=document.querySelector('[data-oc-preview-slot] .orthocal');
     const cfg=JSON.parse(root?.dataset.orthocal||'{}');
-    return cfg.mode==='readings'&&cfg.date==='2027-05-02'&&cfg.reading_open==='modal';
+    return cfg.mode==='readings'&&cfg.date==='2027-01-04'&&cfg.reading_open==='modal';
   });
   await preview.locator('[data-oc-reading] > summary').first().waitFor();
   assert.equal(await preview.locator('.oc-reading-translation').count(),0,'modal readings do not duplicate translation controls on the page');
   assert.equal(await preview.locator('[data-oc-font]').count(),0,'modal readings do not duplicate the font control on the page');
-  await preview.locator('[data-oc-reading] > summary').first().click();
+  await preview.locator('[data-oc-reading] > summary').filter({hasText:'Мк.9:42-10:1'}).click();
   const readingDialog=page.locator('dialog[open]').last();
   await readingDialog.locator('.oc-reading-translation').waitFor();
   assert.equal(await readingDialog.locator('[data-oc-font]').count(),1,'modal readings show one font control in the dialog');
