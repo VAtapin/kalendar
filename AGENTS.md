@@ -9,14 +9,14 @@
 - Для этого проекта подтверждённый способ выбрать Node.js — `nodenv local 22` из `docs/DEPLOYMENT.md`. Не заменять его общим `export PATH="/opt/plesk/node/22/bin:$PATH"`, пока этот путь не подтверждён именно на сервере Kalendar.
 - Не добавлять в эту процедуру PHP CLI или `export PATH` для PHP 8.4: текущая публикация запускает только Git и Node-сборку. Production PHP обслуживается конфигурацией Plesk, а не этой SSH-командой.
 - Node необходим и для `npm run build`, и для последующего холодного расчёта календарного API: сборка записывает фактический путь Node в `dist/api/calendar-runtime.json`, откуда его запускает PHP.
-- Если `package.json` или lockfile не менялись и `node_modules` на сервере исправен, не запускать `npm ci`. Если зависимости менялись либо `node_modules` отсутствует/повреждён, перед сборкой выполнить `npm ci --include=dev`.
-- Обычное обновление исходников или публичных файлов, включая ZIP WordPress-плагина:
+- Для каждого обычного обновления выполнять `npm ci --include=dev` перед сборкой. Это подтверждённая последовательность публикации Kalendar; не пропускать шаг по предположению, что зависимости не менялись.
+- Обычное обновление исходников или публичных файлов, включая ZIP WordPress-плагина, выполняется точно так:
 
 ```bash
 cd /var/www/vhosts/georg-kloster.ru/kalender.georg-kloster.ru && \
 git pull --ff-only origin main && \
 nodenv local 22 && \
-node -v && \
+npm ci --include=dev && \
 npm run build
 ```
 
