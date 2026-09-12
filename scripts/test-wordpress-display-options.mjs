@@ -124,7 +124,7 @@ echo $id;
         continue;
       }
       const family=await text.evaluate(el=>getComputedStyle(el).fontFamily);
-      assert.equal(family.includes(language==='cu'?'OrthocalMonomakh':'OrthocalCivil'),true,`${mode}/${language}: ${family}`);
+      assert.equal(family.includes('OrthocalMonomakh'),true,`${mode}/${language}: ${family}`);
       assert.equal(await text.getAttribute('lang'),language,`${mode}/${language}: preserves the selected language in markup`);
       if(language==='cu') {
         await page.evaluate(()=>document.fonts.ready);
@@ -132,7 +132,7 @@ echo $id;
         await preview.screenshot({path:resolve(screenshotRoot,'orthocal-slavonic-font.png')});
       } else {
         await page.evaluate(()=>document.fonts.ready);
-        assert.equal(await page.evaluate(()=>[...document.fonts].some(font=>font.family==='OrthocalCivil'&&font.status==='loaded')),true);
+        assert.equal(await page.evaluate(()=>[...document.fonts].some(font=>font.family==='OrthocalMonomakh'&&font.status==='loaded')),true);
       }
     }
     // Switch inside the reader using its existing AJAX control; the document stays in place.
@@ -160,7 +160,7 @@ echo $id;
       await dialog.locator('.oc-library-content[lang="cu-civil"][data-orthography="civil"]').first().waitFor({state:'attached'});
       const civilText=dialog.locator('.oc-library-content').first();
       assert.equal(await civilText.getAttribute('lang'),'cu-civil');
-      assert.match(await civilText.evaluate(el=>getComputedStyle(el).fontFamily),/OrthocalCivil/);
+      assert.match(await civilText.evaluate(el=>getComputedStyle(el).fontFamily),/OrthocalMonomakh/);
       assert.ok(await dialog.locator('.oc-library-reader').evaluate(element=>element.getBoundingClientRect().width/window.innerWidth>.9),`${mode}: library reader uses the full dialog width`);
       const libraryFont=dialog.locator('[data-oc-library-font]');
       assert.equal(await libraryFont.count(),1,'library dialog shows one font control');

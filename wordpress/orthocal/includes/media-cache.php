@@ -11,7 +11,7 @@ final class Orthocal_Media_Cache {
         if (!is_string($path)) return false;
         if (str_starts_with($path,self::ORIGIN.'/')) $path=substr($path,strlen(self::ORIGIN));
         if (preg_match('#^https://bible-desktop\.com/storage/calendar-icons/[a-f0-9]{64}\.(?:png|svg|webp|jpg|jpeg|gif)$#D',$path)) return $path;
-        if (in_array($path,['/calendar-api-font.php','/calendar-api-civil-font.php'],true)) return $path;
+        if ($path==='/calendar-api-font.php') return $path;
         if (!preg_match('~^/assets/(?:markers|typikon|icons)/[a-zA-Z0-9_/-]+\.(?:png|svg|webp|jpg|jpeg|gif)$~D',$path) || str_contains($path,'//')) return false;
         return $path;
     }
@@ -105,7 +105,7 @@ final class Orthocal_Media_Cache {
             if ($code===304 && self::local($meta,$dir)) {
                 $meta['checked']=time();$meta['retry']=0;unset($meta['error']);update_option($key,$meta,false);return true;
             }
-            $ext=in_array($path,['/calendar-api-font.php','/calendar-api-civil-font.php'],true)?'ttf':strtolower(pathinfo($path,PATHINFO_EXTENSION));
+            $ext=$path==='/calendar-api-font.php'?'ttf':strtolower(pathinfo($path,PATHINFO_EXTENSION));
             $body=$code===200?self::validate_body(wp_remote_retrieve_body($response),$ext):false;
             if ($body===false) {
                 $meta=array_merge($meta,['source'=>$path,'retry'=>time()+900,'error'=>'Не удалось обновить файл (HTTP '.$code.').']);

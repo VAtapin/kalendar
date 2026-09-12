@@ -4,14 +4,9 @@
   const bibleQueue = [];
   let active = 0;
   const fonts=new Map();
-  async function font(name,url) {
+  async function font(url) {
     if(!url)return;
-    if(!fonts.has(url))fonts.set(url,(async()=>{
-      const style=document.createElement('style');
-      style.textContent='@font-face{font-family:'+JSON.stringify(name)+';src:url('+JSON.stringify(url)+') format("truetype");font-style:normal;font-weight:400;font-display:swap}';
-      document.head.append(style);
-      if(document.fonts?.load)await document.fonts.load('1em '+JSON.stringify(name));
-    })());
+    if(!fonts.has(url))fonts.set(url,(async()=>{const face=new FontFace('OrthocalMonomakh','url('+JSON.stringify(url)+')');await face.load();document.fonts.add(face);})());
     return fonts.get(url);
   }
   function popup(content,title,t=s=>s) {
@@ -91,8 +86,7 @@
     root.dataset.ocReady='1';
     const cfg=JSON.parse(root.dataset.orthocal);
     const t=text=>cfg.ui?.[text]||text;
-    if(cfg.fontUrl)void font('OrthocalMonomakh',cfg.fontUrl).catch(()=>{});
-    if(cfg.civilFontUrl)void font('OrthocalCivil',cfg.civilFontUrl).catch(()=>{});
+    if(cfg.fontUrl)void font(cfg.fontUrl).catch(()=>{});
     // AJAX HTML is rendered at a REST URL; public date links must retain the page URL.
     root.querySelectorAll('[data-oc-date]').forEach(link=>{
       const url=new URL(cfg.pageUrl||window.location.href);url.hash='';url.searchParams.set('orthocal_date',link.dataset.ocDate);link.href=url.href;
@@ -105,7 +99,7 @@
       try {
         const url=route(cfg.endpoint,'render');
         const attrs={...cfg,...changes};
-        for (const [name,value] of Object.entries(attrs)) if (!['endpoint','translation','liveDate','pageUrl','fontUrl','civilFontUrl','ui'].includes(name)) url.searchParams.set(name,value);
+        for (const [name,value] of Object.entries(attrs)) if (!['endpoint','translation','liveDate','pageUrl','fontUrl','ui'].includes(name)) url.searchParams.set(name,value);
         const value=await json(url);
         if (current!==generation) return;
         // Only our escaped server-rendered markup is parsed. Remote API text is never HTML.
