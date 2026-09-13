@@ -16,4 +16,14 @@ describe('manual month heading',()=>{
   expect(restored.semanticRole).toBeUndefined();
   setManualTextTitle(text,'');expect(localizedTextTitle(text,page,2028,'ru')).toBe('');
  });
+ it('localizes automatic headings from projects created before semantic roles existed',()=>{
+  const page=createMonthTemplatePageWithPreset('A3','portrait',8,2027,'editorial-photo',undefined,'ru');
+  const text=page.elements.find(e=>e.type==='text'&&e.semanticRole==='calendar-month-title');
+  if(!text||text.type!=='text')throw Error('Missing heading');
+  delete text.semanticRole;
+  expect(localizedTextTitle(text,page,2027,'uk')).toBe('Серпень 2027');
+  expect(localizedTextTitle(text,page,2027,'de')).toBe('August 2027');
+  text.content.title='Мій серпень 2027!';
+  expect(localizedTextTitle(text,page,2027,'de')).toBe('Мій серпень 2027!');
+ });
 });
