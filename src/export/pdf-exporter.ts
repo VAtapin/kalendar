@@ -1291,16 +1291,17 @@ async function drawElement(context: PageContext, element: LayoutElementNode): Pr
 async function embedFontFamily(
   pdfDocument: PDFDocument,
   files: PdfFontFamilyFiles,
+  options: { subset?: boolean } = {},
 ): Promise<EmbeddedFontFamily> {
-  const regular = await embedShapingFont(pdfDocument, files.regular);
+  const regular = await embedShapingFont(pdfDocument, files.regular, options);
   const bold = files.bold
-    ? await embedShapingFont(pdfDocument, files.bold)
+    ? await embedShapingFont(pdfDocument, files.bold, options)
     : regular;
   const italic = files.italic
-    ? await embedShapingFont(pdfDocument, files.italic)
+    ? await embedShapingFont(pdfDocument, files.italic, options)
     : regular;
   const boldItalic = files.boldItalic
-    ? await embedShapingFont(pdfDocument, files.boldItalic)
+    ? await embedShapingFont(pdfDocument, files.boldItalic, options)
     : files.bold
       ? bold
       : files.italic
@@ -1391,7 +1392,10 @@ export async function exportCalendarProjectPdf(
   const bundled = new Map<string, EmbeddedFontFamily>();
   for (const [family, files] of Object.entries(fontFiles.bundled ?? {})) {
     if (!files) continue;
-    bundled.set(family.toLocaleLowerCase(), await embedFontFamily(pdfDocument, files));
+    bundled.set(
+      family.toLocaleLowerCase(),
+      await embedFontFamily(pdfDocument, files, family === "Rurintania" ? { subset: false } : undefined),
+    );
   }
   const customFontFiles = new Map<string, PdfFontFamilyFiles>();
   for (const face of project.customFonts ?? []) {

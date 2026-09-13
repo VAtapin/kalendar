@@ -42,6 +42,14 @@ describe("bundled print fonts", () => {
     expect(new Set(hashes).size).toBe(hashes.length);
   });
 
+  it("extends Rurintania with German umlauts and eszett", async () => {
+    const bytes = await readFile(resolve(import.meta.dirname, "../public/fonts/Rurintania.ttf"));
+    const face = fontkit.create(bytes);
+    for (const character of "äÄöÖüÜß") {
+      expect(face.glyphForCodePoint(character.codePointAt(0)!).id, character).toBeGreaterThan(0);
+    }
+  });
+
   it("offers decorative, book and system choices in the editor", () => {
     const decorativeFamilies = FONT_OPTIONS.filter((font) => font.kind === "decorative").map((font) => font.family);
     expect(decorativeFamilies).toHaveLength(39);

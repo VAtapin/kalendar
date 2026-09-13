@@ -12,8 +12,12 @@ const sources = new WeakMap<PDFFont, { bytes: Uint8Array; face?: Font }>();
 const pageFonts = new WeakMap<PDFPage, Map<PDFFont, PDFName>>();
 const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 
-export async function embedShapingFont(pdf: PDFDocument, bytes: Uint8Array): Promise<PDFFont> {
-  const font = await pdf.embedFont(bytes, { subset: true });
+export async function embedShapingFont(
+  pdf: PDFDocument,
+  bytes: Uint8Array,
+  options: { subset?: boolean } = {},
+): Promise<PDFFont> {
+  const font = await pdf.embedFont(bytes, { subset: options.subset ?? true });
   sources.set(font, { bytes });
   return font;
 }

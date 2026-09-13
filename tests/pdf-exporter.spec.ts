@@ -67,6 +67,41 @@ describe("PDF exporter", () => {
     expect(collectBundledFontFamilies(project)).toContain("Monomakh Unicode");
   });
 
+  it("embeds the extended Rurintania glyphs for German month titles", async () => {
+    const [xml, regular, bold, italic, boldItalic, rurintania] = await Promise.all([
+      readFile("public/data/MemoryDays.xml", "utf8"),
+      readFile("public/fonts/DejaVuSans.ttf"),
+      readFile("public/fonts/DejaVuSans-Bold.ttf"),
+      readFile("public/fonts/DejaVuSans-Oblique.ttf"),
+      readFile("public/fonts/DejaVuSans-BoldOblique.ttf"),
+      readFile("public/fonts/Rurintania.ttf"),
+    ]);
+    const project = createBlankCalendarProject(2027);
+    project.calendarLanguage = "de";
+    project.document.pages = [createMonthTemplatePage("A3", "portrait", 3, 2027, undefined, "de")];
+    const title = project.document.pages[0]!.elements.find(
+      (element) => element.type === "text" && element.semanticRole === "calendar-month-title",
+    );
+    if (!title || title.type !== "text") throw new Error("Expected month title");
+    title.typography.fontFamily = "Rurintania";
+    const result = await exportCalendarProjectPdf(
+      project,
+      buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml)),
+      {
+        regular,
+        bold,
+        italic,
+        boldItalic,
+        bundled: { Rurintania: { regular: rurintania } },
+      },
+      { loadAssetSource: async () => undefined },
+    );
+    const document = await PDFDocument.load(result.bytes);
+    const content = decodedPageContent(document, 0);
+    expect(content).toContain("00E0");
+    expect(result.warnings.some((warning) => warning.code === "unsupported-font")).toBe(false);
+  });
+
   it("creates a Cyrillic print page with MediaBox, TrimBox and bleed", async () => {
     const workspace = resolve(import.meta.dirname, "..");
     const [xml, regular, bold, italic, boldItalic] = await Promise.all([
