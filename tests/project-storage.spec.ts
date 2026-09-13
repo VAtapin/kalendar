@@ -80,11 +80,12 @@ describe("project storage migration", () => {
     const page = createMonthTemplatePageWithPreset("A3", "portrait", 9, 2027, "editorial-photo");
     const grid = page.elements.find((element) => element.type === "calendar-grid");
     const title = page.elements.find(
-      (element) => element.type === "text" && element.content.title === "Сентябрь 2027",
+      (element) => element.type === "text" && element.content.title === "Сентябрь",
     );
     if (grid?.type !== "calendar-grid" || title?.type !== "text") {
       throw new Error("Expected generated month typography");
     }
+    title.content.title = "Сентябрь 2027";
     grid.weekdayFontFamily = "Georgia";
     grid.dayNumberFontFamily = "Georgia";
     grid.eventFontFamily = "Arial";

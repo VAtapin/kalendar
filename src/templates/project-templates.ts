@@ -6,7 +6,7 @@ import type {
   PageModel,
 } from "../document/types";
 import { BRAND_LOGO_ASSET_ID } from "../document/branding";
-import { calendarMonthHeading } from "../calendar/localization/calendar-language";
+import { calendarMonthName } from "../calendar/localization/calendar-language";
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -28,7 +28,7 @@ export function updatePageCalendarYear(
 ): void {
   const month = monthOf(page);
   if (page.kind === "month" && month) {
-    page.name = calendarMonthHeading(month, newYear, calendarLanguage);
+    page.name = calendarMonthName(month, calendarLanguage);
   } else {
     page.name = replaceYearText(page.name, oldYear, newYear);
   }
@@ -152,7 +152,7 @@ export function applyMonthMaster(
       element.weekRows = oldGridRows[index] ?? element.weekRows;
     });
     next.id = target.id;
-    next.name = calendarMonthHeading(targetMonth, project.year, project.calendarLanguage);
+    next.name = calendarMonthName(targetMonth, project.calendarLanguage);
     updatePageCalendarYear(next, project.year, project.year, project.calendarLanguage);
     Object.assign(target, next);
     changedPages += 1;

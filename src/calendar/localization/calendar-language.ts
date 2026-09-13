@@ -523,14 +523,14 @@ export function localizedTextTitle(
 ): string {
   if (element.semanticRole === "calendar-cover-title") return calendarCoverHeading(language);
   const month = page.elements.find((item) => item.type === "calendar-grid")?.month;
-  if (element.semanticRole !== "calendar-month-title" && !isLegacyAutomaticMonthHeading(element.content.title, month, year, element.manualTitle)) {
+  const automaticTitle = element.semanticRole === "calendar-month-title" || isAutomaticCalendarMonthTitle(element.content.title, month, year, element.manualTitle);
+  if (!automaticTitle) {
     return element.content.title;
   }
-  const storedYear = /\b(19|20|21|22)\d{2}\b/u.exec(element.content.title)?.[0];
-  return month ? calendarMonthHeading(month, storedYear ? Number(storedYear) : year, language) : element.content.title;
+  return month ? calendarMonthName(month, language) : element.content.title;
 }
 
-function isLegacyAutomaticMonthHeading(
+export function isAutomaticCalendarMonthTitle(
   title: string,
   month: number | undefined,
   year: number,
@@ -539,7 +539,12 @@ function isLegacyAutomaticMonthHeading(
   if (manualTitle || !month) return false;
   const storedYear = /\b(19|20|21|22)\d{2}\b/u.exec(title)?.[0];
   const headingYear = storedYear ? Number(storedYear) : year;
+  const normalizedTitle = title.trim();
+  if (MONTHS.ru[month - 1] === normalizedTitle ||
+    (Object.keys(MONTHS) as CalendarLanguage[]).some((language) => calendarMonthName(month, language) === normalizedTitle)) {
+    return true;
+  }
   return (Object.keys(MONTHS) as CalendarLanguage[]).some(
-    (language) => calendarMonthHeading(month, headingYear, language) === title,
+    (language) => calendarMonthHeading(month, headingYear, language) === normalizedTitle,
   );
 }

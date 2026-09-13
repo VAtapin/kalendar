@@ -10,7 +10,7 @@ import type {
   PageOrientation,
   TextElement,
 } from "../document/types";
-import { calendarCoverHeading, calendarMonthHeading } from "../calendar/localization/calendar-language";
+import { calendarCoverHeading, calendarMonthName } from "../calendar/localization/calendar-language";
 import { createElementOnOwnLayer, type ElementIdFactory } from "../editor/element-creation";
 import { applyDefaultCalendarCellGeometry } from "./calendar-cell-defaults";
 import {
@@ -78,7 +78,7 @@ export function createMonthTemplatePageWithPreset(
 ): PageModel {
   const page = createBlankPage(formatId, orientation);
   page.id = `page-month-${month}-${idFactory()}`;
-  page.name = calendarMonthHeading(month, year, calendarLanguage);
+  page.name = calendarMonthName(month, calendarLanguage);
   page.kind = "month";
   page.layers = [];
   page.elements = [];
@@ -148,7 +148,7 @@ export function createMonthTemplatePageWithPreset(
     { x: margin, y: page.height * (compactLayout?.titleY ?? preset.titleY), width: contentWidth, height: titleHeight },
     { idFactory, fillColor: preset.titleColor },
   ).element as TextElement;
-  monthTitle.content.title = calendarMonthHeading(month, year, calendarLanguage);
+  monthTitle.content.title = calendarMonthName(month, calendarLanguage);
   monthTitle.semanticRole = "calendar-month-title";
   monthTitle.typography.fontFamily = "Ruslan Display";
   monthTitle.typography.fontSizePt = Math.max(20, page.width * 0.105);

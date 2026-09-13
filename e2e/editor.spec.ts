@@ -70,7 +70,8 @@ test("opens calendar properties from an object and resizes every page with one u
   await page.getByTestId("menu-command-calendar-properties").click();
   await page.getByTestId("calendar-format-select").selectOption("A4");
   await page.getByRole("tab", { name: "Страницы", exact: true }).click();
-  await expect(page.locator(".page-card--active")).toContainText("Май 2027");
+  await expect(page.locator(".page-card--active")).toContainText("Май");
+  await expect(page.locator(".page-card--active")).not.toContainText("2027");
   await expect(page.locator(".page-card small")).toHaveText(Array(13).fill("210 × 297 мм"));
 
   await page.getByRole("button", { name: "Правка", exact: true }).click();

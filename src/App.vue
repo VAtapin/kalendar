@@ -68,7 +68,8 @@ import type {
 } from "./document/types";
 import {
   CALENDAR_LANGUAGE_OPTIONS,
-  calendarMonthHeading,
+  calendarMonthName,
+  isAutomaticCalendarMonthTitle,
   normalizeCalendarLanguage,
 } from "./calendar/localization/calendar-language";
 import {
@@ -1666,7 +1667,7 @@ async function createNewProject(): Promise<void> {
   if (project.value.calendarLanguage === 'de') project.value.name = `Orthodoxer Kalender ${project.value.year}`;
   for (const page of project.value.document.pages) {
     const grid = page.elements.find(element => element.type === 'calendar-grid');
-    if (page.kind === 'month' && grid?.type === 'calendar-grid') page.name = calendarMonthHeading(grid.month, project.value.year, project.value.calendarLanguage);
+    if (page.kind === 'month' && grid?.type === 'calendar-grid') page.name = calendarMonthName(grid.month, project.value.calendarLanguage);
   }
   project.value.programSettings = { interfaceLanguage: interfaceLanguage.value };
   detachActiveProjectFile();
@@ -1939,7 +1940,9 @@ async function updateCalendarLanguage(event: Event): Promise<void> {
     for (const page of project.value.document.pages) {
       if (page.kind !== "month") continue;
       const month = page.elements.find((element) => element.type === "calendar-grid")?.month;
-      if (month) page.name = calendarMonthHeading(month, project.value.year, language);
+      if (month && isAutomaticCalendarMonthTitle(page.name, month, project.value.year, false)) {
+        page.name = calendarMonthName(month, language);
+      }
     }
   });
   operationNotice.value = `Язык календаря: ${calendarLanguageOptions.find((item) => item.id === language)?.label ?? language}`;

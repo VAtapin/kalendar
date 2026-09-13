@@ -103,8 +103,8 @@ describe("calendar content language", () => {
   it("marks generated month headings and saves the calendar language in the project", () => {
     const page = createMonthTemplatePageWithPreset("A3", "portrait", 1, 2027, "editorial-photo", undefined, "de");
     const heading = page.elements.find((element) => element.type === "text" && element.semanticRole === "calendar-month-title");
-    expect(page.name).toBe("Januar 2027");
-    expect(heading?.type === "text" ? heading.content.title : "").toBe("Januar 2027");
+    expect(page.name).toBe("Januar");
+    expect(heading?.type === "text" ? heading.content.title : "").toBe("Januar");
 
     const project = createBlankCalendarProject();
     project.calendarLanguage = "pl";

@@ -1,10 +1,11 @@
 import type { CalendarGridElement, CalendarProject, PageModel } from "../document/types";
 import { COMMEMORATION_FILTER_PRESETS } from "../calendar/presentation/calendar-content-policy";
+import { requiredMonthWeekRows } from "../templates/calendar-templates";
 import {
-  RUSSIAN_MONTH_NAMES,
-  requiredMonthWeekRows,
-} from "../templates/calendar-templates";
-import { normalizeCalendarLanguage } from "../calendar/localization/calendar-language";
+  calendarMonthName,
+  isAutomaticCalendarMonthTitle,
+  normalizeCalendarLanguage,
+} from "../calendar/localization/calendar-language";
 import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-defaults";
 import { normalizedOpacity } from "../document/paint";
 import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
@@ -133,8 +134,10 @@ function normalizeLegacyTypography(page: PageModel, project: CalendarProject): v
     }
     if (element.type !== "text" || element.typography.fontFamily !== "Georgia") continue;
     const title = element.content.title.trim();
-    const isMonthTitle = page.kind === "month" && RUSSIAN_MONTH_NAMES.some(
-      (month) => title === `${month} ${project.year}`,
+    const month = page.elements.find((item): item is CalendarGridElement => item.type === "calendar-grid")?.month;
+    const isMonthTitle = page.kind === "month" && (
+      element.semanticRole === "calendar-month-title" ||
+      isAutomaticCalendarMonthTitle(title, month, project.year, element.manualTitle)
     );
     if (isMonthTitle || title === "ПРАВОСЛАВНЫЙ КАЛЕНДАРЬ") {
       element.typography.fontFamily = "Ruslan Display";
@@ -144,6 +147,22 @@ function normalizeLegacyTypography(page: PageModel, project: CalendarProject): v
       element.typography.fontWeight = 400;
     } else if (page.kind === "cover" && title === project.publisherProfile.name.trim()) {
       element.typography.fontFamily = "Cormorant Garamond";
+    }
+  }
+}
+
+function normalizeLegacyMonthTitleRoles(page: PageModel, year: number, language: CalendarProject["calendarLanguage"]): void {
+  if (page.kind !== "month") return;
+  const grid = page.elements.find((element): element is CalendarGridElement => element.type === "calendar-grid");
+  if (!grid) return;
+  if (isAutomaticCalendarMonthTitle(page.name, grid.month, year, false)) {
+    page.name = calendarMonthName(grid.month, language);
+  }
+  for (const element of page.elements) {
+    if (element.type !== "text" || element.manualTitle) continue;
+    if (isAutomaticCalendarMonthTitle(element.content.title, grid.month, year, element.manualTitle)) {
+      element.semanticRole = "calendar-month-title";
+      element.content.title = calendarMonthName(grid.month, language);
     }
   }
 }
@@ -331,6 +350,7 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
       }
       applyDefaultCalendarCellGeometry(element);
     }
+    normalizeLegacyMonthTitleRoles(page, project.year, project.calendarLanguage);
     normalizeLegacyTypography(page, project);
     normalizeLegacyMonthLayout(page, project.year);
   }

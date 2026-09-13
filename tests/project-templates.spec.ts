@@ -13,7 +13,7 @@ describe("project templates and year cloning", () => {
     const copy = cloneProjectForYear(project, 2028, () => "copy");
     const copiedGrid = copy.document.pages[1]!.elements.find((element) => element.type === "calendar-grid");
     expect(copy.year).toBe(2028);
-    expect(copy.document.pages[1]!.name).toBe("Январь 2028");
+    expect(copy.document.pages[1]!.name).toBe("Январь");
     expect(copiedGrid?.x).toBe(22.75);
   });
 
