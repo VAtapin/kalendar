@@ -2,8 +2,13 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { documentRoutes } from './src/document-routes';
 import { fileURLToPath } from 'node:url';
+import { readWordPressPluginVersion } from './scripts/wordpress-plugin-version.mjs';
+
+const projectRoot = fileURLToPath(new URL('.', import.meta.url));
+const wordpressPluginVersion = readWordPressPluginVersion(projectRoot);
 
 export default defineConfig(({ isSsrBuild }) => ({
+  define: { __WORDPRESS_PLUGIN_VERSION__: JSON.stringify(wordpressPluginVersion) },
   resolve: { alias: !isSsrBuild && !process.env.VITEST ? [{
     find: /^.*\/corpus-data$/,
     replacement: fileURLToPath(new URL('./src/calendar/localization/corpus-data.browser.ts', import.meta.url)),

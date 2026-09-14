@@ -19,6 +19,7 @@
 - В редактор добавлен локальный Ponomar — церковнославянский Unicode-шрифт с SIL OFL-лицензией; он встраивается и в PDF.
 - Установочный архив 1.3.50 добавлен в `artifacts` и `public/downloads`; серверная сборка публикует его на сайте календаря.
 - Страница `/calendar-api`, публичная документация и проверочный скрипт указывают на актуальный архив WordPress-плагина 1.3.50.
+- Версия и имя ZIP на странице `/calendar-api` теперь подставляются на сборке из заголовка `wordpress/orthocal/orthocal.php`; сборщик плагина и проверка страницы используют тот же источник.
 - Стандартное серверное обновление Kalendar всегда выполняет `nodenv local 22`, `npm ci --include=dev` и `npm run build` после fast-forward pull; PHP CLI и общий Plesk PATH не добавляются.
 - В плагине разделены русские тропари и кондаки, а список языков ограничивается доступными редакциями.
 - Общий рендерер полного произведения и справочного песнопения сохраняет раздельные языковые атрибуты `cu` и `cu-civil`; обе церковнославянские редакции используют Monomakh Unicode.
@@ -74,7 +75,7 @@
 - Веб-календарь: `node --check public/calendar-ui/web-calendar.js`, браузерный `scripts/test-web-calendar.mjs` (фильтры, 85%-ное окно, быстрый skeleton, пост без картинки) и `scripts/test-static-navigation.mjs` прошли; `git diff --check` прошёл. Полный HTTP-тест остановлен на внешнем Bible Desktop API с HTTP 503.
 - Для галереи иконок прошли `node --check public/calendar-ui/web-calendar.js`, `scripts/test-calendar-icon-day.php`, `scripts/test-web-calendar.mjs`, `npm test` (71 файл, 525 тестов), `npm run typecheck` и `git diff --check`; production build в этой сессии заблокирован ошибкой среды Node `uv_os_get_passwd: ENOMEM`.
 - Для текущей перестройки веб-календаря браузерная проверка подтвердила порядок «Иконы дня» → «Святые и праздники», отсутствие ссылок у имён святых, локализованную дату старого стиля и карточку описания перед изображениями выбранного образа; `node --check`, `npm test` (71 файл, 525 тестов), `npm run typecheck` и `git diff --check` прошли.
-- Для страницы API прошли `npm run typecheck`, production build и `node --check scripts/test-calendar-api-docs.mjs`; архив 1.3.49 включён в локальную сборку.
+- Для динамической версии страницы API прошли `npm run typecheck`, PHP lint и сборка ZIP через `--publish-downloads`; отдельная Vite-сборка подтвердила встраивание версии 1.3.50 в production-бандл. Штатный `npm run build` в этой сессии заблокирован ошибкой среды Node `uv_os_get_passwd: ENOMEM`.
 - Для WordPress-плагина 1.3.50 прошли полный тест WordPress/SQLite + Edge (22 режима, API и кэш медиа, лимиты и модальное окно иконок), PHP lint, `node --check` календарного JS, сборка ZIP через `--publish-downloads` и `git diff --check`.
 - Для текущих изменений веб-календаря прошли `scripts/test-web-calendar.mjs`, `node --check public/calendar-ui/web-calendar.js`, `npm test` (71 файл, 525 тестов) и `git diff --check`; браузер проверил смену образа, шрифт, стрелку фильтров, подсветку Пасхи/Типикона и отсутствие строки поста без поста.
 
