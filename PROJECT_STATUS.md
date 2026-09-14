@@ -18,6 +18,7 @@
 - Подпись вставленной иконы остаётся отдельным текстовым объектом: её можно самостоятельно выбрать, переместить, изменить размер и шрифт; изменение размера иконы не меняет кегль подписи.
 - В редактор добавлен локальный Ponomar — церковнославянский Unicode-шрифт с SIL OFL-лицензией; он встраивается и в PDF.
 - Установочный архив 1.3.49 добавлен в `artifacts` и `public/downloads`; серверная сборка публикует его на сайте календаря.
+- Страница `/calendar-api`, публичная документация и проверочный скрипт указывают на актуальный архив WordPress-плагина 1.3.49.
 - Стандартное серверное обновление Kalendar всегда выполняет `nodenv local 22`, `npm ci --include=dev` и `npm run build` после fast-forward pull; PHP CLI и общий Plesk PATH не добавляются.
 - В плагине разделены русские тропари и кондаки, а список языков ограничивается доступными редакциями.
 - Общий рендерер полного произведения и справочного песнопения сохраняет раздельные языковые атрибуты `cu` и `cu-civil`; обе церковнославянские редакции используют Monomakh Unicode.
@@ -67,5 +68,6 @@
 - Реальный WordPress/SQLite + Edge проверяет заголовок следующей главы и ширину всех окон богослужебной библиотеки.
 - В Bible Desktop исправлен импорт UCS для Правмира: commit `44db40a` добавляет миграцию только для частей `22824`, `22836`–`22838`, `22840`–`22842`; PHPUnit `LiturgicalCorpusTest` прошёл (3 теста, 7 assertions).
 - Веб-календарь: `node --check public/calendar-ui/web-calendar.js`, браузерный `scripts/test-web-calendar.mjs` (фильтры, 85%-ное окно, быстрый skeleton, пост без картинки) и `scripts/test-static-navigation.mjs` прошли; `git diff --check` прошёл. Полный HTTP-тест остановлен на внешнем Bible Desktop API с HTTP 503.
+- Для страницы API прошли `npm run typecheck`, production build и `node --check scripts/test-calendar-api-docs.mjs`; архив 1.3.49 включён в локальную сборку.
 
-Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `acc95f9 Choose fullest default liturgical language`.
+Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `bc0bb50 ok`.
