@@ -9,6 +9,17 @@ final class Orthocal_Library {
         return ($a['text_language'] ?? '') ?: $a['lang'];
     }
 
+    static function preferred_language($a,$counts) {
+        $preferred=($a['text_language']??'')?:($a['lang']??'ru');
+        if(!isset(self::LANGUAGES[$preferred]))$preferred='ru';
+        $best=$preferred;$bestCount=(int)($counts[$preferred]??0);
+        foreach(array_keys(self::LANGUAGES) as $language) {
+            $count=(int)($counts[$language]??0);
+            if($count>$bestCount){$best=$language;$bestCount=$count;}
+        }
+        return $best;
+    }
+
     static function text_attributes($a,$text) {
         $language=$text['language']??self::language($a);
         $orthography=$language==='cu'?'traditional':'civil';
@@ -30,6 +41,11 @@ final class Orthocal_Library {
         if(is_wp_error($catalog))return $catalog;
         $catalogWorks=$catalog['data']??[];
         if(in_array($a['mode'],['troparia','kontakia'],true))$catalogWorks=array_values(array_filter($catalogWorks,static fn($work)=>str_starts_with($work['slug'],'tropari-i-kondaki-')));
+        if(($a['text_language']??'')==='') {
+            $counts=array_fill_keys(array_keys(self::LANGUAGES),0);
+            foreach($catalogWorks as $work)foreach(array_unique($work['available_languages']??[]) as $available)if(isset($counts[$available]))$counts[$available]++;
+            $language=self::preferred_language($a,$counts);
+        }
         $languages=array_values(array_unique(array_merge(...array_map(static fn($work)=>$work['available_languages']??[],$catalogWorks))));
         $works=array_values(array_filter($catalogWorks,static fn($work)=>in_array($language,$work['available_languages']??[],true)));
         $slug=$a['work']??'';

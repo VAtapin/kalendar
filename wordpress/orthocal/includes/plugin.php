@@ -5,7 +5,7 @@ require_once __DIR__.'/library.php';
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.48';
+    const VERSION = '1.3.49';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -163,11 +163,22 @@ final class Orthocal_Plugin {
         if(in_array($mode,['troparia','kontakia'],true)&&Orthocal_Library::language($a)==='ru')return Orthocal_Library::data($a);
         if(in_array($mode,['horologion','akathists','canons','prayers'],true)) return Orthocal_Library::data($a);
         if(in_array($mode,self::TEXT_MODES,true)) {
-            $types=['troparia'=>'troparion','kontakia'=>'kontakion','prayers'=>'prayer','magnifications'=>'magnification'];$query=['language'=>Orthocal_Library::language($a),'per_page'=>100,'page'=>$a['text_page']];
+            $types=['troparia'=>'troparion','kontakia'=>'kontakion','prayers'=>'prayer','magnifications'=>'magnification'];$query=['per_page'=>100,'page'=>$a['text_page']];
             if(isset($types[$mode]))$query['type']=$types[$mode];
             foreach(['scope','tone','weekday'] as $key)if($a[$key]!=='')$query[$key]=$a[$key];
             if($a['text_id']!=='')$query['id']=$a['text_id'];
-            return self::request('texts','',$query);
+            $language=Orthocal_Library::language($a);
+            if(($a['text_language']??'')==='') {
+                $counts=[];
+                foreach(array_keys(Orthocal_Library::LANGUAGES) as $candidate) {
+                    $probe=self::request('texts','',array_merge($query,['language'=>$candidate,'page'=>1,'per_page'=>1]));
+                    if(!is_wp_error($probe))$counts[$candidate]=(int)($probe['total']??$probe['count']??0);
+                }
+                $language=Orthocal_Library::preferred_language($a,$counts);
+            }
+            $data=self::request('texts','',array_merge($query,['language'=>$language]));
+            if(is_array($data))$data['language']=$language;
+            return $data;
         }
         if (in_array($mode,['today','day','readings','fasting','saints','date'],true)) {
             if (!self::key() && $mode === 'today') {
@@ -199,6 +210,7 @@ final class Orthocal_Plugin {
         }
         wp_enqueue_style('orthocal'); wp_enqueue_script('orthocal');
         $data = self::data($a);
+        if(is_array($data)&&in_array($a['mode'],self::TEXT_MODES,true)&&isset($data['language']))$a['text_language']=$data['language'];
         $page=(int)$a['day_page'];$pageUrl=$page && get_post_status($page)==='publish'?get_permalink($page):'';
         $has_liturgical_font=$a['lang']==='cu'||in_array($a['mode'],array_merge(self::TEXT_MODES,self::SERVICE_MODES),true);
         $config = $a + ['endpoint'=>rest_url('orthocal/v1/'), 'liveDate'=>empty($attrs['date']) && empty($_GET['orthocal_date']), 'pageUrl'=>$pageUrl,'ui'=>self::ui_catalog($a['lang']),'fontUrl'=>$has_liturgical_font?Orthocal_Media_Cache::url('/calendar-api-font.php'):''];

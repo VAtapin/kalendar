@@ -108,6 +108,19 @@ echo $id;
   console.log('PASS delayed preview cannot replace the latest selected image pack');
 
   resetRateWindow();
+  await field('mode').selectOption('prayers');
+  await field('text_language').selectOption('');
+  await page.locator('[data-oc-preview]').click();
+  await page.waitForFunction(()=>{
+    const root=document.querySelector('[data-oc-preview-slot] .orthocal');
+    const cfg=JSON.parse(root?.dataset.orthocal||'{}');
+    return cfg.mode==='prayers'&&cfg.text_language==='cu-civil';
+  });
+  assert.equal(await preview.locator('[data-oc-library-language]').inputValue(),'cu-civil','default prayer language has the most available materials');
+  assert.ok((await preview.locator('.oc-library-content').first().textContent()).includes('Богородице Дево'),'default prayer edition is rendered');
+  console.log('Browser: default library language follows the largest available edition');
+
+  resetRateWindow();
   for(const mode of ['horologion','kontakia','troparia','canons','akathists','prayers','magnifications','texts']) {
     await field('mode').selectOption(mode);
     for(const language of ['cu','cu-civil']) {
