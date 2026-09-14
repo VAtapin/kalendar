@@ -6,10 +6,11 @@ try{
  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
  let serviceAvailable=false, slowDetail=false;
  page.on('pageerror',e=>errors.push(e.message));
- const makeDay=date=>({date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:date.endsWith('-02-01')?'поста нет':'пища с маслом',dayStyle:{rank:'great-feast'},events:[{category:'commemoration',title:'Святитель Николай',typeCode:2}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',images:[{url:'https://bible-desktop.com/api/calendar/icons/1/images/2'},{url:'https://bible-desktop.com/api/calendar/icons/1/images/3'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]});
+ const makeDay=date=>{const pascha=date.endsWith('-02-01');return {date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:pascha?'поста нет':'пища с маслом',dayStyle:{rank:pascha?'pascha':'great-feast'},events:[{category:'commemoration',title:pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай',typeCode:pascha?0:2,typikonMark:{id:'great',label:'Великий праздник',svgSource:'/assets/typikon/great.svg'}}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',images:[{url:'https://bible-desktop.com/api/calendar/icons/1/images/2'},{url:'https://bible-desktop.com/api/calendar/icons/1/images/3'}]},{id:2,title:'Мученица Наталья Козлова',description:'Описание второй иконы',images:[{url:'https://bible-desktop.com/api/calendar/icons/2/images/4'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]};};
  await page.route('https://web.test/**',async route=>{
   const url=new URL(route.request().url());
   if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync('public'+url.pathname)});
+  if (url.pathname.startsWith('/assets/typikon/')) return route.fulfill({contentType:'image/svg+xml',body:fs.readFileSync('public'+url.pathname)});
   if(url.pathname==='/calendar-api-font.php')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
   if(url.pathname.endsWith('/service')){if(slowDetail)await new Promise(resolve=>setTimeout(resolve,250));return serviceAvailable
    ? route.fulfill({json:{assignments:[{title:'Назначенный тропарь',text:'Текст тропаря',insert:true,rubric:'Слава:'}],properCoverage:{status:'partial'}}})
@@ -27,9 +28,14 @@ try{
  await page.locator('.day').first().waitFor();
  assert.equal(await page.locator('#days').evaluate(el=>getComputedStyle(el).display),'grid');
  assert.equal(await page.locator('#filters').evaluate(el=>el.open),false);
+ assert.equal(await page.locator('.filters-title + .filter-caret').count(),1);
  await page.locator('#filters > summary').click();
+ assert.equal(await page.locator('.filter-caret').evaluate(el=>getComputedStyle(el,'::before').content),'"▴"');
  await page.locator('#next').click();
  await page.waitForURL(/date=2026-02-28/);
+ await page.locator('#days .day.day-pascha').waitFor();
+ assert.equal(await page.locator('#days .day.day-pascha').count(),1);
+ assert.equal(await page.locator('#days .day-pascha .food').count(),0);
  await page.locator('.day').first().click();
  await page.locator('dialog[open] .event-card').waitFor();
  assert.ok(await page.locator('#detail').evaluate(el=>el.getBoundingClientRect().width>=1000));
@@ -39,9 +45,9 @@ try{
  const headings=await page.locator('#detail .section-card h3').allTextContents();
  assert.ok(headings.indexOf('Иконы дня')<headings.indexOf('Святые и праздники'));
  assert.equal(await page.locator('#detail .event-icon-link').count(),0);
- await page.locator('dialog#detail .icon-thumbnail').waitFor();
- assert.equal(await page.locator('#detail .icon-thumbnail img').count(),1);
- await page.locator('#detail .icon-thumbnail').click();
+ await page.locator('dialog#detail .icon-thumbnail').first().waitFor();
+ assert.equal(await page.locator('#detail .icon-thumbnail img').count(),2);
+ await page.locator('#detail .icon-thumbnail').first().click();
  await page.locator('#icon-lightbox[open]').waitFor();
  assert.equal(await page.locator('#icon-lightbox[open] #icon-large').count(),1);
  assert.equal(await page.locator('#icon-modal-counter').innerText(),'1 из 3');
@@ -53,6 +59,14 @@ try{
  assert.equal(await page.locator('#icon-large').isVisible(),true);
  await page.locator('#icon-lightbox[open]').press('ArrowLeft');
  assert.equal(await page.locator('#icon-modal-counter').innerText(),'1 из 3');
+ await page.locator('#icon-close').click();
+ await page.locator('#detail .icon-thumbnail').nth(1).click();
+ await page.evaluate(()=>document.fonts.ready);
+ assert.equal(await page.locator('#icon-modal-title').innerText(),'Мученица Наталья Козлова');
+ assert.equal(await page.locator('#icon-modal-description').isVisible(),true);
+ assert.equal(await page.locator('#icon-large').isVisible(),false);
+ assert.equal(await page.locator('#icon-large').getAttribute('src'),null);
+ assert.match(await page.locator('#icon-modal-title').evaluate(el=>getComputedStyle(el).fontFamily),/Calendar API Slavonic/);
  await page.locator('#icon-close').click();
  await page.locator('#close').click();assert.equal(await page.locator('dialog[open]').count(),0);
  await page.locator('[data-view="year"]').click();await page.locator('.mini-month').first().waitFor();assert.equal(await page.locator('.mini-month').count(),12);

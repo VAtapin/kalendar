@@ -22,10 +22,11 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 
 .filters, .content { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; }
 .filters { margin-bottom: 20px; }
-.filters > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 18px; cursor: pointer; list-style: none; }
+.filters > summary { display: flex; align-items: center; gap: 9px; padding: 13px 18px; cursor: pointer; list-style: none; }
 .filters > summary::-webkit-details-marker { display: none; }
-.filters > summary::before { content: "⌄"; order: 2; color: var(--gold); font-size: 20px; line-height: 1; transform: translateY(-2px); }
-.filters[open] > summary::before { content: "⌃"; }
+.filter-caret { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--gold); font-size: 23px; font-weight: 700; line-height: 1; }
+.filter-caret::before { content: "▾"; }
+.filters[open] .filter-caret::before { content: "▴"; }
 .filters-title { font: 400 21px Georgia, serif; }
 .filter-summary { flex: 1; color: var(--muted); font-size: 13px; text-align: right; }
 .filter-panel { padding: 0 20px 18px; border-top: 1px solid var(--line); }
@@ -57,8 +58,15 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 .weekday, .blank, .day { min-width: 88px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .weekday { padding: 9px; background: #f7f4eb; color: var(--muted); font-size: 12px; font-weight: 700; text-align: center; }
 .blank { background: #fbfaf6; }
-.day { min-height: 122px; padding: 8px; border-top: 0; border-left: 0; border-radius: 0; background: var(--paper); color: var(--ink); text-align: left; }
+.day { min-height: 136px; padding: 8px; border-top: 0; border-left: 0; border-radius: 0; background: var(--paper); color: var(--ink); text-align: left; }
 .day:hover, .day:focus-visible { outline: 3px solid #d6b66b; outline-offset: -3px; background: #fff8e8; }
+.day.day-pascha { background: #fff0df; box-shadow: inset 0 4px #b64a36; }
+.day.day-great { background: #fff8df; box-shadow: inset 0 4px #c49a3a; }
+.day.day-medium { background: #fffdf0; box-shadow: inset 0 3px #d8bd70; }
+.day.day-sunday { background: #f5faf5; }
+.day.day-pascha .day-number, .day.day-great .day-number { color: #9c3027; font-weight: 700; }
+.day-number-line { display: flex; align-items: center; gap: 6px; min-height: 25px; }
+.typikon-marker { width: 18px; height: 18px; object-fit: contain; }
 .day-number { font: 400 21px Georgia, serif; }
 .old-style { color: var(--muted); font-size: 10px; }
 .food { display: flex; align-items: center; min-height: 17px; margin: 4px 0; color: var(--muted); font-size: 11px; }
@@ -106,6 +114,10 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 .week-grid { display: grid; grid-template-columns: repeat(7, minmax(105px, 1fr)); gap: 10px; overflow: auto; }
 .week-day { min-height: 210px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; color: var(--ink); text-align: left; }
 .week-day:hover, .week-day:focus-visible { background: #fff8e8; }
+.week-day.day-pascha { background: #fff0df; border-color: #b64a36; }
+.week-day.day-great { background: #fff8df; border-color: #c49a3a; }
+.week-day.day-medium { background: #fffdf0; border-color: #d8bd70; }
+.week-day.day-sunday { background: #f5faf5; }
 .week-day h3 { margin: 0; font: 400 21px Georgia, serif; }
 .week-day p { margin: 6px 0; font-size: 13px; }
 .week-day .event { -webkit-line-clamp: 2; }
@@ -116,6 +128,10 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 .mini-days button, .mini-days span { min-height: 24px; padding: 2px; border: 0; border-radius: 4px; background: transparent; color: var(--ink); font-size: 11px; }
 .mini-days button:hover { background: #e7f0e8; }
 .mini-days button.has-event { background: #f2e6c6; font-weight: 700; }
+.mini-days button.day-pascha { background: #f6d9c2; box-shadow: inset 0 -2px #b64a36; }
+.mini-days button.day-great { background: #f7e8b9; box-shadow: inset 0 -2px #c49a3a; }
+.mini-days button.day-medium { background: #fbf3d5; box-shadow: inset 0 -2px #d8bd70; }
+.mini-days button.day-sunday { background: #eef5ed; }
 .mini-days button.fast { box-shadow: inset 0 -2px #b96c62; }
 .empty { padding: 40px 8px; color: var(--muted); text-align: center; }
 
@@ -126,7 +142,9 @@ dialog::backdrop { background: #18291e88; }
 .icon-dialog-body { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 10px; min-width: min(70vw, 760px); max-height: 90vh; padding: clamp(18px, 3vw, 30px); }
 .icon-modal-figure { grid-column: 2; margin: 0; text-align: center; }
 .icon-modal-figure img { display: block; width: auto; max-width: min(70vw, 760px); height: min(76vh, 760px); margin: 0 auto; object-fit: contain; }
+.icon-modal-figure img[hidden] { display: none !important; }
 .icon-modal-figure figcaption { margin-top: 12px; font: 400 22px/1.2 Georgia, serif; }
+.icon-modal-figure figcaption.slavonic-title, .icon-card figcaption.slavonic-title { font-family: "Calendar API Slavonic", Georgia, serif; }
 .icon-modal-description { max-width: 700px; margin: 16px auto; padding: 18px; border: 1px solid var(--line); border-radius: 11px; background: #fbfaf5; color: #52655c; line-height: 1.6; text-align: left; white-space: pre-line; }
 .icon-modal-figure .hint { margin: 5px 0 0; }
 .icon-nav { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--ink); font-size: 25px; line-height: 1; cursor: pointer; }

@@ -76,7 +76,6 @@ async function api(path, params) {
 }
 
 async function loadCalendarFont() {
-  if (state.lang !== 'cu') return;
   const url = new URL('/calendar-api-font.php', location.origin).href;
   if (slavonicFontUrl === url) return;
   const face = new FontFace('Calendar API Slavonic', 'url(' + JSON.stringify(url) + ')', { weight: '400', style: 'normal' });
@@ -129,6 +128,42 @@ function readLocation() {
 function weekdayNames() { return Array.from({ length: 7 }, (_, index) => titleDate('2024-01-' + String(index + 1).padStart(2, '0'), { weekday: 'short' }).replace('.', '')); }
 function commemorationEvents(day) { return (day.events || []).filter(event => event.category === 'commemoration'); }
 
+function dayEmphasis(day) {
+  const events = commemorationEvents(day);
+  const rank = day.dayStyle?.rank;
+  if (rank === 'pascha' || events.some(event => event.typeCode === 0 || event.styleToken === 'pascha' || /пасх|светлое христово воскресение/i.test(event.title || ''))) return 'pascha';
+  if (rank === 'great-feast' || events.some(event => (event.typeCode >= 0 && event.typeCode <= 2) || event.styleToken === 'great-feast')) return 'great';
+  if (rank === 'medium-feast' || events.some(event => (event.typeCode >= 3 && event.typeCode <= 5) || event.styleToken === 'medium-feast')) return 'medium';
+  if (rank === 'sunday' || day.weekday === 0) return 'sunday';
+  return 'ordinary';
+}
+
+function primaryTypikonMark(day) {
+  return commemorationEvents(day)
+    .filter(event => event.typikonMark?.svgSource)
+    .sort((left, right) => (left.typeCode ?? 99) - (right.typeCode ?? 99))[0]?.typikonMark;
+}
+
+function safeTypikonUrl(source) {
+  if (typeof source !== 'string') return '';
+  try {
+    const url = new URL(source, location.origin);
+    return url.origin === location.origin && /^\/assets\/typikon\/[a-z-]+\.svg$/u.test(url.pathname) ? url.href : '';
+  } catch { return ''; }
+}
+
+function decorateDayButton(button, day) {
+  button.classList.add('day-' + dayEmphasis(day));
+  const mark = primaryTypikonMark(day);
+  if (mark) {
+    button.classList.add('has-typikon');
+    button.title = [button.title, mark.label].filter(Boolean).join(' · ');
+  }
+  return mark;
+}
+
+function isCyrillicText(value) { return /[\u0400-\u04ff]/u.test(String(value || '')); }
+
 function buildHead(title, subtitle, badge = '', headingId = '') {
   const head = e('div', '', 'content-head');
   const text = e('div');
@@ -154,8 +189,21 @@ function dayButton(day) {
     food.textContent = ui(day.foodLabel);
     button.title = [titleDate(day.date), day.foodLabel, ...commemorationEvents(day).map(event => event.title)].join(' · ');
   } else button.title = [titleDate(day.date), ...commemorationEvents(day).map(event => event.title)].join(' · ');
-  button.append(e('div', String(Number(day.date.slice(-2))), 'day-number'), e('div', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'old-style'), food);
   const events = commemorationEvents(day);
+  const numberLine = e('div', '', 'day-number-line');
+  numberLine.append(e('span', String(Number(day.date.slice(-2))), 'day-number'));
+  const mark = decorateDayButton(button, day);
+  const markUrl = safeTypikonUrl(mark?.svgSource);
+  if (markUrl) {
+    const marker = e('img');
+    marker.className = 'typikon-marker';
+    marker.src = markUrl;
+    marker.alt = '';
+    marker.title = mark.label;
+    numberLine.append(marker);
+  }
+  button.append(numberLine, e('div', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'old-style'));
+  if (hasFast) button.append(food);
   const primary = events.find(event => event.typeCode <= 2) || events[0];
   if (primary) button.append(e('span', dayDisplayTitle(primary), 'event ' + (primary.typeCode <= 2 ? 'main' : '')));
   const remaining = events.length - (primary ? 1 : 0);
@@ -317,7 +365,7 @@ function iconSection(icons) {
       image.loading = 'lazy';
       button.append(image);
     }
-    card.append(button, e('figcaption', title));
+    card.append(button, e('figcaption', title, isCyrillicText(title) ? 'slavonic-title' : ''));
     grid.append(card);
   });
   grid.addEventListener('click', event => {
@@ -343,8 +391,9 @@ function renderIconLightbox() {
   if (!isDescription) {
     $('icon-large').src = item.url;
     $('icon-large').alt = item.title;
-  }
+  } else { $('icon-large').removeAttribute('src'); $('icon-large').alt = ''; }
   $('icon-modal-title').textContent = item.title;
+  $('icon-modal-title').classList.toggle('slavonic-title', isCyrillicText(item.title));
   $('icon-modal-counter').textContent = iconLightboxItems.length > 1
     ? `${iconLightboxIndex + 1} из ${iconLightboxItems.length}` : '';
   const hasNavigation = iconLightboxItems.length > 1;
@@ -435,6 +484,7 @@ function renderWeek(days) {
     const button = e('button', '', 'week-day');
     button.type = 'button';
     button.dataset.date = day.date;
+    decorateDayButton(button, day);
     button.append(e('h3', titleDate(day.date, { weekday: 'short', day: 'numeric' })), e('p', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'hint'));
     if (day.foodLabel && day.foodLabel !== 'поста нет') button.append(e('p', day.foodLabel));
     const events = commemorationEvents(day);
@@ -467,6 +517,8 @@ function renderYear(value) {
       button.dataset.date = day.date;
       if (commemorationEvents(day).length) button.classList.add('has-event');
       if (day.foodLabel && day.foodLabel !== 'поста нет') button.classList.add('fast');
+      decorateDayButton(button, day);
+      button.title = [titleDate(day.date), ...commemorationEvents(day).map(event => event.title)].join(' · ');
       mini.append(button);
     });
     card.append(mini);
