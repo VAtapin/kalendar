@@ -12,3 +12,13 @@ playwright-report/
 
 # Local inspection artifacts
 tmp/
+
+# Local icon import workspace
+/data/icon-library/
+
+# Generated icon export packages
+/artifacts/additional-icons-*/
+/artifacts/additional-icons-*.zip
+
+/artifacts/mother-of-god-icons-*/
+/artifacts/mother-of-god-icons-*.zip
