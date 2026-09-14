@@ -24,3 +24,5 @@
 .orthocal .oc-verses[lang="cu-civil"][data-orthography="civil"],.orthocal .oc-verses[lang="cu"][data-orthography="traditional"]{font-family:OrthocalMonomakh,serif;font-size:var(--oc-library-size,clamp(24px,1.6vw,28px));line-height:1.7}.orthocal .oc-library-content{font-size:var(--oc-library-size,clamp(22px,1.4vw,26px))}.orthocal .oc-library-content h4{font:inherit;font-weight:bold;margin:24px 0 12px}.orthocal .oc-library-content .oc-service-rubric{color:var(--oc-accent)}
 
 .orthocal .oc-library-reader{width:100%;max-width:none;margin:0}.orthocal .oc-library-content{margin-top:24px}.orthocal .oc-library-content p{white-space:pre-line}
+.orthocal .oc-icons figure{max-width:70px;width:70px}
+.orthocal .oc-icons img{width:70px;height:70px}
