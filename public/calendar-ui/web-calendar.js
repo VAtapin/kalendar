@@ -175,9 +175,48 @@ function renderMonth(value) {
   });
 }
 
-function eventCard(event) {
+function normalizedName(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ё/g, 'е')
+    .replace(/\bпрп\.?\b/g, 'преподобный').replace(/\bпрмц\.?\b/g, 'преподобномученица')
+    .replace(/\bправ\.?\b/g, 'праведный').replace(/\bмчч\.?\b/g, 'мученики').replace(/\bмцц\.?\b/g, 'мученицы')
+    .replace(/\bмч\.?\b/g, 'мученик').replace(/\bмц\.?\b/g, 'мученица').replace(/\s+/g, ' ').trim();
+}
+
+const ICON_NAME_STOP_WORDS = new Set([
+  'икона', 'иконы', 'икон', 'богородица', 'богородицы', 'богоматери', 'божией', 'божия', 'матери',
+  'преподобный', 'преподобная', 'преподобномученица', 'праведный', 'мученик', 'мученица', 'мученики', 'мученицы',
+  'священномученик', 'святитель', 'диакон', 'архимандрит', 'послушница', 'праотец', 'ее', 'и', 'в', 'на', 'о',
+]);
+
+function nameTokens(value) {
+  return normalizedName(value).split(/[^\p{L}\p{N}]+/u).filter(token => token.length >= 4 && !ICON_NAME_STOP_WORDS.has(token));
+}
+
+function tokenRoot(value) { return value.slice(0, Math.min(5, value.length)); }
+
+function iconMatchesForEvent(event, icons) {
+  const eventTokens = new Set(nameTokens(event.title || event.name));
+  if (!eventTokens.size) return [];
+  return icons.map(icon => {
+    const iconTokens = nameTokens(icon.title || icon.name);
+    const matches = iconTokens.filter(token => [...eventTokens].some(eventToken => tokenRoot(eventToken) === tokenRoot(token)));
+    return {icon, score: matches.length};
+  }).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.icon);
+}
+
+function eventCard(event, icons = []) {
   const card = e('article', '', 'event-card');
-  card.append(e('h4', event.title || event.shortTitle || 'Память дня'));
+  const title = event.title || event.name || event.shortTitle || 'Память дня';
+  const matches = iconMatchesForEvent(event, icons);
+  if (matches.length) {
+    const link = e('button', title, 'event-icon-link');
+    link.type = 'button';
+    link.dataset.iconTarget = String(matches[0].id);
+    link.title = 'Показать икону';
+    const heading = e('h4');
+    heading.append(link);
+    card.append(heading);
+  } else card.append(e('h4', title));
   const annotation = [event.typikonMark?.label].filter(Boolean).join(' · ');
   if (annotation) card.append(e('small', annotation));
   if (event.description) card.append(e('p', event.description));
@@ -260,8 +299,110 @@ function fastingHero(day) {
   return hero;
 }
 
+function safeIconUrl(source) {
+  if (typeof source !== 'string') return '';
+  try {
+    const url = new URL(source, location.origin);
+    return url.origin === 'https://bible-desktop.com' ? url.href : '';
+  } catch { return ''; }
+}
+
+function iconImages(icon) {
+  const images = Array.isArray(icon.images) ? icon.images : [];
+  const values = images.length ? images : [{url: icon.imageUrl || icon.image_url, width: icon.width, height: icon.height, sha256: icon.sha256}];
+  return values.map(image => ({
+    url: safeIconUrl(image?.url || image?.imageUrl || image?.image_url),
+    width: image?.width || null,
+    height: image?.height || null,
+    sha256: image?.sha256 || null,
+  })).filter(image => image.url);
+}
+
+function iconGalleryItems(icons) {
+  return icons.flatMap((icon, iconIndex) => iconImages(icon).map((image, imageIndex) => ({
+    ...image, iconId: String(icon.id), title: icon.title || icon.name || 'Икона дня', description: icon.description || '', iconIndex, imageIndex,
+  })));
+}
+
+function iconDescription(icon) {
+  if (!icon.description) return null;
+  const details = e('details', '', 'icon-description');
+  details.append(e('summary', 'Показать больше'), e('p', icon.description));
+  return details;
+}
+
+function iconSection(icons) {
+  const section = e('section', '', 'section-card icon-section');
+  section.append(e('h3', 'Иконы дня'));
+  const gallery = iconGalleryItems(icons);
+  const grid = e('div', '', 'icon-grid');
+  icons.forEach(icon => {
+    const card = e('figure', '', 'icon-card');
+    const title = icon.title || icon.name || 'Икона дня';
+    const first = iconImages(icon)[0];
+    const button = e('button', '', 'icon-thumbnail');
+    button.type = 'button';
+    button.dataset.iconCardId = String(icon.id);
+    button.dataset.iconGalleryIndex = String(Math.max(0, gallery.findIndex(item => item.iconId === String(icon.id))));
+    button.setAttribute('aria-label', 'Открыть: ' + title);
+    if (first) {
+      const image = e('img');
+      image.src = first.url;
+      image.alt = title;
+      image.loading = 'lazy';
+      button.append(image);
+    }
+    card.append(button, e('figcaption', title));
+    const description = iconDescription(icon);
+    if (description) card.append(description);
+    grid.append(card);
+  });
+  grid.addEventListener('click', event => {
+    const button = event.target.closest('.icon-thumbnail');
+    if (button) openIconLightbox(gallery, Number(button.dataset.iconGalleryIndex || 0));
+  });
+  section.append(grid);
+  return section;
+}
+
+let iconLightboxItems = [], iconLightboxIndex = 0, iconTouchStartX = 0;
+
+function renderIconLightbox() {
+  const item = iconLightboxItems[iconLightboxIndex];
+  if (!item) return;
+  $('icon-large').src = item.url;
+  $('icon-large').alt = item.title;
+  $('icon-modal-title').textContent = item.title;
+  $('icon-modal-counter').textContent = iconLightboxItems.length > 1
+    ? `${iconLightboxIndex + 1} из ${iconLightboxItems.length}` : '';
+  const hasNavigation = iconLightboxItems.length > 1;
+  $('icon-previous').hidden = !hasNavigation;
+  $('icon-next').hidden = !hasNavigation;
+}
+
+function openIconLightbox(items, index) {
+  iconLightboxItems = items;
+  iconLightboxIndex = Math.max(0, Math.min(index, items.length - 1));
+  renderIconLightbox();
+  if (!$('icon-lightbox').open) $('icon-lightbox').showModal();
+  $('icon-close').focus();
+}
+
+function shiftIcon(step) {
+  if (!iconLightboxItems.length) return;
+  iconLightboxIndex = (iconLightboxIndex + step + iconLightboxItems.length) % iconLightboxItems.length;
+  renderIconLightbox();
+}
+
+function scrollToIcon(iconId) {
+  const target = Array.from(document.querySelectorAll('[data-icon-card-id]'))
+    .find(node => node.dataset.iconCardId === String(iconId));
+  if (target) target.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+
 function renderDayValue(value, serviceState, target) {
   const day = value.day;
+  const icons = day.icons || [];
   const panel = applyTextLanguage(target);
   panel.replaceChildren();
   const page = e('div', '', 'day-page');
@@ -274,8 +415,12 @@ function renderDayValue(value, serviceState, target) {
   events.append(e('h3', 'Святые и праздники'));
   const eventList = e('div', '', 'events-list');
   const commemorations = commemorationEvents(day);
-  if (commemorations.length) commemorations.forEach(event => eventList.append(eventCard(event)));
+  if (commemorations.length) commemorations.forEach(event => eventList.append(eventCard(event, icons)));
   else eventList.append(e('p', 'Сведения о памятях для этого дня не найдены.', 'hint'));
+  eventList.addEventListener('click', event => {
+    const link = event.target.closest('.event-icon-link');
+    if (link) scrollToIcon(link.dataset.iconTarget);
+  });
   events.append(eventList);
   page.append(events);
   const readings = (day.events || []).filter(event => event.category === 'scripture-reading' || event.reading || event.reference);
@@ -286,28 +431,7 @@ function renderDayValue(value, serviceState, target) {
   else readingList.append(e('p', 'Библейские чтения для этого дня API не передал.', 'hint'));
   readingSection.append(readingList);
   page.append(readingSection);
-  const icons = day.icons || [];
-  if (icons.length) {
-    const section = e('section', '', 'section-card');
-    section.append(e('h3', 'Иконы дня'));
-    icons.forEach(icon => {
-      const figure = e('figure', '', 'icon-card');
-      const src = icon.imageUrl || icon.image_url;
-      const title = icon.title || icon.name || 'Икона дня';
-      if (src && /^https:\/\/bible-desktop\.com\//.test(src)) {
-        const image = e('img');
-        image.src = src;
-        image.alt = title;
-        image.loading = 'lazy';
-        image.style.cssText = 'max-width:100%;max-height:320px;object-fit:contain';
-        figure.append(image);
-      }
-      figure.append(e('figcaption', title));
-      if (icon.description) figure.append(e('p', icon.description));
-      section.append(figure);
-    });
-    page.append(section);
-  }
+  if (icons.length) page.append(iconSection(icons));
   page.append(serviceSection(serviceState));
   panel.append(page);
 }
@@ -510,6 +634,22 @@ $('close-filters').addEventListener('click', () => { $('filters').open = false; 
 $('close').addEventListener('click', () => $('detail').close());
 $('detail').addEventListener('close', () => { ++daySequence; });
 $('detail').addEventListener('click', event => { if (event.target === $('detail')) $('detail').close(); });
+$('icon-close').addEventListener('click', () => $('icon-lightbox').close());
+$('icon-previous').addEventListener('click', () => shiftIcon(-1));
+$('icon-next').addEventListener('click', () => shiftIcon(1));
+$('icon-lightbox').addEventListener('click', event => { if (event.target === $('icon-lightbox')) $('icon-lightbox').close(); });
+$('icon-lightbox').addEventListener('touchstart', event => {
+  iconTouchStartX = event.changedTouches[0]?.clientX || 0;
+}, {passive: true});
+$('icon-lightbox').addEventListener('touchend', event => {
+  const endX = event.changedTouches[0]?.clientX || 0;
+  if (Math.abs(endX - iconTouchStartX) >= 45) shiftIcon(endX < iconTouchStartX ? 1 : -1);
+}, {passive: true});
+document.addEventListener('keydown', event => {
+  if (!$('icon-lightbox').open) return;
+  if (event.key === 'ArrowLeft') { event.preventDefault(); shiftIcon(-1); }
+  if (event.key === 'ArrowRight') { event.preventDefault(); shiftIcon(1); }
+});
 
 readLocation();
 syncControls();

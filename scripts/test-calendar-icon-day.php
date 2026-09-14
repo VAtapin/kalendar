@@ -19,20 +19,21 @@ $hadHttps=in_array('https',stream_get_wrappers(),true);
 if($hadHttps)stream_wrapper_unregister('https');
 stream_wrapper_register('https',IconDayStream::class);
 try {
-    IconDayStream::$payload=['data'=>['date'=>'2027-01-21','icons'=>[['id'=>1,'title'=>'Або Тбилисский','description'=>'Описание','image_url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2']]]];
+    IconDayStream::$payload=['data'=>[['id'=>1,'title'=>'Або Тбилисский','description'=>'Описание','kind'=>'saint','images'=>[
+        ['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2','width'=>100,'height'=>120],
+        ['url'=>'https://bible-desktop.com/storage/calendar-icons/'.str_repeat('a',64).'.png','width'=>200,'height'=>240],
+    ]]]];
     $icons=calendar_bible_desktop_icons('2027-01-21');
-    check(count($icons)===1&&$icons[0]['description']==='Описание','Day icon/description missing');
-    check(str_contains(IconDayStream::$requested,'/calendar/day?date=2027-01-21'),'Must query a resolved calendar day');
-    IconDayStream::$payload['data']['date']='2027-01-22';
-    check(calendar_bible_desktop_icons('2027-01-21')===[],'Wrong date response accepted');
-    IconDayStream::$payload['data']['date']='2027-01-21';
-    IconDayStream::$payload['data']['icons'][0]['image_url']='https://example.org/image.jpg';
-    check(calendar_bible_desktop_icons('2027-01-21')===[],'Untrusted image accepted');
+    check(count($icons)===1&&$icons[0]['description']==='Описание'&&count($icons[0]['images'])===2,'Catalogue icon/description/images missing');
+    check(str_contains(IconDayStream::$requested,'/calendar/icons?')&&str_contains(IconDayStream::$requested,'month_day=01-21')&&str_contains(IconDayStream::$requested,'with_images=1'),'Must query the month-day icon catalogue');
+    IconDayStream::$payload['data'][0]['images'][0]['url']='https://example.org/image.jpg';
+    IconDayStream::$payload['data'][0]['images'][1]['url']='https://example.org/other.jpg';
+    check(count(calendar_bible_desktop_icons('2027-01-21'))===0,'Untrusted image accepted');
     $query=['date'=>'2027-01-21','office'=>'sixth-hour','lang'=>'cu-civil','profile'=>'typikon-strict'];
     IconDayStream::$payload=['data'=>$query+['textLanguage'=>'cu-civil','assignments'=>[],'serviceMode'=>['id'=>'ordinary']]];
     check(calendar_bible_desktop_service($query)['serviceMode']['id']==='ordinary','Central service mode lost');
     IconDayStream::$payload['data']['office']='third-hour';
     try { calendar_bible_desktop_service($query);throw new LogicException('Wrong office accepted'); }
     catch(RuntimeException $error) { check($error->getMessage()==='bible_desktop_service_unavailable','Unexpected failure'); }
-    echo "PASS resolved day, descriptions, response date, image origin\n";
+    echo "PASS month-day catalogue, descriptions, all images, image origin\n";
 } finally { stream_wrapper_unregister('https');if($hadHttps)stream_wrapper_restore('https'); }

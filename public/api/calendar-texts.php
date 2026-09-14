@@ -32,18 +32,28 @@ function calendar_bible_desktop_service(array $query): array {
     return $data;
 }
 
-/** Icons are selected through resolved memory IDs, never by a movable date's month/day. */
+/**
+ * Read the complete icon catalogue for the calendar month/day.
+ * Bible Desktop keeps the date catalogue separate from the resolved day
+ * response; the catalogue contains all icon cards and all images for them.
+ */
 function calendar_bible_desktop_icons(string $date): array {
     if (!preg_match('/^\d{4}-(\d{2}-\d{2})$/', $date, $match)) return [];
-    $payload = calendar_bible_desktop_get('/calendar/day', ['date'=>$date, 'lang'=>'ru']);
-    if (!is_array($payload) || ($payload['data']['date'] ?? null) !== $date || !is_array($payload['data']['icons'] ?? null)) return [];
+    $payload = calendar_bible_desktop_get('/calendar/icons', ['month_day'=>$match[1], 'with_images'=>'1', 'per_page'=>'100']);
+    if (!is_array($payload) || !is_array($payload['data'] ?? null)) return [];
     return array_values(array_filter(array_map(static function ($entry): ?array {
-        if (!is_array($entry) || !is_string($entry['title'] ?? null)) return null;
-        $image = ['url'=>$entry['image_url'] ?? null, 'width'=>$entry['width'] ?? null, 'height'=>$entry['height'] ?? null, 'sha256'=>$entry['sha256'] ?? null];
-        if (!is_array($image) || !is_string($image['url'] ?? null) || !preg_match('#^https://bible-desktop\.com/(?:storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)|api/calendar/icons/[0-9]+/images/[0-9]+)$#D', $image['url'])) return null;
-        return ['eventId'=>'calendar-icon-'.$entry['id'], 'id'=>$entry['id'], 'title'=>$entry['title'], 'description'=>$entry['description'] ?? '', 'imageUrl'=>$image['url'],
-            'width'=>$image['width'] ?? null, 'height'=>$image['height'] ?? null, 'sha256'=>$image['sha256'] ?? null];
-    }, $payload['data']['icons'])));
+        if (!is_array($entry) || !is_string($entry['title'] ?? null) || !is_array($entry['images'] ?? null)) return null;
+        $images = array_values(array_filter(array_map(static function ($image): ?array {
+            if (!is_array($image) || !is_string($image['url'] ?? null)
+                || !preg_match('#^https://bible-desktop\.com/(?:storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)|api/calendar/icons/[0-9]+/images/[0-9]+)$#D', $image['url'])) return null;
+            return ['url'=>$image['url'], 'width'=>$image['width'] ?? null, 'height'=>$image['height'] ?? null, 'sha256'=>$image['sha256'] ?? null];
+        }, $entry['images'])));
+        if (!$images) return null;
+        $first = $images[0];
+        return ['eventId'=>'calendar-icon-'.$entry['id'], 'id'=>$entry['id'], 'title'=>$entry['title'], 'kind'=>$entry['kind'] ?? null,
+            'description'=>$entry['description'] ?? '', 'imageUrl'=>$first['url'], 'width'=>$first['width'] ?? null, 'height'=>$first['height'] ?? null,
+            'sha256'=>$first['sha256'] ?? null, 'images'=>$images, 'dates'=>$entry['dates'] ?? []];
+    }, $payload['data'])));
 }
 
 /** Reference texts are proxied only for calendar clients during the cutover. */
