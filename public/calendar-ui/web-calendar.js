@@ -48,6 +48,15 @@ function titleDate(date, opts = { dateStyle: 'long' }) {
   catch { return date; }
 }
 
+function displayOldStyleDate(value) {
+  const text = String(value || '');
+  let match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (match) return titleDate(`${match[1]}-${match[2]}-${match[3]}`, { day: 'numeric', month: 'long', year: 'numeric' });
+  match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(text);
+  if (match) return titleDate(`${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`, { day: 'numeric', month: 'long', year: 'numeric' });
+  return text;
+}
+
 function setStatus(value, error = false) {
   $('status').textContent = ui(value);
   $('status').className = 'status' + (error ? ' error' : '');
@@ -145,7 +154,7 @@ function dayButton(day) {
     food.textContent = ui(day.foodLabel);
     button.title = [titleDate(day.date), day.foodLabel, ...commemorationEvents(day).map(event => event.title)].join(' · ');
   } else button.title = [titleDate(day.date), ...commemorationEvents(day).map(event => event.title)].join(' · ');
-  button.append(e('div', String(Number(day.date.slice(-2))), 'day-number'), e('div', (day.oldStyleDate || '') + ' ' + ui('ст. ст.'), 'old-style'), food);
+  button.append(e('div', String(Number(day.date.slice(-2))), 'day-number'), e('div', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'old-style'), food);
   const events = commemorationEvents(day);
   const primary = events.find(event => event.typeCode <= 2) || events[0];
   if (primary) button.append(e('span', dayDisplayTitle(primary), 'event ' + (primary.typeCode <= 2 ? 'main' : '')));
@@ -175,48 +184,10 @@ function renderMonth(value) {
   });
 }
 
-function normalizedName(value) {
-  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ё/g, 'е')
-    .replace(/\bпрп\.?\b/g, 'преподобный').replace(/\bпрмц\.?\b/g, 'преподобномученица')
-    .replace(/\bправ\.?\b/g, 'праведный').replace(/\bмчч\.?\b/g, 'мученики').replace(/\bмцц\.?\b/g, 'мученицы')
-    .replace(/\bмч\.?\b/g, 'мученик').replace(/\bмц\.?\b/g, 'мученица').replace(/\s+/g, ' ').trim();
-}
-
-const ICON_NAME_STOP_WORDS = new Set([
-  'икона', 'иконы', 'икон', 'богородица', 'богородицы', 'богоматери', 'божией', 'божия', 'матери',
-  'преподобный', 'преподобная', 'преподобномученица', 'праведный', 'мученик', 'мученица', 'мученики', 'мученицы',
-  'священномученик', 'святитель', 'диакон', 'архимандрит', 'послушница', 'праотец', 'ее', 'и', 'в', 'на', 'о',
-]);
-
-function nameTokens(value) {
-  return normalizedName(value).split(/[^\p{L}\p{N}]+/u).filter(token => token.length >= 4 && !ICON_NAME_STOP_WORDS.has(token));
-}
-
-function tokenRoot(value) { return value.slice(0, Math.min(5, value.length)); }
-
-function iconMatchesForEvent(event, icons) {
-  const eventTokens = new Set(nameTokens(event.title || event.name));
-  if (!eventTokens.size) return [];
-  return icons.map(icon => {
-    const iconTokens = nameTokens(icon.title || icon.name);
-    const matches = iconTokens.filter(token => [...eventTokens].some(eventToken => tokenRoot(eventToken) === tokenRoot(token)));
-    return {icon, score: matches.length};
-  }).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.icon);
-}
-
-function eventCard(event, icons = []) {
+function eventCard(event) {
   const card = e('article', '', 'event-card');
   const title = event.title || event.name || event.shortTitle || 'Память дня';
-  const matches = iconMatchesForEvent(event, icons);
-  if (matches.length) {
-    const link = e('button', title, 'event-icon-link');
-    link.type = 'button';
-    link.dataset.iconTarget = String(matches[0].id);
-    link.title = 'Показать икону';
-    const heading = e('h4');
-    heading.append(link);
-    card.append(heading);
-  } else card.append(e('h4', title));
+  card.append(e('h4', title));
   const annotation = [event.typikonMark?.label].filter(Boolean).join(' · ');
   if (annotation) card.append(e('small', annotation));
   if (event.description) card.append(e('p', event.description));
@@ -318,23 +289,18 @@ function iconImages(icon) {
   })).filter(image => image.url);
 }
 
-function iconGalleryItems(icons) {
-  return icons.flatMap((icon, iconIndex) => iconImages(icon).map((image, imageIndex) => ({
-    ...image, iconId: String(icon.id), title: icon.title || icon.name || 'Икона дня', description: icon.description || '', iconIndex, imageIndex,
-  })));
-}
-
-function iconDescription(icon) {
-  if (!icon.description) return null;
-  const details = e('details', '', 'icon-description');
-  details.append(e('summary', 'Показать больше'), e('p', icon.description));
-  return details;
+function iconGalleryItems(icon) {
+  const title = icon.title || icon.name || 'Икона дня';
+  const description = String(icon.description || '').trim() || 'Описание иконы отсутствует.';
+  return [
+    { type: 'description', title, description },
+    ...iconImages(icon).map((image, imageIndex) => ({ ...image, type: 'image', title, imageIndex })),
+  ];
 }
 
 function iconSection(icons) {
   const section = e('section', '', 'section-card icon-section');
   section.append(e('h3', 'Иконы дня'));
-  const gallery = iconGalleryItems(icons);
   const grid = e('div', '', 'icon-grid');
   icons.forEach(icon => {
     const card = e('figure', '', 'icon-card');
@@ -343,7 +309,6 @@ function iconSection(icons) {
     const button = e('button', '', 'icon-thumbnail');
     button.type = 'button';
     button.dataset.iconCardId = String(icon.id);
-    button.dataset.iconGalleryIndex = String(Math.max(0, gallery.findIndex(item => item.iconId === String(icon.id))));
     button.setAttribute('aria-label', 'Открыть: ' + title);
     if (first) {
       const image = e('img');
@@ -353,13 +318,14 @@ function iconSection(icons) {
       button.append(image);
     }
     card.append(button, e('figcaption', title));
-    const description = iconDescription(icon);
-    if (description) card.append(description);
     grid.append(card);
   });
   grid.addEventListener('click', event => {
     const button = event.target.closest('.icon-thumbnail');
-    if (button) openIconLightbox(gallery, Number(button.dataset.iconGalleryIndex || 0));
+    if (button) {
+      const icon = icons.find(item => String(item.id) === button.dataset.iconCardId);
+      if (icon) openIconLightbox(iconGalleryItems(icon), 0);
+    }
   });
   section.append(grid);
   return section;
@@ -370,8 +336,14 @@ let iconLightboxItems = [], iconLightboxIndex = 0, iconTouchStartX = 0;
 function renderIconLightbox() {
   const item = iconLightboxItems[iconLightboxIndex];
   if (!item) return;
-  $('icon-large').src = item.url;
-  $('icon-large').alt = item.title;
+  const isDescription = item.type === 'description';
+  $('icon-large').hidden = isDescription;
+  $('icon-modal-description').hidden = !isDescription;
+  $('icon-modal-description').textContent = isDescription ? item.description : '';
+  if (!isDescription) {
+    $('icon-large').src = item.url;
+    $('icon-large').alt = item.title;
+  }
   $('icon-modal-title').textContent = item.title;
   $('icon-modal-counter').textContent = iconLightboxItems.length > 1
     ? `${iconLightboxIndex + 1} из ${iconLightboxItems.length}` : '';
@@ -394,33 +366,24 @@ function shiftIcon(step) {
   renderIconLightbox();
 }
 
-function scrollToIcon(iconId) {
-  const target = Array.from(document.querySelectorAll('[data-icon-card-id]'))
-    .find(node => node.dataset.iconCardId === String(iconId));
-  if (target) target.scrollIntoView({behavior: 'smooth', block: 'center'});
-}
-
 function renderDayValue(value, serviceState, target) {
   const day = value.day;
   const icons = day.icons || [];
   const panel = applyTextLanguage(target);
   panel.replaceChildren();
   const page = e('div', '', 'day-page');
-  page.append(buildHead(titleDate(day.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), (day.oldStyleDate || '') + ' ' + ui('по старому стилю'), value.metadata?.fastingProfileName || '', target === $('detail-content') ? 'detail-title' : ''));
+  page.append(buildHead(titleDate(day.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('по старому стилю'), value.metadata?.fastingProfileName || '', target === $('detail-content') ? 'detail-title' : ''));
   page.append(fastingHero(day));
   const facts = e('div', '', 'facts');
   facts.append(fact('Стиль дня', day.dayStyle?.label || ({ pascha: 'Пасха', 'great-feast': 'Великий праздник', 'medium-feast': 'Праздничный день', 'monastery-feast': 'Престольный праздник', sunday: 'Воскресенье', ordinary: 'Будний день' }[day.dayStyle?.rank]) || '—'), fact('Пост', day.foodLabel || '—'), fact('Событий', String((day.events || []).length)));
   page.append(facts);
+  if (icons.length) page.append(iconSection(icons));
   const events = e('section', '', 'section-card');
   events.append(e('h3', 'Святые и праздники'));
   const eventList = e('div', '', 'events-list');
   const commemorations = commemorationEvents(day);
-  if (commemorations.length) commemorations.forEach(event => eventList.append(eventCard(event, icons)));
+  if (commemorations.length) commemorations.forEach(event => eventList.append(eventCard(event)));
   else eventList.append(e('p', 'Сведения о памятях для этого дня не найдены.', 'hint'));
-  eventList.addEventListener('click', event => {
-    const link = event.target.closest('.event-icon-link');
-    if (link) scrollToIcon(link.dataset.iconTarget);
-  });
   events.append(eventList);
   page.append(events);
   const readings = (day.events || []).filter(event => event.category === 'scripture-reading' || event.reading || event.reference);
@@ -431,7 +394,6 @@ function renderDayValue(value, serviceState, target) {
   else readingList.append(e('p', 'Библейские чтения для этого дня API не передал.', 'hint'));
   readingSection.append(readingList);
   page.append(readingSection);
-  if (icons.length) page.append(iconSection(icons));
   page.append(serviceSection(serviceState));
   panel.append(page);
 }
@@ -473,7 +435,7 @@ function renderWeek(days) {
     const button = e('button', '', 'week-day');
     button.type = 'button';
     button.dataset.date = day.date;
-    button.append(e('h3', titleDate(day.date, { weekday: 'short', day: 'numeric' })), e('p', (day.oldStyleDate || '') + ' ' + ui('ст. ст.'), 'hint'));
+    button.append(e('h3', titleDate(day.date, { weekday: 'short', day: 'numeric' })), e('p', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'hint'));
     if (day.foodLabel && day.foodLabel !== 'поста нет') button.append(e('p', day.foodLabel));
     const events = commemorationEvents(day);
     const primary = events.find(event => event.typeCode <= 2) || events[0];

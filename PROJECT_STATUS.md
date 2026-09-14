@@ -24,7 +24,7 @@
 - Общий рендерер полного произведения и справочного песнопения сохраняет раздельные языковые атрибуты `cu` и `cu-civil`; обе церковнославянские редакции используют Monomakh Unicode.
 - Подготовлен PowerShell-загрузчик немецких текстов Orthodoxia.de и импортный корпус из 19 страниц.
 - Веб-календарь переведён на верхнюю закрытую панель фильтров; месяц стал компактнее, а окно дня шириной около 85% открывается сразу и догружает службу отдельно.
-- Веб-календарь получает полный каталог икон Bible Desktop по `month_day` (`MM-DD`), показывает компактные миниатюры, свёрнутые описания и модальное окно с навигацией по всем изображениям даты; названия памятей с иконами прокручивают к соответствующей миниатюре.
+- Веб-календарь получает полный каталог икон Bible Desktop по `month_day` (`MM-DD`), показывает компактные миниатюры перед разделом «Святые и праздники», а имена святых остаются обычным текстом без лишних ссылок. Описание выбранного образа открывается первой карточкой модального просмотра, после него стрелки, свайп и клавиатура показывают только изображения этого образа.
 
 ## Текущее состояние и решения
 
@@ -71,6 +71,7 @@
 - В Bible Desktop исправлен импорт UCS для Правмира: commit `44db40a` добавляет миграцию только для частей `22824`, `22836`–`22838`, `22840`–`22842`; PHPUnit `LiturgicalCorpusTest` прошёл (3 теста, 7 assertions).
 - Веб-календарь: `node --check public/calendar-ui/web-calendar.js`, браузерный `scripts/test-web-calendar.mjs` (фильтры, 85%-ное окно, быстрый skeleton, пост без картинки) и `scripts/test-static-navigation.mjs` прошли; `git diff --check` прошёл. Полный HTTP-тест остановлен на внешнем Bible Desktop API с HTTP 503.
 - Для галереи иконок прошли `node --check public/calendar-ui/web-calendar.js`, `scripts/test-calendar-icon-day.php`, `scripts/test-web-calendar.mjs`, `npm test` (71 файл, 525 тестов), `npm run typecheck` и `git diff --check`; production build в этой сессии заблокирован ошибкой среды Node `uv_os_get_passwd: ENOMEM`.
+- Для текущей перестройки веб-календаря браузерная проверка подтвердила порядок «Иконы дня» → «Святые и праздники», отсутствие ссылок у имён святых, локализованную дату старого стиля и карточку описания перед изображениями выбранного образа; `node --check`, `npm test` (71 файл, 525 тестов), `npm run typecheck` и `git diff --check` прошли.
 - Для страницы API прошли `npm run typecheck`, production build и `node --check scripts/test-calendar-api-docs.mjs`; архив 1.3.49 включён в локальную сборку.
 
-Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `2d50253 Improve calendar icon gallery`.
+Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `485d4db Refine calendar icon browsing`.
