@@ -49,6 +49,11 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $body=file_get_contents($file);$etag='"'.hash('sha256',$body).'"';$same=($args['headers']['If-None-Match']??'')===$etag;
         return ['headers'=>['etag'=>$etag,'last-modified'=>'Wed, 09 Sep 2026 00:00:00 GMT'],'body'=>$same?'':$body,'response'=>['code'=>$same?304:200,'message'=>'OK'],'cookies'=>[]];
     }
+    if(preg_match('#^https://bible-desktop\.com/api/calendar/icons/[0-9]+/images/[0-9]+$#',$url)) {
+        preg_match('#/images/([0-9]+)$#',$url,$imageMatch);$fill=((int)($imageMatch[1]??0)%2===0)?'#9a352d':'#d8b35c';
+        $svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160"><rect width="120" height="160" fill="'.$fill.'"/></svg>';
+        return ['headers'=>['content-type'=>'image/svg+xml'],'body'=>$svg,'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
+    }
     if(str_starts_with($url,'https://bible-desktop.com/api/calendar/icons')) return ['headers'=>[],'body'=>'{"data":[],"total":0}','response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     if (!str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar/') && !str_starts_with($url,'https://bible-desktop.com/api/')) return new WP_Error('offline_test','External requests disabled in test');
     $calendar=str_contains($url,'kalender.georg');
@@ -61,6 +66,11 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         if ($action==='day'||$action==='today') {
             $date=$q['date']??'2027-05-02'; $days=array_values(array_filter($year['days'],static fn($d)=>$d['date']===$date));
             $value=['metadata'=>$year['metadata'],'day'=>$days[0]??$year['days'][0]];
+            $value['day']['icons']=[
+                ['id'=>1,'title'=>'Икона Божией Матери Великая','description'=>'Описание первого образа','imageUrl'=>'https://bible-desktop.com/api/calendar/icons/1/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/1'],['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2']]],
+                ['id'=>2,'title'=>'Икона Святого Великого','description'=>'Описание второго образа','imageUrl'=>'https://bible-desktop.com/api/calendar/icons/2/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/2/images/1']]],
+                ['id'=>3,'title'=>'Икона Преподобного Малого','description'=>'Описание третьего образа','imageUrl'=>'https://bible-desktop.com/api/calendar/icons/3/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/3/images/1']]],
+            ];
         } elseif($action==='upcoming') {
             $items=[];foreach($year['days'] as $day) foreach($day['events'] as $e) if($day['date']>=($q['date']??'2027-01-01')&&$e['category']==='commemoration'&&$e['typeCode']<=2) $items[]=['date'=>$day['date'],'oldStyleDate'=>$day['oldStyleDate'],'event'=>$e];
             $value=['items'=>array_slice($items,0,(int)($q['limit']??5))];

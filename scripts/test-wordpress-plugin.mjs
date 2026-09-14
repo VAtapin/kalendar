@@ -58,6 +58,10 @@ if(!str_contains($html,'Светлое Христово')) throw new Exception('
 $bad=Orthocal_Plugin::day(['date'=>'2027-05-02','oldStyleDate'=>'2027-04-19','events'=>[['category'=>'commemoration','typeCode'=>7,'title'=>'<script>alert(1)</script>']]],Orthocal_Plugin::config(['mode'=>'day']));
 if(str_contains($bad,'<script>')||!str_contains($bad,'&lt;script&gt;')) throw new Exception('XSS escaping');
 if(str_contains($bad,'oc-memory-mark')||str_contains($bad,'✣')) throw new Exception('Ordinary commemoration received an invented Typikon sign');
+$iconConfig=Orthocal_Plugin::config(['mode'=>'day','date'=>'2027-05-02','icon_limit'=>'all']);
+$iconDay=Orthocal_Plugin::data($iconConfig)['day'];
+foreach(['1'=>1,'3'=>3,'all'=>3] as $limit=>$expected){$iconConfig['icon_limit']=$limit;$iconHtml=Orthocal_Plugin::day($iconDay,$iconConfig);preg_match_all('/\\bdata-oc-icon(?:\\s|=)/',$iconHtml,$matches);$count=count($matches[0]);if($count!==$expected)throw new Exception('Icon limit/order failed for '.$limit.': '.$count);}
+$allIcons=Orthocal_Plugin::day($iconDay,$iconConfig);if(!str_contains($allIcons,'data-oc-icon-images=')||!str_contains($allIcons,'Описание первого образа'))throw new Exception('Icon image carousel data missing');
 $attrs=Orthocal_Plugin::config(['theme'=>'','compact'=>'']); if(is_wp_error($attrs)) throw new Exception('Empty Gutenberg defaults');
 echo 'PASS WordPress registration, server rendering, validation, escaping and key isolation';
 `);
@@ -87,6 +91,22 @@ try {
   console.log('Browser: day navigation works');
   assert.equal(await page.locator('.orthocal').count(),7);
   const day=month.locator('.oc-detail .orthocal');
+  assert.equal(await day.locator('.oc-hero-icon [data-oc-icon]').count(),1);
+  assert.equal(await day.locator('.oc-icons figure').count(),2);
+  await day.locator('.oc-hero-icon [data-oc-icon]').click();
+  await page.locator('dialog.oc-dialog .oc-icon-description').waitFor();
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-counter').innerText(),'1 из 3');
+  assert.match(await page.locator('dialog.oc-dialog .oc-icon-description').innerText(),/Описание первого образа/);
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-description').isVisible(),true);
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-view img').isVisible(),false);
+  await page.locator('dialog.oc-dialog .oc-icon-nav').nth(1).click();
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-counter').innerText(),'2 из 3');
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-view img').isVisible(),true);
+  await page.locator('dialog.oc-dialog').press('ArrowRight');
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-counter').innerText(),'3 из 3');
+  await page.locator('dialog.oc-dialog').press('ArrowLeft');
+  assert.equal(await page.locator('dialog.oc-dialog .oc-icon-counter').innerText(),'2 из 3');
+  await page.locator('dialog.oc-dialog .oc-dialog-close').click();
   const permalink=new URL(await day.locator('.oc-permalink a').getAttribute('href'));
   assert.equal(permalink.searchParams.get('page_id'),String(pageId));assert.equal(permalink.searchParams.has('rest_route'),false);
   await day.locator('[data-oc-reading] summary').first().click();

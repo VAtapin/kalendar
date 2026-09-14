@@ -5,7 +5,7 @@ require_once __DIR__.'/library.php';
 final class Orthocal_Plugin {
     const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.49';
+    const VERSION = '1.3.50';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -313,10 +313,51 @@ final class Orthocal_Plugin {
         // can never make the whole holidays and memorials section disappear.
         return !$levels || in_array(self::event_level($event['typeCode']??-1),$levels,true);
     }
+    static function icon_tokens($value): array {
+        $value=mb_strtolower(str_replace('ё','е',(string)$value));
+        $value=preg_replace('/\b(?:икона|иконы|икон|божией|божия|богородицы|богородица|богоматери|матери|святитель|преподобный|преподобная|мученик|мученица|священномученик|диакон|архимандрит|и|в|на|о)\b/iu',' ',$value)??$value;
+        return array_values(array_filter(preg_split('/[^\p{L}\p{N}]+/u',$value)?:[],static fn($token)=>mb_strlen($token)>=4));
+    }
+    static function icon_priority(array $item,array $day,int $index): array {
+        $title=mb_strtolower((string)($item['alt']??''));
+        if (preg_match('/богород|богомат|матери бож|пресвят|христ|спасител|господ/iu',$title)) return [0,$index];
+        $iconTokens=self::icon_tokens($title);$best=99;
+        foreach (($day['events']??[]) as $event) {
+            if (($event['category']??'')!=='commemoration') continue;
+            $eventTokens=self::icon_tokens($event['title']??'');$matched=false;
+            foreach($iconTokens as $iconToken)foreach($eventTokens as $eventToken)if(mb_substr($iconToken,0,5)===mb_substr($eventToken,0,5)){$matched=true;break 2;}
+            if(!$matched)continue;
+            $code=(int)($event['typeCode']??99);
+            $best=min($best,$code<=2?1:($code<=5?2:($code<=8?3:4)));
+        }
+        return [$best+1,$index];
+    }
+    static function icon_items($day): array {
+        $items=[];
+        foreach (($day['icons']??[]) as $icon) {
+            if(!is_array($icon))continue;
+            $sources=[];
+            foreach(($icon['images']??[]) as $image)if(is_array($image)&&is_string($image['url']??null))$sources[]=$image['url'];
+            if(!empty($icon['imageUrl']))$sources[]=$icon['imageUrl'];
+            $images=[];foreach(array_values(array_unique($sources)) as $source){$local=Orthocal_Media_Cache::url($source);if($local)$images[]=$local;}
+            $images=array_values(array_unique($images));if(!$images)continue;
+            $items[]=['localUrl'=>$images[0],'images'=>$images,'alt'=>$icon['title']??'Икона','description'=>$icon['description']??$icon['caption']??'','attribution'=>$icon['attribution']??'','kind'=>$icon['kind']??''];
+        }
+        foreach((array)apply_filters('orthocal_day_icons',[],$day) as $item) {
+            if(!is_array($item))continue;
+            $images=array_values(array_unique(array_filter(array_merge((array)($item['images']??[]),[$item['localUrl']??'']),static fn($url)=>is_string($url)&&$url!=='')));
+            if(!$images)continue;
+            $items[]=['localUrl'=>$images[0],'images'=>$images,'alt'=>$item['alt']??'Икона','description'=>$item['description']??$item['caption']??'','attribution'=>$item['attribution']??'','kind'=>$item['kind']??''];
+        }
+        $indexed=[];foreach($items as $index=>$item)$indexed[]=[$item,self::icon_priority($item,$day,$index)];
+        usort($indexed,static fn($left,$right)=>$left[1]<=>$right[1]);
+        return array_values(array_map(static fn($entry)=>$entry[0],$indexed));
+    }
     static function day($day,$a) {
         $only=['fasting'=>'fasting','saints'=>'saints','readings'=>'readings','date'=>''];
         $sections=isset($only[$a['mode']])?[$only[$a['mode']]]:explode(',',$a['sections']);
-        $hero = in_array('icons',$sections,true) ? self::hero_icon($day) : '';
+        $iconItems = in_array('icons',$sections,true) ? self::icon_items($day) : [];
+        $hero = $iconItems ? self::hero_icon($iconItems[0],$a['lang']) : '';
         $html = $hero.'<div class="oc-day"><div class="oc-date-row"><p class="oc-date">'.esc_html(self::date_label($day['date'],$a['lang'])).'</p>';
         if (in_array($a['mode'],['today','day'],true) && $a['show_picker']==='1') $html .= ('<label class="oc-date-picker"><span class="screen-reader-text">'.self::ui('Выбрать дату',$a['lang']).'</span><input type="date" aria-label="'.self::ui('Выбрать дату',$a['lang']).'" title="'.self::ui('Выбрать дату',$a['lang']).'" data-oc-picker min="1900-01-01" max="2200-12-31" value="').esc_attr($day['date']).'"></label>';
         $html .= '</div>';
@@ -352,7 +393,7 @@ final class Orthocal_Plugin {
             $profileLabel=$a['profile']==='parish'?(self::ui('Приходской',$a['lang'])):(self::ui('Монастырский',$a['lang']));
             $html .= '<section class="oc-fasting-section">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Пост и трапеза',$a['lang']).'</h3>'):'').'<p class="oc-fast">'.$foodImage.esc_html($day['foodLabel'] ?? '').'<sup class="oc-profile-mark" aria-label="'.$profileLabel.'">*</sup></p></section>';
         }
-        if(in_array('icons',$sections,true))$html.=self::icons_slot($day,$a['icon_limit']);
+        if(in_array('icons',$sections,true))$html.=self::icons_slot($iconItems,$a['icon_limit']);
         $psalter=array_values(array_filter($day['events'],static fn($e)=>(int)($e['typeCode']??0)===302));
         $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'&&(int)($e['typeCode']??0)!==302));
         if (($readings || $psalter) && in_array('readings',$sections,true)) {
@@ -375,11 +416,7 @@ final class Orthocal_Plugin {
         $profileLabel=$a['profile']==='parish'?(self::ui('Приходской',$a['lang'])):(self::ui('Монастырский',$a['lang']));
         return $html.($a['show_copy']==='1'?'<p class="oc-permalink">'.self::day_link($day['date'],(self::ui('Ссылка на этот день',$a['lang']))).(' <button type="button" data-oc-copy-link>'.self::ui('Скопировать ссылку',$a['lang']).'</button> <small class="oc-profile-note">* ').$profileLabel.(self::ui(' профиль',$a['lang']).'</small></p>'):'<p class="oc-profile-note">* '.$profileLabel.(self::ui(' профиль',$a['lang']).'</p>')).'</div>';
     }
-    static function icons_slot($day,$limit='all') {
-        // The API is the source of truth: show every icon it supplies for the day.
-        $items=[];
-        foreach (($day['icons']??[]) as $icon) if(is_array($icon)&&!empty($icon['imageUrl'])) $items[]=['localUrl'=>Orthocal_Media_Cache::url($icon['imageUrl']),'alt'=>$icon['title']??'Икона','description'=>$icon['description']??$icon['caption']??'','attribution'=>$icon['attribution']??''];
-        $items=array_merge($items,apply_filters('orthocal_day_icons',[],$day));
+    static function icons_slot($items,$limit='all') {
         $html='';$upload=wp_upload_dir();
         $items=is_array($items)?$items:[];
         $items=array_slice($items,1);
@@ -389,15 +426,18 @@ final class Orthocal_Plugin {
             $name=substr($item['localUrl'],strlen($upload['baseurl'].'/orthocal-cache/'));
             if(!Orthocal_Media_Cache::file_valid($name)||!is_file($upload['basedir'].'/orthocal-cache/'.$name))continue;
             $description=$item['description']??$item['caption']??$item['alt'];
-            $html.='<figure><a href="'.esc_url($item['localUrl']).'" data-oc-icon data-oc-icon-title="'.esc_attr($item['alt']).'" data-oc-icon-description="'.esc_attr($description).'" aria-label="Открыть икону: '.esc_attr($item['alt']).'"><img loading="lazy" src="'.esc_url($item['localUrl']).'" alt="'.esc_attr($item['alt']).'"></a><figcaption>'.esc_html($item['alt']).(!empty($item['attribution'])?' · '.esc_html($item['attribution']):'').'</figcaption></figure>';
+            $images=array_values(array_filter((array)($item['images']??[$item['localUrl']]),static function($url)use($upload){if(!is_string($url)||!str_starts_with($url,$upload['baseurl'].'/orthocal-cache/'))return false;$imageName=substr($url,strlen($upload['baseurl'].'/orthocal-cache/'));return Orthocal_Media_Cache::file_valid($imageName)&&is_file($upload['basedir'].'/orthocal-cache/'.$imageName); }));
+            if(!$images)continue;
+            $item['localUrl']=$images[0];
+            $images=wp_json_encode($images,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            $html.='<figure><a href="'.esc_url($item['localUrl']).'" data-oc-icon data-oc-icon-title="'.esc_attr($item['alt']).'" data-oc-icon-description="'.esc_attr($description).'" data-oc-icon-images="'.esc_attr($images).'" aria-label="Открыть икону: '.esc_attr($item['alt']).'"><img loading="lazy" src="'.esc_url($item['localUrl']).'" alt="'.esc_attr($item['alt']).'"></a><figcaption>'.esc_html($item['alt']).(!empty($item['attribution'])?' · '.esc_html($item['attribution']):'').'</figcaption></figure>';
         }
         return $html?'<div class="oc-icons">'.$html.'</div>':'';
     }
-    static function hero_icon($day) {
-        $icon=$day['icons'][0]??null;
-        if(!is_array($icon)||empty($icon['imageUrl']))return '';
-        $url=Orthocal_Media_Cache::url($icon['imageUrl']);$title=$icon['title']??'Икона';$description=$icon['description']??$icon['caption']??'';
-        return '<div class="oc-hero-icon"><a href="'.esc_url($url).'" data-oc-icon data-oc-icon-title="'.esc_attr($title).'" data-oc-icon-description="'.esc_attr($description).'" aria-label="Открыть икону: '.esc_attr($title).'" ><img src="'.esc_url($url).'" alt="'.esc_attr($title).'" loading="lazy"></a></div>';
+    static function hero_icon($item,$lang='ru') {
+        if(!is_array($item)||empty($item['localUrl']))return '';
+        $images=wp_json_encode(array_values($item['images']??[$item['localUrl']]),JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        return '<div class="oc-hero-icon"><a href="'.esc_url($item['localUrl']).'" data-oc-icon data-oc-icon-title="'.esc_attr($item['alt']??'Икона').'" data-oc-icon-description="'.esc_attr($item['description']??'').'" data-oc-icon-images="'.esc_attr($images).'" aria-label="Открыть икону: '.esc_attr($item['alt']??'Икона').'" ><img src="'.esc_url($item['localUrl']).'" alt="'.esc_attr($item['alt']??'Икона').'" loading="lazy"></a></div>';
     }
     static function texts($data,$a) {
         $html='<div class="oc-text-filters">'.Orthocal_Library::language_control($a);

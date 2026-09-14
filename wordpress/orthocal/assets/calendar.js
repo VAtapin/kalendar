@@ -17,6 +17,30 @@
     dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
     dialog.showModal();return dialog;
   }
+  function iconPopup(icon,t) {
+    let images=[];
+    try { images=JSON.parse(icon.dataset.ocIconImages||'[]'); } catch { images=[]; }
+    images=[...new Set(images.filter(value=>typeof value==='string'&&value))];
+    const items=[{type:'description',text:icon.dataset.ocIconDescription||t('Описание иконы отсутствует.')}].concat(images.map(url=>({type:'image',url})));
+    const body=document.createElement('div');body.className='oc-icon-view';
+    const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||t('Икона');
+    const description=document.createElement('div');description.className='oc-icon-description';
+    const image=document.createElement('img');image.alt=icon.dataset.ocIconTitle||'';
+    const controls=document.createElement('div');controls.className='oc-icon-controls';
+    const previous=document.createElement('button');previous.type='button';previous.className='oc-icon-nav';previous.textContent='←';previous.setAttribute('aria-label',t('Предыдущая карточка'));
+    const next=document.createElement('button');next.type='button';next.className='oc-icon-nav';next.textContent='→';next.setAttribute('aria-label',t('Следующая карточка'));
+    const counter=document.createElement('span');counter.className='oc-icon-counter';
+    controls.append(previous,counter,next);body.append(title,description,image,controls);
+    let index=0,startX=0;
+    const render=()=>{const item=items[index];const isDescription=item.type==='description';description.hidden=!isDescription;description.style.display=isDescription?'block':'none';description.textContent=isDescription?item.text:'';image.hidden=isDescription;image.style.display=isDescription?'none':'block';if(!isDescription){image.src=item.url;image.alt=icon.dataset.ocIconTitle||'';}counter.textContent=items.length>1?`${index+1} ${t('из')} ${items.length}`:'';previous.hidden=next.hidden=items.length<2;};
+    const shift=step=>{if(items.length<2)return;index=(index+step+items.length)%items.length;render();};
+    previous.addEventListener('click',()=>shift(-1));next.addEventListener('click',()=>shift(1));
+    body.addEventListener('touchstart',event=>{startX=event.changedTouches[0]?.clientX||0;},{passive:true});
+    body.addEventListener('touchend',event=>{const endX=event.changedTouches[0]?.clientX||0;if(Math.abs(endX-startX)>40)shift(endX<startX?1:-1);},{passive:true});
+    render();
+    const dialog=popup(body,icon.dataset.ocIconTitle||t('Икона'),t);
+    dialog.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();shift(-1);}if(event.key==='ArrowRight'){event.preventDefault();shift(1);}});
+  }
   async function copy(text,status,t=s=>s) {
     try {await navigator.clipboard.writeText(text);status.textContent=t('Скопировано.');}
     catch {status.textContent=t('Копирование недоступно. Выделите текст и скопируйте вручную.');}
@@ -133,7 +157,7 @@
         render({mode:'day',date:d,year:d.slice(0,4),month:Number(d.slice(5,7)),open:'inline'},cfg.open==='modal'?'modal':!!root.querySelector(':scope > .oc-detail'));
       }
       const icon=event.target.closest('[data-oc-icon]');
-      if(icon){event.preventDefault();const body=document.createElement('div');body.className='oc-icon-view';const image=document.createElement('img');image.src=icon.href;image.alt=icon.dataset.ocIconTitle||'';const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||t('Икона');body.append(title,image);if(icon.dataset.ocIconDescription){const description=document.createElement('p');description.textContent=icon.dataset.ocIconDescription;body.append(description);}popup(body,icon.dataset.ocIconTitle||t('Икона'),t);}
+      if(icon){event.preventDefault();iconPopup(icon,t);}
       const day=event.target.closest('[data-oc-day]');if(day)render({date:day.dataset.ocDay});
       const textPage=event.target.closest('[data-oc-text-page]');if(textPage)void render({text_page:textPage.dataset.ocTextPage});
       const library=event.target.closest('[data-oc-library]');if(library)void render({mode:library.dataset.ocLibrary,scope:'',tone:'',weekday:'',text_id:'',work:'',text_page:'1'},'modal');
