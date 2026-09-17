@@ -389,16 +389,15 @@ function iconSection(icons) {
   grid.addEventListener('click', event => {
     const button = event.target.closest('.icon-thumbnail');
     if (button) {
-      const index = icons.findIndex(item => String(item.id) === button.dataset.iconCardId);
-      if (index >= 0) openIconLightbox(icons, index);
+      const icon = icons.find(item => String(item.id) === button.dataset.iconCardId);
+      if (icon) openIconLightbox(icon);
     }
   });
   section.append(grid);
   return section;
 }
 
-let iconLightboxIcons = [], iconLightboxIndex = 0, iconImageIndex = 0, iconTouchStartX = 0;
-const iconThumbnailObservers = new Map();
+let iconLightboxItems = [], iconLightboxIndex = 0, iconTouchStartX = 0, iconThumbnailObserver = null;
 
 function iconThumbnailUrl(source) {
   const url = new URL('/api/v1/calendar-demo/icon-thumbnail', location.origin);
@@ -406,22 +405,27 @@ function iconThumbnailUrl(source) {
   return url.href;
 }
 
-function activeIcon() { return iconLightboxIcons[iconLightboxIndex] || null; }
+function iconGalleryItems(icon) {
+  const title = icon.title || icon.name || ui('Икона дня');
+  const dates = iconDateText(icon);
+  return [
+    {type: 'description', title, dates, description: String(icon.description || '').trim() || ui('Описание иконы отсутствует.')},
+    ...iconImages(icon).map((image, imageIndex) => ({...image, type: 'image', title, dates, imageIndex})),
+  ];
+}
 
-function renderIconThumbnails(id, activeIndex = -1) {
-  iconThumbnailObservers.get(id)?.disconnect();
-  const strip = $(id), icon = activeIcon();
+function renderIconThumbnails() {
+  iconThumbnailObserver?.disconnect();
+  const strip = $('icon-modal-thumbnails');
   strip.replaceChildren();
   strip.setAttribute('aria-label', ui('Изображения образа'));
   const lazyImages = [];
-  const title = icon?.title || icon?.name || ui('Икона дня');
-  iconImages(icon).forEach((item, index) => {
+  iconLightboxItems.forEach((item, index) => {
+    if (item.type !== 'image') return;
     const button = e('button', '', 'icon-modal-thumbnail');
     button.type = 'button';
-    button.dataset.iconImageIndex = String(index);
-    button.classList.toggle('active', index === activeIndex);
-    button.setAttribute('aria-current', index === activeIndex ? 'true' : 'false');
-    button.setAttribute('aria-label', `${title}: ${ui('Изображение')} ${index + 1}`);
+    button.dataset.iconLightboxIndex = String(index);
+    button.setAttribute('aria-label', `${item.title}: ${ui('Изображение')} ${item.imageIndex + 1}`);
     const image = new Image();
     image.alt = '';
     image.loading = 'lazy';
@@ -439,75 +443,52 @@ function renderIconThumbnails(id, activeIndex = -1) {
     const observer = new IntersectionObserver(entries => entries.forEach(entry => {
       if (entry.isIntersecting) { observer.unobserve(entry.target); load(entry.target); }
     }), { root: strip, rootMargin: '100px' });
-    iconThumbnailObservers.set(id, observer);
+    iconThumbnailObserver = observer;
     lazyImages.forEach(image => observer.observe(image));
   } else lazyImages.slice(0, 6).forEach(load);
 }
 
 function renderIconLightbox() {
-  const icon = activeIcon();
-  if (!icon) return;
-  const title = icon.title || icon.name || ui('Икона дня'), dates = iconDateText(icon);
-  $('icon-modal-description').textContent = String(icon.description || '').trim() || ui('Описание иконы отсутствует.');
-  $('icon-modal-dates').textContent = dates;
-  $('icon-modal-dates').hidden = !dates;
-  $('icon-modal-title').textContent = title;
-  $('icon-modal-title').classList.toggle('slavonic-title', isCyrillicText(title));
-  $('icon-modal-counter').textContent = iconLightboxIcons.length > 1
-    ? `${iconLightboxIndex + 1} из ${iconLightboxIcons.length}` : '';
-  const hasNavigation = iconLightboxIcons.length > 1;
+  const item = iconLightboxItems[iconLightboxIndex];
+  if (!item) return;
+  const isDescription = item.type === 'description';
+  $('icon-modal-description').textContent = isDescription ? item.description : '';
+  $('icon-modal-description').hidden = !isDescription;
+  $('icon-modal-dates').textContent = item.dates;
+  $('icon-modal-dates').hidden = !item.dates;
+  $('icon-modal-title').textContent = item.title;
+  $('icon-modal-title').classList.toggle('slavonic-title', isCyrillicText(item.title));
+  $('icon-large').hidden = isDescription;
+  if (isDescription) { $('icon-large').removeAttribute('src'); $('icon-large').alt = ''; }
+  else { $('icon-large').src = item.url; $('icon-large').alt = item.title; }
+  $('icon-modal-counter').textContent = iconLightboxItems.length > 1
+    ? `${iconLightboxIndex + 1} из ${iconLightboxItems.length}` : '';
+  const hasNavigation = iconLightboxItems.length > 1;
   $('icon-previous').hidden = !hasNavigation;
   $('icon-next').hidden = !hasNavigation;
-  renderIconThumbnails('icon-modal-thumbnails');
+  const active = $('icon-modal-thumbnails').querySelector(`[data-icon-lightbox-index="${iconLightboxIndex}"]`);
+  $('icon-modal-thumbnails').querySelectorAll('.icon-modal-thumbnail').forEach(button => {
+    const selected = button === active;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-current', selected ? 'true' : 'false');
+  });
+  active?.scrollIntoView({block: 'nearest', inline: 'nearest'});
 }
 
-function openIconLightbox(icons, index) {
-  iconLightboxIcons = Array.isArray(icons) ? icons.filter(icon => iconImages(icon).length) : [];
-  iconLightboxIndex = Math.max(0, Math.min(index, iconLightboxIcons.length - 1));
-  if (!activeIcon()) return;
+function openIconLightbox(icon) {
+  iconLightboxItems = iconGalleryItems(icon);
+  iconLightboxIndex = 0;
+  if (!iconLightboxItems.length) return;
+  renderIconThumbnails();
   renderIconLightbox();
   if (!$('icon-lightbox').open) $('icon-lightbox').showModal();
   $('icon-close').focus();
 }
 
-function shiftIcon(step) {
-  if (!iconLightboxIcons.length) return;
-  iconLightboxIndex = (iconLightboxIndex + step + iconLightboxIcons.length) % iconLightboxIcons.length;
-  renderIconLightbox();
-}
-
-function renderIconImageLightbox() {
-  const icon = activeIcon(), images = iconImages(icon);
-  if (!icon || !images.length) return;
-  iconImageIndex = Math.max(0, Math.min(iconImageIndex, images.length - 1));
-  const title = icon.title || icon.name || ui('Икона дня'), dates = iconDateText(icon), image = images[iconImageIndex];
-  $('icon-image-title').textContent = title;
-  $('icon-image-title').classList.toggle('slavonic-title', isCyrillicText(title));
-  $('icon-image-dates').textContent = dates;
-  $('icon-image-dates').hidden = !dates;
-  $('icon-large').src = image.url;
-  $('icon-large').alt = title;
-  $('icon-image-counter').textContent = images.length > 1 ? `${iconImageIndex + 1} из ${images.length}` : '';
-  $('icon-image-previous').hidden = images.length < 2;
-  $('icon-image-next').hidden = images.length < 2;
-  renderIconThumbnails('icon-image-thumbnails', iconImageIndex);
-  $('icon-image-thumbnails').querySelector(`[data-icon-image-index="${iconImageIndex}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-}
-
-function openIconImage(index) {
-  const images = iconImages(activeIcon());
-  if (!images.length) return;
-  iconImageIndex = Math.max(0, Math.min(index, images.length - 1));
-  renderIconImageLightbox();
-  if (!$('icon-image-lightbox').open) $('icon-image-lightbox').showModal();
-  $('icon-image-close').focus();
-}
-
 function shiftIconImage(step) {
-  const images = iconImages(activeIcon());
-  if (!images.length) return;
-  iconImageIndex = (iconImageIndex + step + images.length) % images.length;
-  renderIconImageLightbox();
+  if (!iconLightboxItems.length) return;
+  iconLightboxIndex = (iconLightboxIndex + step + iconLightboxItems.length) % iconLightboxItems.length;
+  renderIconLightbox();
 }
 
 function renderDayValue(value, serviceState, target) {
@@ -745,48 +726,27 @@ $('close').addEventListener('click', () => $('detail').close());
 $('detail').addEventListener('close', () => { ++daySequence; });
 $('detail').addEventListener('click', event => { if (event.target === $('detail')) $('detail').close(); });
 $('icon-close').addEventListener('click', () => $('icon-lightbox').close());
-$('icon-previous').addEventListener('click', () => shiftIcon(-1));
-$('icon-next').addEventListener('click', () => shiftIcon(1));
+$('icon-previous').addEventListener('click', () => shiftIconImage(-1));
+$('icon-next').addEventListener('click', () => shiftIconImage(1));
 $('icon-modal-thumbnails').addEventListener('click', event => {
-  const button = event.target.closest('[data-icon-image-index]');
+  const button = event.target.closest('[data-icon-lightbox-index]');
   if (!button) return;
-  openIconImage(Number(button.dataset.iconImageIndex));
+  iconLightboxIndex = Number(button.dataset.iconLightboxIndex);
+  renderIconLightbox();
 });
 $('icon-lightbox').addEventListener('click', event => { if (event.target === $('icon-lightbox')) $('icon-lightbox').close(); });
-$('icon-lightbox').addEventListener('close', () => {
-  iconThumbnailObservers.get('icon-modal-thumbnails')?.disconnect();
-  if ($('icon-image-lightbox').open) $('icon-image-lightbox').close();
-});
+$('icon-lightbox').addEventListener('close', () => iconThumbnailObserver?.disconnect());
 $('icon-lightbox').addEventListener('touchstart', event => {
   iconTouchStartX = event.changedTouches[0]?.clientX || 0;
 }, {passive: true});
 $('icon-lightbox').addEventListener('touchend', event => {
   const endX = event.changedTouches[0]?.clientX || 0;
-  if (Math.abs(endX - iconTouchStartX) >= 45) shiftIcon(endX < iconTouchStartX ? 1 : -1);
-}, {passive: true});
-$('icon-image-close').addEventListener('click', () => $('icon-image-lightbox').close());
-$('icon-image-previous').addEventListener('click', () => shiftIconImage(-1));
-$('icon-image-next').addEventListener('click', () => shiftIconImage(1));
-$('icon-image-thumbnails').addEventListener('click', event => {
-  const button = event.target.closest('[data-icon-image-index]');
-  if (button) { iconImageIndex = Number(button.dataset.iconImageIndex); renderIconImageLightbox(); }
-});
-$('icon-image-lightbox').addEventListener('click', event => { if (event.target === $('icon-image-lightbox')) $('icon-image-lightbox').close(); });
-$('icon-image-lightbox').addEventListener('close', () => iconThumbnailObservers.get('icon-image-thumbnails')?.disconnect());
-$('icon-image-lightbox').addEventListener('touchstart', event => {
-  iconTouchStartX = event.changedTouches[0]?.clientX || 0;
-}, {passive: true});
-$('icon-image-lightbox').addEventListener('touchend', event => {
-  const endX = event.changedTouches[0]?.clientX || 0;
   if (Math.abs(endX - iconTouchStartX) >= 45) shiftIconImage(endX < iconTouchStartX ? 1 : -1);
 }, {passive: true});
 document.addEventListener('keydown', event => {
-  if ($('icon-image-lightbox').open) {
+  if ($('icon-lightbox').open) {
     if (event.key === 'ArrowLeft') { event.preventDefault(); shiftIconImage(-1); }
     if (event.key === 'ArrowRight') { event.preventDefault(); shiftIconImage(1); }
-  } else if ($('icon-lightbox').open) {
-    if (event.key === 'ArrowLeft') { event.preventDefault(); shiftIcon(-1); }
-    if (event.key === 'ArrowRight') { event.preventDefault(); shiftIcon(1); }
   }
 });
 
