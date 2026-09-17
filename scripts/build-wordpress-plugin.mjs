@@ -12,7 +12,7 @@ for(const [mode,title] of Object.entries(titles)) {
   const directory=resolve(root,'blocks',mode);mkdirSync(directory,{recursive:true});
   writeFileSync(resolve(directory,'block.json'),JSON.stringify({
     $schema:'https://schemas.wp.org/trunk/block.json',apiVersion:3,name:'orthocal/'+mode,version,
-    title:'Православный календарь: '+title,category:'widgets',icon:'calendar-alt',textdomain:'orthocal',
+    title:'Православный календарь: '+title,category:'widgets',icon:'calendar-alt',textdomain:'orthodox-calendar-workshop',
     attributes:Object.fromEntries(['date','year','month','limit','filter','lang','profile','theme','css_mode','compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','show_font_size','open','reading_open','images','image_size','image_pack','icons','icon_limit','office','heading','sections','event_levels','scope','tone','weekday','text_id','work','text_language','text_page'].map(name=>[name,{type:'string'}])),
     supports:{html:false},editorScript:'orthocal-editor',style:'orthocal',viewScript:'orthocal',
   },null,2)+'\n');
