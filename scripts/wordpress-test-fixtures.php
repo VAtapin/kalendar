@@ -67,9 +67,9 @@ add_filter('pre_http_request', function($pre,$args,$url) {
             $date=$q['date']??'2027-05-02'; $days=array_values(array_filter($year['days'],static fn($d)=>$d['date']===$date));
             $value=['metadata'=>$year['metadata'],'day'=>$days[0]??$year['days'][0]];
             $value['day']['icons']=[
-                ['id'=>1,'title'=>'Икона Божией Матери Великая','description'=>'Описание первого образа','imageUrl'=>'https://bible-desktop.com/api/calendar/icons/1/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/1'],['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2']]],
-                ['id'=>2,'title'=>'Икона Святого Великого','description'=>'Описание второго образа','imageUrl'=>'https://bible-desktop.com/api/calendar/icons/2/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/2/images/1']]],
-                ['id'=>3,'title'=>'Икона Преподобного Малого','description'=>'Описание третьего образа','imageUrl'=>'https://bible-desktop.com/api/calendar/icons/3/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/3/images/1']]],
+                ['id'=>1,'title'=>'Икона Божией Матери Великая','description'=>'Описание первого образа','kind'=>'mother-of-god','dates'=>[['label'=>'2 мая','monthDay'=>'05-02']],'imageUrl'=>'https://bible-desktop.com/api/calendar/icons/1/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/1'],['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2']]],
+                ['id'=>2,'title'=>'Икона Святого Великого','description'=>'Описание второго образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Обретение мощей','monthDay'=>'05-02']],'imageUrl'=>'https://bible-desktop.com/api/calendar/icons/2/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/2/images/1']]],
+                ['id'=>3,'title'=>'Икона Преподобного Малого','description'=>'Описание третьего образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Память святого','monthDay'=>'05-02']],'imageUrl'=>'https://bible-desktop.com/api/calendar/icons/3/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/3/images/1']]],
             ];
         } elseif($action==='upcoming') {
             $items=[];foreach($year['days'] as $day) foreach($day['events'] as $e) if($day['date']>=($q['date']??'2027-01-01')&&$e['category']==='commemoration'&&$e['typeCode']<=2) $items[]=['date'=>$day['date'],'oldStyleDate'=>$day['oldStyleDate'],'event'=>$e];

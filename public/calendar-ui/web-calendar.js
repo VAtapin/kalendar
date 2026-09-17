@@ -352,12 +352,19 @@ function iconImages(icon) {
   })).filter(image => image.url);
 }
 
+function iconDateText(icon) {
+  const labels = (Array.isArray(icon?.dates) ? icon.dates : [])
+    .map(date => typeof date?.label === 'string' ? date.label.trim() : '')
+    .filter(Boolean);
+  return labels.length ? `${ui('Празднование:')} ${labels.join('; ')}` : ui('Даты празднования не указаны источником.');
+}
+
 function iconGalleryItems(icon) {
   const title = icon.title || icon.name || 'Икона дня';
   const description = String(icon.description || '').trim() || 'Описание иконы отсутствует.';
   return [
-    { type: 'description', title, description },
-    ...iconImages(icon).map((image, imageIndex) => ({ ...image, type: 'image', title, imageIndex })),
+    { type: 'description', title, description, dates: iconDateText(icon) },
+    ...iconImages(icon).map((image, imageIndex) => ({ ...image, type: 'image', title, imageIndex, dates: iconDateText(icon) })),
   ];
 }
 
@@ -380,7 +387,9 @@ function iconSection(icons) {
       image.loading = 'lazy';
       button.append(image);
     }
-    card.append(button, e('figcaption', title, isCyrillicText(title) ? 'slavonic-title' : ''));
+    const caption = e('figcaption', '', isCyrillicText(title) ? 'slavonic-title' : '');
+    caption.append(e('span', title), e('span', iconDateText(icon), 'icon-dates'));
+    card.append(button, caption);
     grid.append(card);
   });
   grid.addEventListener('click', event => {
@@ -403,6 +412,7 @@ function renderIconLightbox() {
   $('icon-large').hidden = isDescription;
   $('icon-modal-description').hidden = !isDescription;
   $('icon-modal-description').textContent = isDescription ? item.description : '';
+  $('icon-modal-dates').textContent = item.dates;
   if (!isDescription) {
     $('icon-large').src = item.url;
     $('icon-large').alt = item.title;

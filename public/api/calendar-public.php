@@ -228,7 +228,7 @@ function calendar_public_routes(string $method, string $path): void {
     }
     if ($action === '/day') {
         foreach ($value['days'] as $day) if ($day['date'] === $date) {
-            $day['icons'] = calendar_bible_desktop_icons($date);
+            $day['icons'] = calendar_bible_desktop_icons($date, $day['events'] ?? []);
             calendar_public_response(['metadata' => $value['metadata'], 'day' => $day], $method);
         }
         calendar_fail('date_not_found', 404);
