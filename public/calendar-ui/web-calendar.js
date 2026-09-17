@@ -4,7 +4,12 @@ import { UI_DE } from './web-calendar-i18n.js';
 const $ = id => document.getElementById(id);
 const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
 const VIEW_LABELS = { day: 'День', week: 'Неделя', month: 'Месяц', year: 'Год' };
-const state = { view: 'month', date: new Date().toISOString().slice(0, 10), lang: 'ru', profile: 'typikon-strict' };
+function localIsoDate(now = new Date()) {
+  const offset = now.getTimezoneOffset() * 60_000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
+const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3 };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0;
 
 for (let year = 1900; year <= 2200; year++) $('year').add(new Option(String(year), String(year)));
@@ -105,6 +110,7 @@ function syncControls() {
   $('month').value = month;
   $('lang').value = state.lang;
   $('profile').value = state.profile;
+  $('event-limit').value = String(state.eventLimit);
   document.querySelectorAll('[data-view]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === state.view)));
   updateFilterSummary();
 }
@@ -118,11 +124,12 @@ function saveLocation() {
 
 function readLocation() {
   const params = new URLSearchParams(location.search);
-  const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile');
+  const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
   if (['day', 'week', 'month', 'year'].includes(view)) state.view = view;
   if (/^\d{4}-\d{2}-\d{2}$/.test(date || '')) state.date = date;
   if (['ru', 'cu', 'de', 'uk', 'pl'].includes(lang)) state.lang = lang;
   if (['typikon-strict', 'parish'].includes(profile)) state.profile = profile;
+  if (Number.isInteger(eventLimit) && eventLimit >= 1 && eventLimit <= 5) state.eventLimit = eventLimit;
 }
 
 function weekdayNames() { return Array.from({ length: 7 }, (_, index) => titleDate('2024-01-' + String(index + 1).padStart(2, '0'), { weekday: 'short' }).replace('.', '')); }
@@ -154,6 +161,10 @@ function safeTypikonUrl(source) {
 
 function decorateDayButton(button, day) {
   button.classList.add('day-' + dayEmphasis(day));
+  if (day.date === localIsoDate()) {
+    button.classList.add('is-today');
+    button.setAttribute('aria-current', 'date');
+  }
   const mark = primaryTypikonMark(day);
   if (mark) {
     button.classList.add('has-typikon');
@@ -205,8 +216,11 @@ function dayButton(day) {
   button.append(numberLine, e('div', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'old-style'));
   if (hasFast) button.append(food);
   const primary = events.find(event => event.typeCode <= 2) || events[0];
-  if (primary) button.append(e('span', dayDisplayTitle(primary), 'event ' + (primary.typeCode <= 2 ? 'main' : '')));
-  const remaining = events.length - (primary ? 1 : 0);
+  const displayedEvents = primary
+    ? [primary, ...events.filter(event => event !== primary)].slice(0, state.eventLimit)
+    : [];
+  displayedEvents.forEach(event => button.append(e('span', dayDisplayTitle(event), 'event ' + (event.typeCode <= 2 ? 'main' : ''))));
+  const remaining = events.length - displayedEvents.length;
   if (remaining > 0) button.append(e('div', 'ещё ' + remaining, 'more'));
   button.setAttribute('aria-label', [titleDate(day.date), day.foodLabel, ...events.map(event => event.title)].filter(Boolean).join('. '));
   return button;
@@ -221,6 +235,7 @@ function renderMonth(value) {
   weekdayNames().forEach(name => weekdays.append(e('div', name, 'weekday')));
   const days = e('div', '', 'month-grid');
   days.id = 'days';
+  days.style.setProperty('--event-content-height', `${state.eventLimit * 17}px`);
   const first = value.days[0], offset = (Number(first.weekday) + 6) % 7;
   for (let i = 0; i < offset; i++) days.append(e('div', '', 'blank'));
   value.days.forEach(day => days.append(dayButton(day)));
@@ -605,7 +620,7 @@ async function load() {
       if (request !== loadSequence) return;
       renderMonth(value);
     }
-    setStatus('Календарь готов.');
+    setStatus('');
   } catch (error) {
     if (request !== loadSequence) return;
     $('calendar-panel').replaceChildren(e('p', 'Не удалось загрузить календарь: ' + error.message, 'empty'));
@@ -635,13 +650,14 @@ $('query').addEventListener('submit', event => {
   state.date = $('date').value;
   state.lang = $('lang').value;
   state.profile = $('profile').value;
+  state.eventLimit = Number($('event-limit').value);
   void load();
 });
 $('date').addEventListener('change', () => { $('year').value = $('date').value.slice(0, 4); $('month').value = $('date').value.slice(5, 7); });
 $('year').addEventListener('change', () => { $('date').value = $('year').value + '-' + $('month').value + '-01'; });
 $('month').addEventListener('change', () => { $('date').value = $('year').value + '-' + $('month').value + '-01'; });
 document.querySelector('.view-tabs').addEventListener('click', event => { const view = event.target.dataset.view; if (view) { state.view = view; void load(); } });
-$('today').addEventListener('click', () => { state.date = new Date().toISOString().slice(0, 10); void load(); });
+$('today').addEventListener('click', () => { state.date = localIsoDate(); void load(); });
 $('previous').addEventListener('click', () => shift(-1));
 $('next').addEventListener('click', () => shift(1));
 $('close-filters').addEventListener('click', () => { $('filters').open = false; });
