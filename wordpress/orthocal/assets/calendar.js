@@ -27,37 +27,21 @@
     icons=icons.map(item=>({title:typeof item?.title==='string'&&item.title?item.title:t('Икона'),description:typeof item?.description==='string'?item.description:'',dates:[...new Set((Array.isArray(item?.dates)?item.dates:[]).filter(date=>typeof date==='string'&&date).map(shortDate))],images:[...new Set((Array.isArray(item?.images)?item.images:[]).filter(url=>typeof url==='string'&&url))]})).filter(item=>item.images.length);
     if(!icons.length)return;
     const start=Math.max(0,Math.min(icons.length-1,Number(icon.dataset.ocIconIndex)||0));
-    const items=[];let startIndex=0;
-    icons.forEach((entry,iconIndex)=>{
-      if(iconIndex===start)startIndex=items.length;
-      items.push({type:'description',title:entry.title,text:entry.description||t('Описание иконы отсутствует.'),dates:entry.dates});
-      entry.images.forEach(url=>items.push({type:'image',title:entry.title,url,dates:entry.dates}));
-    });
-    const body=document.createElement('div');body.className='oc-icon-view';
-    const title=document.createElement('h2');
-    const dates=document.createElement('p');dates.className='oc-icon-dates';
-    const description=document.createElement('div');description.className='oc-icon-description';
-    const image=document.createElement('img');image.className='oc-icon-large';image.alt=icon.dataset.ocIconTitle||'';
-    const loading=document.createElement('p');loading.className='oc-icon-loading';loading.hidden=true;
-    const thumbnails=document.createElement('div');thumbnails.className='oc-icon-thumbnails';thumbnails.setAttribute('aria-label',t('Изображения образа'));
-    const controls=document.createElement('div');controls.className='oc-icon-controls';
-    const previous=document.createElement('button');previous.type='button';previous.className='oc-icon-nav';previous.textContent='←';previous.setAttribute('aria-label',t('Предыдущая карточка'));
-    const next=document.createElement('button');next.type='button';next.className='oc-icon-nav';next.textContent='→';next.setAttribute('aria-label',t('Следующая карточка'));
-    const counter=document.createElement('span');counter.className='oc-icon-counter';
-    controls.append(previous,counter,next);body.append(title,dates,description,thumbnails,image,loading,controls);
-    let index=startIndex,startX=0,loadGeneration=0;
-    const thumbnailButtons=[];
-    items.forEach((item,itemIndex)=>{if(item.type!=='image')return;const button=document.createElement('button');button.type='button';button.className='oc-icon-thumbnail';button.dataset.ocIconItem=String(itemIndex);button.setAttribute('aria-label',item.title);const thumbnail=new Image();thumbnail.alt='';thumbnail.loading='lazy';button.append(thumbnail);button.addEventListener('click',()=>{index=itemIndex;render();});thumbnails.append(button);thumbnailButtons.push({button,thumbnail,item});});
-    const loadThumbnail=({thumbnail,item})=>{if(thumbnail.src)return;void mediaUrl(endpoint,item.url,t).then(url=>{thumbnail.src=url;}).catch(()=>{});};
-    if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){observer.unobserve(entry.target);const record=thumbnailButtons.find(value=>value.thumbnail===entry.target);if(record)loadThumbnail(record);}}),{root:thumbnails,rootMargin:'100px'});thumbnailButtons.forEach(record=>observer.observe(record.thumbnail));}else thumbnailButtons.slice(0,6).forEach(loadThumbnail);
-    const render=()=>{const item=items[index],generation=++loadGeneration,isDescription=item.type==='description';title.textContent=item.title;dates.textContent=item.dates?.join('; ')||'';dates.hidden=!dates.textContent;description.hidden=!isDescription;description.style.display=isDescription?'block':'none';description.textContent=isDescription?item.text:'';image.hidden=true;image.style.display='none';image.removeAttribute('src');loading.hidden=true;counter.textContent=items.length>1?`${index+1} ${t('из')} ${items.length}`:'';previous.hidden=next.hidden=items.length<2;if(isDescription)return;thumbnailButtons.forEach(record=>{const active=Number(record.button.dataset.ocIconItem)===index;record.button.classList.toggle('active',active);record.button.setAttribute('aria-current',active?'true':'false');if(active)record.button.scrollIntoView({block:'nearest',inline:'nearest'});});loading.hidden=false;loading.textContent=t('Загрузка…');void mediaUrl(endpoint,item.url,t,true).then(url=>{if(generation!==loadGeneration)return;image.onload=()=>{if(generation===loadGeneration)loading.hidden=true;};image.onerror=()=>{if(generation===loadGeneration){image.hidden=true;loading.textContent=t('Не удалось загрузить изображение.');}};image.alt=item.title;image.src=url;image.hidden=false;image.style.display='block';}).catch(error=>{if(generation===loadGeneration)loading.textContent=error?.message||t('Не удалось загрузить изображение.');});};
-    const shift=step=>{if(items.length<2)return;index=(index+step+items.length)%items.length;render();};
-    previous.addEventListener('click',()=>shift(-1));next.addEventListener('click',()=>shift(1));
-    body.addEventListener('touchstart',event=>{startX=event.changedTouches[0]?.clientX||0;},{passive:true});
-    body.addEventListener('touchend',event=>{const endX=event.changedTouches[0]?.clientX||0;if(Math.abs(endX-startX)>40)shift(endX<startX?1:-1);},{passive:true});
-    render();
-    const dialog=popup(body,icons[start].title,t);
-    dialog.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();shift(-1);}if(event.key==='ArrowRight'){event.preventDefault();shift(1);}});
+    const thumbnailStrip=(entry,activeIndex,onSelect)=>{
+      const strip=document.createElement('div');strip.className='oc-icon-thumbnails';strip.setAttribute('aria-label',t('Изображения образа'));const records=[];
+      entry.images.forEach((url,imageIndex)=>{const button=document.createElement('button');button.type='button';button.className='oc-icon-thumbnail';button.classList.toggle('active',imageIndex===activeIndex);button.setAttribute('aria-current',imageIndex===activeIndex?'true':'false');button.setAttribute('aria-label',entry.title);const thumbnail=new Image();thumbnail.alt='';thumbnail.loading='lazy';button.append(thumbnail);button.addEventListener('click',()=>onSelect(imageIndex));strip.append(button);records.push({thumbnail,url});});
+      const load=record=>{if(record.thumbnail.src)return;void mediaUrl(endpoint,record.url,t,false,true).then(url=>{record.thumbnail.src=url;}).catch(()=>{});};
+      if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){observer.unobserve(entry.target);const record=records.find(value=>value.thumbnail===entry.target);if(record)load(record);}}),{root:strip,rootMargin:'100px'});records.forEach(record=>observer.observe(record.thumbnail));}else records.slice(0,6).forEach(load);
+      return strip;
+    };
+    const openImageDialog=(entry,initialIndex)=>{
+      const body=document.createElement('div');body.className='oc-icon-view oc-icon-image-view';const title=document.createElement('h2');const dates=document.createElement('p');dates.className='oc-icon-dates';const image=new Image();image.className='oc-icon-large';const loading=document.createElement('p');loading.className='oc-icon-loading';const controls=document.createElement('div');controls.className='oc-icon-controls';const previous=document.createElement('button');previous.type='button';previous.className='oc-icon-nav';previous.textContent='←';const next=document.createElement('button');next.type='button';next.className='oc-icon-nav';next.textContent='→';const counter=document.createElement('span');counter.className='oc-icon-counter';let imageIndex=initialIndex,loadGeneration=0,startX=0,strip;
+      const render=()=>{const url=entry.images[imageIndex],generation=++loadGeneration;title.textContent=entry.title;dates.textContent=entry.dates.join('; ');dates.hidden=!dates.textContent;image.hidden=true;image.removeAttribute('src');loading.hidden=false;loading.textContent=t('Загрузка…');counter.textContent=entry.images.length>1?`${imageIndex+1} ${t('из')} ${entry.images.length}`:'';previous.hidden=next.hidden=entry.images.length<2;strip?.remove();strip=thumbnailStrip(entry,imageIndex,nextIndex=>{imageIndex=nextIndex;render();});body.insertBefore(strip,image);void mediaUrl(endpoint,url,t,true).then(local=>{if(generation!==loadGeneration)return;image.onload=()=>{if(generation===loadGeneration)loading.hidden=true;};image.onerror=()=>{if(generation===loadGeneration)loading.textContent=t('Не удалось загрузить изображение.');};image.src=local;image.alt=entry.title;image.hidden=false;}).catch(error=>{if(generation===loadGeneration)loading.textContent=error?.message||t('Не удалось загрузить изображение.');});};
+      const shift=step=>{imageIndex=(imageIndex+step+entry.images.length)%entry.images.length;render();};previous.addEventListener('click',()=>shift(-1));next.addEventListener('click',()=>shift(1));controls.append(previous,counter,next);body.append(title,dates,image,loading,controls);body.addEventListener('touchstart',event=>{startX=event.changedTouches[0]?.clientX||0;},{passive:true});body.addEventListener('touchend',event=>{const endX=event.changedTouches[0]?.clientX||0;if(Math.abs(endX-startX)>40)shift(endX<startX?1:-1);},{passive:true});render();const dialog=popup(body,entry.title,t);dialog.classList.add('oc-icon-image-dialog');dialog.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();shift(-1);}if(event.key==='ArrowRight'){event.preventDefault();shift(1);}});
+    };
+    const body=document.createElement('div');body.className='oc-icon-view oc-icon-summary';const title=document.createElement('h2');const dates=document.createElement('p');dates.className='oc-icon-dates';const description=document.createElement('div');description.className='oc-icon-description';const controls=document.createElement('div');controls.className='oc-icon-controls';const previous=document.createElement('button');previous.type='button';previous.className='oc-icon-nav';previous.textContent='←';const next=document.createElement('button');next.type='button';next.className='oc-icon-nav';next.textContent='→';const counter=document.createElement('span');counter.className='oc-icon-counter';let iconIndex=start,strip;
+    const renderSummary=()=>{const entry=icons[iconIndex];title.textContent=entry.title;dates.textContent=entry.dates.join('; ');dates.hidden=!dates.textContent;description.textContent=entry.description||t('Описание иконы отсутствует.');counter.textContent=icons.length>1?`${iconIndex+1} ${t('из')} ${icons.length}`:'';previous.hidden=next.hidden=icons.length<2;strip?.remove();strip=thumbnailStrip(entry,-1,imageIndex=>openImageDialog(entry,imageIndex));body.insertBefore(strip,controls);};
+    const shiftIcon=step=>{iconIndex=(iconIndex+step+icons.length)%icons.length;renderSummary();};previous.addEventListener('click',()=>shiftIcon(-1));next.addEventListener('click',()=>shiftIcon(1));controls.append(previous,counter,next);body.append(title,dates,description,controls);renderSummary();const dialog=popup(body,icons[start].title,t);dialog.classList.add('oc-icon-summary-dialog');dialog.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();shiftIcon(-1);}if(event.key==='ArrowRight'){event.preventDefault();shiftIcon(1);}});
   }
   async function copy(text,status,t=s=>s) {
     try {await navigator.clipboard.writeText(text);status.textContent=t('Скопировано.');}
@@ -90,16 +74,17 @@
     const run=mediaQueue.shift(),wait=Math.max(0,mediaNotBefore-Date.now());mediaActive++;
     setTimeout(run,wait);
   }
-  function mediaUrl(endpoint,source,t=s=>s,priority=false) {
+  function mediaUrl(endpoint,source,t=s=>s,priority=false,thumbnail=false) {
     const sourceUrl=new URL(source,window.location.href),endpointUrl=new URL(endpoint,window.location.href);
     if(sourceUrl.origin===endpointUrl.origin)return Promise.resolve(sourceUrl.href);
-    const sourceKey=sourceUrl.href;if(mediaReady.has(sourceKey))return Promise.resolve(mediaReady.get(sourceKey));if(mediaPending.has(sourceKey))return mediaPending.get(sourceKey);
+    const sourceKey=sourceUrl.href+(thumbnail?'#thumbnail':'');if(mediaReady.has(sourceKey))return Promise.resolve(mediaReady.get(sourceKey));if(mediaPending.has(sourceKey))return mediaPending.get(sourceKey);
     const url=route(endpoint,'media');url.searchParams.set('source',sourceUrl.href);
+    if(thumbnail)url.searchParams.set('thumbnail','1');
     const task=enqueueMedia(async()=>{const value=await json(url);if(typeof value?.url!=='string'||!value.url)throw new Error(t('Не удалось загрузить изображение.'));const local=new URL(value.url,endpointUrl);if(local.origin!==endpointUrl.origin)throw new Error(t('Не удалось загрузить изображение.'));mediaReady.set(sourceKey,local.href);return local.href;},priority);
     mediaPending.set(sourceKey,task);task.finally(()=>mediaPending.delete(sourceKey)).catch(()=>{});return task;
   }
   function loadIconCovers(root,endpoint,t=s=>s) {
-    const load=image=>{const source=image.dataset.ocIconCover;if(!source||image.dataset.ocIconLoading)return;image.dataset.ocIconLoading='1';void mediaUrl(endpoint,source,t).then(url=>{if(image.isConnected){image.src=url;image.removeAttribute('data-oc-icon-cover');}}).catch(()=>{}).finally(()=>delete image.dataset.ocIconLoading);};
+    const load=image=>{const source=image.dataset.ocIconCover;if(!source||image.dataset.ocIconLoading)return;image.dataset.ocIconLoading='1';const thumbnail=!image.closest('.oc-hero-icon');void mediaUrl(endpoint,source,t,false,thumbnail).then(url=>{if(image.isConnected){image.src=url;image.removeAttribute('data-oc-icon-cover');}}).catch(()=>{}).finally(()=>delete image.dataset.ocIconLoading);};
     const images=[...root.querySelectorAll('img[data-oc-icon-cover]')];
     if(!('IntersectionObserver'in window)){images.slice(0,1).forEach(load);return;}
     const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){observer.unobserve(entry.target);load(entry.target);}}),{rootMargin:'240px'});

@@ -34,6 +34,28 @@ final class Orthocal_Media_Cache {
         $dir=self::directory();if(!$dir)return '';
         return self::local(self::metadata($path),$dir);
     }
+    static function thumbnail_url($source) {
+        $original=self::url($source);if(!$original)return '';
+        $dir=self::directory();if(!$dir)return '';
+        $name=basename((string)parse_url($original,PHP_URL_PATH));
+        if(!self::file_valid($name))return '';
+        // SVG is already vector-small at the requested CSS size. Raster files
+        // get a separate 96px WebP/JPEG derivative for gallery previews.
+        if(pathinfo($name,PATHINFO_EXTENSION)==='svg'||!function_exists('imagecreatefromstring'))return $original;
+        $thumbName=hash('sha256',$name.'|orthocal-thumbnail-96').'.'.(function_exists('imagewebp')?'webp':'jpg');
+        $thumb=$dir['path'].'/'.$thumbName;if(is_file($thumb)&&!is_link($thumb))return $dir['url'].'/'.$thumbName;
+        $body=@file_get_contents($dir['path'].'/'.$name);$image=$body===false?false:@imagecreatefromstring($body);
+        if(!$image)return $original;
+        try {
+            $width=imagesx($image);$height=imagesy($image);if($width<1||$height<1)return $original;
+            $scale=min(1,96/max($width,$height));$targetWidth=max(1,(int)round($width*$scale));$targetHeight=max(1,(int)round($height*$scale));
+            $target=imagecreatetruecolor($targetWidth,$targetHeight);imagealphablending($target,false);imagesavealpha($target,true);imagefill($target,0,0,imagecolorallocatealpha($target,0,0,0,127));
+            imagecopyresampled($target,$image,0,0,0,0,$targetWidth,$targetHeight,$width,$height);
+            $tmp=$dir['path'].'/'.hash('sha256',$thumbName).'.tmp';$written=function_exists('imagewebp')?imagewebp($target,$tmp,72):imagejpeg($target,$tmp,76);imagedestroy($target);
+            if(!$written||!is_file($tmp)||!rename($tmp,$thumb)){@unlink($tmp);return $original;}
+            return $dir['url'].'/'.$thumbName;
+        } finally {imagedestroy($image);}
+    }
     static function schedule($path) {
         if (!wp_next_scheduled('orthocal_refresh_asset',[$path])) wp_schedule_single_event(time()+5,'orthocal_refresh_asset',[$path]);
     }

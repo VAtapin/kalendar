@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {chromium} from 'playwright';
 const browser=await chromium.launch(process.platform==='win32'?{channel:'msedge'}:{});
 try{
- const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+ const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[],thumbnailRequests=[],fullIconRequests=[];
  let serviceAvailable=false, slowDetail=false;
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const NativeDate=Date,fixed=new NativeDate('2026-02-01T12:00:00Z');window.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[fixed.getTime()]));}static now(){return fixed.getTime();}};});
@@ -11,6 +11,7 @@ try{
  await page.route('https://web.test/**',async route=>{
   const url=new URL(route.request().url());
   if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync('public'+url.pathname)});
+  if(url.pathname==='/api/v1/calendar-demo/icon-thumbnail') { thumbnailRequests.push(url); return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="48" height="60"><rect width="48" height="60" fill="gold"/></svg>'}); }
   if (url.pathname.startsWith('/assets/typikon/')) return route.fulfill({contentType:'image/svg+xml',body:fs.readFileSync('public'+url.pathname)});
   if(url.pathname==='/calendar-api-font.php')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
   if(url.pathname.endsWith('/service')){if(slowDetail)await new Promise(resolve=>setTimeout(resolve,250));return serviceAvailable
@@ -24,7 +25,7 @@ try{
   }
   return route.fulfill({contentType:'text/html',body:fs.readFileSync('public/web-calendar.html','utf8')});
  });
- await page.route('https://bible-desktop.com/**',r=>r.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="gold"/></svg>'}));
+ await page.route('https://bible-desktop.com/**',r=>{fullIconRequests.push(r.request().url());return r.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="gold"/></svg>'});});
  await page.goto('https://web.test/web-calendar?date=2026-01-31');
  await page.locator('.day').first().waitFor();
  assert.equal(await page.locator('#days .day').first().locator('.event').count(),3);
@@ -62,27 +63,33 @@ try{
   assert.doesNotMatch(await page.locator('#detail .icon-card').first().innerText(),/Собор новомучеников/);
  await page.locator('#detail .icon-thumbnail').first().click();
  await page.locator('#icon-lightbox[open]').waitFor();
- assert.equal(await page.locator('#icon-lightbox[open] #icon-large').count(),1);
- assert.equal(await page.locator('#icon-modal-counter').innerText(),'1 из 3');
+ assert.equal(await page.locator('#icon-lightbox[open] #icon-large').count(),0);
+ assert.equal(await page.locator('#icon-modal-counter').innerText(),'1 из 2');
  assert.equal(await page.locator('#icon-modal-description').innerText(),'Описание иконы');
  assert.equal(await page.locator('#icon-modal-description').isVisible(),true);
  assert.equal(await page.locator('#icon-modal-dates').innerText(),'1 февраля; 9 мая (пер.)');
  assert.equal(await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').count(),2);
- assert.equal(await page.locator('#icon-large').isVisible(),false);
+ assert.ok(thumbnailRequests.length>0);
+ assert.equal(fullIconRequests.length,0);
  await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').first().click();
- assert.equal(await page.locator('#icon-modal-counter').innerText(),'2 из 3');
- assert.equal(await page.locator('#icon-large').isVisible(),true);
+ await page.locator('#icon-image-lightbox[open] #icon-large').waitFor({state:'visible'});
+ assert.equal(fullIconRequests.length,1);
+ assert.equal(await page.locator('#icon-image-counter').innerText(),'1 из 2');
+ assert.equal(await page.locator('#icon-image-thumbnails .icon-modal-thumbnail').count(),2);
+ await page.locator('#icon-image-lightbox[open]').press('ArrowRight');
+ assert.equal(await page.locator('#icon-image-counter').innerText(),'2 из 2');
+ await page.locator('#icon-image-close').click();
+ assert.equal(await page.locator('#icon-lightbox[open]').count(),1);
  await page.locator('#icon-next').click();
- assert.equal(await page.locator('#icon-modal-counter').innerText(),'3 из 3');
- await page.locator('#icon-lightbox[open]').press('ArrowLeft');
- assert.equal(await page.locator('#icon-modal-counter').innerText(),'2 из 3');
+ assert.equal(await page.locator('#icon-modal-counter').innerText(),'2 из 2');
+ assert.equal(await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').count(),1);
  await page.locator('#icon-close').click();
  await page.locator('#detail .icon-thumbnail').nth(1).click();
  await page.evaluate(()=>document.fonts.ready);
  assert.equal(await page.locator('#icon-modal-title').innerText(),'Мученица Наталья Козлова');
  assert.equal(await page.locator('#icon-modal-description').isVisible(),true);
- assert.equal(await page.locator('#icon-large').isVisible(),false);
- assert.equal(await page.locator('#icon-large').getAttribute('src'),null);
+ assert.equal(await page.locator('#icon-image-lightbox[open]').count(),0);
+ assert.equal(await page.locator('#icon-lightbox #icon-large').count(),0);
  assert.match(await page.locator('#icon-modal-title').evaluate(el=>getComputedStyle(el).fontFamily),/Calendar API Slavonic/);
  await page.locator('#icon-close').click();
  await page.locator('#close').click();assert.equal(await page.locator('dialog[open]').count(),0);

@@ -21,8 +21,8 @@ for(const file of readdirSync(resolve(root,'assets')).filter(f=>f.endsWith('.js'
 mkdirSync('artifacts',{recursive:true});
 // Static paths; no shell interpolation of source or user content.
 if(process.platform==='win32') {
-  try { execFileSync('powershell',['-NoProfile','-Command',`Compress-Archive -LiteralPath 'wordpress/orthocal' -DestinationPath 'artifacts/${archive}' -Force`],{stdio:'inherit'}); }
-  catch { execFileSync('tar.exe',['-a','-c','-f',resolve('artifacts',archive),'-C',resolve('wordpress'),'orthocal'],{stdio:'inherit'}); }
+  try { execFileSync('tar.exe',['-a','-c','-f',resolve('artifacts',archive),'-C',resolve('wordpress'),'orthocal'],{stdio:'inherit'}); }
+  catch { execFileSync('powershell',['-NoProfile','-Command',`Compress-Archive -LiteralPath 'wordpress/orthocal' -DestinationPath 'artifacts/${archive}' -Force`],{stdio:'inherit'}); }
 } else execFileSync('zip',['-qr',resolve('artifacts',archive),'orthocal'],{cwd:resolve('wordpress'),stdio:'inherit'});
 console.log(`artifacts/${archive}`);
 // Publication is explicit so a local plugin build does not overwrite another task's release.

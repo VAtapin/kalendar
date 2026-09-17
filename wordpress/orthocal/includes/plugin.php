@@ -540,10 +540,11 @@ final class Orthocal_Plugin {
     static function rest_media($request) {
         $source=$request->get_param('source');
         if(!is_string($source)||Orthocal_Media_Cache::source($source)===false)return new WP_Error('source','Неверный адрес изображения.',['status'=>400]);
+        $thumbnail=$request->get_param('thumbnail')==='1';
         $cached=Orthocal_Media_Cache::cached_url($source);
-        if($cached){$response=new WP_REST_Response(['url'=>$cached]);$response->header('Cache-Control','private, max-age=86400');return $response;}
+        if($cached){$url=$thumbnail?Orthocal_Media_Cache::thumbnail_url($source):$cached;$response=new WP_REST_Response(['url'=>$url]);$response->header('Cache-Control','private, max-age=86400');return $response;}
         $rate=self::media_throttle(); if (is_wp_error($rate)) return $rate;
-        $url=Orthocal_Media_Cache::url($source);
+        $url=$thumbnail?Orthocal_Media_Cache::thumbnail_url($source):Orthocal_Media_Cache::url($source);
         if(!$url)return new WP_Error('media','Изображение пока недоступно. Повторите позже.',['status'=>503]);
         $response=new WP_REST_Response(['url'=>$url]);$response->header('Cache-Control','no-store');return $response;
     }

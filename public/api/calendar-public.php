@@ -107,7 +107,105 @@ function calendar_public_year(array $manifest, string $runtimeDirectory, int $ye
     } finally { flock($lock, LOCK_UN); fclose($lock); }
 }
 
+/** The hosted calendar may request only compact derivatives of published icon files. */
+function calendar_public_icon_thumbnail_source(mixed $value): ?string {
+    if (!is_string($value) || strlen($value) > 360) return null;
+    return preg_match('#^https://bible-desktop\.com/(?:storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)|api/calendar/icons/[0-9]+/images/[0-9]+)$#D', $value) === 1 ? $value : null;
+}
+
+function calendar_public_demo_request_allowed(): bool {
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $configured = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
+    $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
+    $allowedOrigins = in_array($configured, $aliases, true) ? $aliases : [$configured];
+    $origin = api_header('Origin');
+    $referer = api_header('Referer');
+    return $origin !== ''
+        && in_array($origin, $allowedOrigins, true)
+        && api_header('Sec-Fetch-Site') === 'same-origin'
+        && api_header('X-Calendar-Demo') === '1'
+        && in_array(strtok($referer, '?'), [$origin . '/web-calendar', $origin . '/web-calendar/', $origin . '/web-calendar.html'], true);
+}
+
+/** Images cannot attach the custom fetch header used by the JSON demo routes. */
+function calendar_public_icon_thumbnail_request_allowed(): bool {
+    $referer = api_header('Referer');
+    $parts = parse_url($referer);
+    if (!is_array($parts) || !isset($parts['scheme'], $parts['host'], $parts['path'])) return false;
+    $origin = $parts['scheme'] . '://' . $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $configured = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
+    $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
+    $allowedOrigins = in_array($configured, $aliases, true) ? $aliases : [$configured];
+    return in_array($origin, $allowedOrigins, true)
+        && in_array($parts['path'], ['/web-calendar', '/web-calendar/', '/web-calendar.html'], true)
+        && api_header('Sec-Fetch-Site') === 'same-origin';
+}
+
+function calendar_public_icon_thumbnail_fetch(string $source): ?string {
+    $headers = ['Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'];
+    $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
+    if ($key !== '') $headers[] = 'X-API-Key: ' . $key;
+    $context = stream_context_create(['http' => ['method' => 'GET', 'timeout' => 10, 'ignore_errors' => true, 'header' => implode("\r\n", $headers)]]);
+    $body = @file_get_contents($source, false, $context);
+    return is_string($body) && $body !== '' && strlen($body) <= 10 * 1024 * 1024 ? $body : null;
+}
+
+function calendar_public_icon_thumbnail_file(string $source): array {
+    if (!function_exists('imagecreatefromstring') || !function_exists('imagecreatetruecolor')) {
+        calendar_fail('thumbnail_unavailable', 503, 'Image thumbnails are unavailable on this server.');
+    }
+    $directory = calendar_config_value('CALENDAR_DATA_DIR', calendar_project_root() . '/storage') . '/calendar-icon-thumbnails';
+    if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) calendar_fail('thumbnail_cache_unavailable', 503);
+    $extension = function_exists('imagewebp') ? 'webp' : 'jpg';
+    $file = $directory . '/' . hash('sha256', $source . '|thumbnail-96-v1') . '.' . $extension;
+    if (is_file($file) && !is_link($file)) return [$file, $extension === 'webp' ? 'image/webp' : 'image/jpeg'];
+    $lock = fopen($directory . '/generation.lock', 'c');
+    if ($lock === false || !flock($lock, LOCK_EX)) calendar_fail('thumbnail_cache_unavailable', 503);
+    try {
+        if (is_file($file) && !is_link($file)) return [$file, $extension === 'webp' ? 'image/webp' : 'image/jpeg'];
+        $body = calendar_public_icon_thumbnail_fetch($source);
+        $image = $body === null ? false : @imagecreatefromstring($body);
+        if ($image === false) calendar_fail('icon_image_unavailable', 503, 'The icon image is temporarily unavailable.');
+        try {
+            $width = imagesx($image); $height = imagesy($image);
+            if ($width < 1 || $height < 1) calendar_fail('icon_image_unavailable', 503);
+            $scale = min(1, 96 / max($width, $height));
+            $targetWidth = max(1, (int) round($width * $scale)); $targetHeight = max(1, (int) round($height * $scale));
+            $target = imagecreatetruecolor($targetWidth, $targetHeight);
+            imagealphablending($target, false); imagesavealpha($target, true);
+            imagefill($target, 0, 0, imagecolorallocatealpha($target, 0, 0, 0, 127));
+            imagecopyresampled($target, $image, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+            $temporary = $directory . '/' . hash('sha256', $file . microtime(true)) . '.tmp';
+            $written = $extension === 'webp' ? imagewebp($target, $temporary, 72) : imagejpeg($target, $temporary, 76);
+            imagedestroy($target);
+            if (!$written || !is_file($temporary) || !rename($temporary, $file)) { @unlink($temporary); calendar_fail('thumbnail_cache_unavailable', 503); }
+        } finally { imagedestroy($image); }
+        $files = array_values(array_filter(glob($directory . '/*.' . $extension) ?: [], static fn(string $entry): bool => !is_link($entry)));
+        usort($files, static fn(string $left, string $right): int => filemtime($right) <=> filemtime($left));
+        foreach (array_slice($files, 256) as $expired) @unlink($expired);
+        return [$file, $extension === 'webp' ? 'image/webp' : 'image/jpeg'];
+    } finally { flock($lock, LOCK_UN); fclose($lock); }
+}
+
+function calendar_public_icon_thumbnail_response(string $method, string $path): void {
+    if ($path !== '/v1/calendar-demo/icon-thumbnail') return;
+    if (!in_array($method, ['GET', 'HEAD'], true)) calendar_fail('method_not_allowed', 405);
+    if (!calendar_public_icon_thumbnail_request_allowed()) calendar_fail('demo_page_required', 403, 'Откройте страницу календаря на сайте Календарной мастерской.');
+    if (array_diff(array_keys($_GET), ['source'])) calendar_fail('invalid_parameter', 400, 'Unexpected query parameter.');
+    $source = calendar_public_icon_thumbnail_source($_GET['source'] ?? null);
+    if ($source === null) calendar_fail('invalid_parameter', 400, 'Invalid icon source.');
+    [$file, $type] = calendar_public_icon_thumbnail_file($source);
+    $size = filesize($file);
+    if ($size === false) calendar_fail('thumbnail_cache_unavailable', 503);
+    header('Content-Type: ' . $type); header('Content-Length: ' . $size); header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: private, max-age=604800'); header('Vary: Referer, Sec-Fetch-Site');
+    if ($method !== 'HEAD') readfile($file);
+    exit;
+}
+
 function calendar_public_routes(string $method, string $path): void {
+    calendar_public_icon_thumbnail_response($method, $path);
     $demoActions = [
         '/v1/calendar-demo/day' => '/v1/calendar/day',
         '/v1/calendar-demo/month' => '/v1/calendar/month',

@@ -16,6 +16,15 @@ $mock=function($pre,$args,$url)use($path,$changed){return $url===Orthocal_Media_
 add_filter('pre_http_request',$mock,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$mock,99);
 $after=Orthocal_Media_Cache::metadata($path);oc_assert($after['file']!==$before['file'],'Changed bytes must change browser URL');
 oc_assert(is_file(Orthocal_Media_Cache::directory()['path'].'/'.$before['file']),'Open pages retain old file');
+$rasterSource='https://bible-desktop.com/api/calendar/icons/1/images/1';
+if(function_exists('imagecreatetruecolor')&&function_exists('imagepng')&&function_exists('getimagesize')) {
+    $rasterName=str_repeat('a',64).'.png';$rasterFile=Orthocal_Media_Cache::directory()['path'].'/'.$rasterName;
+    $raster=imagecreatetruecolor(240,160);imagefill($raster,0,0,imagecolorallocate($raster,150,80,40));imagepng($raster,$rasterFile);imagedestroy($raster);
+    update_option('orthocal_media_'.hash('sha256',$rasterSource),['source'=>$rasterSource,'file'=>$rasterName,'checked'=>time(),'retry'=>0],false);
+    $thumbnail=Orthocal_Media_Cache::thumbnail_url($rasterSource);$thumbnailFile=Orthocal_Media_Cache::directory()['path'].'/'.basename((string)parse_url($thumbnail,PHP_URL_PATH));$dimensions=getimagesize($thumbnailFile);
+    oc_assert($thumbnail!==Orthocal_Media_Cache::cached_url($rasterSource),'Raster thumbnail must not reuse the original');
+    oc_assert($dimensions[0]<=96&&$dimensions[1]<=96,'Thumbnail exceeds 96 pixels');
+}
 $fail=function($pre,$args,$url)use($path){return $url===Orthocal_Media_Cache::ORIGIN.$path?new WP_Error('offline','Offline'):$pre;};
 add_filter('pre_http_request',$fail,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$fail,99);
 oc_assert(Orthocal_Media_Cache::metadata($path)['file']===$after['file'],'Failure preserves working copy');

@@ -148,12 +148,14 @@ dialog::backdrop { background: #18291e88; }
 .icon-modal-figure { grid-column: 2; margin: 0; text-align: center; }
 .icon-modal-figure img { display: block; width: auto; max-width: min(82vw, 1040px); height: min(76vh, 860px); margin: 0 auto; object-fit: contain; }
 .icon-modal-figure img[hidden] { display: none !important; }
+.icon-summary-dialog { min-height: 0; }
+.icon-summary-dialog .icon-modal-figure { max-width: 780px; }
 .icon-modal-figure figcaption { margin-top: 12px; font: 400 22px/1.2 Georgia, serif; }
 .icon-modal-figure figcaption.slavonic-title, .icon-card figcaption.slavonic-title { font-family: "Calendar API Slavonic", Georgia, serif; }
 .icon-modal-description { max-width: 700px; margin: 16px auto; padding: 18px; border: 1px solid var(--line); border-radius: 11px; background: #fbfaf5; color: #52655c; line-height: 1.6; text-align: left; white-space: pre-line; }
 .icon-modal-thumbnails { display: flex; max-width: min(82vw, 780px); gap: 6px; margin: 12px auto; padding: 3px; overflow-x: auto; scrollbar-width: thin; }
 .icon-modal-thumbnail { flex: 0 0 48px; width: 48px; height: 60px; padding: 2px; border: 1px solid var(--line); border-radius: 5px; background: #fff; cursor: pointer; }
-.icon-modal-thumbnail img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.icon-modal-thumbnail img { display: block !important; width: 100% !important; max-width: none !important; height: 100% !important; max-height: none !important; margin: 0 !important; object-fit: cover; }
 .icon-modal-thumbnail.active, .icon-modal-thumbnail:hover, .icon-modal-thumbnail:focus-visible { border-color: var(--gold); box-shadow: 0 0 0 2px #c7a76166; outline: 0; }
 .icon-modal-figure .hint { margin: 5px 0 0; }
 .icon-nav { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--ink); font-size: 25px; line-height: 1; cursor: pointer; }
