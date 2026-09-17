@@ -18,6 +18,7 @@ const port = probe.address().port;
 await new Promise(resolve => probe.close(resolve));
 const origin = `http://127.0.0.1:${port}`;
 const base = `${origin}/api/v1/calendar`;
+const wordpressHeaders={'X-Calendar-Client':'orthocal-wordpress'};
 let logs = '';
 const server = spawn('php', ['-S', `127.0.0.1:${port}`, '-t', resolve('dist'), 'scripts/php-dev-router.php'], {
   windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'],
@@ -58,8 +59,14 @@ try {
   assert.equal(demoYear.status,200);assert.equal((await demoYear.json()).days.length,365);
   assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:demoHeaders})).status,401);
   console.log('PASS hosted demo: origin/page checks, no key or quota, day/month scope, normal API still protected');
+  for (const path of ['/day?date=2027-05-02','/month?year=2027&month=5','/year?year=2027','/pascha?year=2027','/upcoming?date=2027-01-01&limit=5']) {
+    const response=await fetch(base+path,{headers:wordpressHeaders});assert.equal(response.status,200,path);await response.arrayBuffer();
+  }
+  assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:{'X-Calendar-Client':'other-client'}})).status,401);
+  console.log('PASS public WordPress client: day, month, year, Pascha and upcoming without API key');
   const textsBase=origin+'/api/v1/calendar-texts/';
   assert.equal((await fetch(textsBase)).status,401);
+  assert.equal((await fetch(textsBase,{headers:wordpressHeaders})).status,401,'WordPress public mode must not expose calendar-texts');
   const textRequest=(suffix='',options={})=>fetch(textsBase+suffix,{...options,headers:{'X-API-Key':systemKey,...options.headers}});
   const libraryResponse=await textRequest();const library=await libraryResponse.json();
   assert.equal(libraryResponse.status,200);assert.equal(library.count,98);
@@ -76,6 +83,7 @@ try {
   console.log('PASS liturgical reference API: 98 texts, filters, auth, conditional cache, no automatic date assignment');
   const serviceBase=base+'/service';
   assert.equal((await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour')).status,401);
+  assert.equal((await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour',{headers:wordpressHeaders})).status,401,'WordPress public mode must not expose service');
   const demoService=await fetch(origin+'/api/v1/calendar-demo/service?date=2027-06-06&office=sixth-hour&lang=cu',{method:'POST',headers:{...demoHeaders,Referer:origin+'/web-calendar'}});
   assert.equal(demoService.status,200);assert.equal((await demoService.json()).date,'2027-06-06');
   assert.equal((await fetch(origin+'/api/v1/calendar-demo/service?date=2027-06-06',{method:'POST',headers:demoHeaders})).status,403);
@@ -107,9 +115,11 @@ try {
   assert.equal(metadata.response.headers.get('access-control-allow-credentials'), null);
   assert.equal(metadata.response.headers.get('set-cookie'), null);
   assert.deepEqual(metadata.body.yearRange, { min: 1900, max: 2200 });
+  assert.deepEqual(metadata.body.authentication.wordpressClient.endpoints,['/day','/month','/year','/pascha','/upcoming']);
   const options = await fetch(base + '/day', { method: 'OPTIONS', headers: { Origin: 'null', 'Access-Control-Request-Method': 'GET' } });
   assert.equal(options.status, 204);
   assert.equal(options.headers.get('access-control-allow-origin'), '*');
+  assert.match(options.headers.get('access-control-allow-headers'),/X-Calendar-Client/i);
   assert.equal((await request('/day', {method:'POST'})).response.status, 405);
   for (const path of ['/day?date=2027-02-29', '/day?date=2027-13-01', '/day?date[]=2027-05-02',
     '/year?year=../2027', '/year?year=1899', '/year?year=2201', '/month?year=2027&month=13',
@@ -161,7 +171,10 @@ try {
   assert.equal(strict.body.day.fasting.foodRule.id, 'dry-eating');
   assert.equal(parish.body.day.fasting.foodRule.id, 'oil');
   assert.notEqual(strict.body.metadata.fastingProfileId, parish.body.metadata.fastingProfileId);
-  assert.ok(readdirSync(data).every(file => ['public-calendar-cache','api-access.json','locks'].includes(file)), 'Public API must not create account or project storage');
+  const wordpressRateHeaders={...wordpressHeaders,'X-Forwarded-For':'198.51.100.61'};
+  for(let i=0;i<90;i++){const response=await fetch(base+'/pascha?year=2027',{headers:wordpressRateHeaders});assert.equal(response.status,200);await response.arrayBuffer();}
+  const limited=await fetch(base+'/pascha?year=2027',{headers:wordpressRateHeaders});assert.equal(limited.status,429);await limited.arrayBuffer();assert.ok(Number(limited.headers.get('retry-after'))>0);
+  assert.ok(readdirSync(data).every(file => ['public-calendar-cache','api-access.json','calendar-wordpress-public-rate-limits.json','locks'].includes(file)), 'Public API must not create account or project storage');
   for (const [path,method] of [['','GET'],['','PUT'],['/clients','POST'],['/clients/00000000-0000-4000-8000-000000000000/rotate','POST']]) {
     const denied=await fetch(origin+'/api/v1/admin/calendar-api'+path,{method,headers:{'Content-Type':'application/json','X-API-Key':systemKey},...(method==='GET'?{}:{body:'{}'})});
     assert.equal(denied.status,403);assert.equal(denied.headers.get('cache-control'),'private, no-store');
@@ -169,7 +182,7 @@ try {
   const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});
   assert.equal(privateSession.headers.get('access-control-allow-origin'),null,'Private routes must not inherit public CORS');
   assert.ok(readdirSync(resolve(data,'public-calendar-cache')).filter(file=>file.endsWith('.json')).length <= 32);
-  console.log('PASS: real PHP/Node HTTP API, all endpoints, dates, profiles, five languages, CORS, cache/ETag/HEAD and public-data isolation');
+  console.log('PASS: real PHP/Node HTTP API, public WordPress client limits, all endpoints, dates, profiles, five languages, CORS, cache/ETag/HEAD and public-data isolation');
 
   browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
   const page = await browser.newPage({ viewport:{width:1200,height:1000} });

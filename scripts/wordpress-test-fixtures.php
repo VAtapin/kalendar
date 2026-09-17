@@ -61,6 +61,8 @@ add_filter('pre_http_request', function($pre,$args,$url) {
     $path=parse_url($url,PHP_URL_PATH);parse_str(parse_url($url,PHP_URL_QUERY)??'',$q);
     $status=200;
     if ($calendar) {
+        if(($args['headers']['X-Calendar-Client']??'')!=='orthocal-wordpress')throw new Exception('Calendar request lacks public WordPress client identifier');
+        if(isset($args['headers']['X-API-Key']))throw new Exception('Public WordPress test unexpectedly sent an API key');
         $year=json_decode(file_get_contents(WP_CONTENT_DIR.'/calendar-fixture.json'),true);
         $action=basename($path);
         if ($action==='day'||$action==='today') {

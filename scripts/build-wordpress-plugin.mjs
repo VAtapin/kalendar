@@ -6,6 +6,7 @@ import {readWordPressPluginVersion} from './wordpress-plugin-version.mjs';
 const root=resolve('wordpress/orthocal');
 const version=readWordPressPluginVersion(resolve('.'));
 const archive=`orthocal-${version}.zip`;
+const php=process.env.ORTHOCAL_PHP_BINARY || (process.platform==='win32' ? null : 'php');
 const titles={today:'Сегодня',upcoming:'Ближайшие праздники',month:'Календарь на месяц',year:'Календарь на год',day:'День календаря',readings:'Чтения дня',calendar:'Православный календарь',fasting:'Пост и трапеза',saints:'Памяти святых',feasts:'Праздники',memorial:'Поминальные дни',pascha:'Пасха',fasts:'Посты на год',date:'Дата по двум стилям',texts:'Богослужебные тексты',troparia:'Тропари',kontakia:'Кондаки',prayers:'Молитвы',magnifications:'Величания',horologion:'Часослов',akathists:'Акафисты',canons:'Каноны'};
 for(const [mode,title] of Object.entries(titles)) {
   const directory=resolve(root,'blocks',mode);mkdirSync(directory,{recursive:true});
@@ -16,7 +17,8 @@ for(const [mode,title] of Object.entries(titles)) {
     supports:{html:false},editorScript:'orthocal-editor',style:'orthocal',viewScript:'orthocal',
   },null,2)+'\n');
 }
-for(const file of ['orthocal.php',...readdirSync(resolve(root,'includes')).filter(f=>f.endsWith('.php')).map(f=>'includes/'+f)]) execFileSync('php',['-l',resolve(root,file)],{stdio:'inherit'});
+if (php) for(const file of ['orthocal.php',...readdirSync(resolve(root,'includes')).filter(f=>f.endsWith('.php')).map(f=>'includes/'+f)]) execFileSync(php,['-l',resolve(root,file)],{stdio:'inherit'});
+else console.warn('PHP lint skipped on Windows; set ORTHOCAL_PHP_BINARY to a working PHP executable to enable it.');
 for(const file of readdirSync(resolve(root,'assets')).filter(f=>f.endsWith('.js'))) execFileSync(process.execPath,['--check',resolve(root,'assets',file)],{stdio:'inherit'});
 mkdirSync('artifacts',{recursive:true});
 // Static paths; no shell interpolation of source or user content.

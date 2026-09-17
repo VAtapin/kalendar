@@ -26,6 +26,38 @@ function calendar_public_parameter(string $key, string $default = ''): string {
     return $value;
 }
 
+/**
+ * The official WordPress plugin identifies itself with a public, non-secret
+ * value. It never grants privileged access: requests remain constrained by
+ * the route allowlist and this per-server-IP rate limit.
+ */
+function calendar_public_wordpress_client(): bool {
+    return hash_equals('orthocal-wordpress', api_header('X-Calendar-Client'));
+}
+
+function calendar_public_wordpress_rate_limit(): void {
+    $directory=calendar_config_value('CALENDAR_DATA_DIR',calendar_project_root().'/storage');
+    if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
+        calendar_fail('calendar_rate_limit_storage', 503, 'Calendar rate-limit storage is unavailable.');
+    }
+    $now=time();$addressHash=hash('sha256',api_client_address());
+    calendar_with_lock($directory.'/locks','calendar-wordpress-public-rate-limit',function()use($directory,$now,$addressHash):void{
+        $path=$directory.'/calendar-wordpress-public-rate-limits.json';
+        $state=calendar_read_json_file($path,[]);if(!is_array($state))$state=[];
+        $minute=gmdate('Y-m-d\\TH:i',$now);$day=gmdate('Y-m-d',$now);
+        $entry=is_array($state[$addressHash]??null)?$state[$addressHash]:[];
+        if(($entry['minute']['bucket']??null)!==$minute)$entry['minute']=['bucket'=>$minute,'count'=>0];
+        if(($entry['day']['bucket']??null)!==$day)$entry['day']=['bucket'=>$day,'count'=>0];
+        $minuteCount=(int)($entry['minute']['count']??0);$dayCount=(int)($entry['day']['count']??0);
+        if($minuteCount>=90){header('Retry-After: '.(60-$now%60));calendar_fail('wordpress_client_minute_limit',429,'Лимит запросов WordPress-плагина исчерпан.');}
+        if($dayCount>=5000){header('Retry-After: '.(86400-$now%86400));calendar_fail('wordpress_client_day_limit',429,'Суточный лимит запросов WordPress-плагина исчерпан.');}
+        $entry['minute']['count']=$minuteCount+1;$entry['day']['count']=$dayCount+1;$state[$addressHash]=$entry;
+        // Do not retain old IP hashes indefinitely.
+        foreach($state as $hash=>$candidate)if(($candidate['day']['bucket']??'')!==$day)unset($state[$hash]);
+        calendar_atomic_json_write($path,$state);
+    });
+}
+
 function calendar_public_runtime_version(string $directory): string {
     $hash = hash_init('sha256');
     foreach ([$directory . '/calendar-runtime.mjs', dirname($directory) . '/data/MemoryDays.xml', dirname($directory) . '/data/church-slavonic/catalogue.json'] as $file) {
@@ -242,7 +274,7 @@ function calendar_public_routes(string $method, string $path): void {
     if (!$demo) {
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
-        header('Access-Control-Allow-Headers: Accept, If-None-Match, X-API-Key, Authorization');
+        header('Access-Control-Allow-Headers: Accept, If-None-Match, X-API-Key, X-Calendar-Client, Authorization');
         header('Access-Control-Expose-Headers: ETag, Retry-After, X-API-Month-Limit, X-API-Month-Remaining');
         header('Allow: GET, HEAD, OPTIONS');
         if ($method === 'OPTIONS') { http_response_code(204); exit; }
@@ -269,7 +301,9 @@ function calendar_public_routes(string $method, string $path): void {
         'yearRange' => ['min' => 1900, 'max' => 2200], 'dateSystem' => 'Gregorian civil date; oldStyleDate is Julian',
         'languages' => ['ru', 'cu', 'de', 'uk', 'pl'], 'defaultLanguage' => 'ru',
         'profiles' => ['typikon-strict', 'parish'], 'defaultProfile' => 'typikon-strict',
-        'authentication' => ['header' => 'X-API-Key', 'public' => ['/', '/today'], 'todayTimezone' => 'Europe/Berlin'],
+        'authentication' => ['header' => 'X-API-Key', 'public' => ['/', '/today'],
+            'wordpressClient' => ['header'=>'X-Calendar-Client','value'=>'orthocal-wordpress','endpoints'=>['/day','/month','/year','/pascha','/upcoming'],'rateLimits'=>['perMinute'=>90,'perDay'=>5000]],
+            'todayTimezone' => 'Europe/Berlin'],
         'endpoints' => ['today', 'day?date=2027-05-02', 'month?year=2027&month=5', 'year?year=2027', 'pascha?year=2027', 'upcoming?date=2027-01-01&limit=5', 'service?date=2027-05-02&office=sixth-hour'],
         'applicationCache' => ['maxAgeSeconds' => 300, 'staleOnError' => false, 'revocationDelaySeconds' => 300],
         'optionalParameters' => ['lang', 'profile'], 'iconImagesAvailable' => true,
@@ -295,10 +329,15 @@ function calendar_public_routes(string $method, string $path): void {
     if ($protected && !$demo) {
         $key = api_header('X-API-Key');
         if ($key === '') $key = api_bearer_token();
-        $access = (new CalendarApiAccessStore())->authorize($key);
-        if ($access['monthLimit'] !== null) {
-            header('X-API-Month-Limit: ' . $access['monthLimit']);
-            header('X-API-Month-Remaining: ' . $access['monthRemaining']);
+        if($key==='') {
+            if(!calendar_public_wordpress_client()) calendar_fail('api_key_required',401,'Передайте API-ключ или идентификатор официального WordPress-плагина.');
+            calendar_public_wordpress_rate_limit();
+        } else {
+            $access = (new CalendarApiAccessStore())->authorize($key);
+            if ($access['monthLimit'] !== null) {
+                header('X-API-Month-Limit: ' . $access['monthLimit']);
+                header('X-API-Month-Remaining: ' . $access['monthRemaining']);
+            }
         }
     }
     $value = calendar_public_year($manifest, $runtimeDirectory, $year, $profile, $language);

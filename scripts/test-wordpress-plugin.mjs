@@ -7,11 +7,12 @@ import {chromium} from 'playwright';
 import {testDisplayOptions} from './test-wordpress-display-options.mjs';
 const screenshotRoot=resolve(process.env.ORTHOCAL_TEST_ARTIFACTS||'artifacts');
 mkdirSync(screenshotRoot,{recursive:true});
+const pluginSource=resolve(process.env.ORTHOCAL_PLUGIN_SOURCE||'wordpress/orthocal');
 
 // Disposable real WordPress + official SQLite drop-in. No production credentials.
 const site=resolve('tmp/orthocal-wp/wordpress');
 assert.ok(existsSync(site+'/wp-load.php'),'Download WordPress and SQLite Database Integration into tmp/orthocal-wp first (see docs/WORDPRESS-PLUGIN.md).');
-cpSync(resolve('wordpress/orthocal'),site+'/wp-content/plugins/orthocal',{recursive:true});
+cpSync(pluginSource,site+'/wp-content/plugins/orthocal',{recursive:true});
 cpSync(site+'/wp-content/plugins/sqlite-database-integration/db.copy',site+'/wp-content/db.php');
 mkdirSync(site+'/wp-content/mu-plugins',{recursive:true});
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
@@ -30,7 +31,7 @@ cpSync(resolve('scripts/wordpress-test-fixtures.php'),site+'/wp-content/mu-plugi
 writeFileSync(site+'/install-test.php',`<?php
 define('WP_INSTALLING',true); require __DIR__.'/wp-load.php'; require_once ABSPATH.'wp-admin/includes/upgrade.php';
 if(!is_blog_installed()) wp_install('Календарная мастерская','tester','tester@example.invalid',false,'','local-test-only-7391');
-update_option('timezone_string','Europe/Berlin'); update_option('orthocal_options',['key'=>'local-test-secret','lang'=>'ru']);
+update_option('timezone_string','Europe/Berlin'); update_option('orthocal_options',['key'=>'','lang'=>'ru']);
 update_option('active_plugins',['orthocal/orthocal.php']); update_option('permalink_structure','');
 update_option('orthocal_cache_generation',wp_generate_uuid4());
 $old=get_page_by_path('calendar-demo');
