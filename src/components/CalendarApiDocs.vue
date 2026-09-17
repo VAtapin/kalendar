@@ -5,8 +5,7 @@ import {interfaceLanguage,INTERFACE_LANGUAGE_OPTIONS} from '../i18n/interface-la
 type Plan={id:string;name:string;priceCents:number;currency:string;perMinute:number;perDay:number;perMonth:number};
 const plans=ref<Plan[]>([]),contact=ref(''),wordpressUrl=ref(''),error=ref(''),loading=ref(true);
 const wordpressPluginDownload='https://github.com/VAtapin/wp_orthodox_calendar/releases/latest/download/orthocal.zip';
-const translatorPluginRelease='https://github.com/VAtapin/wp_cu_translator/releases/tag/1.0.0';
-const translatorPluginRepository='https://github.com/VAtapin/wp_cu_translator';
+const translatorPluginDownload='https://github.com/VAtapin/wp_cu_translator/releases/latest/download/church-slavonic-translator.zip';
 const base='https://kalender.georg-kloster.ru/api/v1/calendar/';
 const example=`curl '${base}day?date=2027-05-02&lang=ru&profile=typikon-strict' \\\n  -H 'X-API-Key: YOUR_API_KEY'`;
 const wordpressExample=`curl '${base}day?date=2027-05-02&lang=ru&profile=typikon-strict' -H 'X-Calendar-Client: orthocal-wordpress'`;
@@ -45,8 +44,8 @@ onMounted(async()=>{try{const r=await fetch('/api/v1/calendar-access/plans',{cre
   <p><strong>Church Slavonic Translator</strong> добавляет на сайт форму перевода русского и немецкого текста на традиционный церковнославянский язык через шорткод <code data-no-translate>[wp_cu_translator]</code>. Интерфейс, настройки и описание плагина доступны на русском, немецком и английском языках.</p>
   <p>Библейские ссылки и уверенно распознанные цитаты возвращаются из проверенного корпуса Bible Desktop, а повторные переводы — из серверного кэша. Для остальных текстов используется ИИ с полной церковнославянской Unicode-орфографией, ударениями, титлами и придыханиями. Результат можно скопировать обычным текстом или с форматированием для Word; рядом доступен шрифт Monomakh Unicode.</p>
   <p>Бесплатный режим работает сразу после активации и не требует регистрации или API-ключа. Необязательный ключ Bible Desktop включает повышенные лимиты и хранится только на сервере WordPress.</p>
-  <div class="plugin-actions"><a class="download" :href="translatorPluginRelease" target="_blank" rel="noopener noreferrer">Открыть GitHub Release 1.0.0 ↗</a><a :href="translatorPluginRepository" target="_blank" rel="noopener noreferrer">Исходный код на GitHub ↗</a></div>
-  <p>Требования: WordPress 6.3+, PHP 8.0+. Репозиторий и релиз публикуются отдельно от календарного плагина; автоматическая публикация в каталоге WordPress.org пока не включена.</p></section>
+  <div class="plugin-actions"><a class="download" :href="translatorPluginDownload">Скачать последнюю версию WordPress-плагина</a></div>
+  <p>Требования: WordPress 6.3+, PHP 8.0+. Установите ZIP через «Плагины → Добавить → Загрузить плагин» и активируйте его. Релиз публикуется отдельно от календарного плагина; автоматическая публикация в каталоге WordPress.org пока не включена.</p></section>
   <p v-if="wordpressUrl"><a :href="wordpressUrl" target="_blank" rel="noopener noreferrer">Дополнительная страница WordPress-плагина ↗</a></p>
 </main></template>
 <style scoped>
