@@ -41,6 +41,7 @@
 - Церковнославянская редакция `cu-civil` является отдельным вариантом отображения и не должна получать традиционный шрифт.
 - `cu` и `cu-civil` — отдельные языковые версии; подстановка одной вместо другой и преобразование текста недопустимы.
 - Обычный WordPress-плагин работает без регистрации и ключа: он передаёт открытый `X-Calendar-Client: orthocal-wordpress`. API разрешает этому режиму только `/day`, `/month`, `/year`, `/pascha` и `/upcoming`, проверяет параметры и диапазон 1900–2200, применяет серверный кэш и лимиты 90 запросов в минуту / 5000 в сутки на IP WordPress-сервера. Заголовок не является учётными данными; `/service` и `/calendar-texts` по-прежнему требуют API-ключ.
+- Страница `/calendar-api` синхронизирована с моделью плагина: установка работает без ключа, открытый заголовок объяснён как не-секретный идентификатор с ограниченным allowlist, а API-ключ описан только как необязательный расширенный доступ.
 
 ## Известные проблемы
 
@@ -93,5 +94,6 @@
 - Для настройки месячных ячеек прошли `node --check public/calendar-ui/web-calendar.js`, `node --check scripts/test-web-calendar.mjs`, `scripts/test-web-calendar.mjs` и `git diff --check`. Браузерный тест проверил выбор лимита, три памяти по умолчанию, отметку текущего дня и отсутствие служебного статуса.
 - Для WordPress-плагина 1.3.59 прошли `node --check`, полный WordPress/SQLite + Edge сценарий, PHP lint и сборка ZIP через `--publish-downloads`; сценарий подтверждает единое окно, верхнюю ленту изображений образа, навигацию только внутри него и нижний выбор остальных образов дня.
 - Для 1.3.61 прошли PHP lint, проверка MO-файлов WordPress, `node --check`, браузерный тест перехвата lightbox и полный WordPress/SQLite + Edge сценарий. Отдельный тест публичного WordPress-клиента подтвердил allowlist маршрутов, закрытые `/service` и `/calendar-texts` и лимит запросов. Полный тест календарного HTTP API по-прежнему зависит от доступности внешнего Bible Desktop и ранее останавливался на его HTTP 503.
+- Для синхронизации `/calendar-api` прошли `npm run typecheck`, браузерный `scripts/test-calendar-api-docs.mjs`, мобильная ширина и проверка `git diff --check`. Полная production-сборка этой сессии не запускается из-за ошибки среды Node `uv_os_get_passwd: ENOMEM`; исходная страница проверена через Vite dev-сервер.
 
-Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `25df699 Fix calendar icon ranking`, `e1bebb6 Refine icon gallery captions`, `c159f5c Queue icon media loading`, `7a841b8 Refine nested icon gallery previews`, `1c3a83a Keep web icon navigation within image`, `bed97db Unify WordPress icon gallery`; публичный репозиторий плагина `4b60cb6 Release 1.3.60`, `22310f6 Publish release ZIP assets`, `0832ff8 Guard WordPress.org deployment by slug`; тег `1.3.60`.
+Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `bed97db Unify WordPress icon gallery`, `c92c7c3 Enable keyless WordPress calendar access`; публичный репозиторий плагина `9e83b5b Release 1.3.61`; тег `1.3.61`.

@@ -6,7 +6,7 @@ import {chromium} from 'playwright';
 const wordpressPluginDownload='https://github.com/VAtapin/wp_orthodox_calendar/releases/latest/download/orthocal.zip';
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin=`http://127.0.0.1:${port}`;
-const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','preview','--host','127.0.0.1','--port',String(port),'--strictPort'],{windowsHide:true,stdio:'ignore'});
+const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port',String(port),'--strictPort'],{windowsHide:true,stdio:'ignore'});
 let browser;
 try {
   for(let i=0;i<60;i++){try{if((await fetch(origin)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
@@ -21,6 +21,8 @@ try {
   assert.equal(await page.getByRole('link',{name:'Запросить API-ключ'}).getAttribute('href'),'mailto:test@example.invalid');
   const pluginLink=page.getByRole('link',{name:'Скачать последнюю версию WordPress-плагина'});
   assert.equal(await pluginLink.getAttribute('href'),wordpressPluginDownload);
+  assert.match(await page.locator('#wordpress').textContent(),/работает сразу, без регистрации и API-ключа/);
+  assert.match(await page.locator('#connection').textContent(),/X-Calendar-Client: orthocal-wordpress/);
   const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('X-API-Key'));assert.ok(guideText.includes(wordpressPluginDownload));
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
   mkdirSync('artifacts',{recursive:true});await page.screenshot({path:'artifacts/calendar-api-docs-desktop.png',fullPage:true});
