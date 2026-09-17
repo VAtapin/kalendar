@@ -1,7 +1,7 @@
 # Календарный HTTP API v1
 
 Публичная документация: `/calendar-api`, кнопка «API календаря» на главной.
-Установочный WordPress-плагин: `/downloads/orthocal-1.3.52.zip`.
+Установочный WordPress-плагин: `https://github.com/VAtapin/wp_orthodox_calendar/releases/latest/download/orthocal.zip`.
 Тарифы и выдача ключей: раздел «API календаря» в админке. На сайте отображаются
 только включённые и опубликованные тарифы; цены не означают автоматической оплаты.
 
