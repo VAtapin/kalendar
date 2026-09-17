@@ -62,7 +62,9 @@ $iconConfig=Orthocal_Plugin::config(['mode'=>'day','date'=>'2027-05-02','icon_li
 $iconDay=Orthocal_Plugin::data($iconConfig)['day'];
 foreach(['1'=>1,'3'=>3,'all'=>3] as $limit=>$expected){$iconConfig['icon_limit']=$limit;$iconHtml=Orthocal_Plugin::day($iconDay,$iconConfig);preg_match_all('/\\bdata-oc-icon(?:\\s|=)/',$iconHtml,$matches);$count=count($matches[0]);if($count!==$expected)throw new Exception('Icon limit/order failed for '.$limit.': '.$count);}
 $allIcons=Orthocal_Plugin::day($iconDay,$iconConfig);if(!str_contains($allIcons,'data-oc-day-icon-gallery=')||!str_contains($allIcons,'Описание первого образа')||!str_contains($allIcons,'Описание третьего образа'))throw new Exception('Full-day icon gallery data missing');
-if(!str_contains($allIcons,'Празднование: 2 мая'))throw new Exception('Published icon dates missing');
+if(!str_contains($allIcons,'2 мая'))throw new Exception('Published icon dates missing');
+if(!preg_match('/oc-icon-image-count[^>]*>2<\\/span>/',$allIcons))throw new Exception('Icon image count missing');
+if(Orthocal_Plugin::icon_dates_label(['dates'=>[['label'=>'7 февраля (переходящая) - Собор новомучеников и исповедников']]])!=='7 февраля (пер.)')throw new Exception('Icon date label is not compact');
 $uncachedIcon=Orthocal_Plugin::hero_icon(['alt'=>'Икона без локального кэша','images'=>['https://bible-desktop.com/api/calendar/icons/1/images/1']],0);if(!str_contains($uncachedIcon,'data-oc-icon-cover'))throw new Exception('Cache-miss cover cannot be loaded locally');
 $attrs=Orthocal_Plugin::config(['theme'=>'','compact'=>'']); if(is_wp_error($attrs)) throw new Exception('Empty Gutenberg defaults');
 echo 'PASS WordPress registration, server rendering, validation, escaping and key isolation';

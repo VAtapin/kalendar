@@ -355,8 +355,9 @@ function iconImages(icon) {
 function iconDateText(icon) {
   const labels = (Array.isArray(icon?.dates) ? icon.dates : [])
     .map(date => typeof date?.label === 'string' ? date.label.trim() : '')
-    .filter(Boolean);
-  return labels.length ? `${ui('Празднование:')} ${labels.join('; ')}` : ui('Даты празднования не указаны источником.');
+    .filter(Boolean)
+    .map(label => label.replace(/\s+[-—]\s+.*/u, '').replace(/\s*\(переходящая\)/iu, ' (пер.)'));
+  return labels.join('; ');
 }
 
 function iconGalleryItems(icon) {
@@ -387,6 +388,7 @@ function iconSection(icons) {
       image.loading = 'lazy';
       button.append(image);
     }
+    button.append(e('span', String(iconImages(icon).length), 'icon-image-count'));
     const caption = e('figcaption', '', isCyrillicText(title) ? 'slavonic-title' : '');
     caption.append(e('span', title), e('span', iconDateText(icon), 'icon-dates'));
     card.append(button, caption);
@@ -413,6 +415,7 @@ function renderIconLightbox() {
   $('icon-modal-description').hidden = !isDescription;
   $('icon-modal-description').textContent = isDescription ? item.description : '';
   $('icon-modal-dates').textContent = item.dates;
+  $('icon-modal-dates').hidden = !item.dates;
   if (!isDescription) {
     $('icon-large').src = item.url;
     $('icon-large').alt = item.title;

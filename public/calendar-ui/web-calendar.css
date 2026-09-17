@@ -98,9 +98,10 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 .event-card small { color: var(--muted); }
 .icon-grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
 .icon-card { width: 112px; margin: 0; }
-.icon-thumbnail { display: block; width: 112px; height: 132px; padding: 4px; border: 1px solid var(--line); border-radius: 9px; background: #fbfaf5; cursor: zoom-in; }
+.icon-thumbnail { position: relative; display: block; width: 112px; height: 132px; padding: 4px; border: 1px solid var(--line); border-radius: 9px; background: #fbfaf5; cursor: zoom-in; }
 .icon-thumbnail:hover, .icon-thumbnail:focus-visible { border-color: var(--gold); box-shadow: 0 0 0 3px #c7a76133; }
 .icon-thumbnail img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.icon-image-count { position: absolute; right: 7px; bottom: 7px; min-width: 20px; padding: 1px 5px; border-radius: 999px; background: #17291f; color: #fff; font: 700 12px/18px system-ui, sans-serif; }
 .icon-card figcaption { margin-top: 6px; color: var(--ink); font-size: 12px; line-height: 1.3; }
 .icon-dates { display: block; margin: 5px 0 0; color: var(--muted); font: 11px/1.35 system-ui, sans-serif; }
 .reading { padding: 9px 11px; border-radius: 8px; background: #f8f6ef; }

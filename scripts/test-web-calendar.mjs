@@ -7,7 +7,7 @@ try{
  let serviceAvailable=false, slowDetail=false;
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const NativeDate=Date,fixed=new NativeDate('2026-02-01T12:00:00Z');window.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[fixed.getTime()]));}static now(){return fixed.getTime();}};});
- const makeDay=date=>{const pascha=date.endsWith('-02-01'),title=pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай';return {date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:pascha?'поста нет':'пища с маслом',dayStyle:{rank:pascha?'pascha':'great-feast'},events:[{category:'commemoration',title,typeCode:pascha?0:2,typikonMark:{id:'great',label:'Великий праздник',svgSource:'/assets/typikon/great.svg'}},{category:'commemoration',title:'Святитель Спиридон',typeCode:6},{category:'commemoration',title:'Мученица Наталья',typeCode:6},{category:'commemoration',title:'Преподобный Сергий',typeCode:6}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',dates:[{label:'1 февраля'},{label:'9 мая'}],images:[{url:'https://bible-desktop.com/api/calendar/icons/1/images/2'},{url:'https://bible-desktop.com/api/calendar/icons/1/images/3'}]},{id:2,title:'Мученица Наталья Козлова',description:'Описание второй иконы',dates:[{label:'1 февраля'}],images:[{url:'https://bible-desktop.com/api/calendar/icons/2/images/4'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]};};
+ const makeDay=date=>{const pascha=date.endsWith('-02-01'),title=pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай';return {date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:pascha?'поста нет':'пища с маслом',dayStyle:{rank:pascha?'pascha':'great-feast'},events:[{category:'commemoration',title,typeCode:pascha?0:2,typikonMark:{id:'great',label:'Великий праздник',svgSource:'/assets/typikon/great.svg'}},{category:'commemoration',title:'Святитель Спиридон',typeCode:6},{category:'commemoration',title:'Мученица Наталья',typeCode:6},{category:'commemoration',title:'Преподобный Сергий',typeCode:6}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',dates:[{label:'1 февраля'},{label:'9 мая (переходящая) - Собор новомучеников'}],images:[{url:'https://bible-desktop.com/api/calendar/icons/1/images/2'},{url:'https://bible-desktop.com/api/calendar/icons/1/images/3'}]},{id:2,title:'Мученица Наталья Козлова',description:'Описание второй иконы',dates:[{label:'1 февраля'}],images:[{url:'https://bible-desktop.com/api/calendar/icons/2/images/4'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]};};
  await page.route('https://web.test/**',async route=>{
   const url=new URL(route.request().url());
   if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync('public'+url.pathname)});
@@ -55,16 +55,18 @@ try{
  const headings=await page.locator('#detail .section-card h3').allTextContents();
  assert.ok(headings.indexOf('Иконы дня')<headings.indexOf('Святые и праздники'));
  assert.equal(await page.locator('#detail .event-icon-link').count(),0);
- await page.locator('dialog#detail .icon-thumbnail').first().waitFor();
- assert.equal(await page.locator('#detail .icon-thumbnail img').count(),2);
- assert.match(await page.locator('#detail .icon-card').first().innerText(),/Празднование: 1 февраля; 9 мая/);
+  await page.locator('dialog#detail .icon-thumbnail').first().waitFor();
+  assert.equal(await page.locator('#detail .icon-thumbnail img').count(),2);
+  assert.equal(await page.locator('#detail .icon-image-count').first().innerText(),'2');
+  assert.match(await page.locator('#detail .icon-card').first().innerText(),/1 февраля; 9 мая \(пер\.\)/);
+  assert.doesNotMatch(await page.locator('#detail .icon-card').first().innerText(),/Собор новомучеников/);
  await page.locator('#detail .icon-thumbnail').first().click();
  await page.locator('#icon-lightbox[open]').waitFor();
  assert.equal(await page.locator('#icon-lightbox[open] #icon-large').count(),1);
  assert.equal(await page.locator('#icon-modal-counter').innerText(),'1 из 3');
  assert.equal(await page.locator('#icon-modal-description').innerText(),'Описание иконы');
  assert.equal(await page.locator('#icon-modal-description').isVisible(),true);
- assert.equal(await page.locator('#icon-modal-dates').innerText(),'Празднование: 1 февраля; 9 мая');
+ assert.equal(await page.locator('#icon-modal-dates').innerText(),'1 февраля; 9 мая (пер.)');
  assert.equal(await page.locator('#icon-large').isVisible(),false);
  await page.locator('#icon-next').click();
  assert.equal(await page.locator('#icon-modal-counter').innerText(),'2 из 3');
