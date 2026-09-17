@@ -22,6 +22,7 @@
 - Версия и имя ZIP на странице `/calendar-api` теперь подставляются на сборке из заголовка `wordpress/orthocal/orthocal.php`; сборщик плагина и проверка страницы используют тот же источник.
 - Стандартное серверное обновление Kalendar всегда выполняет `nodenv local 22`, `npm ci --include=dev` и `npm run build` после fast-forward pull; PHP CLI и общий Plesk PATH не добавляются.
 - Страница API календаря и её Markdown-инструкция ведут на постоянный адрес GitHub Release `releases/latest/download/orthocal.zip`; workflow репозитория плагина создаёт этот ZIP при теге версии. До первого тега ссылка ещё не отдаёт файл.
+- На странице `/calendar-api` добавлен отдельный раздел `Church Slavonic Translator`: бесплатный и ключевой режимы, корпусный и кэшированный перевод, копирование для Word, системные требования, ссылка на релиз `1.0.0` и репозиторий.
 - В плагине разделены русские тропари и кондаки, а список языков ограничивается доступными редакциями.
 - Общий рендерер полного произведения и справочного песнопения сохраняет раздельные языковые атрибуты `cu` и `cu-civil`; обе церковнославянские редакции используют Monomakh Unicode.
 - Подготовлен PowerShell-загрузчик немецких текстов Orthodoxia.de и импортный корпус из 19 страниц.
@@ -42,6 +43,7 @@
 - `cu` и `cu-civil` — отдельные языковые версии; подстановка одной вместо другой и преобразование текста недопустимы.
 - Обычный WordPress-плагин работает без регистрации и ключа: он передаёт открытый `X-Calendar-Client: orthocal-wordpress`. API разрешает этому режиму только `/day`, `/month`, `/year`, `/pascha` и `/upcoming`, проверяет параметры и диапазон 1900–2200, применяет серверный кэш и лимиты 90 запросов в минуту / 5000 в сутки на IP WordPress-сервера. Заголовок не является учётными данными; `/service` и `/calendar-texts` по-прежнему требуют API-ключ.
 - Страница `/calendar-api` синхронизирована с моделью плагина: установка работает без ключа, открытый заголовок объяснён как не-секретный идентификатор с ограниченным allowlist, а API-ключ описан только как необязательный расширенный доступ.
+- `Church Slavonic Translator` остаётся отдельным репозиторием `VAtapin/wp_cu_translator`; публикация релиза GitHub не включает отправку в WordPress.org.
 
 ## Известные проблемы
 
@@ -95,5 +97,6 @@
 - Для WordPress-плагина 1.3.59 прошли `node --check`, полный WordPress/SQLite + Edge сценарий, PHP lint и сборка ZIP через `--publish-downloads`; сценарий подтверждает единое окно, верхнюю ленту изображений образа, навигацию только внутри него и нижний выбор остальных образов дня.
 - Для 1.3.61 прошли PHP lint, проверка MO-файлов WordPress, `node --check`, браузерный тест перехвата lightbox и полный WordPress/SQLite + Edge сценарий. Отдельный тест публичного WordPress-клиента подтвердил allowlist маршрутов, закрытые `/service` и `/calendar-texts` и лимит запросов. Полный тест календарного HTTP API по-прежнему зависит от доступности внешнего Bible Desktop и ранее останавливался на его HTTP 503.
 - Для синхронизации `/calendar-api` прошли `npm run typecheck`, браузерный `scripts/test-calendar-api-docs.mjs`, мобильная ширина и проверка `git diff --check`. Полная production-сборка этой сессии не запускается из-за ошибки среды Node `uv_os_get_passwd: ENOMEM`; исходная страница проверена через Vite dev-сервер.
+- Для раздела `Church Slavonic Translator` на `/calendar-api` пройдены typecheck и браузерная проверка точных ссылок на релиз/репозиторий и мобильной ширины.
 
-Последние связанные commits: Bible Desktop `44db40a Normalize Pravmir UCS text`; Kalendar `c833bfb Align API page with WordPress plugin`; публичный репозиторий плагина `e6d8018 Release 1.3.62`; опубликованный тег пока `1.3.61`.
+Последние связанные commits: Bible Desktop `27caa7f Add free and authenticated translator access`; Kalendar `Add translator plugin to API page`; `Church Slavonic Translator` `426cd40 Prepare Church Slavonic Translator for WordPress.org`; календарный плагин `e6d8018 Release 1.3.62`.
