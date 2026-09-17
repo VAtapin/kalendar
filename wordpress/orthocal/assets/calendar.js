@@ -17,28 +17,45 @@
     dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
     dialog.showModal();return dialog;
   }
-  function iconPopup(icon,t) {
-    let images=[];
-    try { images=JSON.parse(icon.dataset.ocIconImages||'[]'); } catch { images=[]; }
-    images=[...new Set(images.filter(value=>typeof value==='string'&&value))];
-    const items=[{type:'description',text:icon.dataset.ocIconDescription||t('Описание иконы отсутствует.')}].concat(images.map(url=>({type:'image',url})));
+  function iconPopup(icon,t,endpoint) {
+    let icons=[];
+    try { icons=JSON.parse(icon.closest('.orthocal')?.querySelector('[data-oc-day-icon-gallery]')?.dataset.ocDayIconGallery||'[]'); } catch { icons=[]; }
+    if(!Array.isArray(icons)||!icons.length) icons=[{title:icon.dataset.ocIconTitle||t('Икона'),description:icon.dataset.ocIconDescription||'',images:[icon.href]}];
+    icons=icons.map(item=>({title:typeof item?.title==='string'&&item.title?item.title:t('Икона'),description:typeof item?.description==='string'?item.description:'',images:[...new Set((Array.isArray(item?.images)?item.images:[]).filter(url=>typeof url==='string'&&url))]})).filter(item=>item.images.length);
+    if(!icons.length)return;
+    const start=Math.max(0,Math.min(icons.length-1,Number(icon.dataset.ocIconIndex)||0));
+    const items=[];let startIndex=0;
+    icons.forEach((entry,iconIndex)=>{
+      if(iconIndex===start)startIndex=items.length;
+      items.push({type:'description',title:entry.title,text:entry.description||t('Описание иконы отсутствует.')});
+      entry.images.forEach(url=>items.push({type:'image',title:entry.title,url}));
+    });
     const body=document.createElement('div');body.className='oc-icon-view';
-    const title=document.createElement('h2');title.textContent=icon.dataset.ocIconTitle||t('Икона');
+    const title=document.createElement('h2');
     const description=document.createElement('div');description.className='oc-icon-description';
     const image=document.createElement('img');image.alt=icon.dataset.ocIconTitle||'';
+    const loading=document.createElement('p');loading.className='oc-icon-loading';loading.hidden=true;
     const controls=document.createElement('div');controls.className='oc-icon-controls';
     const previous=document.createElement('button');previous.type='button';previous.className='oc-icon-nav';previous.textContent='←';previous.setAttribute('aria-label',t('Предыдущая карточка'));
     const next=document.createElement('button');next.type='button';next.className='oc-icon-nav';next.textContent='→';next.setAttribute('aria-label',t('Следующая карточка'));
     const counter=document.createElement('span');counter.className='oc-icon-counter';
-    controls.append(previous,counter,next);body.append(title,description,image,controls);
-    let index=0,startX=0;
-    const render=()=>{const item=items[index];const isDescription=item.type==='description';description.hidden=!isDescription;description.style.display=isDescription?'block':'none';description.textContent=isDescription?item.text:'';image.hidden=isDescription;image.style.display=isDescription?'none':'block';if(!isDescription){image.src=item.url;image.alt=icon.dataset.ocIconTitle||'';}counter.textContent=items.length>1?`${index+1} ${t('из')} ${items.length}`:'';previous.hidden=next.hidden=items.length<2;};
+    controls.append(previous,counter,next);body.append(title,description,image,loading,controls);
+    let index=startIndex,startX=0,loadGeneration=0;
+    const mediaUrl=async source=>{
+      const sourceUrl=new URL(source,window.location.href),endpointUrl=new URL(endpoint,window.location.href);
+      if(sourceUrl.origin===endpointUrl.origin)return sourceUrl.href;
+      const url=route(endpoint,'media');url.searchParams.set('source',sourceUrl.href);
+      const value=await json(url);if(typeof value?.url!=='string'||!value.url)throw new Error(t('Не удалось загрузить изображение.'));const local=new URL(value.url,endpointUrl);
+      if(local.origin!==endpointUrl.origin)throw new Error(t('Не удалось загрузить изображение.'));
+      return local.href;
+    };
+    const render=()=>{const item=items[index],generation=++loadGeneration,isDescription=item.type==='description';title.textContent=item.title;description.hidden=!isDescription;description.style.display=isDescription?'block':'none';description.textContent=isDescription?item.text:'';image.hidden=true;image.style.display='none';image.removeAttribute('src');loading.hidden=true;counter.textContent=items.length>1?`${index+1} ${t('из')} ${items.length}`:'';previous.hidden=next.hidden=items.length<2;if(isDescription)return;loading.hidden=false;loading.textContent=t('Загрузка…');void mediaUrl(item.url).then(url=>{if(generation!==loadGeneration)return;image.onload=()=>{if(generation===loadGeneration)loading.hidden=true;};image.onerror=()=>{if(generation===loadGeneration){image.hidden=true;loading.textContent=t('Не удалось загрузить изображение.');}};image.alt=item.title;image.src=url;image.hidden=false;image.style.display='block';}).catch(error=>{if(generation===loadGeneration)loading.textContent=error?.message||t('Не удалось загрузить изображение.');});};
     const shift=step=>{if(items.length<2)return;index=(index+step+items.length)%items.length;render();};
     previous.addEventListener('click',()=>shift(-1));next.addEventListener('click',()=>shift(1));
     body.addEventListener('touchstart',event=>{startX=event.changedTouches[0]?.clientX||0;},{passive:true});
     body.addEventListener('touchend',event=>{const endX=event.changedTouches[0]?.clientX||0;if(Math.abs(endX-startX)>40)shift(endX<startX?1:-1);},{passive:true});
     render();
-    const dialog=popup(body,icon.dataset.ocIconTitle||t('Икона'),t);
+    const dialog=popup(body,icons[start].title,t);
     dialog.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'){event.preventDefault();shift(-1);}if(event.key==='ArrowRight'){event.preventDefault();shift(1);}});
   }
   async function copy(text,status,t=s=>s) {
@@ -157,7 +174,7 @@
         render({mode:'day',date:d,year:d.slice(0,4),month:Number(d.slice(5,7)),open:'inline'},cfg.open==='modal'?'modal':!!root.querySelector(':scope > .oc-detail'));
       }
       const icon=event.target.closest('[data-oc-icon]');
-      if(icon){event.preventDefault();iconPopup(icon,t);}
+      if(icon){event.preventDefault();iconPopup(icon,t,cfg.endpoint);}
       const day=event.target.closest('[data-oc-day]');if(day)render({date:day.dataset.ocDay});
       const textPage=event.target.closest('[data-oc-text-page]');if(textPage)void render({text_page:textPage.dataset.ocTextPage});
       const library=event.target.closest('[data-oc-library]');if(library)void render({mode:library.dataset.ocLibrary,scope:'',tone:'',weekday:'',text_id:'',work:'',text_page:'1'},'modal');
