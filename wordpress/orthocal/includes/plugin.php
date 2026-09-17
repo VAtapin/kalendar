@@ -351,7 +351,10 @@ final class Orthocal_Plugin {
             $images=array_values(array_unique($images));if(!$images)continue;
             // Only the visible cover is fetched while rendering the day. Every
             // other image stays as a validated source for the modal's lazy loader.
-            $items[]=['localUrl'=>Orthocal_Media_Cache::url($images[0]),'images'=>$images,'alt'=>$icon['title']??'Икона','description'=>$icon['description']??$icon['caption']??'','attribution'=>$icon['attribution']??'','kind'=>$icon['kind']??'','dates'=>$icon['dates']??[],'calendarRank'=>$icon['calendarRank']??null];
+            // Rendering a calendar must never synchronously fetch all icon
+            // covers. The client lazily asks for an uncached cover only when
+            // it becomes visible or is opened in the gallery.
+            $items[]=['localUrl'=>Orthocal_Media_Cache::cached_url($images[0]),'images'=>$images,'alt'=>$icon['title']??'Икона','description'=>$icon['description']??$icon['caption']??'','attribution'=>$icon['attribution']??'','kind'=>$icon['kind']??'','dates'=>$icon['dates']??[],'calendarRank'=>$icon['calendarRank']??null];
         }
         foreach((array)apply_filters('orthocal_day_icons',[],$day) as $item) {
             if(!is_array($item))continue;
@@ -507,6 +510,17 @@ final class Orthocal_Plugin {
         }
         return true;
     }
+    static function media_throttle() {
+        // Cache hits do not call this method. A cold cache can legitimately
+        // contain a complete day with many images, so its allowance must not
+        // be confused with the small public API proxy allowance above.
+        foreach (['global'=>600, hash('sha256',($_SERVER['REMOTE_ADDR'] ?? '').wp_salt())=>180] as $id=>$max) {
+            $key='oc_media_rate_'.md5($id.gmdate('YmdHi')); $count=(int)get_transient($key);
+            if ($count >= $max) return new WP_Error('rate_limit','Слишком много запросов. Повторите через минуту.',['status'=>429]);
+            set_transient($key,$count+1,70);
+        }
+        return true;
+    }
     static function rest_render($request) {
         $rate=self::throttle(); if (is_wp_error($rate)) return $rate;
         $attrs=$request->get_query_params();
@@ -524,9 +538,11 @@ final class Orthocal_Plugin {
         $response=new WP_REST_Response($data); $response->header('Cache-Control','no-store'); return $response;
     }
     static function rest_media($request) {
-        $rate=self::throttle(); if (is_wp_error($rate)) return $rate;
         $source=$request->get_param('source');
         if(!is_string($source)||Orthocal_Media_Cache::source($source)===false)return new WP_Error('source','Неверный адрес изображения.',['status'=>400]);
+        $cached=Orthocal_Media_Cache::cached_url($source);
+        if($cached){$response=new WP_REST_Response(['url'=>$cached]);$response->header('Cache-Control','private, max-age=86400');return $response;}
+        $rate=self::media_throttle(); if (is_wp_error($rate)) return $rate;
         $url=Orthocal_Media_Cache::url($source);
         if(!$url)return new WP_Error('media','Изображение пока недоступно. Повторите позже.',['status'=>503]);
         $response=new WP_REST_Response(['url'=>$url]);$response->header('Cache-Control','no-store');return $response;

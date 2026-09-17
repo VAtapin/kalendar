@@ -32,6 +32,8 @@ export const UI_DE = {
     "Чтения": "Lesungen",
     "Иконы дня": "Ikonen des Tages",
     "Икона дня": "Ikone des Tages",
+    "Изображения образа": "Bilder der Ikone",
+    "Изображение": "Bild",
     "Празднование:": "Gedenktage:",
     "Даты празднования не указаны источником.": "Die Quelle nennt keine Gedenktage.",
     "Пасха": "Ostern",

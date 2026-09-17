@@ -405,7 +405,39 @@ function iconSection(icons) {
   return section;
 }
 
-let iconLightboxItems = [], iconLightboxIndex = 0, iconTouchStartX = 0;
+let iconLightboxItems = [], iconLightboxIndex = 0, iconTouchStartX = 0, iconThumbnailObserver = null;
+
+function renderIconThumbnails() {
+  iconThumbnailObserver?.disconnect();
+  const strip = $('icon-modal-thumbnails');
+  strip.replaceChildren();
+  strip.setAttribute('aria-label', ui('Изображения образа'));
+  const lazyImages = [];
+  iconLightboxItems.forEach((item, index) => {
+    if (item.type !== 'image') return;
+    const button = e('button', '', 'icon-modal-thumbnail');
+    button.type = 'button';
+    button.dataset.iconLightboxIndex = String(index);
+    button.setAttribute('aria-label', `${item.title}: ${ui('Изображение')} ${item.imageIndex + 1}`);
+    const image = new Image();
+    image.alt = '';
+    image.loading = 'lazy';
+    image.dataset.iconThumbnailSource = item.url;
+    button.append(image);
+    strip.append(button);
+    lazyImages.push(image);
+  });
+  const load = image => {
+    if (image.src || !image.dataset.iconThumbnailSource) return;
+    image.src = image.dataset.iconThumbnailSource;
+  };
+  if ('IntersectionObserver' in window) {
+    iconThumbnailObserver = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) { iconThumbnailObserver.unobserve(entry.target); load(entry.target); }
+    }), { root: strip, rootMargin: '100px' });
+    lazyImages.forEach(image => iconThumbnailObserver.observe(image));
+  } else lazyImages.slice(0, 6).forEach(load);
+}
 
 function renderIconLightbox() {
   const item = iconLightboxItems[iconLightboxIndex];
@@ -427,11 +459,19 @@ function renderIconLightbox() {
   const hasNavigation = iconLightboxItems.length > 1;
   $('icon-previous').hidden = !hasNavigation;
   $('icon-next').hidden = !hasNavigation;
+  const activeThumbnail = $('icon-modal-thumbnails').querySelector(`[data-icon-lightbox-index="${iconLightboxIndex}"]`);
+  $('icon-modal-thumbnails').querySelectorAll('.icon-modal-thumbnail').forEach(button => {
+    const active = button === activeThumbnail;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-current', active ? 'true' : 'false');
+  });
+  activeThumbnail?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
 function openIconLightbox(items, index) {
   iconLightboxItems = items;
   iconLightboxIndex = Math.max(0, Math.min(index, items.length - 1));
+  renderIconThumbnails();
   renderIconLightbox();
   if (!$('icon-lightbox').open) $('icon-lightbox').showModal();
   $('icon-close').focus();
@@ -680,7 +720,14 @@ $('detail').addEventListener('click', event => { if (event.target === $('detail'
 $('icon-close').addEventListener('click', () => $('icon-lightbox').close());
 $('icon-previous').addEventListener('click', () => shiftIcon(-1));
 $('icon-next').addEventListener('click', () => shiftIcon(1));
+$('icon-modal-thumbnails').addEventListener('click', event => {
+  const button = event.target.closest('[data-icon-lightbox-index]');
+  if (!button) return;
+  iconLightboxIndex = Number(button.dataset.iconLightboxIndex);
+  renderIconLightbox();
+});
 $('icon-lightbox').addEventListener('click', event => { if (event.target === $('icon-lightbox')) $('icon-lightbox').close(); });
+$('icon-lightbox').addEventListener('close', () => iconThumbnailObserver?.disconnect());
 $('icon-lightbox').addEventListener('touchstart', event => {
   iconTouchStartX = event.changedTouches[0]?.clientX || 0;
 }, {passive: true});

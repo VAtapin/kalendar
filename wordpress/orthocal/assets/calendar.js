@@ -1,6 +1,8 @@
 (() => {
   'use strict';
   const pending = new Map();
+  const mediaPending = new Map(), mediaReady = new Map(), mediaQueue = [];
+  let mediaActive = 0, mediaNotBefore = 0;
   const bibleQueue = [];
   let active = 0;
   const fonts=new Map();
@@ -35,15 +37,20 @@
     const title=document.createElement('h2');
     const dates=document.createElement('p');dates.className='oc-icon-dates';
     const description=document.createElement('div');description.className='oc-icon-description';
-    const image=document.createElement('img');image.alt=icon.dataset.ocIconTitle||'';
+    const image=document.createElement('img');image.className='oc-icon-large';image.alt=icon.dataset.ocIconTitle||'';
     const loading=document.createElement('p');loading.className='oc-icon-loading';loading.hidden=true;
+    const thumbnails=document.createElement('div');thumbnails.className='oc-icon-thumbnails';thumbnails.setAttribute('aria-label',t('Изображения образа'));
     const controls=document.createElement('div');controls.className='oc-icon-controls';
     const previous=document.createElement('button');previous.type='button';previous.className='oc-icon-nav';previous.textContent='←';previous.setAttribute('aria-label',t('Предыдущая карточка'));
     const next=document.createElement('button');next.type='button';next.className='oc-icon-nav';next.textContent='→';next.setAttribute('aria-label',t('Следующая карточка'));
     const counter=document.createElement('span');counter.className='oc-icon-counter';
-    controls.append(previous,counter,next);body.append(title,dates,description,image,loading,controls);
+    controls.append(previous,counter,next);body.append(title,dates,description,thumbnails,image,loading,controls);
     let index=startIndex,startX=0,loadGeneration=0;
-    const render=()=>{const item=items[index],generation=++loadGeneration,isDescription=item.type==='description';title.textContent=item.title;dates.textContent=item.dates?.join('; ')||'';dates.hidden=!dates.textContent;description.hidden=!isDescription;description.style.display=isDescription?'block':'none';description.textContent=isDescription?item.text:'';image.hidden=true;image.style.display='none';image.removeAttribute('src');loading.hidden=true;counter.textContent=items.length>1?`${index+1} ${t('из')} ${items.length}`:'';previous.hidden=next.hidden=items.length<2;if(isDescription)return;loading.hidden=false;loading.textContent=t('Загрузка…');void mediaUrl(endpoint,item.url,t).then(url=>{if(generation!==loadGeneration)return;image.onload=()=>{if(generation===loadGeneration)loading.hidden=true;};image.onerror=()=>{if(generation===loadGeneration){image.hidden=true;loading.textContent=t('Не удалось загрузить изображение.');}};image.alt=item.title;image.src=url;image.hidden=false;image.style.display='block';}).catch(error=>{if(generation===loadGeneration)loading.textContent=error?.message||t('Не удалось загрузить изображение.');});};
+    const thumbnailButtons=[];
+    items.forEach((item,itemIndex)=>{if(item.type!=='image')return;const button=document.createElement('button');button.type='button';button.className='oc-icon-thumbnail';button.dataset.ocIconItem=String(itemIndex);button.setAttribute('aria-label',item.title);const thumbnail=new Image();thumbnail.alt='';thumbnail.loading='lazy';button.append(thumbnail);button.addEventListener('click',()=>{index=itemIndex;render();});thumbnails.append(button);thumbnailButtons.push({button,thumbnail,item});});
+    const loadThumbnail=({thumbnail,item})=>{if(thumbnail.src)return;void mediaUrl(endpoint,item.url,t).then(url=>{thumbnail.src=url;}).catch(()=>{});};
+    if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){observer.unobserve(entry.target);const record=thumbnailButtons.find(value=>value.thumbnail===entry.target);if(record)loadThumbnail(record);}}),{root:thumbnails,rootMargin:'100px'});thumbnailButtons.forEach(record=>observer.observe(record.thumbnail));}else thumbnailButtons.slice(0,6).forEach(loadThumbnail);
+    const render=()=>{const item=items[index],generation=++loadGeneration,isDescription=item.type==='description';title.textContent=item.title;dates.textContent=item.dates?.join('; ')||'';dates.hidden=!dates.textContent;description.hidden=!isDescription;description.style.display=isDescription?'block':'none';description.textContent=isDescription?item.text:'';image.hidden=true;image.style.display='none';image.removeAttribute('src');loading.hidden=true;counter.textContent=items.length>1?`${index+1} ${t('из')} ${items.length}`:'';previous.hidden=next.hidden=items.length<2;if(isDescription)return;thumbnailButtons.forEach(record=>{const active=Number(record.button.dataset.ocIconItem)===index;record.button.classList.toggle('active',active);record.button.setAttribute('aria-current',active?'true':'false');if(active)record.button.scrollIntoView({block:'nearest',inline:'nearest'});});loading.hidden=false;loading.textContent=t('Загрузка…');void mediaUrl(endpoint,item.url,t,true).then(url=>{if(generation!==loadGeneration)return;image.onload=()=>{if(generation===loadGeneration)loading.hidden=true;};image.onerror=()=>{if(generation===loadGeneration){image.hidden=true;loading.textContent=t('Не удалось загрузить изображение.');}};image.alt=item.title;image.src=url;image.hidden=false;image.style.display='block';}).catch(error=>{if(generation===loadGeneration)loading.textContent=error?.message||t('Не удалось загрузить изображение.');});};
     const shift=step=>{if(items.length<2)return;index=(index+step+items.length)%items.length;render();};
     previous.addEventListener('click',()=>shift(-1));next.addEventListener('click',()=>shift(1));
     body.addEventListener('touchstart',event=>{startX=event.changedTouches[0]?.clientX||0;},{passive:true});
@@ -71,19 +78,32 @@
       return value;
     } finally { clearTimeout(timeout); }
   }
-  async function mediaUrl(endpoint,source,t=s=>s) {
+  function enqueueMedia(task,priority=false) {
+    const promise=new Promise((resolve,reject)=>{
+      const run=async()=>{try{resolve(await task());}catch(error){reject(error);}finally{mediaActive--;mediaNotBefore=Date.now()+350;drainMediaQueue();}};
+      if(priority)mediaQueue.unshift(run);else mediaQueue.push(run);drainMediaQueue();
+    });
+    return promise;
+  }
+  function drainMediaQueue() {
+    if(mediaActive||!mediaQueue.length)return;
+    const run=mediaQueue.shift(),wait=Math.max(0,mediaNotBefore-Date.now());mediaActive++;
+    setTimeout(run,wait);
+  }
+  function mediaUrl(endpoint,source,t=s=>s,priority=false) {
     const sourceUrl=new URL(source,window.location.href),endpointUrl=new URL(endpoint,window.location.href);
-    if(sourceUrl.origin===endpointUrl.origin)return sourceUrl.href;
+    if(sourceUrl.origin===endpointUrl.origin)return Promise.resolve(sourceUrl.href);
+    const sourceKey=sourceUrl.href;if(mediaReady.has(sourceKey))return Promise.resolve(mediaReady.get(sourceKey));if(mediaPending.has(sourceKey))return mediaPending.get(sourceKey);
     const url=route(endpoint,'media');url.searchParams.set('source',sourceUrl.href);
-    const value=await json(url);if(typeof value?.url!=='string'||!value.url)throw new Error(t('Не удалось загрузить изображение.'));const local=new URL(value.url,endpointUrl);
-    if(local.origin!==endpointUrl.origin)throw new Error(t('Не удалось загрузить изображение.'));
-    return local.href;
+    const task=enqueueMedia(async()=>{const value=await json(url);if(typeof value?.url!=='string'||!value.url)throw new Error(t('Не удалось загрузить изображение.'));const local=new URL(value.url,endpointUrl);if(local.origin!==endpointUrl.origin)throw new Error(t('Не удалось загрузить изображение.'));mediaReady.set(sourceKey,local.href);return local.href;},priority);
+    mediaPending.set(sourceKey,task);task.finally(()=>mediaPending.delete(sourceKey)).catch(()=>{});return task;
   }
   function loadIconCovers(root,endpoint,t=s=>s) {
-    root.querySelectorAll('img[data-oc-icon-cover]').forEach(image=>{
-      const source=image.dataset.ocIconCover;if(!source)return;
-      void mediaUrl(endpoint,source,t).then(url=>{if(image.isConnected){image.src=url;image.removeAttribute('data-oc-icon-cover');}}).catch(()=>{});
-    });
+    const load=image=>{const source=image.dataset.ocIconCover;if(!source||image.dataset.ocIconLoading)return;image.dataset.ocIconLoading='1';void mediaUrl(endpoint,source,t).then(url=>{if(image.isConnected){image.src=url;image.removeAttribute('data-oc-icon-cover');}}).catch(()=>{}).finally(()=>delete image.dataset.ocIconLoading);};
+    const images=[...root.querySelectorAll('img[data-oc-icon-cover]')];
+    if(!('IntersectionObserver'in window)){images.slice(0,1).forEach(load);return;}
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){observer.unobserve(entry.target);load(entry.target);}}),{rootMargin:'240px'});
+    images.forEach(image=>observer.observe(image));
   }
   async function bible(endpoint, path) {
     const url = route(endpoint,'bible'); url.searchParams.set('path', path);

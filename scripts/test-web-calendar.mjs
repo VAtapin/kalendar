@@ -67,12 +67,15 @@ try{
  assert.equal(await page.locator('#icon-modal-description').innerText(),'Описание иконы');
  assert.equal(await page.locator('#icon-modal-description').isVisible(),true);
  assert.equal(await page.locator('#icon-modal-dates').innerText(),'1 февраля; 9 мая (пер.)');
+ assert.equal(await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').count(),2);
  assert.equal(await page.locator('#icon-large').isVisible(),false);
- await page.locator('#icon-next').click();
+ await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').first().click();
  assert.equal(await page.locator('#icon-modal-counter').innerText(),'2 из 3');
  assert.equal(await page.locator('#icon-large').isVisible(),true);
+ await page.locator('#icon-next').click();
+ assert.equal(await page.locator('#icon-modal-counter').innerText(),'3 из 3');
  await page.locator('#icon-lightbox[open]').press('ArrowLeft');
- assert.equal(await page.locator('#icon-modal-counter').innerText(),'1 из 3');
+ assert.equal(await page.locator('#icon-modal-counter').innerText(),'2 из 3');
  await page.locator('#icon-close').click();
  await page.locator('#detail .icon-thumbnail').nth(1).click();
  await page.evaluate(()=>document.fonts.ready);

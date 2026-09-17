@@ -29,6 +29,11 @@ final class Orthocal_Media_Cache {
     static function local($meta,$dir) {
         return !empty($meta['file']) && self::file_valid($meta['file']) && is_file($dir['path'].'/'.$meta['file']) && !is_link($dir['path'].'/'.$meta['file']) ? $dir['url'].'/'.$meta['file'] : '';
     }
+    static function cached_url($source) {
+        $path=self::source($source);if(!$path)return '';
+        $dir=self::directory();if(!$dir)return '';
+        return self::local(self::metadata($path),$dir);
+    }
     static function schedule($path) {
         if (!wp_next_scheduled('orthocal_refresh_asset',[$path])) wp_schedule_single_event(time()+5,'orthocal_refresh_asset',[$path]);
     }
