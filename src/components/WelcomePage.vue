@@ -89,6 +89,29 @@ function changeInterfaceLanguage(event: Event): void {
       <img class="welcome-hero__art" src="/brand/share-card-preview.webp" alt="Календарная мастерская Свято-Георгиевского монастыря" />
     </section>
 
+    <section class="welcome-ready-calendars" aria-labelledby="ready-calendars-title">
+      <div class="welcome-section-title">
+        <div>
+          <span>Готовые календари</span>
+          <h2 id="ready-calendars-title">Создайте свой или возьмите готовый</h2>
+          <p>Создайте календарь в мастерской — или скачайте один из подготовленных нами.</p>
+        </div>
+      </div>
+      <article class="welcome-ready-calendar-card">
+        <div class="welcome-ready-calendar-card__year" aria-hidden="true">2027</div>
+        <div class="welcome-ready-calendar-card__content">
+          <span class="welcome-hero__eyebrow">Готовый календарь</span>
+          <h3>Календарь Свято-Георгиевского мужского монастыря в Гётчендорфе</h3>
+          <p>Календарь на 2027 год с фотографиями монастыря. Один дизайн доступен на трёх языках. Выберите подходящий PDF для скачивания.</p>
+          <div class="welcome-ready-calendar-card__downloads" aria-label="Выберите язык PDF">
+            <a href="/downloads/ready-calendars/orthodox-calendar-2027-ru.pdf" download>Скачать русский PDF</a>
+            <a href="/downloads/ready-calendars/orthodox-calendar-2027-de.pdf" download lang="de">Deutsch PDF herunterladen</a>
+            <a href="/downloads/ready-calendars/orthodox-calendar-2027-uk.pdf" download lang="uk">Завантажити PDF українською</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
     <section class="welcome-features" aria-label="Возможности">
       <article><strong>Точный календарь</strong><span>Даты, праздники, посты и монастырские события.</span></article>
       <article><strong>Свободная вёрстка</strong><span>Страницы, слои, фотографии, текст и золотой декор.</span></article>

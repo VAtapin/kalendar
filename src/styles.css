@@ -3023,6 +3023,7 @@ input {
 .welcome-hero,
 .welcome-features,
 .welcome-services,
+.welcome-ready-calendars,
 .welcome-projects,
 .welcome-mobile-about {
   width: min(1280px, calc(100% - 72px));
@@ -3171,6 +3172,97 @@ input {
   color: #18150e;
   background: linear-gradient(180deg, #dfc36f, #b78f32);
   font-weight: 800;
+}
+
+.welcome-ready-calendars {
+  padding: 42px 0 0;
+}
+
+.welcome-ready-calendars .welcome-section-title {
+  margin-bottom: 16px;
+}
+
+.welcome-ready-calendars .welcome-section-title p {
+  max-width: 620px;
+  margin: 10px 0 0;
+  color: #9eaba4;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.welcome-ready-calendar-card {
+  display: grid;
+  grid-template-columns: minmax(180px, .42fr) minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid #726039;
+  border-radius: 10px;
+  background: linear-gradient(125deg, #272315, #17201c 56%);
+}
+
+.welcome-ready-calendar-card__year {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  border-right: 1px solid rgb(214 185 99 / 35%);
+  color: #f1d889;
+  background:
+    radial-gradient(circle at 52% 42%, rgb(229 201 110 / 21%), transparent 42%),
+    linear-gradient(150deg, #3b321c, #1d251e);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(62px, 9vw, 126px);
+  font-weight: 600;
+  letter-spacing: -.06em;
+}
+
+.welcome-ready-calendar-card__content {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 28px 32px;
+}
+
+.welcome-ready-calendar-card__content h3 {
+  margin: 0;
+  color: #f0e6cd;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(27px, 2.6vw, 38px);
+  font-weight: 600;
+}
+
+.welcome-ready-calendar-card__content p {
+  max-width: 640px;
+  margin: 0;
+  color: #aab7b0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.welcome-ready-calendar-card__downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 7px;
+}
+
+.welcome-ready-calendar-card__downloads a {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 13px;
+  border: 1px solid #a98942;
+  border-radius: 6px;
+  color: #f1dda2;
+  background: rgb(22 30 26 / 76%);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.welcome-ready-calendar-card__downloads a:hover {
+  border-color: #dfc36f;
+  color: #18150e;
+  background: linear-gradient(180deg, #dfc36f, #b78f32);
 }
 
 .welcome-features {
@@ -3423,6 +3515,7 @@ input {
   .welcome-hero,
   .welcome-features,
   .welcome-services,
+  .welcome-ready-calendars,
   .welcome-projects,
   .welcome-mobile-about {
     width: min(100% - 28px, 620px);
@@ -3499,6 +3592,34 @@ input {
 
   .welcome-services {
     padding-top: 36px;
+  }
+
+  .welcome-ready-calendars {
+    padding-top: 36px;
+  }
+
+  .welcome-ready-calendar-card {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-ready-calendar-card__year {
+    min-height: 120px;
+    border-right: 0;
+    border-bottom: 1px solid rgb(214 185 99 / 35%);
+    font-size: 74px;
+  }
+
+  .welcome-ready-calendar-card__content {
+    padding: 23px 20px;
+  }
+
+  .welcome-ready-calendar-card__downloads {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-ready-calendar-card__downloads a {
+    min-height: 43px;
   }
 
   .welcome-services__grid {

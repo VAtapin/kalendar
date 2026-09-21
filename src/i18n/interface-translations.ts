@@ -7,6 +7,16 @@ type Translation = Record<Exclude<InterfaceLanguage, "ru">, string>;
  * Calendar content, project names and user-entered text are deliberately absent.
  */
 export const TRANSLATIONS: Record<string, Translation> = {
+  "Готовые календари": { de: "Fertige Kalender", en: "Ready-made calendars", uk: "Готові календарі" },
+  "Создайте свой или возьмите готовый": { de: "Erstellen Sie Ihren eigenen oder nehmen Sie einen fertigen", en: "Create your own or choose a ready-made one", uk: "Створіть свій або візьміть готовий" },
+  "Создайте календарь в мастерской — или скачайте один из подготовленных нами.": { de: "Erstellen Sie einen Kalender in der Werkstatt — oder laden Sie einen von uns vorbereiteten herunter.", en: "Create a calendar in the workshop — or download one prepared by us.", uk: "Створіть календар у майстерні — або завантажте один із підготовлених нами." },
+  "Готовый календарь": { de: "Fertiger Kalender", en: "Ready-made calendar", uk: "Готовий календар" },
+  "Календарь Свято-Георгиевского мужского монастыря в Гётчендорфе": { de: "Kalender des St.-Georg-Männerklosters in Götschendorf", en: "Calendar of St. George's Monastery in Götschendorf", uk: "Календар Свято-Георгіївського чоловічого монастиря в Гетчендорфі" },
+  "Календарь на 2027 год с фотографиями монастыря. Один дизайн доступен на трёх языках. Выберите подходящий PDF для скачивания.": { de: "Kalender für 2027 mit Fotografien des Klosters. Ein Design ist in drei Sprachen verfügbar. Wählen Sie das passende PDF zum Herunterladen.", en: "A 2027 calendar with photographs of the monastery. One design is available in three languages. Choose the PDF to download.", uk: "Календар на 2027 рік зі світлинами монастиря. Один дизайн доступний трьома мовами. Виберіть PDF для завантаження." },
+  "Выберите язык PDF": { de: "PDF-Sprache auswählen", en: "Choose PDF language", uk: "Виберіть мову PDF" },
+  "Скачать русский PDF": { de: "Russisches PDF herunterladen", en: "Download Russian PDF", uk: "Завантажити російський PDF" },
+  "Deutsch PDF herunterladen": { de: "Deutsches PDF herunterladen", en: "Download German PDF", uk: "Завантажити PDF німецькою" },
+  "Завантажити PDF українською": { de: "Ukrainisches PDF herunterladen", en: "Download Ukrainian PDF", uk: "Завантажити PDF українською" },
   "По благословению игумена Даниила,": { de: "Mit dem Segen von Igumen Daniel,", en: "With the blessing of Igumen Daniel,", uk: "З благословення ігумена Даниїла," },
   "настоятеля Свято‑Георгиевского монастыря": { de: "Abt des St.‑Georg‑Klosters", en: "Abbot of St. George’s Monastery", uk: "настоятеля Свято‑Георгіївського монастиря" },
   "Личный кабинет": {de:"Mein Konto",en:"My account",uk:"Особистий кабінет"},
