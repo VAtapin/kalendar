@@ -57,7 +57,7 @@ const conversionElapsed = computed(() => `${Math.floor(conversionSeconds.value /
         </label>
         <label class="profile-dialog__option">
           <input v-model="selected" type="radio" name="print-profile" value="rgb" />
-          <span><strong>RGB — стандартный PDF</strong><small>Прежний вариант, без выбора бумаги и ICC-профиля</small></span>
+          <span><strong>RGB — стандартный PDF</strong></span>
         </label>
         <button v-if="selected === 'custom'" type="button" class="secondary-action" :disabled="busy" @click="emit('upload')">
           {{ customProfileName ? 'Заменить ICC-профиль…' : 'Загрузить ICC-профиль…' }}
