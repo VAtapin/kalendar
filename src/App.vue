@@ -425,6 +425,8 @@ const persistenceState = ref<"loading" | "saved" | "saving" | "error">("loading"
 const pdfExportState = ref<"idle" | "exporting" | "ready" | "error">("idle");
 const printProfileDialogOpen = ref(false);
 const printProfileError = ref("");
+const printExportStage = ref<"render" | "upload" | "convert">("render");
+const printExportUploadPercent = ref(0);
 const printContactOpen = ref(false);
 function beginPrintOrder(): void {
   printContactOpen.value = true;
@@ -1522,6 +1524,8 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
   const profileSource = builtInProfile?.url ?? customProfile!.source;
   const profileName = builtInProfile?.name ?? customProfile!.name.replace(/\.(?:icc|icm)$/iu, "");
   printProfileError.value = "";
+  printExportStage.value = "render";
+  printExportUploadPercent.value = 0;
   pdfExportState.value = "exporting";
   operationNotice.value = `Формируется PDF: ${project.value.document.pages.length} стр.`;
   let phase = "load-module";
@@ -1547,6 +1551,7 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
     if (!profileResponse.ok) throw new Error("Не удалось прочитать ICC-профиль типографии");
     const profileBlob = await profileResponse.blob();
     operationNotice.value = `PDF сформирован; передаём на сервер: 0%`;
+    printExportStage.value = "upload";
     phase = "upload-pdf";
     const ready: PdfExportReady = await uploadPdfExport(
       pdfBlob,
@@ -1555,6 +1560,8 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
       profileBlob,
       profileName,
       (progress) => {
+        printExportStage.value = progress.stage === "convert" ? "convert" : "upload";
+        if (progress.stage === "upload") printExportUploadPercent.value = progress.percent;
         operationNotice.value = progress.stage === "convert"
           ? "Подготавливаем PDF/X-1a:2001 для печати…"
           : `PDF сформирован; передаём на сервер: ${progress.percent}%`;
@@ -4765,6 +4772,8 @@ onBeforeUnmount(() => {
       v-if="printProfileDialogOpen"
       :custom-profile-name="iccProfileName"
       :busy="pdfExportState === 'exporting'"
+      :stage="printExportStage"
+      :upload-percent="printExportUploadPercent"
       :error="printProfileError"
       @close="printProfileDialogOpen = false"
       @upload="requestIccProfileFile"

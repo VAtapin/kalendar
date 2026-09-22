@@ -60,10 +60,11 @@ function calendar_convert_pdf_x1a(string $source, string $destination, string $p
 
     $command = [
         $binary, '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dPDFX=1',
-        '-dPDFACompatibilityPolicy=2',
         '-dCompatibilityLevel=1.3', '-sDEVICE=pdfwrite',
         '-sColorConversionStrategy=CMYK', '-sProcessColorModel=DeviceCMYK',
-        '-dHaveTransparency=false', '-dAutoRotatePages=/None',
+        // PDF 1.3 makes pdfwrite flatten transparency. Disabling transparency
+        // earlier can make translucent overlays opaque and hide page content.
+        '-dAutoRotatePages=/None',
         '-dDownsampleColorImages=false', '-dDownsampleGrayImages=false',
         '-dDownsampleMonoImages=false', '-r300',
         '--permit-file-read=' . $profile,

@@ -1,14 +1,37 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from "../export/print-profile";
 
-defineProps<{ customProfileName?: string; busy?: boolean; error?: string }>();
+const props = defineProps<{
+  customProfileName?: string;
+  busy?: boolean;
+  stage?: "render" | "upload" | "convert";
+  uploadPercent?: number;
+  error?: string;
+}>();
 const emit = defineEmits<{
   close: [];
   upload: [];
   confirm: [choice: PrintProfileChoice];
 }>();
 const selected = ref<PrintProfileChoice>("coated");
+const conversionSeconds = ref(0);
+let conversionStartedAt = 0;
+let conversionTimer: ReturnType<typeof setInterval> | undefined;
+
+watch(() => [props.busy, props.stage] as const, ([busy, stage]) => {
+  if (conversionTimer) clearInterval(conversionTimer);
+  conversionTimer = undefined;
+  if (busy && stage === "convert") {
+    conversionStartedAt = Date.now();
+    conversionSeconds.value = 0;
+    conversionTimer = setInterval(() => {
+      conversionSeconds.value = Math.floor((Date.now() - conversionStartedAt) / 1000);
+    }, 1000);
+  }
+});
+onBeforeUnmount(() => { if (conversionTimer) clearInterval(conversionTimer); });
+const conversionElapsed = computed(() => `${Math.floor(conversionSeconds.value / 60)}:${String(conversionSeconds.value % 60).padStart(2, "0")}`);
 </script>
 
 <template>
@@ -34,6 +57,15 @@ const selected = ref<PrintProfileChoice>("coated");
         <button v-if="selected === 'custom'" type="button" class="secondary-action" :disabled="busy" @click="emit('upload')">
           {{ customProfileName ? 'Заменить ICC-профиль…' : 'Загрузить ICC-профиль…' }}
         </button>
+        <div v-if="busy" class="profile-dialog__progress" role="status" aria-live="polite">
+          <span class="profile-dialog__spinner" aria-hidden="true"></span>
+          <div>
+            <strong v-if="stage === 'upload'"><span>Загружаем PDF на сервер</span>: {{ uploadPercent ?? 0 }}%</strong>
+            <strong v-else-if="stage === 'convert'">Сводим прозрачности и преобразуем цвета в CMYK</strong>
+            <strong v-else>Создаём исходный PDF с изображениями и шрифтами</strong>
+            <p v-if="stage === 'convert'"><span>Прошло</span> {{ conversionElapsed }}. <span>Обработка может занять несколько минут. Не закрывайте вкладку.</span></p>
+          </div>
+        </div>
         <p v-if="error" class="online-dialog__error">{{ error }}</p>
         <div class="profile-dialog__actions">
           <button type="button" class="secondary-action" :disabled="busy" @click="emit('close')">Отмена</button>
@@ -55,5 +87,10 @@ const selected = ref<PrintProfileChoice>("coated");
 .profile-dialog__option input { accent-color: #d4aa4d; }
 .profile-dialog__option span { display: grid; gap: 3px; }
 .profile-dialog__option small { color: #c8d0c8; }
+.profile-dialog__progress { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid #b9913c; border-radius: 6px; background: #262d22; }
+.profile-dialog__progress p { margin-top: 4px; color: #c8d0c8; }
+.profile-dialog__spinner { flex: none; width: 16px; height: 16px; margin-top: 2px; border: 2px solid #6d6d59; border-top-color: #d4aa4d; border-radius: 50%; animation: profile-spin 0.9s linear infinite; }
+@keyframes profile-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .profile-dialog__spinner { animation: none; border-top-color: #d4aa4d; } }
 .profile-dialog__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
 </style>
