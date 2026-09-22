@@ -4,11 +4,13 @@ import { ServerProjectSaver } from './editor/server-project-saver';
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
 import { loadPdfExporter } from './export/load-pdf-exporter';
+import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print-profile';
 import { loadCalendarDictionary } from './calendar/localization/corpus-data';
 import { setManualTextTitle } from './document/text-title';
 import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
+import PrintProfileDialog from "./components/PrintProfileDialog.vue";
 import PhotoLibraryPanel from "./components/PhotoLibraryPanel.vue";
 import IconLibraryPanel from "./components/IconLibraryPanel.vue";
 import { emptyPhotoFrameAt, clearPhotoFrameImage } from './document/photo-drop';
@@ -421,6 +423,8 @@ const calendarYear = shallowRef<OrthodoxCalendarYear>();
 const calendarLoadState = ref<"loading" | "ready" | "error">("loading");
 const persistenceState = ref<"loading" | "saved" | "saving" | "error">("loading");
 const pdfExportState = ref<"idle" | "exporting" | "ready" | "error">("idle");
+const printProfileDialogOpen = ref(false);
+const printProfileError = ref("");
 const printContactOpen = ref(false);
 function beginPrintOrder(): void {
   printContactOpen.value = true;
@@ -593,13 +597,6 @@ const bindingSafeMm = computed({
   set: (value: number) => {
     project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
     project.value.printSettings.bindingSafeMm = Math.max(0, value);
-  },
-});
-const pdfStandard = computed({
-  get: () => project.value.printSettings?.pdfStandard ?? "PDF-1.7",
-  set: (value: "PDF-1.7" | "PDF/X-4") => {
-    project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
-    project.value.printSettings.pdfStandard = value;
   },
 });
 const iccProfileName = computed(() => {
@@ -1503,13 +1500,28 @@ async function saveProjectNow(): Promise<void> {
   try { await saveServerCalendar(); } catch { /* visible server error */ }
 }
 
-async function exportPrintPdf(): Promise<void> {
+function exportPrintPdf(): void {
   if (pdfExportState.value === "exporting") return;
   if (!requestVerifiedAction("export")) return;
+  printProfileError.value = "";
+  printProfileDialogOpen.value = true;
+}
+
+async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
+  if (pdfExportState.value === "exporting") return;
   if (!displayedCalendarYear.value) {
-    operationNotice.value = "PDF пока не создан: календарные данные ещё загружаются";
+    printProfileError.value = "Календарные данные ещё загружаются";
     return;
   }
+  const builtInProfile = BUILT_IN_PRINT_PROFILES.find((profile) => profile.id === choice);
+  const customProfile = project.value.assets.find((asset) => asset.id === project.value.printSettings?.iccProfileAssetId && asset.kind === "icc-profile");
+  if (choice === "custom" && !customProfile) {
+    printProfileError.value = "Загрузите CMYK ICC-профиль типографии";
+    return;
+  }
+  const profileSource = builtInProfile?.url ?? customProfile!.source;
+  const profileName = builtInProfile?.name ?? customProfile!.name.replace(/\.(?:icc|icm)$/iu, "");
+  printProfileError.value = "";
   pdfExportState.value = "exporting";
   operationNotice.value = `Формируется PDF: ${project.value.document.pages.length} стр.`;
   let phase = "load-module";
@@ -1517,6 +1529,7 @@ async function exportPrintPdf(): Promise<void> {
     ensureCalendarWorkshopBranding(project.value);
     const { collectBundledFontFamilies, exportCalendarProjectPdf, loadPdfFontFiles } = await loadPdfExporter();
     const snapshot = createPersistentProjectSnapshot(project.value);
+    if (snapshot.printSettings) snapshot.printSettings.pdfStandard = "PDF/X-1a:2001";
     phase = "load-fonts";
     const fonts = await loadPdfFontFiles("/fonts", collectBundledFontFamilies(snapshot));
     phase = "render-pdf";
@@ -1530,15 +1543,25 @@ async function exportPrintPdf(): Promise<void> {
     // Blob accepts the exporter buffer directly. Uint8Array.from used to make
     // another full in-memory copy, which was particularly costly for 100+ MB PDFs.
     const pdfBlob = new Blob([result.bytes as BlobPart], { type: "application/pdf" });
+    const profileResponse = await fetch(profileSource);
+    if (!profileResponse.ok) throw new Error("Не удалось прочитать ICC-профиль типографии");
+    const profileBlob = await profileResponse.blob();
     operationNotice.value = `PDF сформирован; передаём на сервер: 0%`;
     phase = "upload-pdf";
     const ready: PdfExportReady = await uploadPdfExport(
       pdfBlob,
       fileName,
       verifiedAccessToken() ?? "",
-      (percent) => { operationNotice.value = `PDF сформирован; передаём на сервер: ${percent}%`; },
+      profileBlob,
+      profileName,
+      (progress) => {
+        operationNotice.value = progress.stage === "convert"
+          ? "Подготавливаем PDF/X-1a:2001 для печати…"
+          : `PDF сформирован; передаём на сервер: ${progress.percent}%`;
+      },
     );
     pdfExportState.value = "ready";
+    printProfileDialogOpen.value = false;
     linkResult.value = {
       kind: "pdf",
       url: ready.downloadUrl,
@@ -1555,6 +1578,7 @@ async function exportPrintPdf(): Promise<void> {
       requestVerifiedAction("export");
     }
     operationNotice.value = `Ошибка PDF: ${error instanceof Error ? error.message : String(error)}`;
+    printProfileError.value = error instanceof Error ? error.message : String(error);
   }
 }
 
@@ -2879,6 +2903,14 @@ async function importIccProfile(event: Event): Promise<void> {
   if (!file) return;
   try {
     assertFileSize(file, MAX_ICC_FILE_BYTES, "ICC-профиль");
+    const header = new Uint8Array(await file.slice(0, 128).arrayBuffer());
+    const signature = String.fromCharCode(...header.slice(36, 40));
+    const colorSpace = String.fromCharCode(...header.slice(16, 20));
+    if (header.length < 128 || signature !== "acsp" || colorSpace !== "CMYK"
+        || String.fromCharCode(...header.slice(12, 16)) !== "prtr"
+        || new DataView(header.buffer).getUint32(0) !== file.size) {
+      throw new Error("Для печатного PDF нужен действительный CMYK ICC-профиль");
+    }
     const source = await readFileAsDataUrl(file);
     const assetId = `asset-icc-${crypto.randomUUID()}`;
     mutateProject("Профиль типографии", () => {
@@ -2892,10 +2924,10 @@ async function importIccProfile(event: Event): Promise<void> {
       project.value.printSettings ??= { includeCropMarks: true, cropMarkLengthMm: 2, cropMarkOffsetMm: 0.5 };
       project.value.printSettings.iccProfileAssetId = assetId;
       project.value.printSettings.colorProfile = "CMYK-custom";
-      project.value.printSettings.pdfStandard = "PDF/X-4";
+      project.value.printSettings.pdfStandard = "PDF/X-1a:2001";
       project.value.printSettings.outputConditionName = file.name.replace(/\.(?:icc|icm)$/iu, "");
     });
-    operationNotice.value = `ICC-профиль «${file.name}» встроен; включён PDF/X-4`;
+    operationNotice.value = `ICC-профиль «${file.name}» добавлен для PDF/X-1a:2001`;
   } catch (error) {
     operationNotice.value = error instanceof Error ? error.message : "Не удалось добавить ICC-профиль";
   } finally {
@@ -4520,9 +4552,8 @@ onBeforeUnmount(() => {
               <h2 class="property-subheading">Переплёт и типография</h2>
               <label class="field-control"><span>Сторона переплёта</span><select v-model="bindingEdge"><option value="none">Без переплёта</option><option value="top">Сверху / пружина</option><option value="left">Слева</option><option value="right">Справа</option></select></label>
               <label v-if="bindingEdge !== 'none'" class="field-control"><span>Защитная зона, мм</span><input v-model.number="bindingSafeMm" type="number" min="0" max="40" step="0.5" /></label>
-              <label class="field-control"><span>Стандарт PDF</span><select v-model="pdfStandard"><option value="PDF-1.7">PDF 1.7</option><option value="PDF/X-4">PDF/X-4</option></select></label>
-              <button type="button" @click="requestIccProfileFile">{{ iccProfileName ? 'Заменить ICC-профиль…' : 'Загрузить ICC-профиль типографии…' }}</button>
-              <p class="property-help">{{ iccProfileName ? `Встроен профиль: ${iccProfileName}` : 'Для PDF/X-4 нужен ICC/ICM-файл типографии.' }}</p>
+              <p class="property-help">Стандарт печатного PDF: PDF/X-1a:2001 (PDF 1.3, прозрачности сведены)</p>
+              <p class="property-help">CMYK-профиль выбирается перед формированием PDF.</p>
               </template>
             </section>
           </details>
@@ -4729,6 +4760,15 @@ onBeforeUnmount(() => {
       :error="programSettingsError"
       @close="programSettingsOpen = false"
       @save="saveProgramSettingsFromDialog"
+    />
+    <PrintProfileDialog
+      v-if="printProfileDialogOpen"
+      :custom-profile-name="iccProfileName"
+      :busy="pdfExportState === 'exporting'"
+      :error="printProfileError"
+      @close="printProfileDialogOpen = false"
+      @upload="requestIccProfileFile"
+      @confirm="createPrintPdf"
     />
     <div v-if="verificationLanding" class="application-dialog-backdrop">
       <section class="application-dialog online-dialog" role="dialog" aria-modal="true" aria-label="E-mail подтверждён">

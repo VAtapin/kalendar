@@ -330,7 +330,7 @@ export interface PrintSettings {
   cropMarkOffsetMm: number;
   bindingEdge?: "none" | "top" | "left" | "right";
   bindingSafeMm?: number;
-  pdfStandard?: "PDF-1.7" | "PDF/X-4";
+  pdfStandard?: "PDF-1.7" | "PDF/X-4" | "PDF/X-1a:2001";
   colorProfile?: "sRGB" | "CMYK-custom";
   iccProfileAssetId?: string;
   outputConditionName?: string;

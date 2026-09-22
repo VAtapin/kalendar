@@ -247,19 +247,27 @@ export async function uploadPdfExport(
   pdf: Blob,
   fileName: string,
   accessToken: string,
-  onProgress?: (percent: number) => void,
+  profile: Blob,
+  outputConditionName: string,
+  onProgress?: (progress: { stage: "upload"; percent: number } | { stage: "convert" }) => void,
 ): Promise<PdfExportReady> {
   const upload = await request<PdfUploadCreated>("/v1/pdf-exports", {
     method: "POST",
     headers: bearer(accessToken),
-    body: JSON.stringify({ fileName, size: pdf.size }),
+    body: JSON.stringify({ fileName, size: pdf.size, outputConditionName }),
+  });
+  await request(`/v1/pdf-exports/${upload.uploadId}/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/octet-stream", "X-Upload-Token": upload.uploadToken },
+    body: profile,
   });
   const chunks = Math.ceil(pdf.size / upload.chunkSize);
   for (let index = 0; index < chunks; index += 1) {
     const start = index * upload.chunkSize;
     await uploadPdfChunkWithRetry(upload, index, pdf.slice(start, Math.min(pdf.size, start + upload.chunkSize)));
-    onProgress?.(Math.round(((index + 1) / chunks) * 100));
+    onProgress?.({ stage: "upload", percent: Math.round(((index + 1) / chunks) * 100) });
   }
+  onProgress?.({ stage: "convert" });
   return request(`/v1/pdf-exports/${upload.uploadId}/complete`, {
     method: "POST",
     headers: { "X-Upload-Token": upload.uploadToken },

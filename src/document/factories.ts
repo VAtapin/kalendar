@@ -12,6 +12,7 @@ import {
   ensureCalendarWorkshopBranding,
   BRAND_LOGO_ASSET_ID,
 } from "./branding";
+import { BUILT_IN_PRINT_PROFILES } from "../export/print-profile";
 
 export const PAGE_FORMATS: Readonly<
   Record<PageFormatId, { label: string; width: number; height: number }>
@@ -203,9 +204,9 @@ export function createBlankCalendarProject(year = 2027): CalendarProject {
       cropMarkOffsetMm: 0.5,
       bindingEdge: "top",
       bindingSafeMm: 12,
-      pdfStandard: "PDF-1.7",
-      colorProfile: "sRGB",
-      outputConditionName: "sRGB IEC61966-2.1",
+      pdfStandard: "PDF/X-1a:2001",
+      colorProfile: "CMYK-custom",
+      outputConditionName: BUILT_IN_PRINT_PROFILES[0].name,
     },
     foodMarkerPackId: "ornamental",
     foodMarkerAssets: {},

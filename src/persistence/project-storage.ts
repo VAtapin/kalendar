@@ -296,11 +296,9 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
   };
   project.printSettings.bindingEdge ??= "top";
   project.printSettings.bindingSafeMm = Math.max(0, project.printSettings.bindingSafeMm ?? 12);
-  project.printSettings.pdfStandard ??= "PDF-1.7";
-  project.printSettings.colorProfile ??= "sRGB";
-  project.printSettings.outputConditionName ??= project.printSettings.colorProfile === "CMYK-custom"
-    ? "Пользовательский профиль типографии"
-    : "sRGB IEC61966-2.1";
+  project.printSettings.pdfStandard = "PDF/X-1a:2001";
+  project.printSettings.colorProfile ??= "CMYK-custom";
+  project.printSettings.outputConditionName ??= "ISO Coated v2 300% (ECI)";
   project.customFonts ??= [];
   project.printSettings.cropMarkLengthMm = Math.max(0.5, project.printSettings.cropMarkLengthMm || 2);
   project.printSettings.cropMarkOffsetMm = Math.max(0, project.printSettings.cropMarkOffsetMm || 0);

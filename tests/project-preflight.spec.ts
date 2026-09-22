@@ -104,7 +104,7 @@ describe("project preflight", () => {
     expect(codes).toContain("page-order");
   });
 
-  it("checks binding safety, glyph coverage and PDF/X output intent", () => {
+  it("checks binding safety and glyph coverage with a built-in print profile", () => {
     const project = createBlankCalendarProject(2027);
     const page = createMonthTemplatePage("A3", "portrait", 1, 2027, () => crypto.randomUUID());
     const title = page.elements.find((element) => element.type === "text");
@@ -118,13 +118,12 @@ describe("project preflight", () => {
       cropMarkOffsetMm: 0.5,
       bindingEdge: "top",
       bindingSafeMm: 20,
-      pdfStandard: "PDF/X-4",
+      pdfStandard: "PDF/X-1a:2001",
       colorProfile: "CMYK-custom",
     };
     const calendar = buildOrthodoxCalendarYear(2027, parseMemoryDaysXml(xml));
     const codes = checkCalendarProject(project, calendar).map((item) => item.code);
     expect(codes).toContain("binding-safe-area");
     expect(codes).toContain("missing-glyph");
-    expect(codes).toContain("missing-output-intent");
   });
 });

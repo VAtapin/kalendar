@@ -38,7 +38,6 @@ export interface PreflightIssue {
     | "crop-marks-outside-bleed"
     | "binding-safe-area"
     | "missing-glyph"
-    | "missing-output-intent"
     | "missing-month-page"
     | "duplicate-month-page"
     | "page-order";
@@ -231,15 +230,6 @@ export function checkCalendarProject(
   const issues: PreflightIssue[] = [];
   const assets = new Map(project.assets.map((asset) => [asset.id, asset]));
 
-  if (project.printSettings?.pdfStandard === "PDF/X-4") {
-    const profile = project.printSettings.iccProfileAssetId
-      ? assets.get(project.printSettings.iccProfileAssetId)
-      : undefined;
-    if (!profile || profile.kind !== "icc-profile") {
-      const page = project.document.pages[0];
-      if (page) issues.push(issue(page, undefined, "missing-output-intent", "error", "Для PDF/X-4 не загружен ICC-профиль типографии."));
-    }
-  }
   for (const face of project.customFonts ?? []) {
     const asset = assets.get(face.assetId);
     if (!asset || asset.kind !== "font") {

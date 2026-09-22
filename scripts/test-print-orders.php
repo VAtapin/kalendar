@@ -18,7 +18,7 @@ print_reject(fn()=>$store->printConfig(array_merge($config,['revision'=>0])),409
 $link=$store->accountEmailLink('print-a@example.org',false);$user=$store->accountUser($store->accountSetPassword($link['token'],'print-password-123'));
 $link=$store->accountEmailLink('print-b@example.org',false);$other=$store->accountUser($store->accountSetPassword($link['token'],'print-password-123'));
 $calendar=$store->accountSaveCalendar($user['id'],null,$project,0);
-$pdf="%PDF-1.4\nprint fixture\n%%EOF";$upload=$store->createPdfUpload($user['id'],'print.pdf',strlen($pdf));$pdfId=$upload['upload']['id'];$store->writePdfChunk($pdfId,$upload['uploadToken'],0,$pdf);$store->completePdfUpload($pdfId,$upload['uploadToken']);
+$pdf="%PDF-1.4\nprint fixture\n%%EOF";$upload=$store->createPdfUpload($user['id'],'print.pdf',strlen($pdf));$pdfId=$upload['upload']['id'];$store->writePdfChunk($pdfId,$upload['uploadToken'],0,$pdf);$store->completePdfUpload($pdfId,$upload['uploadToken'],false);
 $input+=['calendarId'=>$calendar['id'],'calendarRevision'=>$calendar['revision'],'pdfId'=>$pdfId,'requestId'=>calendar_uuid(),'contact'=>['name'=>'Test customer'],'acceptedTerms'=>true,'acceptedTotal'=>12000,'pricingRevision'=>$config['revision']];
 print_reject(fn()=>$store->printCreate($other,$input),404);
 print_reject(fn()=>$store->printCreate($user,array_merge($input,['acceptedTotal'=>1])),409);

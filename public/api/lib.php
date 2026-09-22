@@ -12,6 +12,7 @@ require_once __DIR__ . '/print-orders.php';
 require_once __DIR__ . '/catalog.php';
 require_once __DIR__ . '/site-pages-defaults.php';
 require_once __DIR__ . '/site-pages.php';
+require_once __DIR__ . '/pdf-x1a.php';
 
 final class ApiFailure extends RuntimeException
 {
@@ -73,6 +74,7 @@ function calendar_config(): array
         'CALENDAR_DATA_DIR' => '',
         'MAX_SHARED_PROJECT_BYTES' => '',
         'MAX_PDF_EXPORT_BYTES' => '',
+        'CALENDAR_GHOSTSCRIPT_BINARY' => '',
         'CALENDAR_OWNER_EMAIL' => '',
         'ADMIN_LOGIN' => '',
         'ADMIN_PASSWORD_HASH' => '',
@@ -607,7 +609,7 @@ final class CalendarStore
     }
 
     /** @return array{upload: array<string, mixed>, uploadToken: string} */
-    public function createPdfUpload(string $ownerCredentialId, string $requestedFileName, int $totalSize): array
+    public function createPdfUpload(string $ownerCredentialId, string $requestedFileName, int $totalSize, string $outputConditionName = 'Custom CMYK'): array
     {
         $id = calendar_uuid();
         $uploadToken = calendar_token();
@@ -628,6 +630,7 @@ final class CalendarStore
             'ownerCredentialId' => $ownerCredentialId,
             'fileName' => $fileName,
             'totalSize' => $totalSize,
+            'outputConditionName' => calendar_text_slice($outputConditionName, 100),
             'chunkSize' => 4 * 1024 * 1024,
             'createdAt' => calendar_now(),
         ];
@@ -670,10 +673,31 @@ final class CalendarStore
         });
     }
 
-    /** @return array<string, mixed> */
-    public function completePdfUpload(string $uploadId, string $uploadToken): array
+    public function writePdfProfile(string $uploadId, string $uploadToken, string $bytes): void
     {
-        return calendar_with_lock($this->locksDirectory, 'upload-' . $uploadId, function () use ($uploadId, $uploadToken): array {
+        calendar_with_lock($this->locksDirectory, 'upload-' . $uploadId, function () use ($uploadId, $uploadToken, $bytes): void {
+            $upload = $this->readPdfUpload($uploadId);
+            if ($upload === null || isset($upload['completedAt']) || !hash_equals((string) ($upload['uploadTokenHash'] ?? ''), calendar_hash($uploadToken))) {
+                calendar_fail('upload_required', 403, 'Загрузка PDF не найдена');
+            }
+            if (strlen($bytes) < 128 || strlen($bytes) > 20 * 1024 * 1024
+                || unpack('N', substr($bytes, 0, 4))[1] !== strlen($bytes)
+                || substr($bytes, 12, 4) !== 'prtr'
+                || substr($bytes, 36, 4) !== 'acsp' || substr($bytes, 16, 4) !== 'CMYK') {
+                calendar_fail('invalid_output_profile', 400, 'Нужен корректный CMYK ICC-профиль типографии');
+            }
+            $path = $this->pdfUploadDirectory($uploadId) . DIRECTORY_SEPARATOR . 'output.icc';
+            if (file_put_contents($path, $bytes, LOCK_EX) === false) {
+                throw new RuntimeException('write_failed');
+            }
+            @chmod($path, 0600);
+        });
+    }
+
+    /** @return array<string, mixed> */
+    public function completePdfUpload(string $uploadId, string $uploadToken, bool $prepareForPrint = true): array
+    {
+        return calendar_with_lock($this->locksDirectory, 'upload-' . $uploadId, function () use ($uploadId, $uploadToken, $prepareForPrint): array {
             $upload = $this->readPdfUpload($uploadId);
             if ($upload === null || !hash_equals((string) ($upload['uploadTokenHash'] ?? ''), calendar_hash($uploadToken))) {
                 calendar_fail('upload_required', 403, 'Загрузка PDF не найдена');
@@ -712,6 +736,24 @@ final class CalendarStore
                 calendar_fail('upload_incomplete', 400, 'Размер собранного PDF не совпадает');
             }
             @chmod($target, 0600);
+            if ($prepareForPrint) {
+                @set_time_limit(310);
+                $profile = $this->pdfUploadDirectory($uploadId) . DIRECTORY_SEPARATOR . 'output.icc';
+                if (!is_file($profile)) {
+                    @unlink($target);
+                    calendar_fail('missing_output_profile', 400, 'Перед экспортом загрузите CMYK ICC-профиль типографии');
+                }
+                $converted = $this->pdfUploadDirectory($uploadId) . DIRECTORY_SEPARATOR . 'press-output.pdf';
+                try {
+                    $convertedSize = calendar_convert_pdf_x1a($target, $converted, $profile, (string) ($upload['outputConditionName'] ?? 'Custom CMYK'));
+                    if (!rename($converted, $target)) {
+                        throw new RuntimeException('pdfx_replace_failed');
+                    }
+                    $upload['totalSize'] = $convertedSize;
+                } finally {
+                    @unlink($converted);
+                }
+            }
             $upload['completedAt'] = calendar_now();
             calendar_atomic_json_write($this->pdfUploadDirectory($uploadId) . DIRECTORY_SEPARATOR . 'upload.json', $upload);
             calendar_remove_directory($this->pdfUploadDirectory($uploadId) . DIRECTORY_SEPARATOR . 'chunks');

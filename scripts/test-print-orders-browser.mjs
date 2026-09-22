@@ -10,7 +10,7 @@ require 'public/api/lib.php';$s=new CalendarStore(getenv('CALENDAR_DATA_DIR'));
 $c=$s->printConfig();$c['enabled']=true;$c['notificationEmail']='test@example.org';$c['taxNote']='TEST inclusive price';$s->printConfig($c);
 $l=$s->accountEmailLink('print-browser@example.org',false);$t=$s->accountSetPassword($l['token'],'print-password-123');$u=$s->accountUser($t);
 $p=['name'=>'Тестовый календарь','year'=>2027,'document'=>['pages'=>array_fill(0,13,['width'=>297,'height'=>420])],'assets'=>[]];$r=$s->accountSaveCalendar($u['id'],null,$p,0);
-$pdf="%PDF-1.4\\nfixture\\n%%EOF";$upload=$s->createPdfUpload($u['id'],'print.pdf',strlen($pdf));$id=$upload['upload']['id'];$s->writePdfChunk($id,$upload['uploadToken'],0,$pdf);$s->completePdfUpload($id,$upload['uploadToken']);
+$pdf="%PDF-1.4\\nfixture\\n%%EOF";$upload=$s->createPdfUpload($u['id'],'print.pdf',strlen($pdf));$id=$upload['upload']['id'];$s->writePdfChunk($id,$upload['uploadToken'],0,$pdf);$s->completePdfUpload($id,$upload['uploadToken'],false);
 echo json_encode(['token'=>$t,'source'=>['calendarId'=>$r['id'],'calendarRevision'=>$r['revision'],'pdfId'=>$id]]);
 `],{env,encoding:'utf8'}));
 const server=spawn('php',['-S','127.0.0.1:18992','scripts/php-dev-router.php'],{env,stdio:'ignore',windowsHide:true});

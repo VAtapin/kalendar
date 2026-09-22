@@ -543,7 +543,7 @@ try {
         if (!is_string($body['fileName'] ?? null) || !is_int($size) || $size <= 0 || $size > $maxPdfBytes) {
             api_response(400, ['error' => 'invalid_export', 'message' => 'PDF должен быть меньше ' . round($maxPdfBytes / 1024 / 1024) . ' МБ']);
         }
-        $created = $store->createPdfUpload($credential['id'], $body['fileName'], $size);
+        $created = $store->createPdfUpload($credential['id'], $body['fileName'], $size, is_string($body['outputConditionName'] ?? null) ? $body['outputConditionName'] : 'Custom CMYK');
         api_response(201, [
             'uploadId' => $created['upload']['id'],
             'uploadToken' => $created['uploadToken'],
@@ -553,6 +553,11 @@ try {
 
     if ($method === 'PUT' && preg_match('#^/v1/pdf-exports/([0-9a-f-]{36})/chunks/(\d+)$#i', $path, $match) === 1) {
         $store->writePdfChunk($match[1], api_header('X-Upload-Token'), (int) $match[2], api_request_body(5 * 1024 * 1024));
+        api_response(204);
+    }
+
+    if ($method === 'PUT' && preg_match('#^/v1/pdf-exports/([0-9a-f-]{36})/profile$#i', $path, $match) === 1) {
+        $store->writePdfProfile($match[1], api_header('X-Upload-Token'), api_request_body(20 * 1024 * 1024));
         api_response(204);
     }
 
