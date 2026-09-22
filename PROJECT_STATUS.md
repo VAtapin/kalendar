@@ -37,6 +37,7 @@
 ## Текущее состояние и решения
 
 - Ветка разработки: `main`, upstream: `origin/main`.
+- Три опубликованных PDF календаря 2027 года (RU/DE/UK) заменены предоставленными печатными файлами; ссылки на главной странице обновлены с параметрами версии, чтобы скачать новые файлы без старого кэша. В карточке готового календаря вместо заглушки с годом показана миниатюра его обложки.
 - Печатный экспорт редактора: пользователь выбирает бумагу и ICC-профиль; страницы календаря отрисовываются при 300 dpi и напрямую собираются серверным Node.js в CMYK PDF/X-1a:2001 (PDF 1.3). Прозрачности и эффекты сведены в непрозрачные изображения страниц, промежуточного PDF и Ghostscript в новом экспорте нет. Готовые PDF календаря 2027 года не пересоздавались. Связанный commit: `Build print PDF directly from calendar pages`.
 - При снимке страницы печатный экспорт явно встраивает используемые шрифты SVG, включая загруженные пользователем. RGB сразу преобразуется выбранным ICC-профилем в CMYK; предварительное преобразование в обобщённый CMYK удалено, поскольку оно осветляло фотографии. Страницы сохраняются MozJPEG при качестве 88 и 300 dpi для более чёткого текста при умеренном размере PDF. Эта правка на production пока не проверена.
 - Тени текста для печатного снимка сводятся в обычные слои тем же алгоритмом, что в векторном RGB PDF; они размещаются под глубиной букв. Это правило действует для любых надписей и календарных сеток, без настроек под отдельные календари.
@@ -71,6 +72,7 @@
 
 ## Последние проверки
 
+- Для замены готовых календарей 2027 года проверены все 13 страниц каждого PDF, версия 1.3, PDF/X-1a:2001, CMYK, визуальный вид языковых версий и совпадение SHA-256 исходников с опубликованными файлами; миниатюра обложки просмотрена в размерах карточки для компьютера и телефона; прошли `npm run typecheck` и `npx vite build`.
 - Для прямого печатного экспорта прошли `tests/print-direct.spec.ts`, `npm run typecheck`, PHP lint, `npx vite build`, браузерная отрисовка A3 страницы с календарными данными и изображениями, сборка PDF через PHP и просмотр результата. Штатный `npm run build` локально остановился на ошибке Node `uv_os_get_passwd: ENOMEM` в `tsx`; production ещё не проверен.
 - Для исправления шрифтов прошли `tests/print-fonts.spec.ts`, `tests/print-direct.spec.ts`, `npm run typecheck`, `npx vite build` и браузерное сравнение SVG-снимков со встроенными шрифтами и без них.
 - Для RGB PDF прошли 10 целевых Vitest-тестов, `npm run typecheck`, `npx vite build`, PHP lint и PHP-тест сохранения PDF без ICC; браузер подтвердил выбор RGB и передачу `rgb` по кнопке диалога.
@@ -112,4 +114,4 @@
 - Для синхронизации `/calendar-api` прошли `npm run typecheck`, браузерный `scripts/test-calendar-api-docs.mjs`, мобильная ширина и проверка `git diff --check`. Полная production-сборка этой сессии не запускается из-за ошибки среды Node `uv_os_get_passwd: ENOMEM`; исходная страница проверена через Vite dev-сервер.
 - Для раздела `Church Slavonic Translator` на `/calendar-api` пройдены typecheck и браузерная проверка точных ссылок на релиз/репозиторий и мобильной ширины.
 
-Последние связанные commits: Bible Desktop `27caa7f Add free and authenticated translator access`; Kalendar `Align print text shadows with RGB PDF`; `Church Slavonic Translator` `426cd40 Prepare Church Slavonic Translator for WordPress.org`; календарный плагин `e6d8018 Release 1.3.62`.
+Последние связанные commits: Bible Desktop `27caa7f Add free and authenticated translator access`; Kalendar `Replace published 2027 calendar PDFs`; `Church Slavonic Translator` `426cd40 Prepare Church Slavonic Translator for WordPress.org`; календарный плагин `e6d8018 Release 1.3.62`.

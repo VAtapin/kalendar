@@ -3209,19 +3209,20 @@ input {
   background: linear-gradient(125deg, #272315, #17201c 56%);
 }
 
-.welcome-ready-calendar-card__year {
-  display: grid;
+.welcome-ready-calendar-card__cover {
+  position: relative;
   min-height: 220px;
-  place-items: center;
+  overflow: hidden;
   border-right: 1px solid rgb(214 185 99 / 35%);
-  color: #f1d889;
-  background:
-    radial-gradient(circle at 52% 42%, rgb(229 201 110 / 21%), transparent 42%),
-    linear-gradient(150deg, #3b321c, #1d251e);
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: clamp(62px, 9vw, 126px);
-  font-weight: 600;
-  letter-spacing: -.06em;
+  background: #2b211c;
+}
+
+.welcome-ready-calendar-card__cover img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .welcome-ready-calendar-card__content {
@@ -3612,11 +3613,10 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .welcome-ready-calendar-card__year {
-    min-height: 120px;
+  .welcome-ready-calendar-card__cover {
+    min-height: 200px;
     border-right: 0;
     border-bottom: 1px solid rgb(214 185 99 / 35%);
-    font-size: 74px;
   }
 
   .welcome-ready-calendar-card__content {

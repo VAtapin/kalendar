@@ -98,15 +98,17 @@ function changeInterfaceLanguage(event: Event): void {
         </div>
       </div>
       <article class="welcome-ready-calendar-card">
-        <div class="welcome-ready-calendar-card__year" aria-hidden="true">2027</div>
+        <div class="welcome-ready-calendar-card__cover">
+          <img src="/downloads/ready-calendars/orthodox-calendar-2027-cover.webp" alt="Обложка календаря Свято-Георгиевского монастыря на 2027 год" loading="lazy" />
+        </div>
         <div class="welcome-ready-calendar-card__content">
           <span class="welcome-hero__eyebrow">Готовый календарь</span>
           <h3>Календарь Свято-Георгиевского мужского монастыря в Гётчендорфе</h3>
           <p>Календарь на 2027 год с фотографиями монастыря. Один дизайн доступен на трёх языках. Выберите подходящий PDF для скачивания.</p>
           <div class="welcome-ready-calendar-card__downloads" aria-label="Выберите язык PDF">
-            <a href="/downloads/ready-calendars/orthodox-calendar-2027-ru.pdf" download>Скачать русский PDF</a>
-            <a href="/downloads/ready-calendars/orthodox-calendar-2027-de.pdf" download lang="de">Deutsch PDF herunterladen</a>
-            <a href="/downloads/ready-calendars/orthodox-calendar-2027-uk.pdf" download lang="uk">Завантажити PDF українською</a>
+            <a href="/downloads/ready-calendars/orthodox-calendar-2027-ru.pdf?v=f65ce594" download>Скачать русский PDF</a>
+            <a href="/downloads/ready-calendars/orthodox-calendar-2027-de.pdf?v=331bf833" download lang="de">Deutsch PDF herunterladen</a>
+            <a href="/downloads/ready-calendars/orthodox-calendar-2027-uk.pdf?v=40394795" download lang="uk">Завантажити PDF українською</a>
           </div>
         </div>
       </article>
