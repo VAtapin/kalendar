@@ -85,6 +85,7 @@ import { gradientColorAt, normalizedOpacity } from "../document/paint";
 import {
   normalizedTextShadow,
   textExtrusionOffsets,
+  textShadowOffsets,
 } from "../document/text-effects";
 import {
   buildCalendarGridLayout,
@@ -529,24 +530,17 @@ function drawLargeTrackedText(
   const objectOpacity = normalizedOpacity(opacity);
   const shadow = normalizedTextShadow(effects?.shadow);
   if (shadow) {
-    const blur = mm(shadow.blurMm);
-    const samples = blur > 0
-      ? [
-          [0, 0], [-0.7, 0], [0.7, 0], [0, -0.7], [0, 0.7],
-          [-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5],
-        ] as const
-      : [[0, 0]] as const;
-    for (const [sampleX, sampleY] of samples) {
+    for (const offset of textShadowOffsets(shadow)) {
       drawTrackedText(
         page,
         text,
-        x + mm(shadow.offsetXMm) + sampleX * blur,
-        y - mm(shadow.offsetYMm) + sampleY * blur,
+        x + mm(offset.xMm),
+        y - mm(offset.yMm),
         size,
         font,
         color(shadow.color),
         spacing,
-        objectOpacity * shadow.opacity / Math.sqrt(samples.length),
+        objectOpacity * offset.opacity,
       );
     }
   }

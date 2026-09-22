@@ -68,3 +68,18 @@ export function normalizedTextShadow(effect: TextShadowEffect | undefined): Text
       : DEFAULT_TEXT_SHADOW.opacity,
   };
 }
+
+/** Match the shadow layers used by the vector PDF renderer. */
+export function textShadowOffsets(effect: TextShadowEffect | undefined): TextEffectOffset[] {
+  const shadow = normalizedTextShadow(effect);
+  if (!shadow) return [];
+  const samples: [number, number][] = shadow.blurMm > 0
+    ? [[0, 0], [-0.7, 0], [0.7, 0], [0, -0.7], [0, 0.7],
+      [-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]
+    : [[0, 0]];
+  return samples.map(([x, y]) => ({
+    xMm: shadow.offsetXMm + x * shadow.blurMm,
+    yMm: shadow.offsetYMm + y * shadow.blurMm,
+    opacity: shadow.opacity / Math.sqrt(samples.length),
+  }));
+}

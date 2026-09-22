@@ -6,7 +6,7 @@ import { editorIntent } from './editor-intent';
 import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print-profile';
 import { preparePrintFontCss } from './export/print-fonts';
 import { packagePrintPages } from './export/print-raster';
-import { inlinePrintSvgStyles } from './export/print-svg-styles';
+import { flattenPrintSvgTextShadows, inlinePrintSvgStyles } from './export/print-svg-styles';
 import { loadPdfExporter } from './export/load-pdf-exporter';
 import { loadCalendarDictionary } from './calendar/localization/corpus-data';
 import { setManualTextTitle } from './document/text-title';
@@ -1606,12 +1606,18 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
       if (!(svg instanceof SVGSVGElement)) throw new Error("Не удалось найти страницу для печати");
       svg.style.boxShadow = "none";
       inlinePrintSvgStyles(svg);
-      const canvas = await toCanvas(node, {
-        pixelRatio: 300 / 96,
-        backgroundColor: "#ffffff",
-        skipAutoScale: true,
-        fontEmbedCSS,
-      });
+      const restoreShadows = flattenPrintSvgTextShadows(svg);
+      let canvas: HTMLCanvasElement;
+      try {
+        canvas = await toCanvas(node, {
+          pixelRatio: 300 / 96,
+          backgroundColor: "#ffffff",
+          skipAutoScale: true,
+          fontEmbedCSS,
+        });
+      } finally {
+        restoreShadows();
+      }
       const image = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.96));
       canvas.width = 0;
       canvas.height = 0;
