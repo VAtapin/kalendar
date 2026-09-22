@@ -38,7 +38,7 @@
 
 - Ветка разработки: `main`, upstream: `origin/main`.
 - Печатный экспорт редактора: пользователь выбирает бумагу и ICC-профиль; страницы календаря отрисовываются при 300 dpi и напрямую собираются серверным Node.js в CMYK PDF/X-1a:2001 (PDF 1.3). Прозрачности и эффекты сведены в непрозрачные изображения страниц, промежуточного PDF и Ghostscript в новом экспорте нет. Готовые PDF календаря 2027 года не пересоздавались. Связанный commit: `Build print PDF directly from calendar pages`.
-- При снимке страницы печатный экспорт теперь явно встраивает используемые шрифты SVG, включая загруженные пользователем; CMYK JPEG сохраняется при качестве 90 и 300 dpi для уменьшения PDF. Исправление готово локально, production пока не обновлён.
+- При снимке страницы печатный экспорт явно встраивает используемые шрифты SVG, включая загруженные пользователем; CMYK JPEG сохраняется MozJPEG при качестве 75 и 300 dpi для уменьшения PDF. Production этой правкой пока не обновлён.
 - В том же диалоге доступен стандартный RGB PDF 1.7: прежний векторный экспортёр создаёт файл без CMYK-преобразования, сервер сохраняет его и выдаёт ссылку без требования ICC-профиля. CMYK PDF/X-1a остаётся отдельным вариантом.
 - Богослужебный корпус и изображения икон фактически обслуживаются API проекта Bible Desktop.
 - Для иконок календаря используется каталог Bible Desktop `/api/calendar/icons?month_day=...&with_images=1`, а не сокращённый `/api/calendar/day`: это сохраняет все карточки, все изображения и опубликованные даты празднования. API Kalendar связывает их с рассчитанными XML-событиями только при проверяемом совпадении двух значимых фрагментов.
@@ -71,8 +71,9 @@
 ## Последние проверки
 
 - Для прямого печатного экспорта прошли `tests/print-direct.spec.ts`, `npm run typecheck`, PHP lint, `npx vite build`, браузерная отрисовка A3 страницы с календарными данными и изображениями, сборка PDF через PHP и просмотр результата. Штатный `npm run build` локально остановился на ошибке Node `uv_os_get_passwd: ENOMEM` в `tsx`; production ещё не проверен.
-- Для исправления шрифтов прошли `tests/print-fonts.spec.ts`, `tests/print-direct.spec.ts`, `npm run typecheck`, `npx vite build` и браузерное сравнение SVG-снимков со встроенными шрифтами и без них. На JPEG страницы из пользовательского PDF качество 90 сократило объём с 11,2 до 3,0 МБ при сохранении 300 dpi.
+- Для исправления шрифтов прошли `tests/print-fonts.spec.ts`, `tests/print-direct.spec.ts`, `npm run typecheck`, `npx vite build` и браузерное сравнение SVG-снимков со встроенными шрифтами и без них.
 - Для RGB PDF прошли 10 целевых Vitest-тестов, `npm run typecheck`, `npx vite build`, PHP lint и PHP-тест сохранения PDF без ICC; браузер подтвердил выбор RGB и передачу `rgb` по кнопке диалога.
+- Для уменьшения CMYK PDF прошли два теста `tests/print-direct.spec.ts` и `npm run typecheck`; все 13 JPEG-страниц пользовательского PDF при пробном сжатии уменьшились со 103,7 до 48,4 МБ, сохранив CMYK и 300 dpi.
 - Для печатного PDF прошли `npm run typecheck`, 17 целевых Vitest-тестов и сборка клиента через Vite. Штатный `npm run build` остановился на локальной ошибке Node `uv_os_get_passwd: ENOMEM`; локальный PHP lint не выполнен из-за неисправного `C:\php\php.exe`.
 - Реальный локальный WordPress/SQLite + Edge: все 16 наборов проверяются в админском предпросмотре, при сохранении image_pack и на публичной странице постной даты; для `no-fast` картинка отсутствует в предпросмотре и в сохранённой карточке. Отдельно воспроизведён запоздалый ответ предпросмотра.
 - В восьми богослужебных режимах проверены гражданский шрифт и отсутствие подстановки `cu-civil` вместо недоступного `cu`; настоящий `cu` Часослова загружает Monomakh. Проверены публичные AJAX-читатели, 22 Gutenberg-блока, медиа-кэш и изоляция ключей.
@@ -108,4 +109,4 @@
 - Для синхронизации `/calendar-api` прошли `npm run typecheck`, браузерный `scripts/test-calendar-api-docs.mjs`, мобильная ширина и проверка `git diff --check`. Полная production-сборка этой сессии не запускается из-за ошибки среды Node `uv_os_get_passwd: ENOMEM`; исходная страница проверена через Vite dev-сервер.
 - Для раздела `Church Slavonic Translator` на `/calendar-api` пройдены typecheck и браузерная проверка точных ссылок на релиз/репозиторий и мобильной ширины.
 
-Последние связанные commits: Bible Desktop `27caa7f Add free and authenticated translator access`; Kalendar `Restore standard RGB PDF export`; `Church Slavonic Translator` `426cd40 Prepare Church Slavonic Translator for WordPress.org`; календарный плагин `e6d8018 Release 1.3.62`.
+Последние связанные commits: Bible Desktop `27caa7f Add free and authenticated translator access`; Kalendar `Reduce CMYK print PDF size`; `Church Slavonic Translator` `426cd40 Prepare Church Slavonic Translator for WordPress.org`; календарный плагин `e6d8018 Release 1.3.62`.
