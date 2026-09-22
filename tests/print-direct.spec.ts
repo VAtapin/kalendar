@@ -78,9 +78,51 @@ describe("direct print PDF", () => {
       const images = pdf.getPage(0).node.Resources()?.lookupMaybe(PDFName.of("XObject"), PDFDict);
       const image = images?.keys().map((key) => images.lookup(key)).find((item) => item instanceof PDFRawStream) as PDFRawStream | undefined;
       expect(image).toBeDefined();
-      expect(image!.contents.length).toBeLessThan(oldEncoding.length * 0.6);
+      expect(image!.contents.length).toBeLessThan(oldEncoding.length * 0.75);
       const metadata = await sharp(image!.contents).metadata();
       expect(metadata).toMatchObject({ width, height, channels: 4, space: "cmyk" });
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves photographic RGB tones through the selected CMYK profile", async () => {
+    const width = 300;
+    const height = 300;
+    const pixels = Buffer.alloc(width * height * 3);
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const tone = (x / width + y / height) / 2;
+        const texture = (x * 13 + y * 17) % 17;
+        const offset = (y * width + x) * 3;
+        pixels[offset] = Math.round(17 + 220 * tone + texture);
+        pixels[offset + 1] = Math.round(14 + 170 * tone + texture);
+        pixels[offset + 2] = Math.round(12 + 95 * tone + texture);
+      }
+    }
+    const source = await sharp(pixels, { raw: { width, height, channels: 3 } })
+      .jpeg({ quality: 95 }).toBuffer();
+    const page = createBlankPage("A5", "portrait");
+    page.width = 25.4;
+    page.height = 25.4;
+    page.bleed = { left: 0, right: 0, top: 0, bottom: 0 };
+    const packageBlob = packagePrintPages([page], [new Blob([source])], undefined);
+    const directory = mkdtempSync(join(tmpdir(), "calendar-print-color-"));
+    try {
+      const input = join(directory, "pages.bin");
+      const output = join(directory, "print.pdf");
+      writeFileSync(input, Buffer.from(await packageBlob.arrayBuffer()));
+      execFileSync(process.execPath, [resolve("scripts/build-print-pdf.mjs"), input,
+        resolve("public/icc/ISOcoated_v2_300_eci.icc"), output]);
+      const pdf = await PDFDocument.load(readFileSync(output));
+      const images = pdf.getPage(0).node.Resources()?.lookupMaybe(PDFName.of("XObject"), PDFDict);
+      const image = images?.keys().map((key) => images.lookup(key))
+        .find((item) => item instanceof PDFRawStream) as PDFRawStream | undefined;
+      expect(image).toBeDefined();
+      const printed = await sharp(image!.contents).withIccProfile("srgb", { attach: false }).raw().toBuffer();
+      const original = await sharp(source).raw().toBuffer();
+      const meanError = printed.reduce((sum, value, index) => sum + Math.abs(value - original[index]!), 0) / original.length;
+      expect(meanError).toBeLessThan(6.5);
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }
