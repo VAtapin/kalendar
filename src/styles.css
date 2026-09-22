@@ -1264,6 +1264,16 @@ input {
     0 3px 10px rgb(0 0 0 / 32%);
 }
 
+.print-capture-page .page-element__frame,
+.print-capture-page .page-element__placeholder,
+.print-capture-page .page-element__selection,
+.print-capture-page .page-element__handles,
+.print-capture-page .page-scene__draft,
+.print-capture-page .page-scene__guides,
+.print-capture-page .calendar-cell__overflow {
+  display: none;
+}
+
 .page-scene--tool-text,
 .page-scene--tool-image,
 .page-scene--tool-rectangle,

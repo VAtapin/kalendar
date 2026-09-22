@@ -3,8 +3,9 @@ import { createApplicationMenus, type ApplicationMenuId, type MenuCommandId } fr
 import { ServerProjectSaver } from './editor/server-project-saver';
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
-import { loadPdfExporter } from './export/load-pdf-exporter';
 import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print-profile';
+import { packagePrintPages } from './export/print-raster';
+import { inlinePrintSvgStyles } from './export/print-svg-styles';
 import { loadCalendarDictionary } from './calendar/localization/corpus-data';
 import { setManualTextTitle } from './document/text-title';
 import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
@@ -26,6 +27,7 @@ import TextEffectsEditor from "./components/TextEffectsEditor.vue";
 import FoodMarkerPackSelect from "./components/FoodMarkerPackSelect.vue";
 import ApplicationHelpDialog, { type HelpDialogPage } from "./components/ApplicationHelpDialog.vue";
 import PageThumbnail from "./components/PageThumbnail.vue";
+import PageScene from "./components/PageScene.vue";
 import RecoveryDialog from "./components/RecoveryDialog.vue";
 import WelcomePage from "./components/WelcomePage.vue";
 import EmailVerificationDialog from "./components/EmailVerificationDialog.vue";
@@ -161,7 +163,7 @@ import {
   sharedProjectIdFromLocation,
   sharedProjectUrl,
   updateGlobalCalendarGridTemplate,
-  uploadPdfExport,
+  uploadPrintPages,
   verificationTokenFromLocation,
 } from "./collaboration/shared-project-client";
 import type {
@@ -427,6 +429,10 @@ const printProfileDialogOpen = ref(false);
 const printProfileError = ref("");
 const printExportStage = ref<"render" | "upload" | "convert">("render");
 const printExportUploadPercent = ref(0);
+const printExportPageProgress = ref({ current: 0, total: 0 });
+const printCaptureProject = shallowRef<CalendarProject>();
+const printCapturePage = shallowRef<PageModel>();
+const printCaptureNode = ref<HTMLElement>();
 const printContactOpen = ref(false);
 function beginPrintOrder(): void {
   printContactOpen.value = true;
@@ -1526,35 +1532,52 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
   printProfileError.value = "";
   printExportStage.value = "render";
   printExportUploadPercent.value = 0;
+  printExportPageProgress.value = { current: 0, total: project.value.document.pages.length };
   pdfExportState.value = "exporting";
-  operationNotice.value = `Формируется PDF: ${project.value.document.pages.length} стр.`;
-  let phase = "load-module";
+  operationNotice.value = `Готовим страницы для печати: ${project.value.document.pages.length} стр.`;
+  let phase = "render-pages";
   try {
     ensureCalendarWorkshopBranding(project.value);
-    const { collectBundledFontFamilies, exportCalendarProjectPdf, loadPdfFontFiles } = await loadPdfExporter();
     const snapshot = createPersistentProjectSnapshot(project.value);
     if (snapshot.printSettings) snapshot.printSettings.pdfStandard = "PDF/X-1a:2001";
-    phase = "load-fonts";
-    const fonts = await loadPdfFontFiles("/fonts", collectBundledFontFamilies(snapshot));
-    phase = "render-pdf";
-    const result = await exportCalendarProjectPdf(
-      snapshot,
-      displayedCalendarYear.value,
-      fonts,
-    );
+    const { toCanvas } = await import("html-to-image");
+    printCaptureProject.value = snapshot;
+    const images: Blob[] = [];
+    for (const [index, page] of snapshot.document.pages.entries()) {
+      printCapturePage.value = page;
+      await nextTick();
+      await document.fonts.ready;
+      const node = printCaptureNode.value;
+      if (!node) throw new Error("Не удалось подготовить страницу для печати");
+      const svg = node.querySelector("svg");
+      if (!(svg instanceof SVGSVGElement)) throw new Error("Не удалось найти страницу для печати");
+      svg.style.boxShadow = "none";
+      inlinePrintSvgStyles(svg);
+      const canvas = await toCanvas(node, {
+        pixelRatio: 300 / 96,
+        backgroundColor: "#ffffff",
+        skipAutoScale: true,
+      });
+      const image = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.96));
+      canvas.width = 0;
+      canvas.height = 0;
+      if (!image || image.size < 100) throw new Error(`Не удалось отрисовать страницу ${index + 1}`);
+      images.push(image);
+      printExportPageProgress.value = { current: index + 1, total: snapshot.document.pages.length };
+      operationNotice.value = `Готовим страницы для печати: ${index + 1} из ${snapshot.document.pages.length}`;
+    }
+    const pages = packagePrintPages(snapshot.document.pages, images, snapshot.printSettings);
     const safeName = project.value.name.replace(/[^\p{L}\p{N}._-]+/gu, "-");
     const fileName = `${safeName}-${project.value.year}-print.pdf`;
-    // Blob accepts the exporter buffer directly. Uint8Array.from used to make
-    // another full in-memory copy, which was particularly costly for 100+ MB PDFs.
-    const pdfBlob = new Blob([result.bytes as BlobPart], { type: "application/pdf" });
+    phase = "load-profile";
     const profileResponse = await fetch(profileSource);
     if (!profileResponse.ok) throw new Error("Не удалось прочитать ICC-профиль типографии");
     const profileBlob = await profileResponse.blob();
-    operationNotice.value = `PDF сформирован; передаём на сервер: 0%`;
+    operationNotice.value = `Страницы подготовлены; передаём на сервер: 0%`;
     printExportStage.value = "upload";
-    phase = "upload-pdf";
-    const ready: PdfExportReady = await uploadPdfExport(
-      pdfBlob,
+    phase = "upload-pages";
+    const ready: PdfExportReady = await uploadPrintPages(
+      pages,
       fileName,
       verifiedAccessToken() ?? "",
       profileBlob,
@@ -1563,8 +1586,8 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
         printExportStage.value = progress.stage === "convert" ? "convert" : "upload";
         if (progress.stage === "upload") printExportUploadPercent.value = progress.percent;
         operationNotice.value = progress.stage === "convert"
-          ? "Подготавливаем PDF/X-1a:2001 для печати…"
-          : `PDF сформирован; передаём на сервер: ${progress.percent}%`;
+          ? "Создаём CMYK PDF/X-1a:2001 из страниц календаря…"
+          : `Передаём страницы на сервер: ${progress.percent}%`;
       },
     );
     pdfExportState.value = "ready";
@@ -1572,7 +1595,7 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
     linkResult.value = {
       kind: "pdf",
       url: ready.downloadUrl,
-      detail: `${(ready.size / 1024 / 1024).toFixed(1)} МБ${result.warnings.length ? ` · предпечатных предупреждений: ${result.warnings.length}` : " · без предпечатных предупреждений"}`,
+      detail: `${(ready.size / 1024 / 1024).toFixed(1)} МБ · ${snapshot.document.pages.length} стр.`,
     };
     operationNotice.value = "PDF сохранён на сервере; ссылка на скачивание готова";
   } catch (error) {
@@ -1586,6 +1609,9 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
     }
     operationNotice.value = `Ошибка PDF: ${error instanceof Error ? error.message : String(error)}`;
     printProfileError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    printCapturePage.value = undefined;
+    printCaptureProject.value = undefined;
   }
 }
 
@@ -4774,11 +4800,36 @@ onBeforeUnmount(() => {
       :busy="pdfExportState === 'exporting'"
       :stage="printExportStage"
       :upload-percent="printExportUploadPercent"
+      :page-progress="printExportPageProgress"
       :error="printProfileError"
       @close="printProfileDialogOpen = false"
       @upload="requestIccProfileFile"
       @confirm="createPrintPdf"
     />
+    <div v-if="printCapturePage && printCaptureProject" aria-hidden="true" style="position: fixed; left: -100000px; top: 0; pointer-events: none;">
+      <div
+        ref="printCaptureNode"
+        class="print-capture-page"
+        :style="{
+          width: `${(printCapturePage.width + printCapturePage.bleed.left + printCapturePage.bleed.right) * 96 / 25.4}px`,
+          height: `${(printCapturePage.height + printCapturePage.bleed.top + printCapturePage.bleed.bottom) * 96 / 25.4}px`,
+          background: '#ffffff',
+        }"
+      >
+        <PageScene
+          :page="printCapturePage"
+          :assets="printCaptureProject.assets"
+          :food-marker-pack-id="printCaptureProject.foodMarkerPackId"
+          :food-marker-assets="printCaptureProject.foodMarkerAssets"
+          :fasting-profile-id="printCaptureProject.fastingProfileId"
+          :calendar-language="printCaptureProject.calendarLanguage"
+          :calendar-year="displayedCalendarYear"
+          :pixels-per-mm="96 / 25.4"
+          :show-guides="false"
+          active-tool="selection"
+        />
+      </div>
+    </div>
     <div v-if="verificationLanding" class="application-dialog-backdrop">
       <section class="application-dialog online-dialog" role="dialog" aria-modal="true" aria-label="E-mail подтверждён">
         <header class="application-dialog__header"><h2>E-mail подтверждён</h2></header>

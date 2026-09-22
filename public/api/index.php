@@ -540,10 +540,13 @@ try {
         }
         $body = api_request_json();
         $size = $body['size'] ?? null;
-        if (!is_string($body['fileName'] ?? null) || !is_int($size) || $size <= 0 || $size > $maxPdfBytes) {
+        $format = $body['format'] ?? 'pdf';
+        if (!is_string($body['fileName'] ?? null) || !is_int($size) || $size <= 0 || $size > $maxPdfBytes
+            || !in_array($format, ['pdf', 'raster-pages'], true)) {
             api_response(400, ['error' => 'invalid_export', 'message' => 'PDF должен быть меньше ' . round($maxPdfBytes / 1024 / 1024) . ' МБ']);
         }
-        $created = $store->createPdfUpload($credential['id'], $body['fileName'], $size, is_string($body['outputConditionName'] ?? null) ? $body['outputConditionName'] : 'Custom CMYK');
+        $created = $store->createPdfUpload($credential['id'], $body['fileName'], $size,
+            is_string($body['outputConditionName'] ?? null) ? $body['outputConditionName'] : 'Custom CMYK', $format);
         api_response(201, [
             'uploadId' => $created['upload']['id'],
             'uploadToken' => $created['uploadToken'],

@@ -243,8 +243,8 @@ async function uploadPdfChunkWithRetry(
   throw lastError instanceof Error ? lastError : new Error("Не удалось передать часть PDF");
 }
 
-export async function uploadPdfExport(
-  pdf: Blob,
+export async function uploadPrintPages(
+  pages: Blob,
   fileName: string,
   accessToken: string,
   profile: Blob,
@@ -254,17 +254,17 @@ export async function uploadPdfExport(
   const upload = await request<PdfUploadCreated>("/v1/pdf-exports", {
     method: "POST",
     headers: bearer(accessToken),
-    body: JSON.stringify({ fileName, size: pdf.size, outputConditionName }),
+    body: JSON.stringify({ fileName, size: pages.size, outputConditionName, format: "raster-pages" }),
   });
   await request(`/v1/pdf-exports/${upload.uploadId}/profile`, {
     method: "PUT",
     headers: { "Content-Type": "application/octet-stream", "X-Upload-Token": upload.uploadToken },
     body: profile,
   });
-  const chunks = Math.ceil(pdf.size / upload.chunkSize);
+  const chunks = Math.ceil(pages.size / upload.chunkSize);
   for (let index = 0; index < chunks; index += 1) {
     const start = index * upload.chunkSize;
-    await uploadPdfChunkWithRetry(upload, index, pdf.slice(start, Math.min(pdf.size, start + upload.chunkSize)));
+    await uploadPdfChunkWithRetry(upload, index, pages.slice(start, Math.min(pages.size, start + upload.chunkSize)));
     onProgress?.({ stage: "upload", percent: Math.round(((index + 1) / chunks) * 100) });
   }
   onProgress?.({ stage: "convert" });

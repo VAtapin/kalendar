@@ -7,6 +7,7 @@ const props = defineProps<{
   busy?: boolean;
   stage?: "render" | "upload" | "convert";
   uploadPercent?: number;
+  pageProgress?: { current: number; total: number };
   error?: string;
 }>();
 const emit = defineEmits<{
@@ -60,10 +61,10 @@ const conversionElapsed = computed(() => `${Math.floor(conversionSeconds.value /
         <div v-if="busy" class="profile-dialog__progress" role="status" aria-live="polite">
           <span class="profile-dialog__spinner" aria-hidden="true"></span>
           <div>
-            <strong v-if="stage === 'upload'"><span>Загружаем PDF на сервер</span>: {{ uploadPercent ?? 0 }}%</strong>
-            <strong v-else-if="stage === 'convert'">Сводим прозрачности и преобразуем цвета в CMYK</strong>
-            <strong v-else>Создаём исходный PDF с изображениями и шрифтами</strong>
-            <p v-if="stage === 'convert'"><span>Прошло</span> {{ conversionElapsed }}. <span>Обработка может занять несколько минут. Не закрывайте вкладку.</span></p>
+            <strong v-if="stage === 'upload'"><span>Передаём страницы на сервер</span>: {{ uploadPercent ?? 0 }}%</strong>
+            <strong v-else-if="stage === 'convert'">Создаём CMYK PDF/X-1a из страниц календаря</strong>
+            <strong v-else><span>Отрисовываем страницы календаря</span>: {{ pageProgress?.current ?? 0 }} / {{ pageProgress?.total ?? 0 }}</strong>
+            <p v-if="stage === 'convert'"><span>Прошло</span> {{ conversionElapsed }}. <span>Сервер собирает страницы в печатный PDF. Не закрывайте вкладку.</span></p>
           </div>
         </div>
         <p v-if="error" class="online-dialog__error">{{ error }}</p>
