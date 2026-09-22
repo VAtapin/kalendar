@@ -37,16 +37,16 @@ const conversionElapsed = computed(() => `${Math.floor(conversionSeconds.value /
 
 <template>
   <div class="application-dialog-backdrop" @click.self="!busy && emit('close')">
-    <section class="application-dialog profile-dialog" role="dialog" aria-modal="true" aria-label="Профиль бумаги для печатного PDF">
+    <section class="application-dialog profile-dialog" role="dialog" aria-modal="true" aria-label="Формат PDF">
       <header class="application-dialog__header">
         <div>
-          <span class="application-dialog__eyebrow">PDF/X-1a:2001 · PDF 1.3</span>
-          <h2>Для какой бумаги подготовить PDF?</h2>
+          <span class="application-dialog__eyebrow">{{ selected === 'rgb' ? 'RGB · стандартный PDF' : 'PDF/X-1a:2001 · PDF 1.3' }}</span>
+          <h2>{{ selected === 'rgb' ? 'Какой PDF подготовить?' : 'Для какой бумаги подготовить PDF?' }}</h2>
         </div>
         <button type="button" class="application-dialog__close" aria-label="Закрыть" :disabled="busy" @click="emit('close')">×</button>
       </header>
       <form class="application-dialog__content profile-dialog__content" @submit.prevent="emit('confirm', selected)">
-        <p>Выберите бумагу по данным заказа. Цвета будут преобразованы в соответствующий CMYK-профиль, а прозрачности сведены.</p>
+        <p>{{ selected === 'rgb' ? 'Стандартный RGB PDF, как в прежнем экспорте: без преобразования в CMYK и PDF/X.' : 'Выберите бумагу по данным заказа. Цвета будут преобразованы в соответствующий CMYK-профиль, а прозрачности сведены.' }}</p>
         <label v-for="profile in BUILT_IN_PRINT_PROFILES" :key="profile.id" class="profile-dialog__option">
           <input v-model="selected" type="radio" name="print-profile" :value="profile.id" />
           <span><strong>{{ profile.label }}</strong><small>{{ profile.name }}</small></span>
@@ -55,14 +55,19 @@ const conversionElapsed = computed(() => `${Math.floor(conversionSeconds.value /
           <input v-model="selected" type="radio" name="print-profile" value="custom" />
           <span><strong>Другая бумага или типография</strong><small>{{ customProfileName || 'Нужен CMYK ICC-профиль типографии' }}</small></span>
         </label>
+        <label class="profile-dialog__option">
+          <input v-model="selected" type="radio" name="print-profile" value="rgb" />
+          <span><strong>RGB — стандартный PDF</strong><small>Прежний вариант, без выбора бумаги и ICC-профиля</small></span>
+        </label>
         <button v-if="selected === 'custom'" type="button" class="secondary-action" :disabled="busy" @click="emit('upload')">
           {{ customProfileName ? 'Заменить ICC-профиль…' : 'Загрузить ICC-профиль…' }}
         </button>
         <div v-if="busy" class="profile-dialog__progress" role="status" aria-live="polite">
           <span class="profile-dialog__spinner" aria-hidden="true"></span>
           <div>
-            <strong v-if="stage === 'upload'"><span>Передаём страницы на сервер</span>: {{ uploadPercent ?? 0 }}%</strong>
+            <strong v-if="stage === 'upload'"><span>{{ selected === 'rgb' ? 'Передаём PDF на сервер' : 'Передаём страницы на сервер' }}</span>: {{ uploadPercent ?? 0 }}%</strong>
             <strong v-else-if="stage === 'convert'">Создаём CMYK PDF/X-1a из страниц календаря</strong>
+            <strong v-else-if="selected === 'rgb'">Формируем стандартный RGB PDF</strong>
             <strong v-else><span>Отрисовываем страницы календаря</span>: {{ pageProgress?.current ?? 0 }} / {{ pageProgress?.total ?? 0 }}</strong>
             <p v-if="stage === 'convert'"><span>Прошло</span> {{ conversionElapsed }}. <span>Сервер собирает страницы в печатный PDF. Не закрывайте вкладку.</span></p>
           </div>
@@ -71,7 +76,7 @@ const conversionElapsed = computed(() => `${Math.floor(conversionSeconds.value /
         <div class="profile-dialog__actions">
           <button type="button" class="secondary-action" :disabled="busy" @click="emit('close')">Отмена</button>
           <button type="submit" class="primary-action" :disabled="busy || (selected === 'custom' && !customProfileName)">
-            {{ busy ? 'Формирование…' : 'Сформировать PDF для печати' }}
+            {{ busy ? 'Формирование…' : selected === 'rgb' ? 'Сформировать RGB PDF' : 'Сформировать PDF для печати' }}
           </button>
         </div>
       </form>

@@ -542,7 +542,7 @@ try {
         $size = $body['size'] ?? null;
         $format = $body['format'] ?? 'pdf';
         if (!is_string($body['fileName'] ?? null) || !is_int($size) || $size <= 0 || $size > $maxPdfBytes
-            || !in_array($format, ['pdf', 'raster-pages'], true)) {
+            || !in_array($format, ['pdf', 'raster-pages', 'rgb-pdf'], true)) {
             api_response(400, ['error' => 'invalid_export', 'message' => 'PDF должен быть меньше ' . round($maxPdfBytes / 1024 / 1024) . ' МБ']);
         }
         $created = $store->createPdfUpload($credential['id'], $body['fileName'], $size,

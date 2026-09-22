@@ -30,6 +30,21 @@ function decodedPageContent(document: PDFDocument, pageIndex: number): string {
 }
 
 describe("PDF exporter", () => {
+  it("keeps the standard RGB option as an ordinary PDF 1.7 without PDF/X output intent", async () => {
+    const font = await readFile("public/fonts/DejaVuSans.ttf");
+    const project = createBlankCalendarProject(2027);
+    project.document.pages[0]!.elements = [];
+    project.document.pages[0]!.layers = [];
+    if (project.printSettings) project.printSettings.pdfStandard = "PDF-1.7";
+    const result = await exportCalendarProjectPdf(project, undefined, {
+      regular: font, bold: font, italic: font, boldItalic: font,
+    });
+    expect(new TextDecoder().decode(result.bytes.slice(0, 8))).toBe("%PDF-1.7");
+    const document = await PDFDocument.load(result.bytes);
+    expect(document.catalog.get(PDFName.of("OutputIntents"))).toBeUndefined();
+    expect(document.getPageCount()).toBe(1);
+  });
+
   it("exports the source-backed Church Slavonic month offline with an embedded combining-mark font", async () => {
     const [xml, font, corpus] = await Promise.all([
       readFile("public/data/MemoryDays.xml", "utf8"),

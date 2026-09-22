@@ -19,4 +19,4 @@ export const BUILT_IN_PRINT_PROFILES = [
   },
 ] as const;
 
-export type PrintProfileChoice = typeof BUILT_IN_PRINT_PROFILES[number]["id"] | "custom";
+export type PrintProfileChoice = typeof BUILT_IN_PRINT_PROFILES[number]["id"] | "custom" | "rgb";

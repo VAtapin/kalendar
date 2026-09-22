@@ -7,6 +7,7 @@ import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print
 import { preparePrintFontCss } from './export/print-fonts';
 import { packagePrintPages } from './export/print-raster';
 import { inlinePrintSvgStyles } from './export/print-svg-styles';
+import { loadPdfExporter } from './export/load-pdf-exporter';
 import { loadCalendarDictionary } from './calendar/localization/corpus-data';
 import { setManualTextTitle } from './document/text-title';
 import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
@@ -165,6 +166,7 @@ import {
   sharedProjectUrl,
   updateGlobalCalendarGridTemplate,
   uploadPrintPages,
+  uploadRgbPdf,
   verificationTokenFromLocation,
 } from "./collaboration/shared-project-client";
 import type {
@@ -1516,10 +1518,59 @@ function exportPrintPdf(): void {
   printProfileDialogOpen.value = true;
 }
 
+async function createRgbPdf(calendar: OrthodoxCalendarYear): Promise<void> {
+  printProfileError.value = "";
+  printExportStage.value = "render";
+  printExportUploadPercent.value = 0;
+  pdfExportState.value = "exporting";
+  operationNotice.value = "Формируем стандартный RGB PDF…";
+  let phase = "load-module";
+  try {
+    ensureCalendarWorkshopBranding(project.value);
+    const { collectBundledFontFamilies, exportCalendarProjectPdf, loadPdfFontFiles } = await loadPdfExporter();
+    const snapshot = createPersistentProjectSnapshot(project.value);
+    if (snapshot.printSettings) snapshot.printSettings.pdfStandard = "PDF-1.7";
+    phase = "load-fonts";
+    const fonts = await loadPdfFontFiles("/fonts", collectBundledFontFamilies(snapshot));
+    phase = "render-pdf";
+    const result = await exportCalendarProjectPdf(snapshot, calendar, fonts);
+    const pdfBlob = new Blob([result.bytes as BlobPart], { type: "application/pdf" });
+    const safeName = project.value.name.replace(/[^\p{L}\p{N}._-]+/gu, "-");
+    const fileName = `${safeName}-${project.value.year}-rgb.pdf`;
+    printExportStage.value = "upload";
+    phase = "upload-pdf";
+    const ready = await uploadRgbPdf(pdfBlob, fileName, verifiedAccessToken() ?? "", (percent) => {
+      printExportUploadPercent.value = percent;
+      operationNotice.value = `Передаём RGB PDF на сервер: ${percent}%`;
+    });
+    pdfExportState.value = "ready";
+    printProfileDialogOpen.value = false;
+    linkResult.value = {
+      kind: "pdf",
+      url: ready.downloadUrl,
+      detail: `RGB PDF · ${(ready.size / 1024 / 1024).toFixed(1)} МБ${result.warnings.length ? ` · предпечатных предупреждений: ${result.warnings.length}` : ""}`,
+    };
+    operationNotice.value = "RGB PDF сохранён на сервере; ссылка на скачивание готова";
+  } catch (error) {
+    pdfExportState.value = "error";
+    console.error(`[Calendar PDF: ${phase}]`, error);
+    if (error instanceof SharedProjectApiError && error.code === "email_required") {
+      localStorage.removeItem(EMAIL_ACCESS_TOKEN_KEY);
+      requestVerifiedAction("export");
+    }
+    operationNotice.value = `Ошибка PDF: ${error instanceof Error ? error.message : String(error)}`;
+    printProfileError.value = error instanceof Error ? error.message : String(error);
+  }
+}
+
 async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
   if (pdfExportState.value === "exporting") return;
   if (!displayedCalendarYear.value) {
     printProfileError.value = "Календарные данные ещё загружаются";
+    return;
+  }
+  if (choice === "rgb") {
+    await createRgbPdf(displayedCalendarYear.value);
     return;
   }
   const builtInProfile = BUILT_IN_PRINT_PROFILES.find((profile) => profile.id === choice);
@@ -4588,7 +4639,7 @@ onBeforeUnmount(() => {
               <h2 class="property-subheading">Переплёт и типография</h2>
               <label class="field-control"><span>Сторона переплёта</span><select v-model="bindingEdge"><option value="none">Без переплёта</option><option value="top">Сверху / пружина</option><option value="left">Слева</option><option value="right">Справа</option></select></label>
               <label v-if="bindingEdge !== 'none'" class="field-control"><span>Защитная зона, мм</span><input v-model.number="bindingSafeMm" type="number" min="0" max="40" step="0.5" /></label>
-              <p class="property-help">Стандарт печатного PDF: PDF/X-1a:2001 (PDF 1.3, прозрачности сведены)</p>
+              <p class="property-help">Печатный PDF: PDF/X-1a:2001 (PDF 1.3, прозрачности сведены). Стандартный RGB PDF выбирается при экспорте.</p>
               <p class="property-help">CMYK-профиль выбирается перед формированием PDF.</p>
               </template>
             </section>

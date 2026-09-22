@@ -740,7 +740,7 @@ final class CalendarStore
                 calendar_fail('upload_incomplete', 400, 'Размер собранного PDF не совпадает');
             }
             @chmod($source, 0600);
-            if ($prepareForPrint) {
+            if ($prepareForPrint && ($upload['format'] ?? 'pdf') !== 'rgb-pdf') {
                 @set_time_limit(310);
                 $profile = $this->pdfUploadDirectory($uploadId) . DIRECTORY_SEPARATOR . 'output.icc';
                 if (!is_file($profile)) {

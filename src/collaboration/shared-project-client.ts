@@ -273,3 +273,26 @@ export async function uploadPrintPages(
     headers: { "X-Upload-Token": upload.uploadToken },
   });
 }
+
+export async function uploadRgbPdf(
+  pdf: Blob,
+  fileName: string,
+  accessToken: string,
+  onProgress?: (percent: number) => void,
+): Promise<PdfExportReady> {
+  const upload = await request<PdfUploadCreated>("/v1/pdf-exports", {
+    method: "POST",
+    headers: bearer(accessToken),
+    body: JSON.stringify({ fileName, size: pdf.size, format: "rgb-pdf" }),
+  });
+  const chunks = Math.ceil(pdf.size / upload.chunkSize);
+  for (let index = 0; index < chunks; index += 1) {
+    const start = index * upload.chunkSize;
+    await uploadPdfChunkWithRetry(upload, index, pdf.slice(start, Math.min(pdf.size, start + upload.chunkSize)));
+    onProgress?.(Math.round(((index + 1) / chunks) * 100));
+  }
+  return request(`/v1/pdf-exports/${upload.uploadId}/complete`, {
+    method: "POST",
+    headers: { "X-Upload-Token": upload.uploadToken },
+  });
+}
