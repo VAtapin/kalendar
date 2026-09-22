@@ -2,24 +2,39 @@
 
 declare(strict_types=1);
 
+/** Find a supported Ghostscript binary without relying on PHP-FPM's PATH. */
+function calendar_ghostscript_binary(): string
+{
+    $configured = trim(calendar_config_value('CALENDAR_GHOSTSCRIPT_BINARY'));
+    $candidates = array_unique(array_filter([
+        $configured,
+        '/opt/ghostscript-10.08.0/bin/gs',
+        '/usr/local/bin/gs',
+        '/usr/local/src/ghostscript-build/ghostscript-10.08.0/bin/gs',
+    ]));
+    foreach ($candidates as $binary) {
+        try {
+            $process = @proc_open([$binary, '--version'], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        } catch (Throwable) {
+            continue;
+        }
+        if (!is_resource($process)) {
+            continue;
+        }
+        $version = trim(stream_get_contents($pipes[1]) ?: '');
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        if (proc_close($process) === 0 && version_compare($version, '10.05.0', '>=')) {
+            return $binary;
+        }
+    }
+    calendar_fail('pdf_converter_unavailable', 503, 'Ghostscript 10.05+ недоступен PHP: укажите путь в CALENDAR_GHOSTSCRIPT_BINARY');
+}
+
 /** Convert an uploaded working PDF to the only format offered for print download. */
 function calendar_convert_pdf_x1a(string $source, string $destination, string $profile, string $profileName): int
 {
-    $binary = calendar_config_value('CALENDAR_GHOSTSCRIPT_BINARY', '/opt/ghostscript-10.08.0/bin/gs');
-    if (!is_file($binary) || !is_executable($binary)) {
-        calendar_fail('pdf_converter_unavailable', 503, 'Ghostscript 10.05 или новее не настроен на сервере');
-    }
-    $versionProcess = proc_open([$binary, '--version'], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $versionPipes);
-    if (!is_resource($versionProcess)) {
-        calendar_fail('pdf_converter_unavailable', 503, 'Не удалось запустить Ghostscript');
-    }
-    $version = trim(stream_get_contents($versionPipes[1]) ?: '');
-    fclose($versionPipes[1]);
-    fclose($versionPipes[2]);
-    if (proc_close($versionProcess) !== 0 || version_compare($version, '10.05.0', '<')) {
-        calendar_fail('pdf_converter_unavailable', 503, 'Для PDF/X-1a нужен Ghostscript 10.05 или новее');
-    }
-
+    $binary = calendar_ghostscript_binary();
     $header = file_get_contents($profile, false, null, 0, 128);
     if ($header === false || strlen($header) < 128 || substr($header, 12, 4) !== 'prtr'
         || substr($header, 36, 4) !== 'acsp' || substr($header, 16, 4) !== 'CMYK') {
