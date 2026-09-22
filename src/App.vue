@@ -4,6 +4,7 @@ import { ServerProjectSaver } from './editor/server-project-saver';
 import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
 import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print-profile';
+import { preparePrintFontCss } from './export/print-fonts';
 import { packagePrintPages } from './export/print-raster';
 import { inlinePrintSvgStyles } from './export/print-svg-styles';
 import { loadCalendarDictionary } from './calendar/localization/corpus-data';
@@ -1544,6 +1545,7 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
     printCaptureProject.value = snapshot;
     const images: Blob[] = [];
     for (const [index, page] of snapshot.document.pages.entries()) {
+      const fontEmbedCSS = await preparePrintFontCss(page, snapshot);
       printCapturePage.value = page;
       await nextTick();
       await document.fonts.ready;
@@ -1557,6 +1559,7 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
         pixelRatio: 300 / 96,
         backgroundColor: "#ffffff",
         skipAutoScale: true,
+        fontEmbedCSS,
       });
       const image = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.96));
       canvas.width = 0;

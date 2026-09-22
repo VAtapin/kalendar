@@ -95,7 +95,7 @@ export async function buildPrintPdf(packagePath, profilePath, destination, profi
       const cmykJpeg = await sharp(source, { limitInputPixels: 150_000_000 })
         .toColourspace('cmyk')
         .withIccProfile(profilePath, { attach: false })
-        .jpeg({ quality: 95, chromaSubsampling: '4:4:4' })
+        .jpeg({ quality: 90, chromaSubsampling: '4:4:4' })
         .toBuffer();
       const convertedInfo = await sharp(cmykJpeg).metadata();
       if (convertedInfo.space !== 'cmyk' || convertedInfo.channels !== 4) {
