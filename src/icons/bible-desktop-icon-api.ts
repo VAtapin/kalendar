@@ -1,6 +1,6 @@
 import type {IconLibraryCard} from "./icon-library";
 
-const endpoint = "https://bible-desktop.com/api/calendar/icons";
+const endpoint = `${__PUBLIC_API_URL__}/api/calendar/icons`;
 
 export type IconLibraryFilters = {
   query: string;

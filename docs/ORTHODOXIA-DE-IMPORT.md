@@ -31,7 +31,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\download-orthodoxia-de.ps1
 сервер Bible Desktop и выполните:
 
 ```sh
-cd /var/www/vhosts/bible-desktop.com/httpdocs
+cd /var/www/vhosts/ВАШ_ДОМЕН/httpdocs
 /opt/plesk/php/8.4/bin/php -d memory_limit=512M artisan liturgical:import-library /полный/путь/orthodoxia-de-corpus.json --publish
 /opt/plesk/php/8.4/bin/php artisan optimize:clear
 ```

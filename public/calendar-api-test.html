@@ -8,6 +8,7 @@
   <style>
     *{box-sizing:border-box}body{margin:0;background:#f3f5f2;color:#203429;font:16px/1.55 system-ui,sans-serif}main{max-width:1150px;margin:auto;padding:32px 20px}h1{font-size:clamp(26px,5vw,38px);margin-bottom:8px}h2{font-size:24px}h3{font-size:18px;margin:0 0 10px}p{margin:8px 0}form,.panel,article{background:white;border:1px solid #d5ded6;border-radius:12px;padding:20px;margin:18px 0}label{display:block;font-weight:600}input,select,button{font:inherit;padding:10px;border:1px solid #a3b2a8;border-radius:6px}input,select{width:100%;background:white;color:#203429;margin-top:5px}button{background:#254e3b;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:16px 0}.hint{color:#526459;font-size:14px}.error{color:#9c2020;white-space:pre-wrap}pre{font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f4;padding:14px;border-radius:8px}a{color:#185b83;overflow-wrap:anywhere}summary{cursor:pointer;font-weight:600}.mark{width:26px;height:26px;object-fit:contain;vertical-align:middle;margin-right:8px}.tag{display:inline-block;background:#e9efe9;border-radius:4px;padding:2px 7px;margin:2px 5px 5px 0;font-size:13px}.warning{border-left:4px solid #b18a27;padding-left:12px}#request{display:block;margin:12px 0}[hidden]{display:none!important}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #b18a27;outline-offset:3px}
   </style>
+<script src="/public-api-config.php"></script>
 </head>
 <body><main>
   <h1>Проверка календарного API</h1>
@@ -163,7 +164,7 @@
       $('status').textContent=error.name==='AbortError' ? 'Сервер не ответил за 30 секунд. Повторите запрос.' : `${error.message}\nЕсли запрос не дошёл, проверьте интернет и откройте тестовую страницу по ссылке на сайте Календарной мастерской.`;
     } finally {clearTimeout(timer);$('submit').disabled=false;}
   });
-  const bibleBase = 'https://bible-desktop.com/api/';
+  const bibleBase = globalThis.KalendarConfig.publicApiUrl + '/api/';
   let translations = null, cataloguePromise = null, languageChosen = false;
   let readingCards = [], readingGeneration = 0, catalogueGeneration = 0;
   const booksCache = new Map(), chaptersCache = new Map();

@@ -9,11 +9,19 @@ const wordpressPluginVersion = readWordPressPluginVersion(projectRoot);
 
 export default defineConfig(({ isSsrBuild, mode }) => {
   const env = loadEnv(mode, projectRoot, '');
+  const publicApiUrl = (env.PUBLIC_API_URL || '').replace(/\/$/, '');
+  let parsedPublicApiUrl: URL;
+  try { parsedPublicApiUrl = new URL(publicApiUrl); }
+  catch { throw new Error('PUBLIC_API_URL must be a complete HTTPS origin in .env'); }
+  if (parsedPublicApiUrl.protocol !== 'https:' || parsedPublicApiUrl.origin !== publicApiUrl || parsedPublicApiUrl.pathname !== '/') {
+    throw new Error('PUBLIC_API_URL must be a complete HTTPS origin without /api');
+  }
   const publicUrl = (env.APP_PUBLIC_URL || 'https://kalender.georg-kloster.ru').replace(/\/$/, '');
   const germanPublicUrl = (env.APP_GERMAN_PUBLIC_URL || 'https://kalender.georg-kloster.de').replace(/\/$/, '');
   return {
     define: {
       __WORDPRESS_PLUGIN_VERSION__: JSON.stringify(wordpressPluginVersion),
+      __PUBLIC_API_URL__: JSON.stringify(publicApiUrl),
       __APP_PUBLIC_URL__: JSON.stringify(publicUrl),
       __APP_GERMAN_PUBLIC_URL__: JSON.stringify(germanPublicUrl),
     },

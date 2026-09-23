@@ -1,5 +1,5 @@
 const $ = id => document.getElementById(id);
-const API = "https://bible-desktop.com/api/calendar/icons";
+const API = globalThis.KalendarConfig.publicApiUrl + "/api/calendar/icons";
 const state = { page: 1, size: 12, total: 0, imageTotal: 0, cards: [] };
 const kindLabel = kind => ({ "mother-of-god": "Иконы Богородицы", savior: "Иконы Спасителя", saint: "Иконы святых", other: "Другие иконы" }[kind] || kind);
 function requestParams() {

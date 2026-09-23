@@ -102,4 +102,4 @@ WordPress получает корпус с сервера календаря, п
 
 ## Владение данными после миграции
 
-Kalendar не является хранилищем богослужебных текстов. После проверки импорта public/data/liturgical-texts.json и public/data/liturgical-corpus.json удаляются; API получает тексты из Bible Desktop через BIBLE_DESKTOP_API_URL.
+Kalendar не является хранилищем богослужебных текстов. После проверки импорта public/data/liturgical-texts.json и public/data/liturgical-corpus.json удаляются; API получает тексты из Bible Desktop через PUBLIC_API_URL.

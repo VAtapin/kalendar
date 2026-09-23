@@ -18,11 +18,14 @@ const port = probe.address().port;
 await new Promise(resolve => probe.close(resolve));
 const origin = `http://127.0.0.1:${port}`;
 const base = `${origin}/api/v1/calendar`;
+const publicApiUrl = process.env.PUBLIC_API_URL
+  || readFileSync('.env', 'utf8').match(/^PUBLIC_API_URL=(.+)$/m)?.[1]?.trim();
+assert.ok(publicApiUrl, 'PUBLIC_API_URL is required for the public API test');
 const wordpressHeaders={'X-Calendar-Client':'orthocal-wordpress'};
 let logs = '';
 const server = spawn('php', ['-S', `127.0.0.1:${port}`, '-t', resolve('dist'), 'scripts/php-dev-router.php'], {
   windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'],
-  env: { ...process.env, CALENDAR_DATA_DIR: data, APP_PUBLIC_URL: origin },
+  env: { ...process.env, CALENDAR_DATA_DIR: data, APP_PUBLIC_URL: origin, PUBLIC_API_URL: publicApiUrl },
 });
 server.stderr.on('data', chunk => { logs += chunk; });
 let browser;
@@ -186,7 +189,7 @@ try {
 
   browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
   const page = await browser.newPage({ viewport:{width:1200,height:1000} });
-  await page.route('https://bible-desktop.com/api/**',route=>route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{data:[]}}));
+  await page.route(publicApiUrl+'/api/**',route=>route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{data:[]}}));
   await page.goto(origin+'/calendar-api-test.html');
   assert.equal(await page.locator('#api-key').count(),0);
   await page.locator('#date').fill('2027-05-02');

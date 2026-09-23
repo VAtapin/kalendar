@@ -337,7 +337,7 @@ function safeIconUrl(source) {
   if (typeof source !== 'string') return '';
   try {
     const url = new URL(source, location.origin);
-    return url.origin === 'https://bible-desktop.com' ? url.href : '';
+    return url.origin === globalThis.KalendarConfig.publicApiUrl ? url.href : '';
   } catch { return ''; }
 }
 

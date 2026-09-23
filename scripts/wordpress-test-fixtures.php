@@ -2,7 +2,8 @@
 // Installed only in the disposable local test site. Never packaged in the plugin.
 $calendarOrigin=defined('ORTHOCAL_API_ORIGIN')?rtrim((string)ORTHOCAL_API_ORIGIN,'/'):'https://kalender.georg-kloster.ru';
 add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
-    if(str_starts_with($url,'https://bible-desktop.com/api/liturgical/works')) {
+    $options=get_option('orthocal_options',[]);$publicApiOrigin=rtrim((string)($options['public_api_url']??''),'/');
+    if(str_starts_with($url,$publicApiOrigin.'/api/liturgical/works')) {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Calendar key leaked to library');
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
         $corpus=json_decode(file_get_contents(dirname(ORTHOCAL_TEST_ASSET_ROOT).'/scripts/fixtures/liturgical-reader.json'),true);
@@ -28,8 +29,8 @@ add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
             'expansions'=>calendar_service_expansions($query['expansion']??'short', 'cu')];
         return ['headers'=>[],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,$calendarOrigin.'/api/v1/calendar-texts/') || str_starts_with($url,'https://bible-desktop.com/api/liturgical/calendar-texts')) {
-        if(str_starts_with($url,'https://bible-desktop.com/') && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible texts');
+    if(str_starts_with($url,$calendarOrigin.'/api/v1/calendar-texts/') || str_starts_with($url,$publicApiOrigin.'/api/liturgical/calendar-texts')) {
+        if(str_starts_with($url,$publicApiOrigin.'/') && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible texts');
         $value=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
         foreach($value['texts'] as &$text)if($text['language']==='cu'&&($text['orthography']??'')!=='traditional')$text['language']='cu-civil';
         unset($text);
@@ -50,13 +51,13 @@ add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
         $body=file_get_contents($file);$etag='"'.hash('sha256',$body).'"';$same=($args['headers']['If-None-Match']??'')===$etag;
         return ['headers'=>['etag'=>$etag,'last-modified'=>'Wed, 09 Sep 2026 00:00:00 GMT'],'body'=>$same?'':$body,'response'=>['code'=>$same?304:200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(preg_match('#^https://bible-desktop\.com/api/calendar/icons/[0-9]+/images/[0-9]+$#',$url)) {
+    if(preg_match('#^'.preg_quote($publicApiOrigin,'#').'/api/calendar/icons/[0-9]+/images/[0-9]+$#',$url)) {
         preg_match('#/images/([0-9]+)$#',$url,$imageMatch);$fill=((int)($imageMatch[1]??0)%2===0)?'#9a352d':'#d8b35c';
         $svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160"><rect width="120" height="160" fill="'.$fill.'"/></svg>';
         return ['headers'=>['content-type'=>'image/svg+xml'],'body'=>$svg,'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,'https://bible-desktop.com/api/calendar/icons')) return ['headers'=>[],'body'=>'{"data":[],"total":0}','response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
-    if (!str_starts_with($url,$calendarOrigin.'/api/v1/calendar/') && !str_starts_with($url,'https://bible-desktop.com/api/')) return new WP_Error('offline_test','External requests disabled in test');
+    if(str_starts_with($url,$publicApiOrigin.'/api/calendar/icons')) return ['headers'=>[],'body'=>'{"data":[],"total":0}','response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
+    if (!str_starts_with($url,$calendarOrigin.'/api/v1/calendar/') && !str_starts_with($url,$publicApiOrigin.'/api/')) return new WP_Error('offline_test','External requests disabled in test');
     $calendar=str_starts_with($url,$calendarOrigin.'/');
     if (!$calendar && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible');
     $path=parse_url($url,PHP_URL_PATH);parse_str(parse_url($url,PHP_URL_QUERY)??'',$q);
@@ -70,9 +71,9 @@ add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
             $date=$q['date']??'2027-05-02'; $days=array_values(array_filter($year['days'],static fn($d)=>$d['date']===$date));
             $value=['metadata'=>$year['metadata'],'day'=>$days[0]??$year['days'][0]];
             $value['day']['icons']=[
-                ['id'=>1,'title'=>'Икона Божией Матери Великая','description'=>'Описание первого образа','kind'=>'mother-of-god','dates'=>[['label'=>'2 мая','monthDay'=>'05-02']],'imageUrl'=>'https://bible-desktop.com/api/calendar/icons/1/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/1'],['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2']]],
-                ['id'=>2,'title'=>'Икона Святого Великого','description'=>'Описание второго образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Обретение мощей','monthDay'=>'05-02']],'imageUrl'=>'https://bible-desktop.com/api/calendar/icons/2/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/2/images/1']]],
-                ['id'=>3,'title'=>'Икона Преподобного Малого','description'=>'Описание третьего образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Память святого','monthDay'=>'05-02']],'imageUrl'=>'https://bible-desktop.com/api/calendar/icons/3/images/1','images'=>[['url'=>'https://bible-desktop.com/api/calendar/icons/3/images/1']]],
+                ['id'=>1,'title'=>'Икона Божией Матери Великая','description'=>'Описание первого образа','kind'=>'mother-of-god','dates'=>[['label'=>'2 мая','monthDay'=>'05-02']],'imageUrl'=>$publicApiOrigin.'/api/calendar/icons/1/images/1','images'=>[['url'=>$publicApiOrigin.'/api/calendar/icons/1/images/1'],['url'=>$publicApiOrigin.'/api/calendar/icons/1/images/2']]],
+                ['id'=>2,'title'=>'Икона Святого Великого','description'=>'Описание второго образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Обретение мощей','monthDay'=>'05-02']],'imageUrl'=>$publicApiOrigin.'/api/calendar/icons/2/images/1','images'=>[['url'=>$publicApiOrigin.'/api/calendar/icons/2/images/1']]],
+                ['id'=>3,'title'=>'Икона Преподобного Малого','description'=>'Описание третьего образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Память святого','monthDay'=>'05-02']],'imageUrl'=>$publicApiOrigin.'/api/calendar/icons/3/images/1','images'=>[['url'=>$publicApiOrigin.'/api/calendar/icons/3/images/1']]],
             ];
         } elseif($action==='upcoming') {
             $items=[];foreach($year['days'] as $day) foreach($day['events'] as $e) if($day['date']>=($q['date']??'2027-01-01')&&$e['category']==='commemoration'&&$e['typeCode']<=2) $items[]=['date'=>$day['date'],'oldStyleDate'=>$day['oldStyleDate'],'event'=>$e];

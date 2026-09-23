@@ -32,7 +32,7 @@ cpSync(resolve('scripts/wordpress-test-fixtures.php'),site+'/wp-content/mu-plugi
 writeFileSync(site+'/install-test.php',`<?php
 define('WP_INSTALLING',true); require __DIR__.'/wp-load.php'; require_once ABSPATH.'wp-admin/includes/upgrade.php';
 if(!is_blog_installed()) wp_install('Календарная мастерская','tester','tester@example.invalid',false,'','local-test-only-7391');
-update_option('timezone_string','Europe/Berlin'); update_option('orthocal_options',['key'=>'','lang'=>'ru']);
+update_option('timezone_string','Europe/Berlin'); update_option('orthocal_options',['public_api_url'=>'https://public-api.example','key'=>'','lang'=>'ru']);
 update_option('active_plugins',['orthocal/orthocal.php']); update_option('permalink_structure','');
 update_option('orthocal_cache_generation',wp_generate_uuid4());
 $old=get_page_by_path('calendar-demo');
@@ -52,6 +52,7 @@ foreach(array_keys(Orthocal_Plugin::TITLES) as $mode) {
     $rendered=do_shortcode('[orthocal_'.$mode.' date="2027-05-02" year="2027" month="5"]');
     if(!str_contains($rendered,'data-orthocal=')||str_contains($rendered,'data-oc-retry'))throw new Exception('Rendering failed '.$mode);
 }
+if(Orthocal_Config::public_api_origin()!=='https://public-api.example') throw new Exception('Saved public API origin ignored');
 if(!is_wp_error(Orthocal_Plugin::config(['date'=>'2027-02-29']))) throw new Exception('Invalid leap date accepted');
 if(is_wp_error(Orthocal_Plugin::config(['date'=>'2028-02-29']))) throw new Exception('Valid leap date rejected');
 $html=do_shortcode('[orthocal_day date="2027-05-02"]');
@@ -69,10 +70,10 @@ if(!str_contains($allIcons,'2 мая'))throw new Exception('Published icon dates
 if(!preg_match('/oc-icon-image-count[^>]*>2<\\/span>/',$allIcons))throw new Exception('Icon image count missing');
 if(Orthocal_Plugin::icon_dates_label(['dates'=>[['label'=>'7 февраля (переходящая) - Собор новомучеников и исповедников']]])!=='7 февраля (пер.)')throw new Exception('Icon date label is not compact');
 foreach(Orthocal_Media_Cache::entries() as $meta)if(str_contains((string)($meta['source']??''),'/calendar/icons/'))throw new Exception('Calendar rendering fetched icon covers eagerly');
-$mediaRequest=new WP_REST_Request('GET','/orthocal/v1/media');$mediaRequest->set_param('source','https://bible-desktop.com/api/calendar/icons/1/images/1');
+$mediaRequest=new WP_REST_Request('GET','/orthocal/v1/media');$mediaRequest->set_param('source','https://public-api.example/api/calendar/icons/1/images/1');
 $firstMedia=Orthocal_Plugin::rest_media($mediaRequest);if(is_wp_error($firstMedia))throw new Exception('First queued icon request failed');
 for($i=0;$i<50;$i++){ $cachedMedia=Orthocal_Plugin::rest_media($mediaRequest);if(is_wp_error($cachedMedia))throw new Exception('Cached icon request hit a rate limit'); }
-$uncachedIcon=Orthocal_Plugin::hero_icon(['alt'=>'Икона без локального кэша','images'=>['https://bible-desktop.com/api/calendar/icons/1/images/1']],0);if(!str_contains($uncachedIcon,'data-oc-icon-cover'))throw new Exception('Cache-miss cover cannot be loaded locally');
+$uncachedIcon=Orthocal_Plugin::hero_icon(['alt'=>'Икона без локального кэша','images'=>['https://public-api.example/api/calendar/icons/1/images/1']],0);if(!str_contains($uncachedIcon,'data-oc-icon-cover'))throw new Exception('Cache-miss cover cannot be loaded locally');
 $attrs=Orthocal_Plugin::config(['theme'=>'','compact'=>'']); if(is_wp_error($attrs)) throw new Exception('Empty Gutenberg defaults');
 echo 'PASS WordPress registration, server rendering, validation, escaping and key isolation';
 `);
@@ -154,6 +155,7 @@ try {
   await page.locator('#user_login').fill('tester');await page.locator('#user_pass').fill('local-test-only-7391');
   await Promise.all([page.waitForURL('**/wp-admin/**'),page.locator('#wp-submit').click()]);
   await page.goto(origin+'/wp-admin/admin.php?page=orthocal');
+  assert.equal(await page.locator('input[name="orthocal_options[public_api_url]"]').inputValue(),'https://public-api.example');
   assert.equal(await page.locator('input[name="orthocal_options[key]"]').inputValue(),'');
   assert.ok(!(await page.content()).includes('local-test-secret'));
   assert.equal(await page.locator('#toplevel_page_orthocal').count(),1);

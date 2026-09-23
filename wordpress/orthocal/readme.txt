@@ -4,7 +4,7 @@ Tags: calendar, orthodox, bible
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.65
+Stable tag: 1.3.66
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,13 +15,13 @@ Orthodox calendar for WordPress: feasts, fasting, commemorations, readings, litu
 Adds 22 dynamic Gutenberg blocks and shortcodes. Calendar and Bible data come from the external services listed below; no calendar database is included in the plugin.
 
 == Installation ==
-1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.65.zip.
+1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.66.zip.
 2. Activate the plugin.
-3. The calendar works immediately. If needed, open the Orthodox Calendar settings, add an optional API key, and check the BibleDesktop catalogue.
+3. The calendar works immediately. Open Orthodox Calendar → Connection to change the public API address or add an optional API key.
 4. Add blocks from the Widgets category or shortcodes to a page.
 
 The key can also be set with the ORTHOCAL_API_KEY constant in wp-config.php. The constant has priority over settings. The key is not exposed in forms, browsers, or REST responses.
-The calendar service address is defined in one place. During a domain migration it can be overridden in wp-config.php with `define('ORTHOCAL_API_ORIGIN', 'https://calendar.example');`.
+The public texts, translations, and icons API is configured in Orthodox Calendar → Connection. Its default address is https://bibel.cloud and no file access is required.
 
 == Shortcodes ==
 [orthocal_today]
@@ -54,9 +54,9 @@ Upcoming-event filters: main (major and memorial), twelve (Pascha and the Twelve
 
 == External Services ==
 The plugin works without registration or an API key for normal public use. When it requests calendar data, the WordPress server sends date/period, language, profile and the public `X-Calendar-Client: orthocal-wordpress` identifier to the configured calendar API origin. This identifier is not a secret. The API enforces an endpoint and parameter allowlist, the 1900–2200 date range, server cache and per-server-IP limits. An optional API key may be configured for extended or authorized access.
-When opening readings, the server requests the translation, book, and chapter catalogue from https://bible-desktop.com/api/. The calendar key is not sent to BibleDesktop. Texts are displayed in the selected translation. The plugin does not verify verse numbering against the calendar source.
+When opening readings, the server requests the translation, book, and chapter catalogue from the public API configured in the plugin settings. The calendar key is not sent to BibleDesktop. Texts are displayed in the selected translation. The plugin does not verify verse numbering against the calendar source.
 During data requests, services see the WordPress server IP address, not the visitor IP address. Typikon symbols, fasting icons, and the Church Slavonic font are cached by WordPress and delivered locally to visitors.
-Full texts, icons, and hagiographies are not included in the ZIP. Refer to the service owners for policies and terms through the configured calendar service and https://bible-desktop.com/.
+Full texts, icons, and hagiographies are not included in the ZIP. Refer to the service owners for policies and terms through the services configured in the plugin settings.
 Without a key, the official plugin obtains day, month, year, Pascha, and upcoming-feast data in public mode. A personal key remains optional for higher limits or authorized access.
 
 == Cache and access ==
@@ -74,8 +74,11 @@ Day cards and the reader support Russian and German labels; the calendar-data la
 
 == Changelog ==
 
+= 1.3.66 =
+* Added an editable public API address in the plugin settings, defaulting to https://bibel.cloud.
+
 = 1.3.65 =
-* Centralized the calendar API origin and added an optional ORTHOCAL_API_ORIGIN override for domain migrations.
+* Centralized the calendar API origin.
 
 = 1.3.64 =
 * Increased the persistent local media cache limit from 64 MB to 200 MB.

@@ -139,7 +139,7 @@
     {
       "slug": "prayer-4",
       "title": "Богородице Дево",
-      "url": "https://bible-desktop.com/api/prayers/4",
+      "url": "https://public-api.example/api/prayers/4",
       "collections": [
         "prayers"
       ],

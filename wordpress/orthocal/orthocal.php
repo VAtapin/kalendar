@@ -3,7 +3,7 @@
  * Plugin Name: Orthodox Calendar – Workshop
  * Plugin URI: https://github.com/VAtapin/wp_orthodox_calendar
  * Description: Gutenberg blocks and shortcodes for an Orthodox calendar: calendar dates, fasting rules, commemorations, readings and liturgical texts.
- * Version: 1.3.65
+ * Version: 1.3.66
  * Requires at least: 6.3
  * Requires PHP: 8.0
  * Author: Vladimir Atapin

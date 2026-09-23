@@ -16,7 +16,7 @@ $mock=function($pre,$args,$url)use($path,$changed,$calendarOrigin){return $url==
 add_filter('pre_http_request',$mock,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$mock,99);
 $after=Orthocal_Media_Cache::metadata($path);oc_assert($after['file']!==$before['file'],'Changed bytes must change browser URL');
 oc_assert(is_file(Orthocal_Media_Cache::directory()['path'].'/'.$before['file']),'Open pages retain old file');
-$rasterSource='https://bible-desktop.com/api/calendar/icons/1/images/1';
+$rasterSource=Orthocal_Config::public_api_url('/api/calendar/icons/1/images/1');
 if(function_exists('imagecreatetruecolor')&&function_exists('imagepng')&&function_exists('getimagesize')) {
     $rasterName=str_repeat('a',64).'.png';$rasterFile=Orthocal_Media_Cache::directory()['path'].'/'.$rasterName;
     $raster=imagecreatetruecolor(240,160);imagefill($raster,0,0,imagecolorallocate($raster,150,80,40));imagepng($raster,$rasterFile);imagedestroy($raster);

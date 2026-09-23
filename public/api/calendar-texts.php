@@ -3,7 +3,13 @@ declare(strict_types=1);
 
 /** Shared transport; each endpoint retains its own validation and failure policy. */
 function calendar_bible_desktop_get(string $path, array $query = [], int $timeout = 15): ?array {
-    $base = rtrim(calendar_config_value('BIBLE_DESKTOP_API_URL', 'https://bible-desktop.com/api'), '/');
+    $origin = rtrim(calendar_config_value('PUBLIC_API_URL'), '/');
+    $parts = parse_url($origin);
+    if (!is_array($parts) || ($parts['scheme'] ?? '') !== 'https' || empty($parts['host'])
+        || isset($parts['user'], $parts['pass'], $parts['query'], $parts['fragment']) || !empty($parts['path'])) {
+        calendar_fail('public_api_not_configured', 503, 'PUBLIC_API_URL is not configured.');
+    }
+    $base = $origin . '/api';
     $key = calendar_config_value('BIBLE_DESKTOP_API_KEY');
     $headers = ['Accept: application/json'];
     if ($key !== '') $headers[] = 'X-API-Key: '.$key;
@@ -98,6 +104,16 @@ function calendar_icon_image_area(array $image): int {
     return $width > 0 && $height > 0 ? $width * $height : 0;
 }
 
+function calendar_public_api_image_url(string $value): bool {
+    $configured = rtrim(calendar_config_value('PUBLIC_API_URL'), '/');
+    $parts = parse_url($value);
+    if (!is_array($parts) || ($parts['scheme'] ?? '') !== 'https' || empty($parts['host'])
+        || isset($parts['user'], $parts['pass'], $parts['query'], $parts['fragment'])) return false;
+    $origin = 'https://' . $parts['host'] . (isset($parts['port']) ? ':' . (int)$parts['port'] : '');
+    if ($origin !== $configured) return false;
+    return preg_match('#^/(?:storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)|api/calendar/icons/[0-9]+/images/[0-9]+)$#D', $parts['path'] ?? '') === 1;
+}
+
 /**
  * Read the complete icon catalogue for the calendar month/day and enrich it
  * with the resolved event rank from MemoryDays. Bible Desktop supplies the
@@ -111,8 +127,7 @@ function calendar_bible_desktop_icons(string $date, array $events = []): array {
     $icons = array_values(array_filter(array_map(static function ($entry): ?array {
         if (!is_array($entry) || !is_string($entry['title'] ?? null) || !is_array($entry['images'] ?? null)) return null;
         $images = array_values(array_filter(array_map(static function ($image): ?array {
-            if (!is_array($image) || !is_string($image['url'] ?? null)
-                || !preg_match('#^https://bible-desktop\.com/(?:storage/calendar-icons/[a-f0-9]{64}\.(?:gif|jpg|jpeg|png|webp)|api/calendar/icons/[0-9]+/images/[0-9]+)$#D', $image['url'])) return null;
+            if (!is_array($image) || !is_string($image['url'] ?? null) || !calendar_public_api_image_url($image['url'])) return null;
             return ['url'=>$image['url'], 'width'=>$image['width'] ?? null, 'height'=>$image['height'] ?? null, 'sha256'=>$image['sha256'] ?? null];
         }, $entry['images'])));
         if (!$images) return null;

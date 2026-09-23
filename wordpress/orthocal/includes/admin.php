@@ -37,6 +37,7 @@ final class Orthocal_Admin {
         echo '<nav class="nav-tab-wrapper" aria-label="Православный календарь">';foreach($tabs as $key=>$label)echo '<a class="nav-tab'.($key===$tab?' nav-tab-active':'').'" href="'.esc_url(admin_url('admin.php?page=orthocal&tab='.$key)).'" data-oc-tab="'.esc_attr($key).'">'.esc_html($label).'</a>';echo '</nav>';
         echo '<form action="options.php" method="post" id="oc-settings-form" data-oc-panel="connection">';settings_fields('orthocal');
         echo '<section class="oc-admin-card"><h2>Подключение к данным</h2><p>Календарные события и праздники приходят из <a href="'.esc_url($calendarOrigin.'/').'" target="_blank" rel="noopener noreferrer">Календарной мастерской</a> через API. Полные библейские тексты — из BibleDesktop.</p><div class="oc-admin-fields">';
+        self::setting('public_api_url','Адрес API','url',[],'Полный HTTPS-адрес без /api. Стандартное значение: https://bibel.cloud');
         self::setting('key','Дополнительный API-ключ','password',[],Orthocal_Plugin::key()?'Ключ сохранён. Пустое поле не меняет его.':'Необязателен: без ключа доступны все обычные блоки календаря.');
         echo '<label class="oc-admin-check"><input type="checkbox" name="orthocal_options[clear_key]" value="1"> Удалить сохранённый ключ</label>';
         self::setting('lang','Язык календаря по умолчанию','select',['ru'=>'Русский','cu'=>'Церковнославянский','de'=>'Немецкий','uk'=>'Украинский','pl'=>'Польский']);

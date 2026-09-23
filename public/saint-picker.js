@@ -51,7 +51,7 @@
   async function open() {
     if (names) { render(); return; }
     status.textContent = 'Загрузка имён…';
-    if (!pending) pending = fetch('https://bible-desktop.com/api/calendar/icons/saints', {headers: {Accept: 'application/json'}})
+    if (!pending) pending = fetch(globalThis.KalendarConfig.publicApiUrl + '/api/calendar/icons/saints', {headers: {Accept: 'application/json'}})
       .then(async response => { if (!response.ok) throw Error(); const data = await response.json(); if (!Array.isArray(data.data)) throw Error(); names = data.data.filter(name => typeof name === 'string'); })
       .finally(() => { pending = null; });
     try { await pending; if (document.activeElement === input) render(); }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/../public/api/calendar-texts.php';
-function calendar_config_value(string $key, string $fallback = ''): string { return $fallback; }
+function calendar_config_value(string $key, string $fallback = ''): string { return $key==='PUBLIC_API_URL'?'https://public-api.example':$fallback; }
 function calendar_fail(string $code, int $status, string $message): never { throw new RuntimeException($code); }
 class IconDayStream {
     public $context;
@@ -21,14 +21,14 @@ stream_wrapper_register('https',IconDayStream::class);
 try {
     IconDayStream::$payload=['data'=>[
         ['id'=>1,'title'=>'Священномученик Александр Вислянский','description'=>'Описание Александра','kind'=>'saint','images'=>[
-            ['url'=>'https://bible-desktop.com/api/calendar/icons/1/images/2','width'=>100,'height'=>120],
+            ['url'=>'https://public-api.example/api/calendar/icons/1/images/2','width'=>100,'height'=>120],
         ],'dates'=>[['label'=>'21 января - Собор Воронежских святых','monthDay'=>'01-21']]],
         ['id'=>2,'title'=>'Икона Богородицы Неопалимая Купина','description'=>'Описание Купины','kind'=>'mother-of-god','images'=>[
-            ['url'=>'https://bible-desktop.com/api/calendar/icons/2/images/2','width'=>100,'height'=>120],
-            ['url'=>'https://bible-desktop.com/storage/calendar-icons/'.str_repeat('a',64).'.png','width'=>200,'height'=>240],
+            ['url'=>'https://public-api.example/api/calendar/icons/2/images/2','width'=>100,'height'=>120],
+            ['url'=>'https://public-api.example/storage/calendar-icons/'.str_repeat('a',64).'.png','width'=>200,'height'=>240],
         ],'dates'=>[['label'=>'21 января','monthDay'=>'01-21']]],
         ['id'=>3,'title'=>'Святитель Иоасаф Белгородский','description'=>'Описание Иоасафа','kind'=>'saint','images'=>[
-            ['url'=>'https://bible-desktop.com/api/calendar/icons/3/images/2','width'=>180,'height'=>240],
+            ['url'=>'https://public-api.example/api/calendar/icons/3/images/2','width'=>180,'height'=>240],
         ],'dates'=>[['label'=>'21 января - Обретение мощей','monthDay'=>'01-21']]],
     ]];
     $events=[

@@ -92,7 +92,7 @@ function calendar_config(): array
         'MAIL_FROM' => '',
         'STRIPE_SECRET_KEY' => '',
         'STRIPE_WEBHOOK_SECRET' => '',
-        'BIBLE_DESKTOP_API_URL' => '',
+        'PUBLIC_API_URL' => '',
         'BIBLE_DESKTOP_API_KEY' => '',
     ]) as $key) {
         $environmentValue = getenv($key);

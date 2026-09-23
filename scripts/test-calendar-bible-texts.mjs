@@ -13,12 +13,13 @@ try {
   await page.route('**/*',async route=>{
     const request=route.request(),url=new URL(request.url());
     if(url.pathname==='/calendar-api-test.html')return route.fulfill({contentType:'text/html',body:readFileSync('public/calendar-api-test.html','utf8')});
+    if(url.pathname==='/public-api-config.php')return route.fulfill({contentType:'text/javascript',body:'globalThis.KalendarConfig=Object.freeze({publicApiUrl:"https://public-api.example"});'});
     const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'X-API-Key,Accept','Access-Control-Allow-Methods':'GET,OPTIONS'};
     if(request.method()==='OPTIONS')return route.fulfill({status:204,headers});
     requests.push({url:url.href,key:request.headers()['x-api-key']});
     if(url.pathname==='/calendar-api-font.php')return route.fulfill({headers,contentType:'font/ttf',body:readFileSync('public/fonts/MonomakhUnicode.ttf')});
     if(url.hostname==='calendar.test')return route.fulfill({headers,json:calendar});
-    assert.equal(url.hostname,'bible-desktop.com');assert.equal(request.headers()['x-api-key'],undefined,'Calendar secret leaked to BibleDesktop');
+    assert.equal(url.hostname,'public-api.example');assert.equal(request.headers()['x-api-key'],undefined,'Calendar secret leaked to BibleDesktop');
     if(url.pathname==='/api/translations')return route.fulfill({headers,json:{data:translations}});
     const match=url.pathname.match(/^\/api\/translations\/(CU1|CU2|RU1)\/books(?:\/galatians\/chapters\/(\d+))?$/);
     assert.ok(match,url.href);

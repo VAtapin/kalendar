@@ -3,8 +3,7 @@ if (!defined('ABSPATH')) exit;
 require_once __DIR__.'/library.php';
 
 final class Orthocal_Plugin {
-    const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.65';
+    const VERSION = '1.3.66';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -56,7 +55,7 @@ final class Orthocal_Plugin {
         return $height > 0 ? $height : 44;
     }
     static function options() {
-        return wp_parse_args(get_option('orthocal_options', []), ['key'=>'','lang'=>'ru','profile'=>'typikon-strict','theme'=>'book','css_mode'=>'plugin','accent'=>'#9a352d','translation'=>'','oldstyle'=>'1','compact'=>'0','show_nav'=>'1','show_picker'=>'1','show_copy'=>'1','show_search'=>'0','show_section_titles'=>'1','show_font_size'=>'1','open'=>'inline','reading_open'=>'inline','day_page'=>'0','images'=>'1','image_size'=>'44','image_pack'=>'ornamental','icons'=>'0','icon_limit'=>'all','office'=>'horologion','heading'=>'1','branding'=>'Календарная мастерская','sections'=>'fasting,saints,readings,texts,icons','event_levels'=>'0,1,2,3,4','media_hours'=>'24','bible_hours'=>'24']);
+        return wp_parse_args(get_option('orthocal_options', []), ['public_api_url'=>Orthocal_Config::DEFAULT_PUBLIC_API_ORIGIN,'key'=>'','lang'=>'ru','profile'=>'typikon-strict','theme'=>'book','css_mode'=>'plugin','accent'=>'#9a352d','translation'=>'','oldstyle'=>'1','compact'=>'0','show_nav'=>'1','show_picker'=>'1','show_copy'=>'1','show_search'=>'0','show_section_titles'=>'1','show_font_size'=>'1','open'=>'inline','reading_open'=>'inline','day_page'=>'0','images'=>'1','image_size'=>'44','image_pack'=>'ornamental','icons'=>'0','icon_limit'=>'all','office'=>'horologion','heading'=>'1','branding'=>'Календарная мастерская','sections'=>'fasting,saints,readings,texts,icons','event_levels'=>'0,1,2,3,4','media_hours'=>'24','bible_hours'=>'24']);
     }
     static function sanitize_options($input) {
         $old = self::options(); $out = [];
@@ -64,6 +63,15 @@ final class Orthocal_Plugin {
             $out[$name] = in_array($input[$name] ?? '', $allowed, true) ? $input[$name] : $old[$name];
         }
         $out['image_size']=(string)self::image_height($input['image_size'] ?? $old['image_size']);
+        $publicApiRaw=array_key_exists('public_api_url',$input)?trim((string)$input['public_api_url']):$old['public_api_url'];
+        if($publicApiRaw==='')$out['public_api_url']=Orthocal_Config::DEFAULT_PUBLIC_API_ORIGIN;
+        else {
+            $out['public_api_url']=Orthocal_Config::normalize_origin($publicApiRaw);
+            if($out['public_api_url']===''){
+                add_settings_error('orthocal_options','invalid_public_api_url','Адрес API должен быть полным HTTPS-адресом без /api.','error');
+                $out['public_api_url']=$old['public_api_url'];
+            }
+        }
         $out['key'] = !empty($input['clear_key']) ? '' : (empty($input['key']) ? $old['key'] : sanitize_text_field($input['key']));
         $out['translation'] = array_key_exists('translation',$input) ? sanitize_text_field($input['translation']) : $old['translation'];
         $out['accent'] = array_key_exists('accent',$input) ? (sanitize_hex_color($input['accent']) ?: '#9a352d') : $old['accent'];
@@ -124,7 +132,7 @@ final class Orthocal_Plugin {
     }
     static function request($service, $path, $query = []) {
         $calendar=in_array($service,['calendar','service'],true);
-        $url = ($service === 'calendar' ? Orthocal_Config::calendar_url('/api/v1/calendar/') : ($service==='texts'?self::BIBLE.'liturgical/calendar-texts':($service==='service'?Orthocal_Config::calendar_url('/api/v1/calendar/service'):self::BIBLE))).$path;
+        $url = ($service === 'calendar' ? Orthocal_Config::calendar_url('/api/v1/calendar/') : ($service==='texts'?Orthocal_Config::public_api_url('/api/liturgical/calendar-texts'):($service==='service'?Orthocal_Config::calendar_url('/api/v1/calendar/service'):Orthocal_Config::public_api_url('/api/')))).$path;
         if ($query) $url = add_query_arg($query,$url);
         $cache = 'oc_'.md5(self::VERSION.'|'.$url.'|'.self::key().'|'.get_option('orthocal_cache_generation','0'));
         if (isset(self::$memo[$cache])) return self::$memo[$cache];
