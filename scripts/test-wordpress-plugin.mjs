@@ -21,6 +21,7 @@ writeFileSync(site+'/wp-config.php',`<?php
 define('DB_NAME','orthocal_test'); define('DB_USER',''); define('DB_PASSWORD',''); define('DB_HOST','localhost');
 define('DB_ENGINE','sqlite'); define('WP_HOME','${origin}'); define('WP_SITEURL','${origin}');
 define('AUTH_KEY','orthocal-local-test-only'); define('AUTH_SALT','orthocal-local-salt');
+define('ORTHOCAL_API_ORIGIN','https://calendar-api.example');
 define('ORTHOCAL_TEST_ASSET_ROOT',${JSON.stringify(resolve('public').replaceAll('\\','/'))});
 define('WP_DEBUG',true); define('WP_DEBUG_DISPLAY',false); define('WP_DEBUG_LOG',true); define('DISABLE_WP_CRON',true);
 $table_prefix='oc_'; if(!defined('ABSPATH')) define('ABSPATH',__DIR__.'/'); require_once ABSPATH.'wp-settings.php';
@@ -41,7 +42,7 @@ $content.='</div><!-- /wp:group -->';
 $id=wp_insert_post(['ID'=>$old?$old->ID:0,'post_title'=>'Православный календарь','post_name'=>'calendar-demo','post_content'=>$content,'post_status'=>'publish','post_type'=>'page']);
 echo $id;
 `);
-const phpArgs=['-d','extension=pdo_sqlite','-d','extension=sqlite3','-d','memory_limit=256M'];
+const phpArgs=['-d','extension=mbstring','-d','extension=pdo_sqlite','-d','extension=sqlite3','-d','memory_limit=256M'];
 const install=execFileSync('php',[...phpArgs,site+'/install-test.php'],{encoding:'utf8'});const pageId=Number(install.trim());assert.ok(pageId,install);
 writeFileSync(site+'/verify-test.php',`<?php
 require __DIR__.'/wp-load.php';
@@ -91,7 +92,7 @@ try {
   const invalidMedia=await fetch(origin+'/?rest_route=/orthocal/v1/media&source=https://evil.test/icon.png');assert.equal(invalidMedia.status,400);
   browser=await chromium.launch({channel:process.platform==='win32'?'msedge':undefined,headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const remoteAssets=[];page.on('request',r=>{if(r.url().startsWith('https://kalender.georg-kloster.ru/'))remoteAssets.push(r.url());});
+  const remoteAssets=[];page.on('request',r=>{if(r.url().startsWith('https://calendar-api.example/'))remoteAssets.push(r.url());});
   await page.goto(origin+'/?page_id='+pageId);await page.locator('.orthocal').first().waitFor();
   assert.equal(await page.locator('.orthocal').count(),6);
   console.log('Browser: six blocks rendered');

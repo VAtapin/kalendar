@@ -1,6 +1,7 @@
 <?php
 // Installed only in the disposable local test site. Never packaged in the plugin.
-add_filter('pre_http_request', function($pre,$args,$url) {
+$calendarOrigin=defined('ORTHOCAL_API_ORIGIN')?rtrim((string)ORTHOCAL_API_ORIGIN,'/'):'https://kalender.georg-kloster.ru';
+add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
     if(str_starts_with($url,'https://bible-desktop.com/api/liturgical/works')) {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Calendar key leaked to library');
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
@@ -18,7 +19,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         }
         return ['headers'=>[],'body'=>wp_json_encode(['data'=>$value]),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar/service')) {
+    if(str_starts_with($url,$calendarOrigin.'/api/v1/calendar/service')) {
         require_once ORTHOCAL_TEST_ASSET_ROOT.'/api/calendar-service.php';
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
         $library=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
@@ -27,7 +28,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
             'expansions'=>calendar_service_expansions($query['expansion']??'short', 'cu')];
         return ['headers'=>[],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar-texts/') || str_starts_with($url,'https://bible-desktop.com/api/liturgical/calendar-texts')) {
+    if(str_starts_with($url,$calendarOrigin.'/api/v1/calendar-texts/') || str_starts_with($url,'https://bible-desktop.com/api/liturgical/calendar-texts')) {
         if(str_starts_with($url,'https://bible-desktop.com/') && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible texts');
         $value=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
         foreach($value['texts'] as &$text)if($text['language']==='cu'&&($text['orthography']??'')!=='traditional')$text['language']='cu-civil';
@@ -42,7 +43,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $value['count']=count($value['texts']);$value['assignment']='reference-only';
         return ['headers'=>['x-calendar-application-cache-ttl'=>'300'],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,'https://kalender.georg-kloster.ru/assets/')||$url==='https://kalender.georg-kloster.ru/calendar-api-font.php') {
+    if(str_starts_with($url,$calendarOrigin.'/assets/')||$url===$calendarOrigin.'/calendar-api-font.php') {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Key sent to static media');
         $path=parse_url($url,PHP_URL_PATH);$file=ORTHOCAL_TEST_ASSET_ROOT.($path==='/calendar-api-font.php'?'/fonts/MonomakhUnicode.ttf':$path);
         if(!is_file($file))return new WP_Error('fixture_missing','Missing media fixture');
@@ -55,8 +56,8 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         return ['headers'=>['content-type'=>'image/svg+xml'],'body'=>$svg,'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
     if(str_starts_with($url,'https://bible-desktop.com/api/calendar/icons')) return ['headers'=>[],'body'=>'{"data":[],"total":0}','response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
-    if (!str_starts_with($url,'https://kalender.georg-kloster.ru/api/v1/calendar/') && !str_starts_with($url,'https://bible-desktop.com/api/')) return new WP_Error('offline_test','External requests disabled in test');
-    $calendar=str_contains($url,'kalender.georg');
+    if (!str_starts_with($url,$calendarOrigin.'/api/v1/calendar/') && !str_starts_with($url,'https://bible-desktop.com/api/')) return new WP_Error('offline_test','External requests disabled in test');
+    $calendar=str_starts_with($url,$calendarOrigin.'/');
     if (!$calendar && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible');
     $path=parse_url($url,PHP_URL_PATH);parse_str(parse_url($url,PHP_URL_QUERY)??'',$q);
     $status=200;

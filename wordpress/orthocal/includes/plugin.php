@@ -3,9 +3,8 @@ if (!defined('ABSPATH')) exit;
 require_once __DIR__.'/library.php';
 
 final class Orthocal_Plugin {
-    const CALENDAR = 'https://kalender.georg-kloster.ru/api/v1/calendar/';
     const BIBLE = 'https://bible-desktop.com/api/';
-    const VERSION = '1.3.64';
+    const VERSION = '1.3.65';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -125,7 +124,7 @@ final class Orthocal_Plugin {
     }
     static function request($service, $path, $query = []) {
         $calendar=in_array($service,['calendar','service'],true);
-        $url = ($service === 'calendar' ? self::CALENDAR : ($service==='texts'?self::BIBLE.'liturgical/calendar-texts':($service==='service'?'https://kalender.georg-kloster.ru/api/v1/calendar/service':self::BIBLE))).$path;
+        $url = ($service === 'calendar' ? Orthocal_Config::calendar_url('/api/v1/calendar/') : ($service==='texts'?self::BIBLE.'liturgical/calendar-texts':($service==='service'?Orthocal_Config::calendar_url('/api/v1/calendar/service'):self::BIBLE))).$path;
         if ($query) $url = add_query_arg($query,$url);
         $cache = 'oc_'.md5(self::VERSION.'|'.$url.'|'.self::key().'|'.get_option('orthocal_cache_generation','0'));
         if (isset(self::$memo[$cache])) return self::$memo[$cache];

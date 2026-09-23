@@ -4,7 +4,7 @@ Tags: calendar, orthodox, bible
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.64
+Stable tag: 1.3.65
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,12 +15,13 @@ Orthodox calendar for WordPress: feasts, fasting, commemorations, readings, litu
 Adds 22 dynamic Gutenberg blocks and shortcodes. Calendar and Bible data come from the external services listed below; no calendar database is included in the plugin.
 
 == Installation ==
-1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.64.zip.
+1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.65.zip.
 2. Activate the plugin.
 3. The calendar works immediately. If needed, open the Orthodox Calendar settings, add an optional API key, and check the BibleDesktop catalogue.
 4. Add blocks from the Widgets category or shortcodes to a page.
 
 The key can also be set with the ORTHOCAL_API_KEY constant in wp-config.php. The constant has priority over settings. The key is not exposed in forms, browsers, or REST responses.
+The calendar service address is defined in one place. During a domain migration it can be overridden in wp-config.php with `define('ORTHOCAL_API_ORIGIN', 'https://calendar.example');`.
 
 == Shortcodes ==
 [orthocal_today]
@@ -52,10 +53,10 @@ General parameters: lang="ru|cu|de|uk|pl", profile="typikon-strict|parish", them
 Upcoming-event filters: main (major and memorial), twelve (Pascha and the Twelve Great Feasts), great, memorial, and all. The search covers the supplied date and the next 366 days, with a maximum of 10 events.
 
 == External Services ==
-The plugin works without registration or an API key for normal public use. When it requests calendar data, the WordPress server sends date/period, language, profile and the public `X-Calendar-Client: orthocal-wordpress` identifier to https://kalender.georg-kloster.ru/api/v1/calendar/. This identifier is not a secret. The API enforces an endpoint and parameter allowlist, the 1900–2200 date range, server cache and per-server-IP limits. An optional API key may be configured for extended or authorized access.
+The plugin works without registration or an API key for normal public use. When it requests calendar data, the WordPress server sends date/period, language, profile and the public `X-Calendar-Client: orthocal-wordpress` identifier to the configured calendar API origin. This identifier is not a secret. The API enforces an endpoint and parameter allowlist, the 1900–2200 date range, server cache and per-server-IP limits. An optional API key may be configured for extended or authorized access.
 When opening readings, the server requests the translation, book, and chapter catalogue from https://bible-desktop.com/api/. The calendar key is not sent to BibleDesktop. Texts are displayed in the selected translation. The plugin does not verify verse numbering against the calendar source.
 During data requests, services see the WordPress server IP address, not the visitor IP address. Typikon symbols, fasting icons, and the Church Slavonic font are cached by WordPress and delivered locally to visitors.
-Full texts, icons, and hagiographies are not included in the ZIP. Refer to the service owners for policies and terms: https://kalender.georg-kloster.ru/ and https://bible-desktop.com/.
+Full texts, icons, and hagiographies are not included in the ZIP. Refer to the service owners for policies and terms through the configured calendar service and https://bible-desktop.com/.
 Without a key, the official plugin obtains day, month, year, Pascha, and upcoming-feast data in public mode. A personal key remains optional for higher limits or authorized access.
 
 == Cache and access ==
@@ -72,6 +73,9 @@ Saving settings invalidates the plugin cache. Deactivation preserves settings.
 Day cards and the reader support Russian and German labels; the calendar-data language and Bible language are chosen separately. Calendar translations can be incomplete. Built-in liturgical texts are Church Slavonic, with German editions available through links. Icon images and hagiographies are never substituted for missing data.
 
 == Changelog ==
+
+= 1.3.65 =
+* Centralized the calendar API origin and added an optional ORTHOCAL_API_ORIGIN override for domain migrations.
 
 = 1.3.64 =
 * Increased the persistent local media cache limit from 64 MB to 200 MB.

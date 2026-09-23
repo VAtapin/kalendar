@@ -175,9 +175,7 @@ function calendar_service_routes(string $method, string $path): void {
         header('Allow: POST');
         if ($method !== 'POST') calendar_fail('method_not_allowed', 405);
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $configuredOrigin = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
-        $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
-        $allowedOrigins = in_array($configuredOrigin, $aliases, true) ? $aliases : [$configuredOrigin];
+        $allowedOrigins = calendar_public_origins() ?: [$scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')];
         $origin = api_header('Origin');
         $referer = api_header('Referer');
         if ($origin === '' || !in_array($origin, $allowedOrigins, true)

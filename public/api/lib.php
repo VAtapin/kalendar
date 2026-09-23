@@ -72,6 +72,8 @@ function calendar_config(): array
 
     foreach (array_keys($config + [
         'APP_PUBLIC_URL' => '',
+        'APP_PUBLIC_ALIASES' => '',
+        'APP_GERMAN_PUBLIC_URL' => '',
         'CALENDAR_DATA_DIR' => '',
         'MAX_SHARED_PROJECT_BYTES' => '',
         'MAX_PDF_EXPORT_BYTES' => '',
@@ -111,6 +113,49 @@ function calendar_config_int(string $key, int $default): int
 {
     $value = filter_var(calendar_config_value($key), FILTER_VALIDATE_INT);
     return is_int($value) && $value > 0 ? $value : $default;
+}
+
+function calendar_normalize_public_origin(string $value): string
+{
+    $value = rtrim(trim($value), '/');
+    $parts = parse_url($value);
+    if (!is_array($parts) || !isset($parts['scheme'], $parts['host'])
+        || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+        || isset($parts['user'], $parts['pass'], $parts['query'], $parts['fragment'])
+        || (isset($parts['path']) && $parts['path'] !== '')) {
+        return '';
+    }
+    return strtolower($parts['scheme']) . '://' . strtolower($parts['host'])
+        . (isset($parts['port']) ? ':' . $parts['port'] : '');
+}
+
+function calendar_public_origin(): string
+{
+    return calendar_normalize_public_origin(calendar_config_value('APP_PUBLIC_URL'));
+}
+
+/** @return list<string> */
+function calendar_public_origins(): array
+{
+    $primary = calendar_public_origin();
+    $configured = preg_split('/[\s,]+/', calendar_config_value('APP_PUBLIC_ALIASES'), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $german = calendar_config_value('APP_GERMAN_PUBLIC_URL');
+    if ($german === '' && in_array($primary, ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'], true)) {
+        $german = 'https://kalender.georg-kloster.de';
+    }
+    $origins = array_filter([$primary, calendar_normalize_public_origin($german), ...array_map('calendar_normalize_public_origin', $configured)]);
+    return array_values(array_unique($origins));
+}
+
+function calendar_public_url(string $path = ''): string
+{
+    $origin = calendar_public_origin();
+    return $origin . ($path === '' ? '' : '/' . ltrim($path, '/'));
+}
+
+function calendar_public_host(): string
+{
+    return (string) (parse_url(calendar_public_origin(), PHP_URL_HOST) ?: 'localhost');
 }
 
 function calendar_now(): string
@@ -891,7 +936,7 @@ function calendar_verification_message(string $recipient, string $verificationUr
         . "Подтвердить адрес:\n{$verificationUrl}\n\n"
         . ($browserFlow ? "Ссылку можно открыть на телефоне: подтверждение получит браузер, где вы запросили вход. Подтверждайте только свой запрос.\n\n" : '')
         . "Ссылка действует 30 минут. Если вы не запрашивали её, просто удалите это письмо.\n\n"
-        . "Календарная мастерская\nhttps://kalender.georg-kloster.ru/\n\n"
+        . "Календарная мастерская\n" . calendar_public_url('/') . "\n\n"
         . "Свято-Георгиевский мужской монастырь\n"
         . "Православная обитель в Гётчендорфе, в Уккермарке, неподалёку от Берлина.\n"
         . "Сайт монастыря: https://georg-kloster.ru/\n"
@@ -998,13 +1043,13 @@ function calendar_send_smtp_verification_email(string $recipient, array $message
         if (calendar_smtp_read($socket) !== 220) {
             throw new RuntimeException('smtp_greeting_failed');
         }
-        calendar_smtp_command($socket, 'EHLO kalender.georg-kloster.ru', [250]);
+        calendar_smtp_command($socket, 'EHLO ' . calendar_public_host(), [250]);
         if (!$secure) {
             calendar_smtp_command($socket, 'STARTTLS', [220]);
             if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
                 throw new RuntimeException('smtp_tls_failed');
             }
-            calendar_smtp_command($socket, 'EHLO kalender.georg-kloster.ru', [250]);
+            calendar_smtp_command($socket, 'EHLO ' . calendar_public_host(), [250]);
         }
         calendar_smtp_command($socket, 'AUTH LOGIN', [334]);
         calendar_smtp_command($socket, base64_encode($username), [334]);
@@ -1041,12 +1086,13 @@ function calendar_send_newsletter(string $recipient, string $subject, string $te
     $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $content = $blocks ? calendar_newsletter_content($blocks) : ['html' => '<p style="line-height:1.7;">' . nl2br($escape($text)) . '</p>', 'text' => $text];
     $text = $content['text'];
+    $publicUrl = calendar_public_url('/');
     $html = '<!doctype html><html lang="ru"><body style="background:#f2efe8;font-family:Arial,sans-serif;padding:20px;">'
         . '<table role="presentation" style="max-width:600px;width:100%;margin:auto;background:#fffdf8;border-top:4px solid #b3924d;padding:24px;"><tr><td>'
-        . '<img width="280" style="width:100%;max-width:280px;height:auto;" src="https://kalender.georg-kloster.ru/brand/logo-kalendar.png" alt="Календарная мастерская">'
+        . '<img width="280" style="width:100%;max-width:280px;height:auto;" src="' . $escape(calendar_public_url('/brand/logo-kalendar.png')) . '" alt="Календарная мастерская">'
         . '<h1 style="font-family:Georgia,serif;color:#28483b;">' . $escape($subject) . '</h1>'
         . $content['html'] . '<hr>'
-        . '<p><a href="https://kalender.georg-kloster.ru/">Календарная мастерская</a> · <a href="https://georg-kloster.ru/">Монастырь</a></p>'
+        . '<p><a href="' . $escape($publicUrl) . '">Календарная мастерская</a> · <a href="https://georg-kloster.ru/">Монастырь</a></p>'
         . '<p>Вы подтвердили подписку на новости мастерской и напоминания о календарях.</p>'
         . '<p><a href="' . $escape($unsubscribeUrl) . '">Отписаться от рассылки</a></p></td></tr></table></body></html>';
     $message = calendar_verification_message($recipient, '', calendar_mail_sender_address(), calendar_mail_sender_name(), false,

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 trait CalendarDomainSessions {
     public function domainSession(string $action, array $body, string $origin, string $binding, string $account, string $admin): array {
-        $aliases=['https://kalender.georg-kloster.ru','https://kalender.georg-kloster.de'];
+        $aliases=calendar_public_origins();
         if(!in_array($origin,$aliases,true))calendar_fail('invalid_origin',403);
         return calendar_with_lock($this->locksDirectory,'domain-session',function()use($action,$body,$origin,$binding,$account,$admin,$aliases):array{
             $file=$this->dataDirectory.'/domain-sessions.json';

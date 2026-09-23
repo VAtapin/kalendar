@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { documentRoutes } from './src/document-routes';
 import { fileURLToPath } from 'node:url';
@@ -7,37 +7,46 @@ import { readWordPressPluginVersion } from './scripts/wordpress-plugin-version.m
 const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 const wordpressPluginVersion = readWordPressPluginVersion(projectRoot);
 
-export default defineConfig(({ isSsrBuild }) => ({
-  define: { __WORDPRESS_PLUGIN_VERSION__: JSON.stringify(wordpressPluginVersion) },
-  resolve: { alias: !isSsrBuild && !process.env.VITEST ? [{
-    find: /^.*\/corpus-data$/,
-    replacement: fileURLToPath(new URL('./src/calendar/localization/corpus-data.browser.ts', import.meta.url)),
-  }] : [] },
-  plugins: [vue(), {
-    name: 'document-routes',
-    configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        const url = new URL(req.url || '/', 'http://localhost');
-        const file = documentRoutes[url.pathname.replace(/\/$/, '')];
-        if (file) req.url = file + url.search;
-        next();
-      });
+export default defineConfig(({ isSsrBuild, mode }) => {
+  const env = loadEnv(mode, projectRoot, '');
+  const publicUrl = (env.APP_PUBLIC_URL || 'https://kalender.georg-kloster.ru').replace(/\/$/, '');
+  const germanPublicUrl = (env.APP_GERMAN_PUBLIC_URL || 'https://kalender.georg-kloster.de').replace(/\/$/, '');
+  return {
+    define: {
+      __WORDPRESS_PLUGIN_VERSION__: JSON.stringify(wordpressPluginVersion),
+      __APP_PUBLIC_URL__: JSON.stringify(publicUrl),
+      __APP_GERMAN_PUBLIC_URL__: JSON.stringify(germanPublicUrl),
     },
-  }],
-  optimizeDeps: {
-    entries: ["index.html"],
-  },
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://127.0.0.1:8787",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+    resolve: { alias: !isSsrBuild && !process.env.VITEST ? [{
+      find: /^.*\/corpus-data$/,
+      replacement: fileURLToPath(new URL('./src/calendar/localization/corpus-data.browser.ts', import.meta.url)),
+    }] : [] },
+    plugins: [vue(), {
+      name: 'document-routes',
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          const url = new URL(req.url || '/', 'http://localhost');
+          const file = documentRoutes[url.pathname.replace(/\/$/, '')];
+          if (file) req.url = file + url.search;
+          next();
+        });
+      },
+    }],
+    optimizeDeps: {
+      entries: ["index.html"],
+    },
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://127.0.0.1:8787",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ""),
+        },
+      },
+      watch: {
+        // Large source datasets are loaded at runtime and must not participate in HMR.
+        ignored: ["**/public/data/**"],
       },
     },
-    watch: {
-      // Large source datasets are loaded at runtime and must not participate in HMR.
-      ignored: ["**/public/data/**"],
-    },
-  },
-}));
+  };
+});

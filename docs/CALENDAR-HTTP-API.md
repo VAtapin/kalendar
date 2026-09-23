@@ -14,6 +14,10 @@ API использует тот же TypeScript-движок и XML, что ре
 
 После развёртывания `npm run build` базовый адрес:
 `https://kalender.georg-kloster.ru/api/v1/calendar/`.
+
+Публичный origin берётся из `APP_PUBLIC_URL`; при смене домена пути API не
+меняются. WordPress-плагин позволяет временно переопределить origin через
+`ORTHOCAL_API_ORIGIN` в `wp-config.php`.
 На немецком домене работают те же пути; язык задаётся параметром, не доменом.
 
 | Запрос GET | Результат |

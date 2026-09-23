@@ -67,10 +67,5 @@ function calendar_admin_cookie(string $token): void {
 }
 function calendar_admin_check_origin(): void {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $url = parse_url(calendar_config_value('APP_PUBLIC_URL'));
-    $expected = isset($url['scheme'], $url['host']) ? $url['scheme'] . '://' . $url['host'] . (isset($url['port']) ? ':' . $url['port'] : '') : '';
-    $allowed = [$expected];
-    $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
-    if (in_array($expected, $aliases, true)) $allowed = $aliases;
-    if ($expected === '' || !in_array($origin, $allowed, true)) calendar_fail('invalid_origin', 403, 'Обновите страницу и повторите действие');
+    if (!in_array($origin, calendar_public_origins(), true)) calendar_fail('invalid_origin', 403, 'Обновите страницу и повторите действие');
 }

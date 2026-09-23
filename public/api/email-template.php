@@ -7,6 +7,8 @@ function calendar_verification_html(string $recipient, string $verificationUrl, 
 {
     $safeUrl = htmlspecialchars($verificationUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $safeRecipient = htmlspecialchars($recipient, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $publicUrl = htmlspecialchars(calendar_public_url('/'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $logoUrl = htmlspecialchars(calendar_public_url('/brand/logo-kalendar.png'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     $consent = $subscribe ? '<p style="padding:16px;background:#edf0e9;font-size:14px;line-height:1.6;">Вы отметили согласие: «Хочу получать по электронной почте новости Календарной мастерской и напоминания о создании календарей. Отписаться можно в любой момент». Нажимая кнопку, вы подтверждаете адрес и эту подписку. В каждой рассылке будет ссылка отписки.</p>' : '';
     $button = $subscribe ? 'Подтвердить адрес и подписку' : 'Подтвердить e-mail';
     $deviceNotice = $browserFlow ? '<p style="margin:0 0 18px;font-size:14px;line-height:1.6;">Письмо можно открыть на телефоне: подтверждение получит браузер, в котором вы запросили вход. Нажимайте кнопку, только если этот запрос сделали вы.</p>' : '';
@@ -20,7 +22,7 @@ function calendar_verification_html(string $recipient, string $verificationUrl, 
 <!--[if mso]><table role="presentation" width="600" align="center"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background-color:#fffdf8;border:1px solid #ded6c4;">
 <tr><td align="center" style="padding:28px 24px 22px;border-top:4px solid #b3924d;">
-<a href="https://kalender.georg-kloster.ru/" style="text-decoration:none;"><img src="https://kalender.georg-kloster.ru/brand/logo-kalendar.png" width="360" alt="Календарная мастерская при Свято-Георгиевском монастыре" style="display:block;width:100%;max-width:360px;height:auto;border:0;color:#253a32;font-family:Georgia,serif;font-size:22px;"></a>
+<a href="{$publicUrl}" style="text-decoration:none;"><img src="{$logoUrl}" width="360" alt="Календарная мастерская при Свято-Георгиевском монастыре" style="display:block;width:100%;max-width:360px;height:auto;border:0;color:#253a32;font-family:Georgia,serif;font-size:22px;"></a>
 </td></tr>
 <tr><td style="padding:28px 28px 30px;border-top:1px solid #e7dfcf;">
 <p style="margin:0 0 12px;color:#8c6b2d;font-size:11px;font-weight:bold;letter-spacing:2px;">ВАШ КАЛЕНДАРЬ НАЧИНАЕТСЯ ЗДЕСЬ</p>
@@ -37,7 +39,7 @@ function calendar_verification_html(string $recipient, string $verificationUrl, 
 <h2 style="margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:23px;line-height:1.3;font-weight:normal;">Свято-Георгиевский<br>мужской монастырь</h2>
 <p style="margin:0 0 18px;font-size:14px;line-height:1.7;color:#536055;">Православная обитель в Гётчендорфе, в Уккермарке, неподалёку от Берлина. На сайте монастыря — жизнь братии, новости и информация для паломников.</p>
 <p style="margin:0 0 12px;font-size:15px;line-height:1.6;"><a href="https://georg-kloster.ru/raspisanie-bogosluzheniy/" style="color:#28483b;font-weight:bold;">Богослужения и актуальное расписание →</a></p>
-<p style="margin:0;font-size:14px;line-height:1.9;"><a href="https://georg-kloster.ru/" style="color:#28483b;">Сайт монастыря</a><br><a href="https://kalender.georg-kloster.ru/" style="color:#28483b;">Календарная мастерская</a></p>
+<p style="margin:0;font-size:14px;line-height:1.9;"><a href="https://georg-kloster.ru/" style="color:#28483b;">Сайт монастыря</a><br><a href="{$publicUrl}" style="color:#28483b;">Календарная мастерская</a></p>
 </td></tr>
 <tr><td style="padding:24px 28px;border-top:1px solid #ded6c4;">
 <p style="margin:0 0 10px;color:#8c6b2d;font-size:11px;font-weight:bold;letter-spacing:1.5px;">РАЗРАБОТКА И ТЕХНИЧЕСКАЯ ПОДДЕРЖКА</p>

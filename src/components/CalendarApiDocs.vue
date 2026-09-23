@@ -6,7 +6,7 @@ type Plan={id:string;name:string;priceCents:number;currency:string;perMinute:num
 const plans=ref<Plan[]>([]),contact=ref(''),wordpressUrl=ref(''),error=ref(''),loading=ref(true);
 const wordpressPluginDownload='https://github.com/VAtapin/wp_orthodox_calendar/releases/latest/download/orthocal.zip';
 const translatorPluginDownload='https://github.com/VAtapin/wp_cu_translator/releases/latest/download/church-slavonic-translator.zip';
-const base='https://kalender.georg-kloster.ru/api/v1/calendar/';
+const base=__APP_PUBLIC_URL__+'/api/v1/calendar/';
 const example=`curl '${base}day?date=2027-05-02&lang=ru&profile=typikon-strict' \\\n  -H 'X-API-Key: YOUR_API_KEY'`;
 const wordpressExample=`curl '${base}day?date=2027-05-02&lang=ru&profile=typikon-strict' -H 'X-Calendar-Client: orthocal-wordpress'`;
 const endpoints=[['today','Сегодня, без ключа; дата по Europe/Berlin'],['day?date=2027-05-02','Полные данные одного дня'],['month?year=2027&month=5','Все дни месяца'],['year?year=2027','Все дни года'],['pascha?year=2027','Дата Пасхи'],['upcoming?date=2027-05-01&limit=5&filter=main','Ближайшие праздники']];

@@ -147,9 +147,7 @@ function calendar_public_icon_thumbnail_source(mixed $value): ?string {
 
 function calendar_public_demo_request_allowed(): bool {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $configured = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
-    $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
-    $allowedOrigins = in_array($configured, $aliases, true) ? $aliases : [$configured];
+    $allowedOrigins = calendar_public_origins() ?: [$scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')];
     $origin = api_header('Origin');
     $referer = api_header('Referer');
     return $origin !== ''
@@ -166,9 +164,7 @@ function calendar_public_icon_thumbnail_request_allowed(): bool {
     if (!is_array($parts) || !isset($parts['scheme'], $parts['host'], $parts['path'])) return false;
     $origin = $parts['scheme'] . '://' . $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $configured = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
-    $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
-    $allowedOrigins = in_array($configured, $aliases, true) ? $aliases : [$configured];
+    $allowedOrigins = calendar_public_origins() ?: [$scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')];
     return in_array($origin, $allowedOrigins, true)
         && in_array($parts['path'], ['/web-calendar', '/web-calendar/', '/web-calendar.html'], true)
         && api_header('Sec-Fetch-Site') === 'same-origin';
@@ -255,9 +251,7 @@ function calendar_public_routes(string $method, string $path): void {
         // Browser-only demo boundary, not an API credential. Non-browser clients
         // can imitate headers; these routes intentionally expose only public day/month data.
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $origin = rtrim(calendar_config_value('APP_PUBLIC_URL', $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')), '/');
-        $aliases = ['https://kalender.georg-kloster.ru', 'https://kalender.georg-kloster.de'];
-        $allowedOrigins = in_array($origin, $aliases, true) ? $aliases : [$origin];
+        $allowedOrigins = calendar_public_origins() ?: [$scheme . '://' . ($_SERVER['HTTP_HOST'] ?? '')];
         $origin = api_header('Origin');
         $referer = api_header('Referer');
         if ($origin === '' || !in_array($origin, $allowedOrigins, true)

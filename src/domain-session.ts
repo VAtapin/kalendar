@@ -1,9 +1,11 @@
+import {GERMAN_ORIGIN,RUSSIAN_ORIGIN} from './i18n/domain-routing';
+
 export async function sessionRequest(action: string, body: unknown): Promise<{url:string}> {
   const response=await fetch(`/api/v1/domain-session/${action}`,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(!response.ok)throw new Error('Не удалось перенести вход между доменами. Повторите переключение языка.');
   const result=await response.json() as {url:string};
   const url=new URL(result.url);
-  if(!['https://kalender.georg-kloster.ru','https://kalender.georg-kloster.de'].includes(url.origin))throw new Error('Invalid session destination');
+  if(![RUSSIAN_ORIGIN,GERMAN_ORIGIN].includes(url.origin))throw new Error('Invalid session destination');
   return result;
 }
 export async function completeDomainSession():Promise<boolean>{

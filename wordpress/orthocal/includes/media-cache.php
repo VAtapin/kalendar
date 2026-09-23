@@ -3,14 +3,14 @@ if (!defined('ABSPATH')) exit;
 
 /** Public calendar media only. No arbitrary remote URLs, credentials or PHP uploads. */
 final class Orthocal_Media_Cache {
-    const ORIGIN = 'https://kalender.georg-kloster.ru';
     const BIBLE_DESKTOP_ORIGIN = 'https://bible-desktop.com';
     const MAX_BYTES = 200 * 1024 * 1024;
     private static $started;
     static function boot() { add_action('orthocal_refresh_asset',[self::class,'refresh'],10,1); }
     static function source($path) {
         if (!is_string($path)) return false;
-        if (str_starts_with($path,self::ORIGIN.'/')) $path=substr($path,strlen(self::ORIGIN));
+        $calendarOrigin=Orthocal_Config::calendar_origin();
+        if (str_starts_with($path,$calendarOrigin.'/')) $path=substr($path,strlen($calendarOrigin));
         if (preg_match('#^https://bible-desktop\.com/storage/calendar-icons/[a-f0-9]{64}\.(?:png|svg|webp|jpg|jpeg|gif)$#D',$path)) return $path;
         if (preg_match('#^https://bible-desktop\.com/api/calendar/icons/[0-9]+/images/[0-9]+$#D',$path)) return $path;
         if ($path==='/calendar-api-font.php') return $path;
@@ -127,7 +127,7 @@ final class Orthocal_Media_Cache {
                 if (!empty($meta['etag'])) $headers['If-None-Match']=$meta['etag'];
                 if (!empty($meta['modified'])) $headers['If-Modified-Since']=$meta['modified'];
             }
-            $remote=str_starts_with($path,'https://')?$path:self::ORIGIN.$path;
+            $remote=str_starts_with($path,'https://')?$path:Orthocal_Config::calendar_origin().$path;
             $response=wp_safe_remote_get($remote,['timeout'=>5,'redirection'=>0,'headers'=>$headers,'limit_response_size'=>10*1024*1024+1]);
             $code=is_wp_error($response)?0:wp_remote_retrieve_response_code($response);
             $key='orthocal_media_'.hash('sha256',$path);

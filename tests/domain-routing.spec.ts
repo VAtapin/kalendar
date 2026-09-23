@@ -14,4 +14,9 @@ describe('domain language routes', () => {
     expect(domainRoute('/calendar/123','en',de)).toBe(ru+'/en/calendar/123');
     expect(domainRoute('/impressum','uk',ru)).toBe('/uk/impressum');
   });
+  it('uses configured domains without code changes', () => {
+    const domains={russian:'https://calendar.example',german:'https://kalender-de.example'};
+    expect(domainRoute('/account','de',domains.russian,domains)).toBe(domains.german+'/account');
+    expect(domainRoute('/de/calendar-api','ru',domains.german,domains)).toBe(domains.russian+'/calendar-api');
+  });
 });

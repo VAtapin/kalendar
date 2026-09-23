@@ -4,14 +4,14 @@ require $argv[1].'/wp-load.php';
 function oc_assert($condition,$message){if(!$condition)throw new Exception($message);}
 $path='/assets/typikon/great.svg';$url=Orthocal_Media_Cache::url($path);
 oc_assert(str_contains($url,'/uploads/orthocal-cache/'),'Image must be local');
-$before=Orthocal_Media_Cache::metadata($path);$calls=0;
-$spy=function($pre,$args,$url)use(&$calls,$path){if($url===Orthocal_Media_Cache::ORIGIN.$path){$calls++;oc_assert(!empty($args['headers']['If-None-Match']),'Conditional GET missing ETag');}return $pre;};
+$before=Orthocal_Media_Cache::metadata($path);$calls=0;$calendarOrigin=Orthocal_Config::calendar_origin();
+$spy=function($pre,$args,$url)use(&$calls,$path,$calendarOrigin){if($url===$calendarOrigin.$path){$calls++;oc_assert(!empty($args['headers']['If-None-Match']),'Conditional GET missing ETag');}return $pre;};
 add_filter('pre_http_request',$spy,1,3);
 Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$spy,1);
 oc_assert($calls===1,'Exactly one revalidation');oc_assert(Orthocal_Media_Cache::metadata($path)['file']===$before['file'],'304 keeps local file');
 $oldBytes=file_get_contents(Orthocal_Media_Cache::directory()['path'].'/'.$before['file']);
 $changed='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4" fill="red"/></svg>';
-$mock=function($pre,$args,$url)use($path,$changed){return $url===Orthocal_Media_Cache::ORIGIN.$path?['headers'=>['etag'=>'"changed"'],'body'=>$changed,'response'=>['code'=>200],'cookies'=>[]]:$pre;};
+$mock=function($pre,$args,$url)use($path,$changed,$calendarOrigin){return $url===$calendarOrigin.$path?['headers'=>['etag'=>'"changed"'],'body'=>$changed,'response'=>['code'=>200],'cookies'=>[]]:$pre;};
 // Higher priority than the installed fixture so this response is final.
 add_filter('pre_http_request',$mock,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$mock,99);
 $after=Orthocal_Media_Cache::metadata($path);oc_assert($after['file']!==$before['file'],'Changed bytes must change browser URL');
@@ -25,7 +25,7 @@ if(function_exists('imagecreatetruecolor')&&function_exists('imagepng')&&functio
     oc_assert($thumbnail!==Orthocal_Media_Cache::cached_url($rasterSource),'Raster thumbnail must not reuse the original');
     oc_assert($dimensions[0]<=96&&$dimensions[1]<=96,'Thumbnail exceeds 96 pixels');
 }
-$fail=function($pre,$args,$url)use($path){return $url===Orthocal_Media_Cache::ORIGIN.$path?new WP_Error('offline','Offline'):$pre;};
+$fail=function($pre,$args,$url)use($path,$calendarOrigin){return $url===$calendarOrigin.$path?new WP_Error('offline','Offline'):$pre;};
 add_filter('pre_http_request',$fail,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$fail,99);
 oc_assert(Orthocal_Media_Cache::metadata($path)['file']===$after['file'],'Failure preserves working copy');
 oc_assert(Orthocal_Media_Cache::source('https://evil.test/assets/typikon/great.svg')===false,'External host accepted');
