@@ -9,13 +9,15 @@ final class Orthocal_Media_Cache {
     static function source($path) {
         if (!is_string($path)) return false;
         $calendarOrigin=Orthocal_Config::calendar_origin();
-        if (str_starts_with($path,$calendarOrigin.'/')) $path=substr($path,strlen($calendarOrigin));
+        if (str_starts_with($path,$calendarOrigin.'/')) {
+            $relative=substr($path,strlen($calendarOrigin));
+            if($relative==='/calendar-api-font.php'||str_starts_with($relative,'/assets/'))$path=$relative;
+        }
         if (str_starts_with($path,'https://')) {
-            $parts=wp_parse_url($path);$origin='';
+            $parts=wp_parse_url($path);
             if(!is_array($parts)||isset($parts['user'],$parts['pass'],$parts['query'],$parts['fragment']))return false;
-            if(is_array($parts)&&!empty($parts['host']))$origin='https://'.$parts['host'].(isset($parts['port'])?':'.(int)$parts['port']:'');
+            if(empty($parts['host'])||isset($parts['port']))return false;
             $remotePath=is_array($parts)?($parts['path']??''):'';
-            if($origin!==Orthocal_Config::public_api_origin())return false;
             if(preg_match('#^/storage/calendar-icons/[a-f0-9]{64}\.(?:png|svg|webp|jpg|jpeg|gif)$#D',$remotePath))return $path;
             if(preg_match('#^/api/calendar/icons/[0-9]+/images/[0-9]+$#D',$remotePath))return $path;
             return false;
@@ -23,6 +25,16 @@ final class Orthocal_Media_Cache {
         if ($path==='/calendar-api-font.php') return $path;
         if (!preg_match('~^/assets/(?:markers|typikon|icons)/[a-zA-Z0-9_/-]+\.(?:png|svg|webp|jpg|jpeg|gif)$~D',$path) || str_contains($path,'//')) return false;
         return $path;
+    }
+    static function token($source): string {
+        $path=self::source($source);
+        // The calendar API may place media on another host. Sign the exact
+        // validated URL so the public REST route cannot become an open proxy.
+        return $path===false?'':hash_hmac('sha256',$path,wp_salt('auth'));
+    }
+    static function token_valid($source,$token): bool {
+        $expected=self::token($source);
+        return $expected!==''&&is_string($token)&&hash_equals($expected,$token);
     }
     static function directory() {
         $upload=wp_upload_dir();

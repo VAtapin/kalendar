@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit;
 require_once __DIR__.'/library.php';
 
 final class Orthocal_Plugin {
-    const VERSION = '1.3.66';
+    const VERSION = '1.3.67';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -339,7 +339,7 @@ final class Orthocal_Plugin {
         if(!is_array($item))return '';
         $source=!empty($item['localUrl'])?(string)$item['localUrl']:(string)($item['images'][0]??'');
         if($source==='')return '';
-        $attr=!empty($item['localUrl'])?' src="'.esc_url($source).'"':' data-oc-icon-cover="'.esc_url($source).'"';
+        $attr=!empty($item['localUrl'])?' src="'.esc_url($source).'"':' data-oc-icon-cover="'.esc_url($source).'" data-oc-icon-token="'.esc_attr(Orthocal_Media_Cache::token($source)).'"';
         return '<img'.$attr.' alt="'.esc_attr($item['alt']??'Икона').'"'.($lazy?' loading="lazy"':'').'>';
     }
     static function icon_image_count($item): string {
@@ -448,13 +448,16 @@ final class Orthocal_Plugin {
         $gallery=[];
         foreach($items as $item) {
             if(!is_array($item)||empty($item['images']))continue;
-            $gallery[]=['title'=>(string)($item['alt']??'Икона'),'description'=>(string)($item['description']??$item['caption']??''),'dates'=>self::icon_dates($item),'images'=>array_values((array)$item['images'])];
+            $images=[];
+            foreach((array)$item['images'] as $source)if(is_string($source)&&$source!=='')$images[]=['url'=>$source,'token'=>Orthocal_Media_Cache::token($source)];
+            if($images)$gallery[]=['title'=>(string)($item['alt']??'Икона'),'description'=>(string)($item['description']??$item['caption']??''),'dates'=>self::icon_dates($item),'images'=>$images];
         }
         return esc_attr(wp_json_encode($gallery,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
     }
     static function icon_data_attributes($item,$index): string {
         $description=$item['description']??$item['caption']??$item['alt']??'';
-        return ' data-oc-icon data-oc-icon-index="'.(int)$index.'" data-oc-icon-title="'.esc_attr($item['alt']??'Икона').'" data-oc-icon-description="'.esc_attr($description).'"';
+        $source=(string)($item['images'][0]??'');
+        return ' data-oc-icon data-oc-icon-index="'.(int)$index.'" data-oc-icon-title="'.esc_attr($item['alt']??'Икона').'" data-oc-icon-description="'.esc_attr($description).'" data-oc-media-token="'.esc_attr(Orthocal_Media_Cache::token($source)).'"';
     }
     static function icons_slot($items,$limit='all',$lang='ru') {
         $html='';$upload=wp_upload_dir();
@@ -547,7 +550,8 @@ final class Orthocal_Plugin {
     }
     static function rest_media($request) {
         $source=$request->get_param('source');
-        if(!is_string($source)||Orthocal_Media_Cache::source($source)===false)return new WP_Error('source','Неверный адрес изображения.',['status'=>400]);
+        $token=$request->get_param('token');
+        if(!is_string($source)||Orthocal_Media_Cache::source($source)===false||!Orthocal_Media_Cache::token_valid($source,$token))return new WP_Error('source','Неверный адрес изображения.',['status'=>400]);
         $thumbnail=$request->get_param('thumbnail')==='1';
         $cached=Orthocal_Media_Cache::cached_url($source);
         if($cached){$url=$thumbnail?Orthocal_Media_Cache::thumbnail_url($source):$cached;$response=new WP_REST_Response(['url'=>$url]);$response->header('Cache-Control','private, max-age=86400');return $response;}

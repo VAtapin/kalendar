@@ -70,10 +70,12 @@ if(!str_contains($allIcons,'2 мая'))throw new Exception('Published icon dates
 if(!preg_match('/oc-icon-image-count[^>]*>2<\\/span>/',$allIcons))throw new Exception('Icon image count missing');
 if(Orthocal_Plugin::icon_dates_label(['dates'=>[['label'=>'7 февраля (переходящая) - Собор новомучеников и исповедников']]])!=='7 февраля (пер.)')throw new Exception('Icon date label is not compact');
 foreach(Orthocal_Media_Cache::entries() as $meta)if(str_contains((string)($meta['source']??''),'/calendar/icons/'))throw new Exception('Calendar rendering fetched icon covers eagerly');
-$mediaRequest=new WP_REST_Request('GET','/orthocal/v1/media');$mediaRequest->set_param('source','https://public-api.example/api/calendar/icons/1/images/1');
+$mediaSource='https://calendar-media.example/api/calendar/icons/1/images/1';
+$mediaRequest=new WP_REST_Request('GET','/orthocal/v1/media');$mediaRequest->set_param('source',$mediaSource);$mediaRequest->set_param('token',Orthocal_Media_Cache::token($mediaSource));
 $firstMedia=Orthocal_Plugin::rest_media($mediaRequest);if(is_wp_error($firstMedia))throw new Exception('First queued icon request failed');
 for($i=0;$i<50;$i++){ $cachedMedia=Orthocal_Plugin::rest_media($mediaRequest);if(is_wp_error($cachedMedia))throw new Exception('Cached icon request hit a rate limit'); }
-$uncachedIcon=Orthocal_Plugin::hero_icon(['alt'=>'Икона без локального кэша','images'=>['https://public-api.example/api/calendar/icons/1/images/1']],0);if(!str_contains($uncachedIcon,'data-oc-icon-cover'))throw new Exception('Cache-miss cover cannot be loaded locally');
+$unsignedMediaRequest=new WP_REST_Request('GET','/orthocal/v1/media');$unsignedMediaRequest->set_param('source',$mediaSource);if(!is_wp_error(Orthocal_Plugin::rest_media($unsignedMediaRequest)))throw new Exception('Unsigned media source accepted');
+$uncachedSource='https://calendar-media.example/api/calendar/icons/2/images/1';$uncachedIcon=Orthocal_Plugin::hero_icon(['alt'=>'Икона без локального кэша','images'=>[$uncachedSource]],0);if(!str_contains($uncachedIcon,'data-oc-icon-cover')||!str_contains($uncachedIcon,'data-oc-icon-token'))throw new Exception('Cache-miss cover cannot be loaded locally');
 $attrs=Orthocal_Plugin::config(['theme'=>'','compact'=>'']); if(is_wp_error($attrs)) throw new Exception('Empty Gutenberg defaults');
 echo 'PASS WordPress registration, server rendering, validation, escaping and key isolation';
 `);
@@ -93,7 +95,7 @@ try {
   const invalidMedia=await fetch(origin+'/?rest_route=/orthocal/v1/media&source=https://evil.test/icon.png');assert.equal(invalidMedia.status,400);
   browser=await chromium.launch({channel:process.platform==='win32'?'msedge':undefined,headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const remoteAssets=[];page.on('request',r=>{if(r.url().startsWith('https://calendar-api.example/'))remoteAssets.push(r.url());});
+  const remoteAssets=[];page.on('request',r=>{if(r.url().startsWith('https://calendar-api.example/')||r.url().startsWith('https://calendar-media.example/'))remoteAssets.push(r.url());});
   await page.goto(origin+'/?page_id='+pageId);await page.locator('.orthocal').first().waitFor();
   assert.equal(await page.locator('.orthocal').count(),6);
   console.log('Browser: six blocks rendered');

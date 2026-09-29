@@ -4,7 +4,7 @@ Tags: calendar, orthodox, bible
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.66
+Stable tag: 1.3.67
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ Orthodox calendar for WordPress: feasts, fasting, commemorations, readings, litu
 Adds 22 dynamic Gutenberg blocks and shortcodes. Calendar and Bible data come from the external services listed below; no calendar database is included in the plugin.
 
 == Installation ==
-1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.66.zip.
+1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.67.zip.
 2. Activate the plugin.
 3. The calendar works immediately. Open Orthodox Calendar → Connection to change the public API address or add an optional API key.
 4. Add blocks from the Widgets category or shortcodes to a page.
@@ -73,6 +73,9 @@ Saving settings invalidates the plugin cache. Deactivation preserves settings.
 Day cards and the reader support Russian and German labels; the calendar-data language and Bible language are chosen separately. Calendar translations can be incomplete. Built-in liturgical texts are Church Slavonic, with German editions available through links. Icon images and hagiographies are never substituted for missing data.
 
 == Changelog ==
+
+= 1.3.67 =
+* Fixed icon loading when the configured public API returns image files from a separate media domain.
 
 = 1.3.66 =
 * Added an editable public API address in the plugin settings, defaulting to https://bibel.cloud.

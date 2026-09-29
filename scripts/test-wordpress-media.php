@@ -16,7 +16,7 @@ $mock=function($pre,$args,$url)use($path,$changed,$calendarOrigin){return $url==
 add_filter('pre_http_request',$mock,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$mock,99);
 $after=Orthocal_Media_Cache::metadata($path);oc_assert($after['file']!==$before['file'],'Changed bytes must change browser URL');
 oc_assert(is_file(Orthocal_Media_Cache::directory()['path'].'/'.$before['file']),'Open pages retain old file');
-$rasterSource=Orthocal_Config::public_api_url('/api/calendar/icons/1/images/1');
+$rasterSource='https://calendar-media.example/api/calendar/icons/1/images/1';
 if(function_exists('imagecreatetruecolor')&&function_exists('imagepng')&&function_exists('getimagesize')) {
     $rasterName=str_repeat('a',64).'.png';$rasterFile=Orthocal_Media_Cache::directory()['path'].'/'.$rasterName;
     $raster=imagecreatetruecolor(240,160);imagefill($raster,0,0,imagecolorallocate($raster,150,80,40));imagepng($raster,$rasterFile);imagedestroy($raster);
@@ -28,7 +28,9 @@ if(function_exists('imagecreatetruecolor')&&function_exists('imagepng')&&functio
 $fail=function($pre,$args,$url)use($path,$calendarOrigin){return $url===$calendarOrigin.$path?new WP_Error('offline','Offline'):$pre;};
 add_filter('pre_http_request',$fail,99,3);Orthocal_Media_Cache::refresh($path);remove_filter('pre_http_request',$fail,99);
 oc_assert(Orthocal_Media_Cache::metadata($path)['file']===$after['file'],'Failure preserves working copy');
-oc_assert(Orthocal_Media_Cache::source('https://evil.test/assets/typikon/great.svg')===false,'External host accepted');
+oc_assert(Orthocal_Media_Cache::source('https://evil.test/assets/typikon/great.svg')===false,'Arbitrary external path accepted');
+oc_assert(Orthocal_Media_Cache::source('https://calendar-media.example/api/calendar/icons/1/images/1')!==false,'Separate media origin rejected');
+oc_assert(!Orthocal_Media_Cache::token_valid('https://calendar-media.example/api/calendar/icons/1/images/1','invalid'),'Invalid media token accepted');
 oc_assert(Orthocal_Media_Cache::source('/assets/typikon/../../x.php')===false,'Traversal accepted');
 oc_assert(Orthocal_Media_Cache::validate_body('<!DOCTYPE svg [<!ENTITY x SYSTEM "file:///etc/passwd">]><svg>&x;</svg>','svg')===false,'DTD accepted');
 $clean=Orthocal_Media_Cache::validate_body('<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><script>alert(1)</script><foreignObject/><path d="M0 0" onclick="alert(1)" fill="url(https://evil.test/a)"/></svg>','svg');
