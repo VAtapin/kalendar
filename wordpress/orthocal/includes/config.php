@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit;
 
 final class Orthocal_Config {
     const DEFAULT_CALENDAR_ORIGIN = 'https://kalender.georg-kloster.ru';
-    const DEFAULT_PUBLIC_API_ORIGIN = 'https://bibel.cloud';
+    const DEFAULT_PUBLIC_API_ORIGIN = 'https://bible-desktop.com';
 
     static function normalize_origin($origin) {
         $origin = untrailingslashit(trim((string) $origin));

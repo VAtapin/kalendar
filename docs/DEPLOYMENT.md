@@ -116,7 +116,7 @@ nano .env
 Внешний API текстов, переводов и икон задаётся одной строкой в `.env`:
 
 ```dotenv
-PUBLIC_API_URL=https://bibel.cloud
+PUBLIC_API_URL=https://bible-desktop.com
 ```
 
 Указывается только HTTPS-origin без завершающего `/` и без `/api`. PHP и
@@ -125,7 +125,7 @@ PUBLIC_API_URL=https://bibel.cloud
 
 В WordPress-плагине этот адрес меняется без доступа к файлам: **Православный
 календарь → Подключение → Адрес API**. Стандартное значение поля —
-`https://bibel.cloud`.
+`https://bible-desktop.com`.
 
 Адрес сайта и календарного API задаётся в одном месте — `APP_PUBLIC_URL` в `.env`.
 API остаётся по пути `/api/v1/...` этого адреса. `APP_GERMAN_PUBLIC_URL` задаёт

@@ -53,6 +53,7 @@ foreach(array_keys(Orthocal_Plugin::TITLES) as $mode) {
     if(!str_contains($rendered,'data-orthocal=')||str_contains($rendered,'data-oc-retry'))throw new Exception('Rendering failed '.$mode);
 }
 if(Orthocal_Config::public_api_origin()!=='https://public-api.example') throw new Exception('Saved public API origin ignored');
+if(Orthocal_Config::DEFAULT_PUBLIC_API_ORIGIN!=='https://bible-desktop.com') throw new Exception('Current default public API origin changed');
 if(!is_wp_error(Orthocal_Plugin::config(['date'=>'2027-02-29']))) throw new Exception('Invalid leap date accepted');
 if(is_wp_error(Orthocal_Plugin::config(['date'=>'2028-02-29']))) throw new Exception('Valid leap date rejected');
 $html=do_shortcode('[orthocal_day date="2027-05-02"]');
