@@ -4,8 +4,20 @@ if (!defined('ABSPATH')) exit;
 /** Public calendar media only. No arbitrary remote URLs, credentials or PHP uploads. */
 final class Orthocal_Media_Cache {
     const MAX_BYTES = 200 * 1024 * 1024;
+    const PHOTO_MAX_EDGE = 1200;
+    const PHOTO_TARGET_BYTES = 100 * 1024;
+    const STORAGE_FORMAT = 2;
     private static $started;
-    static function boot() { add_action('orthocal_refresh_asset',[self::class,'refresh'],10,1); }
+    static function boot() {
+        add_action('orthocal_refresh_asset',[self::class,'refresh'],10,1);
+        add_action('init',[self::class,'upgrade_storage'],1);
+    }
+    static function upgrade_storage() {
+        if((int)get_option('orthocal_media_storage_format',0)>=self::STORAGE_FORMAT)return;
+        // Existing releases cached full-size originals. Remove them once so the
+        // same URLs are downloaded again in the compact web format below.
+        if(self::clear())update_option('orthocal_media_storage_format',self::STORAGE_FORMAT,false);
+    }
     static function source($path) {
         if (!is_string($path)) return false;
         $calendarOrigin=Orthocal_Config::calendar_origin();
@@ -135,6 +147,32 @@ final class Orthocal_Media_Cache {
         }
         return $doc->saveXML($doc->documentElement);
     }
+    static function compress_photo($body,$ext) {
+        if(!is_string($body)||!in_array($ext,['png','jpg','jpeg','webp','gif'],true)||!function_exists('imagecreatefromstring'))return [$body,$ext];
+        $image=@imagecreatefromstring($body);if(!$image)return [$body,$ext];
+        try {
+            $width=imagesx($image);$height=imagesy($image);if($width<1||$height<1)return [$body,$ext];
+            if(strlen($body)<=self::PHOTO_TARGET_BYTES&&max($width,$height)<=self::PHOTO_MAX_EDGE)return [$body,$ext];
+            $outputExt=function_exists('imagewebp')?'webp':(in_array($ext,['jpg','jpeg'],true)?'jpg':'');
+            if($outputExt==='')return [$body,$ext];
+            $smallest=null;$edge=min(self::PHOTO_MAX_EDGE,max($width,$height));$quality=50;
+            for($attempt=0;$attempt<6;$attempt++) {
+                $scale=min(1,$edge/max($width,$height));$targetWidth=max(1,(int)round($width*$scale));$targetHeight=max(1,(int)round($height*$scale));
+                $target=imagecreatetruecolor($targetWidth,$targetHeight);if(!$target)continue;
+                try {
+                    imagealphablending($target,false);imagesavealpha($target,true);imagefill($target,0,0,imagecolorallocatealpha($target,0,0,0,127));
+                    if(!imagecopyresampled($target,$image,0,0,0,0,$targetWidth,$targetHeight,$width,$height))continue;
+                    ob_start();$written=$outputExt==='webp'?imagewebp($target,null,$quality):imagejpeg($target,null,$quality);$compressed=ob_get_clean();
+                    if(!$written||!is_string($compressed)||$compressed==='')continue;
+                    if($smallest===null||strlen($compressed)<strlen($smallest))$smallest=$compressed;
+                    if(strlen($compressed)<=self::PHOTO_TARGET_BYTES)return [$compressed,$outputExt];
+                    $ratio=sqrt(self::PHOTO_TARGET_BYTES/strlen($compressed))*0.9;
+                    $edge=max(240,(int)floor($edge*min(0.85,$ratio)));$quality=max(18,$quality-6);
+                } finally {imagedestroy($target);}
+            }
+            return $smallest!==null&&strlen($smallest)<strlen($body)?[$smallest,$outputExt]:[$body,$ext];
+        } finally {imagedestroy($image);}
+    }
     static function refresh($source) {
         $path=self::source($source);$dir=self::directory(); if (!$path || !$dir) return false;
         // A single global lock also prevents concurrent purge/write races and cache stampedes.
@@ -163,6 +201,7 @@ final class Orthocal_Media_Cache {
                 $meta=array_merge($meta,['source'=>$path,'retry'=>time()+900,'error'=>'Не удалось обновить файл (HTTP '.$code.').']);
                 update_option($key,$meta,false);return false;
             }
+            if(str_starts_with($path,'https://'))[$body,$ext]=self::compress_photo($body,$ext);
             $name=hash('sha256',$body).'.'.$ext;
             if (!is_file($dir['path'].'/'.$name)) {
                 $stats=self::stats();

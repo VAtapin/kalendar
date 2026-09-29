@@ -38,6 +38,18 @@ oc_assert(!str_contains($clean,'script')&&!str_contains($clean,'onload')&&!str_c
 oc_assert(Orthocal_Media_Cache::validate_body('<?php echo 1;','png')===false,'PHP accepted as PNG');
 $styled=Orthocal_Media_Cache::validate_body('<svg xmlns="http://www.w3.org/2000/svg"><style>.a{fill:none;stroke:red}.a,.b{stroke-width:2}</style><circle class="a" r="5"/><path style="fill:url(https://evil.test/x)"/></svg>','svg');
 oc_assert(str_contains($styled,'fill="none"')&&str_contains($styled,'stroke="red"')&&str_contains($styled,'stroke-width="2"')&&!str_contains($styled,'<style')&&!str_contains($styled,'evil.test'),'Presentation styles not safely preserved');
+$photoSource='https://calendar-media.example/api/calendar/icons/293/images/3505';
+if(function_exists('imagecreatetruecolor')&&function_exists('imagepng')&&function_exists('getimagesize')) {
+    $photo=imagecreatetruecolor(1800,1200);imagefill($photo,0,0,imagecolorallocate($photo,132,84,48));
+    for($x=0;$x<1800;$x+=15)imageline($photo,$x,0,1799-$x,1199,imagecolorallocate($photo,$x%255,($x*3)%255,($x*7)%255));
+    ob_start();imagepng($photo);$photoBytes=ob_get_clean();imagedestroy($photo);
+    $photoMock=function($pre,$args,$url)use($photoSource,$photoBytes){return $url===$photoSource?['headers'=>['content-type'=>'image/png'],'body'=>$photoBytes,'response'=>['code'=>200],'cookies'=>[]]:$pre;};
+    add_filter('pre_http_request',$photoMock,99,3);Orthocal_Media_Cache::refresh($photoSource);remove_filter('pre_http_request',$photoMock,99);
+    $photoMeta=Orthocal_Media_Cache::metadata($photoSource);$photoFile=Orthocal_Media_Cache::directory()['path'].'/'.$photoMeta['file'];$photoDimensions=getimagesize($photoFile);
+    oc_assert(max($photoDimensions[0],$photoDimensions[1])<=Orthocal_Media_Cache::PHOTO_MAX_EDGE,'Cached photo was not resized');
+    oc_assert(filesize($photoFile)<=Orthocal_Media_Cache::PHOTO_TARGET_BYTES,'Cached photo exceeds its size limit');
+    if(function_exists('imagewebp'))oc_assert(pathinfo($photoFile,PATHINFO_EXTENSION)==='webp','Cached photo did not use WebP');
+}
 // Restore production fixture so screenshots use the real supplied Typikon sign.
 Orthocal_Media_Cache::refresh($path);
-echo "PASS media: local storage, ETag/304, changed content URL, failed refresh, SSRF/path/DTD/SVG rejection\n";
+echo "PASS media: local storage, photos capped at 100 KB, ETag/304, changed content URL, failed refresh, SSRF/path/DTD/SVG rejection\n";

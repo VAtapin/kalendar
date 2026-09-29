@@ -4,7 +4,7 @@ Tags: calendar, orthodox, bible
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.68
+Stable tag: 1.3.69
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ Orthodox calendar for WordPress: feasts, fasting, commemorations, readings, litu
 Adds 22 dynamic Gutenberg blocks and shortcodes. Calendar and Bible data come from the external services listed below; no calendar database is included in the plugin.
 
 == Installation ==
-1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.68.zip.
+1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.69.zip.
 2. Activate the plugin.
 3. The calendar works immediately. Open Orthodox Calendar → Connection to change the public API address or add an optional API key.
 4. Add blocks from the Widgets category or shortcodes to a page.
@@ -63,7 +63,7 @@ Without a key, the official plugin obtains day, month, year, Pascha, and upcomin
 The updated calendar API is required: upcoming, view=summary, and the X-Calendar-Application-Cache-TTL header.
 Successful calendar responses are retained for up to 300 seconds only when allowed by the API; access revocation and database changes appear no later than this expiry. Stale data is not used after errors. Responses without the allowing header are not retained between requests.
 Bible responses are retained for the selected 0/1/6/24 hours (24 by default); no-store disables retention unless separately permitted by the API. The browser deduplicates simultaneous requests.
-Local images and fonts are stored in uploads/orthocal-cache. Conditional ETag/Last-Modified checks through WP-Cron run every 6/12/24/168 hours (24 by default). A changed file receives a new hashed URL, while the last working copy remains available after a failure. The limit is 200 MB; old versions can be cleared in the admin area. Media Library files are not affected.
+Local images and fonts are stored in uploads/orthocal-cache. Remote photos are resized to a maximum edge of 1200 pixels and compressed to no more than 100 KB before they are saved. Conditional ETag/Last-Modified checks through WP-Cron run every 6/12/24/168 hours (24 by default). A changed file receives a new hashed URL, while the last working copy remains available after a failure. The limit is 200 MB; old versions can be cleared in the admin area. Media Library files are not affected.
 Public REST routes are limited to fixed sources and an allowlist of parameters. WordPress counters limit ordinary traffic; configure web-server rate limiting as well for strict protection against distributed quota exhaustion.
 If the site has full-page caching, exclude calendar pages or use a TTL of no more than 300 seconds and clear it at midnight in the site timezone. Otherwise, HTML can outlive the API data.
 Saving settings invalidates the plugin cache. Deactivation preserves settings.
@@ -73,6 +73,10 @@ Saving settings invalidates the plugin cache. Deactivation preserves settings.
 Day cards and the reader support Russian and German labels; the calendar-data language and Bible language are chosen separately. Calendar translations can be incomplete. Built-in liturgical texts are Church Slavonic, with German editions available through links. Icon images and hagiographies are never substituted for missing data.
 
 == Changelog ==
+
+= 1.3.69 =
+* Compress remote icon photos to no more than 100 KB before saving them in WordPress.
+* Clear full-size files from older plugin versions once after updating.
 
 = 1.3.68 =
 * Restored https://bible-desktop.com as the current default public API address.
