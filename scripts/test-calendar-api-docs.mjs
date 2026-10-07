@@ -24,7 +24,8 @@ try {
   const catalog=page.locator('#plugins');
   assert.equal(await catalog.locator('tbody tr').count(),3);
   assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginDownload);
-  assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.4.zip');
+  assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.5.zip');
+  assert.equal(await catalog.locator('tbody tr').nth(1).locator('.version').textContent(),'1.2.5');
   assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginDownload);
   const translatorRow=catalog.locator('tbody tr').nth(2);
   assert.ok((await translatorRow.textContent()).includes('Georg-Kloster Slavonic Translator'));
@@ -45,10 +46,13 @@ try {
   const prayerSection=page.locator('#prayer-plugin');
   await catalog.getByRole('link',{name:'Подробнее о молитвенных записках',exact:true}).click();
   assert.equal(await prayerSection.getAttribute('open'),'');
-  assert.equal(await prayerSection.locator('a.download').getAttribute('href'),'/downloads/kloster-prayer-1.2.4.zip');
-  const prayerZip=await fetch(origin+'/downloads/kloster-prayer-1.2.4.zip');
+  assert.equal(await prayerSection.locator('a.download').getAttribute('href'),'/downloads/kloster-prayer-1.2.5.zip');
+  const prayerZip=await fetch(origin+'/downloads/kloster-prayer-1.2.5.zip');
   assert.equal(prayerZip.status,200);
-  assert.equal(Buffer.from(await prayerZip.arrayBuffer()).subarray(0,2).toString(),'PK');
+  const prayerBytes=Buffer.from(await prayerZip.arrayBuffer());
+  assert.equal(prayerBytes.subarray(0,2).toString(),'PK');
+  assert.deepEqual(prayerBytes,readFileSync('artifacts/kloster-prayer-1.2.5.zip'));
+  assert.match(await prayerSection.textContent(),/email получателя уведомлений/);
   const translatorSection=page.locator('#translator-plugin');
   await catalog.getByRole('link',{name:'Подробнее о переводчике',exact:true}).click();
   await translatorSection.getByRole('heading',{name:'Церковнославянский переводчик для WordPress'}).waitFor();
