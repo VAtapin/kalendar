@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit;
 require_once __DIR__.'/library.php';
 
 final class Orthocal_Plugin {
-    const VERSION = '1.3.69';
+    const VERSION = '1.3.70';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -33,7 +33,7 @@ final class Orthocal_Plugin {
             // Shortcodes in widgets/templates may be discovered after wp_head.
             if (wp_style_is('orthocal','enqueued') && !wp_style_is('orthocal','done')) wp_print_styles('orthocal');
         },5);
-        add_action('admin_menu', function () { add_menu_page('Православный календарь', 'Православный календарь', 'manage_options', 'orthocal', [self::class, 'settings_page'], 'dashicons-calendar-alt', 58); });
+        add_action('admin_menu', function () { add_menu_page('Georg-Kloster Calendar Workshop', 'Georg-Kloster Calendar Workshop', 'manage_options', 'orthocal', [self::class, 'settings_page'], 'dashicons-calendar-alt', 58); });
         add_action('admin_enqueue_scripts', function ($hook) {
             if ($hook==='toplevel_page_orthocal') { wp_enqueue_style('orthocal'); wp_enqueue_script('orthocal'); wp_enqueue_style('orthocal-admin'); wp_enqueue_script('orthocal-admin'); }
         });

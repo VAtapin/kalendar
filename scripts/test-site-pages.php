@@ -5,9 +5,18 @@ function check(bool $ok,string $message):void{if(!$ok)throw new RuntimeException
 function rejects(callable $fn,string $code):void{try{$fn();throw new RuntimeException('Expected '.$code);}catch(ApiFailure $e){check($e->errorCode===$code,'Unexpected '.$e->errorCode);}}
 $dir=sys_get_temp_dir().'/calendar-site-test-'.bin2hex(random_bytes(6));$store=new CalendarStore($dir);
 $state=$store->sitePages(true);check(count($state['items'])===3,'Seeds');
+$public=$store->sitePages();
+foreach ($public['items'] as $legalPage) {
+    if (!in_array($legalPage['slug'], ['agb','datenschutz'], true)) continue;
+    foreach ($legalPage['translations'] as $translation) {
+        check(str_contains(json_encode($translation, JSON_UNESCAPED_SLASHES), 'https://bible-desktop.com/pages/api-'), 'API legal provider links missing');
+    }
+}
+check(!str_contains(json_encode($state), 'pages/api-privacy'), 'API supplement mutated editable content');
 $page=$state['items'][0];$old=$store->sitePages()['items'][0];$page['translations']['ru']['title']='Private draft';$page['slug']='draft-slug';$page['order']=99;
 $state=$store->saveSitePage(['revision'=>0,'page'=>$page,'action'=>'draft']);
 check($store->sitePages()['items'][0]===$old,'Draft content/slug/order leaked');
+check(str_contains(json_encode($store->sitePages(), JSON_UNESCAPED_SLASHES), 'https://bible-desktop.com/pages/api-privacy'), 'API supplement missing on saved CMS state');
 rejects(fn()=>$store->saveSitePage(['revision'=>0,'page'=>$page]),'revision_conflict');
 rejects(fn()=>$store->saveSitePage(['revision'=>1,'page'=>$page,'action'=>'publish']),'review_required');
 $state=$store->saveSitePage(['revision'=>1,'page'=>$page,'action'=>'publish','reviewed'=>true]);
@@ -27,4 +36,12 @@ $secret='sk-'.str_repeat('test',10);$settings=$store->aiSettings(['enabled'=>fal
 check($settings['hasKey'] && !str_contains(json_encode($settings),$secret),'Secret leaked');
 $settings=$store->aiSettings(['enabled'=>false,'model'=>'test-model','key'=>'']);check($settings['hasKey'],'Empty field erased key');
 $store->aiSettings(['enabled'=>false,'model'=>'test-model','clearKey'=>true]);check(!$store->aiSettings()['hasKey'],'Key removal');
+$legalState = $store->sitePages(true);
+$legalPage = array_values(array_filter($legalState['items'], fn($item) => $item['slug'] === 'datenschutz'))[0];
+$legalPage['translations']['ru']['html'] = '<p>Existing operator policy</p>';
+$legalPage['translations']['ru']['blocks'] = [];
+$store->saveSitePage(['revision'=>$legalState['revision'],'page'=>$legalPage,'action'=>'publish','reviewed'=>true]);
+$publishedLegal = array_values(array_filter($store->sitePages()['items'], fn($item) => $item['slug'] === 'datenschutz'))[0];
+check(str_contains($publishedLegal['translations']['ru']['html'], 'Existing operator policy') && str_contains($publishedLegal['translations']['ru']['html'], 'X-Calendar-Client'), 'API supplement not rendered with saved HTML');
+check(!str_contains(json_encode($store->sitePages(true)), 'X-Calendar-Client'), 'API supplement persisted over operator content');
 echo "PASS: page drafts/publication/isolation/conflicts/validation, AI disabled and key redaction. No external requests.\n";

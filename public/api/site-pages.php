@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/api-legal.php';
 
 function calendar_page_html(mixed $html): string {
     if (!is_string($html) || strlen($html)>200000) calendar_fail('invalid_html',400);
@@ -82,6 +83,18 @@ trait CalendarSitePages {
             $items[] = ['id'=>$page['id'], 'slug'=>$page['liveSlug'] ?? $page['slug'], 'order'=>$page['liveOrder'] ?? $page['order'], 'translations'=>$page['live'] ?? $page['translations']];
         }
         usort($items, fn($a,$b) => $a['order'] <=> $b['order']);
+        foreach ($items as &$page) {
+            foreach ($page['translations'] as $language => &$translation) {
+                $supplement = calendar_api_legal_blocks($page['slug'], $language);
+                if (isset($translation['html'])) {
+                    foreach ($supplement as $block) $translation['html'] .= '<p>'.htmlspecialchars($block['text'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'</p>';
+                } else {
+                    $translation['blocks'] = array_merge($translation['blocks'], $supplement);
+                }
+            }
+            unset($translation);
+        }
+        unset($page);
         return ['items'=>$items];
     }
     public function saveSitePage(array $body): array {

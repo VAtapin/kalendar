@@ -1,4 +1,4 @@
-import {mkdirSync, writeFileSync, readFileSync, readdirSync, copyFileSync} from 'node:fs';
+import {cpSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, copyFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {readWordPressPluginVersion} from './wordpress-plugin-version.mjs';
@@ -12,7 +12,7 @@ for(const [mode,title] of Object.entries(titles)) {
   const directory=resolve(root,'blocks',mode);mkdirSync(directory,{recursive:true});
   writeFileSync(resolve(directory,'block.json'),JSON.stringify({
     $schema:'https://schemas.wp.org/trunk/block.json',apiVersion:3,name:'orthocal/'+mode,version,
-    title:'Православный календарь: '+title,category:'widgets',icon:'calendar-alt',textdomain:'orthodox-calendar-workshop',
+    title:'Православный календарь: '+title,category:'widgets',icon:'calendar-alt',textdomain:'georg-kloster-calendar-workshop',
     attributes:Object.fromEntries(['date','year','month','limit','filter','lang','profile','theme','css_mode','compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','show_font_size','open','reading_open','images','image_size','image_pack','icons','icon_limit','office','heading','sections','event_levels','scope','tone','weekday','text_id','work','text_language','text_page'].map(name=>[name,{type:'string'}])),
     supports:{html:false},editorScript:'orthocal-editor',style:'orthocal',viewScript:'orthocal',
   },null,2)+'\n');
@@ -21,11 +21,14 @@ if (php) for(const file of ['orthocal.php',...readdirSync(resolve(root,'includes
 else console.warn('PHP lint skipped on Windows; set ORTHOCAL_PHP_BINARY to a working PHP executable to enable it.');
 for(const file of readdirSync(resolve(root,'assets')).filter(f=>f.endsWith('.js'))) execFileSync(process.execPath,['--check',resolve(root,'assets',file)],{stdio:'inherit'});
 mkdirSync('artifacts',{recursive:true});
+mkdirSync('tmp',{recursive:true});
+const packageRoot=mkdtempSync(resolve('tmp','georg-kloster-package-'));
+const packageSlug='georg-kloster-calendar-workshop';
+cpSync(root,resolve(packageRoot,packageSlug),{recursive:true});
 // Static paths; no shell interpolation of source or user content.
 if(process.platform==='win32') {
-  try { execFileSync('tar.exe',['-a','-c','-f',resolve('artifacts',archive),'-C',resolve('wordpress'),'orthocal'],{stdio:'inherit'}); }
-  catch { execFileSync('powershell',['-NoProfile','-Command',`Compress-Archive -LiteralPath 'wordpress/orthocal' -DestinationPath 'artifacts/${archive}' -Force`],{stdio:'inherit'}); }
-} else execFileSync('zip',['-qr',resolve('artifacts',archive),'orthocal'],{cwd:resolve('wordpress'),stdio:'inherit'});
+  execFileSync('tar.exe',['-a','-c','-f',resolve('artifacts',archive),'-C',packageRoot,packageSlug],{stdio:'inherit'});
+} else execFileSync('zip',['-qr',resolve('artifacts',archive),packageSlug],{cwd:packageRoot,stdio:'inherit'});
 console.log(`artifacts/${archive}`);
 // Publication is explicit so a local plugin build does not overwrite another task's release.
 if(process.argv.includes('--publish-downloads')){

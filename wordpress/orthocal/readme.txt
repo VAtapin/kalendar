@@ -1,10 +1,10 @@
-=== Orthodox Calendar – Workshop ===
+=== Georg-Kloster Calendar Workshop ===
 Contributors: atapin
 Tags: calendar, orthodox, bible
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.69
+Stable tag: 1.3.70
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,13 +15,13 @@ Orthodox calendar for WordPress: feasts, fasting, commemorations, readings, litu
 Adds 22 dynamic Gutenberg blocks and shortcodes. Calendar and Bible data come from the external services listed below; no calendar database is included in the plugin.
 
 == Installation ==
-1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.69.zip.
+1. WordPress â†’ Plugins â†’ Add New â†’ Upload Plugin: orthocal-1.3.70.zip.
 2. Activate the plugin.
-3. The calendar works immediately. Open Orthodox Calendar → Connection to change the public API address or add an optional API key.
+3. The calendar works immediately. Open Georg-Kloster Calendar Workshop â†’ Connection to change the public API address or add an optional API key.
 4. Add blocks from the Widgets category or shortcodes to a page.
 
 The key can also be set with the ORTHOCAL_API_KEY constant in wp-config.php. The constant has priority over settings. The key is not exposed in forms, browsers, or REST responses.
-The public texts, translations, and icons API is configured in Orthodox Calendar → Connection. Its current default address is https://bible-desktop.com and no file access is required.
+The public texts, translations, and icons API is configured in Georg-Kloster Calendar Workshop â†’ Connection. Its current default address is https://bible-desktop.com and no file access is required.
 
 == Shortcodes ==
 [orthocal_today]
@@ -49,15 +49,22 @@ open="inline|modal|page" controls how the day opens; reading_open="inline|modal"
 image_size="120" sets a fasting-image height in pixels; its width retains the source image ratio. Existing small, medium, and large shortcodes continue to use heights of 28, 44, and 72 px.
 The reference library contains an initial corpus of 98 Church Slavonic texts with sources and awaits liturgical editorial review. It does not automatically assign a text to a daily service. Akathists are planned in BibleDesktop and are not yet connected.
 
-General parameters: lang="ru|cu|de|uk|pl", profile="typikon-strict|parish", theme="book|modern|inherit", compact="0|1", and oldstyle="0|1". The Horologion uses a protected service route and includes Sixth Hour inserts. An empty date means the current date in the WordPress timezone. Supported years are 1900–2200.
+General parameters: lang="ru|cu|de|uk|pl", profile="typikon-strict|parish", theme="book|modern|inherit", compact="0|1", and oldstyle="0|1". The Horologion uses a protected service route and includes Sixth Hour inserts. An empty date means the current date in the WordPress timezone. Supported years are 1900â€“2200.
 Upcoming-event filters: main (major and memorial), twelve (Pascha and the Twelve Great Feasts), great, memorial, and all. The search covers the supplied date and the next 366 days, with a maximum of 10 events.
 
 == External Services ==
-The plugin works without registration or an API key for normal public use. When it requests calendar data, the WordPress server sends date/period, language, profile and the public `X-Calendar-Client: orthocal-wordpress` identifier to the configured calendar API origin. This identifier is not a secret. The API enforces an endpoint and parameter allowlist, the 1900–2200 date range, server cache and per-server-IP limits. An optional API key may be configured for extended or authorized access.
-When opening readings, the server requests the translation, book, and chapter catalogue from the public API configured in the plugin settings. The calendar key is not sent to BibleDesktop. Texts are displayed in the selected translation. The plugin does not verify verse numbering against the calendar source.
-During data requests, services see the WordPress server IP address, not the visitor IP address. Typikon symbols, fasting icons, and the Church Slavonic font are cached by WordPress and delivered locally to visitors.
-Full texts, icons, and hagiographies are not included in the ZIP. Refer to the service owners for policies and terms through the services configured in the plugin settings.
-Without a key, the official plugin obtains day, month, year, Pascha, and upcoming-feast data in public mode. A personal key remains optional for higher limits or authorized access.
+Calendar API: https://kalender.georg-kloster.ru/api/v1/calendar/
+Used to calculate dates, feasts, fasting, commemorations and reading references. Loading a block, its admin preview or changing the date sends the date/period, language, calendar profile and display/filter parameters from the WordPress server. Public requests include X-Calendar-Client: orthocal-wordpress. An optional configured API key is sent only to the calendar service for extended access. Normal public use needs no registration or key.
+Terms of Service: https://kalender.georg-kloster.ru/agb
+Privacy Policy: https://kalender.georg-kloster.ru/datenschutz
+
+Bible Desktop API: https://bible-desktop.com/api/
+Used for Bible translations, books, chapters, liturgical libraries, hagiographies and icon catalogues/images. Opening readings or a library sends the selected translation, book/chapter, language, work identifier or pagination/filter parameters. Loading icons sends the calendar month/day or material/image identifier. On cache misses, WordPress downloads images and fonts; scheduled cache revalidation sends conditional HTTP headers. The calendar service may also request this source while composing a day. The calendar API key is never sent to Bible Desktop.
+Terms of Service: https://bible-desktop.com/pages/api-terms
+Privacy Policy: https://bible-desktop.com/pages/api-privacy
+
+Both services receive the requesting server IP address, request time, requested resource and technical HTTP headers. The plugin does not send visitor IP addresses, names, email addresses, WordPress passwords or post contents. Remote media are cached and served locally. Requests may be skipped while a valid cache entry is available. Full texts, icons and hagiographies are not bundled in the ZIP; their respective rights remain applicable.
+The public texts API origin can be changed in the Connection settings. These links describe the default providers; administrators choosing a different provider must review and disclose that provider's terms and privacy policy to their users.
 
 == Cache and access ==
 The updated calendar API is required: upcoming, view=summary, and the X-Calendar-Application-Cache-TTL header.
@@ -73,6 +80,11 @@ Saving settings invalidates the plugin cache. Deactivation preserves settings.
 Day cards and the reader support Russian and German labels; the calendar-data language and Bible language are chosen separately. Calendar translations can be incomplete. Built-in liturgical texts are Church Slavonic, with German editions available through links. Icon images and hagiographies are never substituted for missing data.
 
 == Changelog ==
+
+= 1.3.70 =
+* Rename the plugin to Georg-Kloster Calendar Workshop and use the matching text domain.
+* Document external API requests and link to provider terms and privacy policies.
+* Preserve existing blocks, shortcodes and settings.
 
 = 1.3.69 =
 * Compress remote icon photos to no more than 100 KB before saving them in WordPress.

@@ -69,7 +69,7 @@ final class Orthocal_Media_Cache {
     static function thumbnail_url($source) {
         $original=self::url($source);if(!$original)return '';
         $dir=self::directory();if(!$dir)return '';
-        $name=basename((string)parse_url($original,PHP_URL_PATH));
+        $name=basename((string)wp_parse_url($original,PHP_URL_PATH));
         if(!self::file_valid($name))return '';
         // SVG is already vector-small at the requested CSS size. Raster files
         // get a separate 96px WebP/JPEG derivative for gallery previews.
@@ -84,7 +84,8 @@ final class Orthocal_Media_Cache {
             $target=imagecreatetruecolor($targetWidth,$targetHeight);imagealphablending($target,false);imagesavealpha($target,true);imagefill($target,0,0,imagecolorallocatealpha($target,0,0,0,127));
             imagecopyresampled($target,$image,0,0,0,0,$targetWidth,$targetHeight,$width,$height);
             $tmp=$dir['path'].'/'.hash('sha256',$thumbName).'.tmp';$written=function_exists('imagewebp')?imagewebp($target,$tmp,72):imagejpeg($target,$tmp,76);imagedestroy($target);
-            if(!$written||!is_file($tmp)||!rename($tmp,$thumb)){@unlink($tmp);return $original;}
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Atomic publication of a generated file within the same uploads directory; copy-based filesystem adapters cannot provide this guarantee.
+            if(!$written||!is_file($tmp)||!rename($tmp,$thumb)){wp_delete_file($tmp);return $original;}
             return $dir['url'].'/'.$thumbName;
         } finally {imagedestroy($image);}
     }
@@ -176,7 +177,9 @@ final class Orthocal_Media_Cache {
     static function refresh($source) {
         $path=self::source($source);$dir=self::directory(); if (!$path || !$dir) return false;
         // A single global lock also prevents concurrent purge/write races and cache stampedes.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- A local stream is required for flock; WP_Filesystem has no advisory-lock API.
         $lock=@fopen($dir['path'].'/cache.lock','c');
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Release the local flock stream opened above.
         if (!$lock || !flock($lock,LOCK_EX|LOCK_NB)) { if($lock)fclose($lock);self::schedule($path);return false; }
         try {
             $meta=self::metadata($path);$headers=[];
@@ -209,6 +212,7 @@ final class Orthocal_Media_Cache {
                     update_option('orthocal_media_error','Кэш медиа достиг 200 МБ. Очистите его в разделе «Кэш и файлы».',false);return false;
                 }
                 $tmp=$dir['path'].'/'.hash('sha256',$path).'.tmp';
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Atomic publication of a generated file within the same uploads directory; copy-based filesystem adapters cannot provide this guarantee.
                 if (file_put_contents($tmp,$body,LOCK_EX)!==strlen($body) || !rename($tmp,$dir['path'].'/'.$name)) return false;
             }
             update_option($key,['source'=>$path,'file'=>$name,'checked'=>time(),'retry'=>0,
@@ -216,6 +220,7 @@ final class Orthocal_Media_Cache {
                 'modified'=>sanitize_text_field(wp_remote_retrieve_header($response,'last-modified'))],false);
             delete_option('orthocal_media_error');
             return true;
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Release the local flock stream opened above.
         } finally {flock($lock,LOCK_UN);fclose($lock);}
     }
     static function entries() {
@@ -232,12 +237,15 @@ final class Orthocal_Media_Cache {
     static function recheck() { foreach(self::entries() as $meta) if(!empty($meta['source'])) self::schedule($meta['source']); }
     static function clear() {
         $dir=self::directory();if(!$dir)return false;
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- A local stream is required for flock; WP_Filesystem has no advisory-lock API.
         $lock=@fopen($dir['path'].'/cache.lock','c');if(!$lock)return false;
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Release the local flock stream opened above.
         if(!flock($lock,LOCK_EX|LOCK_NB)){fclose($lock);return false;}
         try {
-            foreach(glob($dir['path'].'/*')?:[] as $file) if(self::file_valid(basename($file)) && !is_link($file)) unlink($file);
+            foreach(glob($dir['path'].'/*')?:[] as $file) if(self::file_valid(basename($file)) && !is_link($file)) wp_delete_file($file);
             foreach(self::entries() as $name=>$meta) {if(!empty($meta['source']))wp_clear_scheduled_hook('orthocal_refresh_asset',[$meta['source']]);delete_option($name);}
             delete_option('orthocal_media_error');return true;
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Release the local flock stream opened above.
         } finally {flock($lock,LOCK_UN);fclose($lock);}
     }
 }
