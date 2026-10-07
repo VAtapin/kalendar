@@ -24,6 +24,11 @@ try {
   const pluginLink=page.locator('#wordpress a.download');
   assert.equal(await pluginLink.getAttribute('href'),wordpressPluginDownload);
   assert.match(await page.locator('#wordpress').textContent(),/работает сразу, без регистрации и API-ключа/);
+  const prayerSection=page.locator('#prayer-plugin');
+  assert.equal(await prayerSection.locator('a.download').getAttribute('href'),'/downloads/kloster-prayer-1.2.4.zip');
+  const prayerZip=await fetch(origin+'/downloads/kloster-prayer-1.2.4.zip');
+  assert.equal(prayerZip.status,200);
+  assert.equal(Buffer.from(await prayerZip.arrayBuffer()).subarray(0,2).toString(),'PK');
   const translatorSection=page.locator('#translator-plugin');
   await translatorSection.getByRole('heading',{name:'Церковнославянский переводчик для WordPress'}).waitFor();
   assert.equal(await translatorSection.locator('a.download').getAttribute('href'),translatorPluginDownload);

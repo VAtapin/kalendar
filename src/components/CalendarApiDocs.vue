@@ -6,6 +6,7 @@ type Plan={id:string;name:string;priceCents:number;currency:string;perMinute:num
 const plans=ref<Plan[]>([]),contact=ref(''),wordpressUrl=ref(''),error=ref(''),loading=ref(true);
 const wordpressPluginDownload=`/downloads/orthocal-${__WORDPRESS_PLUGIN_VERSION__}.zip`;
 const translatorPluginDownload='https://github.com/VAtapin/wp_cu_translator/releases/latest/download/church-slavonic-translator.zip';
+const prayerPluginDownload='/downloads/kloster-prayer-1.2.4.zip';
 const base=__APP_PUBLIC_URL__+'/api/v1/calendar/';
 const example=`curl '${base}day?date=2027-05-02&lang=ru&profile=typikon-strict' \\\n  -H 'X-API-Key: YOUR_API_KEY'`;
 const wordpressExample=`curl '${base}day?date=2027-05-02&lang=ru&profile=typikon-strict' -H 'X-Calendar-Client: orthocal-wordpress'`;
@@ -16,7 +17,7 @@ onMounted(async()=>{try{const r=await fetch('/api/v1/calendar-access/plans',{cre
   <header><a :href="localizedPath('/')">← На главную</a><select v-model="interfaceLanguage" aria-label="Язык"><option v-for="language in INTERFACE_LANGUAGE_OPTIONS" :key="language.id" :value="language.id">{{language.nativeLabel}}</option></select></header>
   <p class="eyebrow">ДЛЯ САЙТОВ, ПРИЛОЖЕНИЙ И WORDPRESS</p><h1>API календаря</h1>
   <p class="lead">Православный календарь для вашего сайта. Праздники, памяти святых, посты, чтения и знаки Типикона — из той же базы, что и в Календарной мастерской.</p>
-  <nav><a href="#connection">Подключение</a><a href="#data">Данные и запросы</a><a v-if="plans.length" href="#plans">Тарифы</a><a href="#wordpress">Плагин календаря</a><a href="#translator-plugin">Плагин-переводчик</a></nav>
+  <nav><a href="#connection">Подключение</a><a href="#data">Данные и запросы</a><a v-if="plans.length" href="#plans">Тарифы</a><a href="#wordpress">Плагин календаря</a><a href="#prayer-plugin">Молитвенные записки</a><a href="#translator-plugin">Плагин-переводчик</a></nav>
   <section id="connection"><h2>Подключение</h2><p>Ответы в JSON, API v1, годы 1900–2200. Даты запроса — по новому стилю (григорианские), старый стиль возвращается отдельно.</p><pre data-no-translate>{{base}}</pre>
   <p>Для расширенной серверной интеграции получите индивидуальный ключ у администратора. Он создаётся для конкретного клиента и тарифа; отправляйте его в <code data-no-translate>X-API-Key</code> или <code data-no-translate>Authorization: Bearer YOUR_API_KEY</code> и храните только на сервере, не в JavaScript, URL или репозитории.</p>
   <pre data-no-translate>{{example}}</pre><p>Корневой запрос с метаданными и <code>today</code> доступны без ключа. Официальный WordPress-плагин работает без регистрации и ключа: для <code>day</code>, <code>month</code>, <code>year</code>, <code>pascha</code> и <code>upcoming</code> он передаёт открытый идентификатор клиента.</p>
@@ -40,6 +41,14 @@ onMounted(async()=>{try{const r=await fetch('/api/v1/calendar-access/plans',{cre
   <pre data-no-translate>[orthocal_today]
 [orthocal_month]
 [orthocal_day date="2027-05-02" lang="uk"]</pre><p>Плагин получает календарные данные только из нашего API: XML и расчётов дат внутри нет. Запросы кэшируются на сервере WordPress. Открытый идентификатор WordPress-плагина не является ключом; если задан дополнительный ключ, он не раскрывается посетителям. Для текста библейских чтений отдельно используется BibleDesktop; календарный ключ ему не передаётся. Название и краткое описание плагина в списке WordPress локализованы для русского, немецкого и английского языка интерфейса.</p><p>После обновления настроек кэш сбрасывается. При использовании CDN или полностраничного кэша исключите из него страницы с календарём, особенно блоки в шаблонах и виджетах.</p></section>
+  <section id="prayer-plugin"><h2>Православные молитвенные записки и пожертвования</h2>
+  <p>Плагин автора atapin.de для приходов, храмов и монастырей: формы подачи имён, Stripe и PayPal, письма, отчёты и печать записок в PDF на трёх бланках одного листа.</p>
+  <p>Версия 1.2.4: имена через запятую автоматически превращаются в строки в форме и при печати старых записок. Архив доступен над таблицей; записки можно восстановить. Дата заказа печатается только на сорокоусте.</p>
+  <div class="plugin-actions"><a class="download" :href="prayerPluginDownload" download>Скачать плагин записок 1.2.4</a></div>
+  <p>Требования: WordPress 7.1+, PHP 8.4+. Перед обновлением сохраните резервную копию сайта и базы. Установите ZIP через «Плагины → Добавить → Загрузить плагин». Настройте используемый платёжный сервис и его webhook; неиспользуемый сервис можно отключить. Отдельный ключ календарного API не требуется.</p>
+  <pre data-no-translate>[kloster_form id="2"]</pre>
+  <p>Существующие шорткоды сохраняются. Домен API настраивается в плагине; при переезде адреса webhook в платёжных кабинетах обновляются отдельно.</p>
+  </section>
   <section id="translator-plugin"><h2>Церковнославянский переводчик для WordPress</h2>
   <p><strong>Church Slavonic Translator</strong> добавляет на сайт форму перевода русского и немецкого текста на традиционный церковнославянский язык через шорткод <code data-no-translate>[wp_cu_translator]</code>. Интерфейс, настройки и описание плагина доступны на русском, немецком и английском языках.</p>
   <p>Библейские ссылки и уверенно распознанные цитаты возвращаются из проверенного корпуса Bible Desktop, а повторные переводы — из серверного кэша. Для остальных текстов используется ИИ с полной церковнославянской Unicode-орфографией, ударениями, титлами и придыханиями. Результат можно скопировать обычным текстом или с форматированием для Word; рядом доступен шрифт Monomakh Unicode.</p>
