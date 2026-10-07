@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
-import {mkdirSync} from 'node:fs';
+import {mkdirSync,readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 import {readWordPressPluginVersion} from './wordpress-plugin-version.mjs';
 const wordpressPluginDownload=`/downloads/orthocal-${readWordPressPluginVersion()}.zip`;
-const translatorPluginDownload='https://github.com/VAtapin/wp_cu_translator/releases/latest/download/church-slavonic-translator.zip';
+const translatorPluginDownload='/downloads/georg-kloster-slavonic-translator-1.0.5.zip';
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin=`http://127.0.0.1:${port}`;
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port',String(port),'--strictPort'],{windowsHide:true,stdio:'ignore'});
@@ -26,6 +26,14 @@ try {
   assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginDownload);
   assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.4.zip');
   assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginDownload);
+  const translatorRow=catalog.locator('tbody tr').nth(2);
+  assert.ok((await translatorRow.textContent()).includes('Georg-Kloster Slavonic Translator'));
+  assert.equal(await translatorRow.locator('.version').textContent(),'1.0.5');
+  const translatorZip=await fetch(origin+translatorPluginDownload);
+  assert.equal(translatorZip.status,200);
+  const translatorBytes=Buffer.from(await translatorZip.arrayBuffer());
+  assert.equal(translatorBytes.subarray(0,2).toString(),'PK');
+  assert.deepEqual(translatorBytes,readFileSync('artifacts/georg-kloster-slavonic-translator-1.0.5.zip'));
   assert.equal(await page.locator('details[open]').count(),0);
   mkdirSync('tmp/plugin-catalog',{recursive:true});
   await catalog.screenshot({path:'tmp/plugin-catalog/desktop.png'});
@@ -47,6 +55,8 @@ try {
   assert.equal(await translatorSection.locator('a.download').getAttribute('href'),translatorPluginDownload);
   assert.equal(await translatorSection.locator('a').filter({hasText:/Исходный код/i}).count(),0);
   assert.match(await translatorSection.textContent(),/Бесплатный режим работает сразу/);
+  assert.match(await translatorSection.textContent(),/Georg-Kloster Slavonic Translator/);
+  assert.match(await translatorSection.textContent(),/деактивируйте старую копию/);
   assert.match(await page.locator('#connection').textContent(),/X-Calendar-Client: orthocal-wordpress/);
   const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('X-API-Key'));assert.ok(guideText.includes(wordpressPluginDownload));
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
