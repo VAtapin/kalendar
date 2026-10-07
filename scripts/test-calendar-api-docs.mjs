@@ -21,15 +21,28 @@ try {
   await page.getByRole('heading',{name:'Free',exact:true}).waitFor();
   assert.ok(page.url().endsWith('/calendar-api'));
   assert.equal(await page.getByRole('link',{name:'Запросить API-ключ'}).getAttribute('href'),'mailto:test@example.invalid');
+  const catalog=page.locator('#plugins');
+  assert.equal(await catalog.locator('tbody tr').count(),3);
+  assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginDownload);
+  assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.4.zip');
+  assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginDownload);
+  assert.equal(await page.locator('details[open]').count(),0);
+  mkdirSync('tmp/plugin-catalog',{recursive:true});
+  await catalog.screenshot({path:'tmp/plugin-catalog/desktop.png'});
+  await catalog.getByRole('link',{name:'Подробнее о календаре',exact:true}).click();
+  assert.equal(await page.locator('#wordpress').getAttribute('open'),'');
   const pluginLink=page.locator('#wordpress a.download');
   assert.equal(await pluginLink.getAttribute('href'),wordpressPluginDownload);
   assert.match(await page.locator('#wordpress').textContent(),/работает сразу, без регистрации и API-ключа/);
   const prayerSection=page.locator('#prayer-plugin');
+  await catalog.getByRole('link',{name:'Подробнее о молитвенных записках',exact:true}).click();
+  assert.equal(await prayerSection.getAttribute('open'),'');
   assert.equal(await prayerSection.locator('a.download').getAttribute('href'),'/downloads/kloster-prayer-1.2.4.zip');
   const prayerZip=await fetch(origin+'/downloads/kloster-prayer-1.2.4.zip');
   assert.equal(prayerZip.status,200);
   assert.equal(Buffer.from(await prayerZip.arrayBuffer()).subarray(0,2).toString(),'PK');
   const translatorSection=page.locator('#translator-plugin');
+  await catalog.getByRole('link',{name:'Подробнее о переводчике',exact:true}).click();
   await translatorSection.getByRole('heading',{name:'Церковнославянский переводчик для WordPress'}).waitFor();
   assert.equal(await translatorSection.locator('a.download').getAttribute('href'),translatorPluginDownload);
   assert.equal(await translatorSection.locator('a').filter({hasText:/Исходный код/i}).count(),0);
@@ -39,6 +52,8 @@ try {
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
   if(process.env.CALENDAR_API_DOCS_SCREENSHOTS!=='0'){mkdirSync('artifacts',{recursive:true});await page.screenshot({path:'artifacts/calendar-api-docs-desktop.png',fullPage:true});}
   await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.querySelector('.route-shell').scrollWidth<=innerWidth));if(process.env.CALENDAR_API_DOCS_SCREENSHOTS!=='0')await page.screenshot({path:'artifacts/calendar-api-docs-mobile.png',fullPage:true});
+  await catalog.screenshot({path:'tmp/plugin-catalog/mobile.png'});
   await page.reload();await page.getByRole('heading',{name:'API календаря',exact:true}).waitFor();
+  assert.equal(await page.locator('#translator-plugin').getAttribute('open'),'');
   assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, published plans/contact, real ZIP and guide, mobile width, no editor download');
 }finally{await browser?.close();server.kill();}
