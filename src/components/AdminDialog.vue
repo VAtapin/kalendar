@@ -112,12 +112,12 @@ async function openPreview(id: string) {
   busy.value = true; error.value = "";
   try {
     const result = await catalogRequest<{project: CalendarProject}>(`admin/private-calendars/${id}`);
-    const [parser, engine, response] = await Promise.all([
-      import("../calendar/xml/parse-memory-days"), import("../calendar/engine/build-calendar-year"),
-      fetch("/data/MemoryDays.xml")]);
-    if (!response.ok) throw new Error("Не удалось загрузить календарные данные");
-    if (result.project.calendarLanguage === "cu") await (await import("../calendar/localization/slavonic-corpus")).loadSlavonicCorpus();
-    year.value = mergeMonasteryEvents(engine.buildOrthodoxCalendarYear(result.project.year, parser.parseMemoryDaysXml(await response.text())), result.project.monasteryEvents);
+    const {loadEditorCalendar} = await import('../calendar/api/editor-calendar-client');
+    const {snapshotCalendar} = await import('../calendar/api/editor-snapshot');
+    const saved = await loadEditorCalendar({year: result.project.year,
+      language: result.project.calendarLanguage ?? 'ru', profile: result.project.fastingProfileId,
+      saved: result.project.calendarSnapshot});
+    year.value = mergeMonasteryEvents(snapshotCalendar(saved.snapshot), result.project.monasteryEvents);
     preview.value = result.project; pageIndex.value = 0;
   } catch (e) { error.value = String(e); } finally { busy.value = false; }
 }

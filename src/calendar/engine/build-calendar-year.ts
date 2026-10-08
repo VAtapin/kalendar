@@ -19,6 +19,7 @@ import { indexWeekdayGospelDates, resolveCalendarRecord } from "./weekday-gospel
 import { isLiturgyReadingType, isTransferredRoyalHoursDate, moveRoyalHoursSpans } from "./royal-hours";
 import { buildGeneratedLiturgicalEvents } from "./liturgical-cycle";
 import { addOrdinaryWeeklyPsalter } from "./psalter-cycle";
+import { calculateFastingDay } from '../fasting/fasting-api';
 import {
   createShortCalendarTitle,
   createVeryShortCalendarTitle,
@@ -123,6 +124,11 @@ export function buildOrthodoxCalendarYear(
         left.sourceIndex - right.sourceIndex ||
         left.title.localeCompare(right.title, "ru"),
     );
+    // Reference engine remains available to audits/tests, never the editor bundle.
+    day.fastingByProfile = {
+      'typikon-strict': calculateFastingDay(day, 'typikon-strict'),
+      parish: calculateFastingDay(day, 'parish'),
+    };
   }
 
   return {

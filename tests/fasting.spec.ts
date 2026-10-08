@@ -6,9 +6,8 @@ import {
   toIsoDate,
 } from "../src/calendar";
 import type { CalendarDate, OrthodoxCalendarDay, ResolvedCalendarEvent } from "../src/calendar";
+import {calculateFastingDay, calculateFastingPeriods} from '../src/calendar/fasting/fasting-api';
 import {
-  calculateFastingDay,
-  calculateFastingPeriods,
   resolveFoodRule,
   usedFoodRulesForMonths,
 } from "../src/calendar/presentation/fasting";
@@ -30,13 +29,18 @@ function calendarDay(
     ruleKind: "fixed-julian",
     priority: 1,
   }));
-  return {
+  const day: OrthodoxCalendarDay = {
     date,
     isoDate: toIsoDate(date),
     oldStyleDate: gregorianToJulian(date),
     weekday: dayOfWeek(date),
     events,
   };
+  day.fastingByProfile = {
+    'typikon-strict': calculateFastingDay(day, 'typikon-strict'),
+    parish: calculateFastingDay(day, 'parish'),
+  };
+  return day;
 }
 
 function rule(date: CalendarDate, items: Array<{ title: string; typeCode: number }> = []) {

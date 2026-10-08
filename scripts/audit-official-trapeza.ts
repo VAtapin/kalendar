@@ -18,7 +18,7 @@ const rows = parseOfficialTrapeza(extraction).map(row => {
 });
 const summary = { civilYear: 2026, dates: rows.length, source: extraction.source,
   sourceSha256: extraction.sha256, xmlSha256: hashFile("public/data/MemoryDays.xml"),
-  fastingEngineSha256: hashFile("src/calendar/fasting/fasting-api.ts"),
+  fastingEngineSha256: hashFile("src/calendar/fasting/fasting-api.ts"), fastingCatalogSha256: hashFile("src/calendar/fasting/fasting-catalog.ts"),
   strict: Object.fromEntries([...new Set(rows.map(r => r.strictComparison))].map(k => [k, rows.filter(r => r.strictComparison === k).length])),
   parish: Object.fromEntries([...new Set(rows.map(r => r.parishComparison))].map(k => [k, rows.filter(r => r.parishComparison === k).length])),
   scope: "All 365 civil dates. Colour legend and printed letters are independent evidence, not a replacement of the named profiles. Footnotes remain explicit. бм is not evidence of cooked food specifically." };

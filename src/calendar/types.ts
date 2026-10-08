@@ -94,6 +94,14 @@ export interface ResolvedCalendarEvent {
   ruleKind: CalendarRuleKind;
   priority: number;
   styleToken?: string;
+  /** Ready-to-print titles supplied by the authoritative calendar snapshot. */
+  apiLocalization?: {
+    language: string;
+    title: string;
+    shortTitle?: string;
+    veryShortTitle?: string;
+    description?: string;
+  };
 }
 
 export interface OrthodoxCalendarDay {
@@ -102,6 +110,8 @@ export interface OrthodoxCalendarDay {
   oldStyleDate: CalendarDate;
   weekday: number;
   events: ResolvedCalendarEvent[];
+  fastingByProfile?: Partial<Record<import('./fasting/fasting-catalog').FastingProfileId,
+    import('./fasting/fasting-catalog').FastingDayResolution>>;
 }
 
 export interface OrthodoxCalendarYear {

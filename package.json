@@ -22,6 +22,8 @@
     "test:build-update": "tsx scripts/test-build-update.ts",
     "test:calendar-api": "node scripts/test-calendar-public-api.mjs",
     "test:print-runtime": "tsx scripts/test-print-runtime.ts",
+    "check:editor-api": "tsx scripts/check-editor-provider.ts",
+    "test:editor-api": "tsx scripts/test-editor-api-integration.ts",
     "test:visual": "tsx scripts/visual-regression.ts",
     "test:visual:update": "tsx scripts/visual-regression.ts --update",
     "benchmark": "tsx scripts/benchmark.ts"

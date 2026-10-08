@@ -5,7 +5,8 @@
     "source": "https://rop.ru/d/3000/d/trapeza_2026.doc",
     "sourceSha256": "3eade7e090a11184e8d961d13faf64490dcd1db03d1773767aaec0367f6bedd7",
     "xmlSha256": "8c1bef82656a0b39cd3d4ac8ffc33fc35f1ef123a728df93344931e914cf8ff4",
-    "fastingEngineSha256": "60f9870155f27fe442a7d0afe5fce29ca9136826708361fcf25aab0ec3d5d8c7",
+    "fastingEngineSha256": "1e213042605dac9a566f77728d39313decaf22181da22d7a44ef1ff7c9cc2449",
+    "fastingCatalogSha256": "889497e64c846bdaaf032891683919555e5c18889f94e560472215267315e786",
     "strict": {
       "same-category": 261,
       "different-category": 59,

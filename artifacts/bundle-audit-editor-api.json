@@ -1,0 +1,2271 @@
+{
+  "reports": [
+    {
+      "file": "assets/pdf-exporter-BpakoewJ.js",
+      "entry": false,
+      "bytes": 1173291,
+      "gzipBytes": 516873,
+      "imports": [
+        "assets/paint-8EHI50qB.js",
+        "assets/PageScene.vue_vue_type_script_setup_true_lang-CU1SYlfn.js",
+        "assets/marker-packs-waGq3uUO.js",
+        "assets/font-catalog-Cxe1geBi.js",
+        "assets/App-BCqk1cWc.js",
+        "assets/fasting-catalog-BmdnoBbd.js",
+        "assets/index-CSubA-5E.js",
+        "assets/ApplicationHelpDialog.vue_vue_type_script_setup_true_lang-Dm5C88ON.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/editor-calendar-client-u3KdIx61.js",
+        "assets/editor-snapshot-WbtkBaPc.js",
+        "assets/merge-monastery-events-DokrXMiv.js",
+        "assets/AccountRoute-CZPGI6WS.js",
+        "assets/catalog-client-CUPKH2Re.js",
+        "assets/WelcomePage.vue_vue_type_script_setup_true_lang-BgH4WCh9.js",
+        "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js",
+        "assets/calendar-grid-presets-DXSRvcr4.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/@pdf-lib/fontkit/dist/fontkit.es.js",
+          "bytes": 1003123
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/deflate.js",
+          "bytes": 62912
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFDocument.js",
+          "bytes": 59858
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFPage.js",
+          "bytes": 59100
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/inflate.js",
+          "bytes": 51800
+        },
+        {
+          "id": "src/export/pdf-exporter.ts",
+          "bytes": 48128
+        },
+        {
+          "id": "node_modules/@pdf-lib/upng/UPNG.js",
+          "bytes": 42388
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/trees.js",
+          "bytes": 40961
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFTextField.js",
+          "bytes": 31545
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFForm.js",
+          "bytes": 29072
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFDropdown.js",
+          "bytes": 25000
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFOptionList.js",
+          "bytes": 21632
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/interactive/ViewerPreferences.js",
+          "bytes": 21053
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/appearances.js",
+          "bytes": 20081
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFRadioGroup.js",
+          "bytes": 18962
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/operations.js",
+          "bytes": 17108
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFField.js",
+          "bytes": 16504
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/FlateStream.js",
+          "bytes": 15984
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Helvetica-Oblique.compressed.json",
+          "bytes": 14990
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Helvetica.compressed.json",
+          "bytes": 14967
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/parser/PDFParser.js",
+          "bytes": 14823
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Helvetica-BoldOblique.compressed.json",
+          "bytes": 14210
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Helvetica-Bold.compressed.json",
+          "bytes": 14183
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Times-Italic.compressed.json",
+          "bytes": 13457
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Times-Bold.compressed.json",
+          "bytes": 13159
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/inffast.js",
+          "bytes": 13117
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/inftrees.js",
+          "bytes": 12925
+        },
+        {
+          "id": "node_modules/pako/lib/inflate.js",
+          "bytes": 12847
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Times-Roman.compressed.json",
+          "bytes": 12572
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Times-BoldItalic.compressed.json",
+          "bytes": 12201
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/errors.js",
+          "bytes": 12077
+        },
+        {
+          "id": "node_modules/pako/lib/deflate.js",
+          "bytes": 11508
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/CustomFontEmbedder.js",
+          "bytes": 10916
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/svgPath.js",
+          "bytes": 10221
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFButton.js",
+          "bytes": 10074
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFCheckBox.js",
+          "bytes": 9625
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/unicode.js",
+          "bytes": 9188
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFCrossRefStream.js",
+          "bytes": 8601
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/parser/PDFObjectParser.js",
+          "bytes": 8583
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/operators.js",
+          "bytes": 8518
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/text/layout.js",
+          "bytes": 8311
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFPageLeaf.js",
+          "bytes": 8141
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/flags.js",
+          "bytes": 7341
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/PDFContext.js",
+          "bytes": 7306
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/writers/PDFWriter.js",
+          "bytes": 6875
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/errors.js",
+          "bytes": 6749
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFPageTree.js",
+          "bytes": 6627
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/validators.js",
+          "bytes": 6625
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/all-encodings.compressed.json",
+          "bytes": 6114
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/writers/PDFStreamWriter.js",
+          "bytes": 5650
+        },
+        {
+          "id": "node_modules/pako/lib/utils/strings.js",
+          "bytes": 5531
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/strings.js",
+          "bytes": 5475
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroField.js",
+          "bytes": 5321
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFFont.js",
+          "bytes": 5309
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/LZWStream.js",
+          "bytes": 5194
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFDict.js",
+          "bytes": 5134
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/PDFObjectCopier.js",
+          "bytes": 5128
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/document/PDFCrossRefSection.js",
+          "bytes": 5093
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFImage.js",
+          "bytes": 5035
+        },
+        {
+          "id": "node_modules/tslib/tslib.es6.js",
+          "bytes": 4894
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFName.js",
+          "bytes": 4858
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroChoice.js",
+          "bytes": 4836
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/DecodeStream.js",
+          "bytes": 4763
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/annotation/PDFAnnotation.js",
+          "bytes": 4614
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/pdfDocEncoding.js",
+          "bytes": 4442
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/utils.js",
+          "bytes": 4431
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFString.js",
+          "bytes": 4314
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/annotation/AppearanceCharacteristics.js",
+          "bytes": 4304
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/JpegEmbedder.js",
+          "bytes": 4168
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/annotation/flags.js",
+          "bytes": 4088
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFArray.js",
+          "bytes": 4058
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/arrays.js",
+          "bytes": 4053
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/StandardFontEmbedder.js",
+          "bytes": 3950
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/operators/PDFOperatorNames.js",
+          "bytes": 3896
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/parser/BaseParser.js",
+          "bytes": 3760
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFEmbeddedFile.js",
+          "bytes": 3751
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/parser/PDFXRefStreamParser.js",
+          "bytes": 3734
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/PDFPageEmbedder.js",
+          "bytes": 3729
+        },
+        {
+          "id": "src/export/pdf-text-shaping.ts",
+          "bytes": 3676
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/annotation/PDFWidgetAnnotation.js",
+          "bytes": 3545
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroButton.js",
+          "bytes": 3485
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFEmbeddedPage.js",
+          "bytes": 3424
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/Stream.js",
+          "bytes": 3291
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/FileEmbedder.js",
+          "bytes": 3143
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFObjectStream.js",
+          "bytes": 3041
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFJavaScript.js",
+          "bytes": 3041
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/parser/PDFObjectStreamParser.js",
+          "bytes": 3024
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/base64.js",
+          "bytes": 2981
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/syntax/CharCodes.js",
+          "bytes": 2961
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFCatalog.js",
+          "bytes": 2822
+        },
+        {
+          "id": "node_modules/pako/lib/utils/common.js",
+          "bytes": 2772
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/CustomFontSubsetEmbedder.js",
+          "bytes": 2762
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroForm.js",
+          "bytes": 2671
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Font.js",
+          "bytes": 2658
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/colors.js",
+          "bytes": 2626
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/Ascii85Stream.js",
+          "bytes": 2601
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFStream.js",
+          "bytes": 2600
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/rotations.js",
+          "bytes": 2537
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/constants.js",
+          "bytes": 2516
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/gzheader.js",
+          "bytes": 2430
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFHexString.js",
+          "bytes": 2408
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroTerminal.js",
+          "bytes": 2393
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroText.js",
+          "bytes": 2382
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/AsciiHexStream.js",
+          "bytes": 2374
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/PngEmbedder.js",
+          "bytes": 2339
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/png.js",
+          "bytes": 2191
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFContentStream.js",
+          "bytes": 2159
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Courier-BoldOblique.compressed.json",
+          "bytes": 2140
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Courier-Oblique.compressed.json",
+          "bytes": 2132
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Courier-Bold.compressed.json",
+          "bytes": 2121
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Courier.compressed.json",
+          "bytes": 2109
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Symbol.compressed.json",
+          "bytes": 2080
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/syntax/Keywords.js",
+          "bytes": 2023
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/zstream.js",
+          "bytes": 1984
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/CMap.js",
+          "bytes": 1922
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/crc32.js",
+          "bytes": 1917
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/RunLengthStream.js",
+          "bytes": 1905
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/utils.js",
+          "bytes": 1903
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/adler32.js",
+          "bytes": 1835
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/operators/PDFOperator.js",
+          "bytes": 1833
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/parser/ByteStream.js",
+          "bytes": 1821
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroRadioButton.js",
+          "bytes": 1781
+        },
+        {
+          "id": "node_modules/pako/lib/zlib/messages.js",
+          "bytes": 1705
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/ZapfDingbats.compressed.json",
+          "bytes": 1690
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/numbers.js",
+          "bytes": 1689
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/streams/decode.js",
+          "bytes": 1634
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroCheckBox.js",
+          "bytes": 1610
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/form/PDFSignature.js",
+          "bytes": 1451
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/document/PDFTrailer.js",
+          "bytes": 1409
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFBool.js",
+          "bytes": 1408
+        },
+        {
+          "id": "node_modules/@pdf-lib/standard-fonts/es/Encoding.js",
+          "bytes": 1392
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFRef.js",
+          "bytes": 1383
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/document/PDFHeader.js",
+          "bytes": 1347
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFNumber.js",
+          "bytes": 1094
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/JavaScriptEmbedder.js",
+          "bytes": 1064
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/structures/PDFFlateStream.js",
+          "bytes": 1057
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroNonTerminal.js",
+          "bytes": 1025
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/embedders/FontFlags.js",
+          "bytes": 1013
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/document/PDFTrailerDict.js",
+          "bytes": 988
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFInvalidObject.js",
+          "bytes": 958
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFRawStream.js",
+          "bytes": 949
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/StandardFonts.js",
+          "bytes": 848
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/annotation/BorderStyle.js",
+          "bytes": 807
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFNull.js",
+          "bytes": 800
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/objects/PDFObject.js",
+          "bytes": 683
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroPushButton.js",
+          "bytes": 659
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroComboBox.js",
+          "bytes": 637
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/syntax/Numeric.js",
+          "bytes": 636
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/rng.js",
+          "bytes": 613
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroListBox.js",
+          "bytes": 590
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/Cache.js",
+          "bytes": 553
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFPageOptions.js",
+          "bytes": 553
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/syntax/Delimiters.js",
+          "bytes": 439
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/acroform/PDFAcroSignature.js",
+          "bytes": 371
+        },
+        {
+          "id": "node_modules/pako/index.js",
+          "bytes": 365
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/objects.js",
+          "bytes": 357
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/PDFDocumentOptions.js",
+          "bytes": 309
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/objects.js",
+          "bytes": 294
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/image/alignment.js",
+          "bytes": 270
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/syntax/Whitespace.js",
+          "bytes": 260
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/text/alignment.js",
+          "bytes": 260
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/async.js",
+          "bytes": 246
+        },
+        {
+          "id": "node_modules/pdf-lib/es/core/syntax/Irregular.js",
+          "bytes": 208
+        },
+        {
+          "id": "\u0000commonjsHelpers.js",
+          "bytes": 140
+        },
+        {
+          "id": "\u0000node_modules/pako/index.js?commonjs-es-import",
+          "bytes": 96
+        },
+        {
+          "id": "node_modules/pdf-lib/es/utils/errors.js",
+          "bytes": 57
+        },
+        {
+          "id": "node_modules/pdf-lib/es/api/sizes.js",
+          "bytes": 44
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/deflate.js?commonjs-exports",
+          "bytes": 19
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/inflate.js?commonjs-exports",
+          "bytes": 19
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/zlib/inflate.js?commonjs-exports",
+          "bytes": 19
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/zlib/deflate.js?commonjs-exports",
+          "bytes": 17
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/utils/strings.js?commonjs-exports",
+          "bytes": 17
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/utils/common.js?commonjs-exports",
+          "bytes": 16
+        },
+        {
+          "id": "\u0000node_modules/pako/lib/zlib/trees.js?commonjs-exports",
+          "bytes": 15
+        }
+      ]
+    },
+    {
+      "file": "assets/uk-commemorations-BVB-ltyM.js",
+      "entry": false,
+      "bytes": 556429,
+      "gzipBytes": 110152,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/localization/uk-commemorations.json",
+          "bytes": 337179
+        }
+      ]
+    },
+    {
+      "file": "assets/german-commemorations-L8FXeHAB.js",
+      "entry": false,
+      "bytes": 463912,
+      "gzipBytes": 121955,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/localization/german-additions.json",
+          "bytes": 357178
+        },
+        {
+          "id": "src/calendar/localization/german-commemorations.ts",
+          "bytes": 5577
+        }
+      ]
+    },
+    {
+      "file": "assets/pl-commemorations-CepoOy3e.js",
+      "entry": false,
+      "bytes": 463388,
+      "gzipBytes": 123535,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/localization/pl-commemorations.json",
+          "bytes": 356287
+        }
+      ]
+    },
+    {
+      "file": "assets/slavonic-editorial-titles-Bg-zzkwh.js",
+      "entry": false,
+      "bytes": 394971,
+      "gzipBytes": 83154,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/localization/slavonic-editorial-titles.json",
+          "bytes": 230040
+        }
+      ]
+    },
+    {
+      "file": "assets/App-BCqk1cWc.js",
+      "entry": false,
+      "bytes": 255520,
+      "gzipBytes": 76339,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/ApplicationHelpDialog.vue_vue_type_script_setup_true_lang-Dm5C88ON.js",
+        "assets/editor-calendar-client-u3KdIx61.js",
+        "assets/AccountRoute-CZPGI6WS.js",
+        "assets/font-catalog-Cxe1geBi.js",
+        "assets/PageScene.vue_vue_type_script_setup_true_lang-CU1SYlfn.js",
+        "assets/editor-snapshot-WbtkBaPc.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/paint-8EHI50qB.js",
+        "assets/catalog-client-CUPKH2Re.js",
+        "assets/marker-packs-waGq3uUO.js",
+        "assets/WelcomePage.vue_vue_type_script_setup_true_lang-BgH4WCh9.js",
+        "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/fasting-catalog-BmdnoBbd.js",
+        "assets/merge-monastery-events-DokrXMiv.js",
+        "assets/calendar-grid-presets-DXSRvcr4.js"
+      ],
+      "dynamicImports": [
+        "assets/pdf-exporter-BpakoewJ.js",
+        "assets/AdminDialog-DIPREwt8.js",
+        "assets/index-BeoRn2gJ.js"
+      ],
+      "modules": [
+        {
+          "id": "src/App.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 345714
+        },
+        {
+          "id": "src/components/LayersPanel.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 20644
+        },
+        {
+          "id": "src/components/PageThumbnail.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 14577
+        },
+        {
+          "id": "src/components/TextEffectsEditor.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 12467
+        },
+        {
+          "id": "src/components/IconLibraryPanel.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 11867
+        },
+        {
+          "id": "src/preflight/project-preflight.ts",
+          "bytes": 10176
+        },
+        {
+          "id": "src/components/PrintProfileDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 9250
+        },
+        {
+          "id": "src/editor/application-menus.ts",
+          "bytes": 8070
+        },
+        {
+          "id": "src/components/FoodMarkerPackSelect.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 7306
+        },
+        {
+          "id": "src/components/DecorLibraryPanel.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 6323
+        },
+        {
+          "id": "src/templates/project-templates.ts",
+          "bytes": 5906
+        },
+        {
+          "id": "src/components/EmailVerificationDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 5804
+        },
+        {
+          "id": "src/components/ToolsPanel.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 5497
+        },
+        {
+          "id": "src/components/SharedProjectDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4773
+        },
+        {
+          "id": "src/components/ProgramSettingsDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4724
+        },
+        {
+          "id": "src/components/DocumentWorkspace.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4619
+        },
+        {
+          "id": "src/components/CalendarGridTemplateCard.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4579
+        },
+        {
+          "id": "src/components/PhotoLibraryPanel.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4090
+        },
+        {
+          "id": "src/components/LinkResultDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3817
+        },
+        {
+          "id": "src/components/RecoveryDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3641
+        },
+        {
+          "id": "src/persistence/project-history.ts",
+          "bytes": 3549
+        },
+        {
+          "id": "src/export/print-fonts.ts",
+          "bytes": 3153
+        },
+        {
+          "id": "src/export/print-svg-styles.ts",
+          "bytes": 2942
+        },
+        {
+          "id": "src/editor/use-project-history.ts",
+          "bytes": 2655
+        },
+        {
+          "id": "src/components/PrintContactDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 2563
+        },
+        {
+          "id": "src/editor/server-project-saver.ts",
+          "bytes": 2361
+        },
+        {
+          "id": "src/components/VerticalRuler.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 2218
+        },
+        {
+          "id": "src/components/HorizontalRuler.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 2197
+        },
+        {
+          "id": "src/editor/alignment.ts",
+          "bytes": 1864
+        },
+        {
+          "id": "src/components/ResourceBrowser.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 1642
+        },
+        {
+          "id": "src/icons/bible-desktop-icon-api.ts",
+          "bytes": 1572
+        },
+        {
+          "id": "src/templates/calendar-grid-settings.ts",
+          "bytes": 1431
+        },
+        {
+          "id": "src/export/print-marks.ts",
+          "bytes": 1331
+        },
+        {
+          "id": "src/document/photo-drop.ts",
+          "bytes": 1221
+        },
+        {
+          "id": "src/decor/svg-recolor.ts",
+          "bytes": 874
+        },
+        {
+          "id": "src/export/print-raster.ts",
+          "bytes": 867
+        },
+        {
+          "id": "src/typography/glyph-coverage.ts",
+          "bytes": 657
+        },
+        {
+          "id": "src/export/load-pdf-exporter.ts",
+          "bytes": 584
+        },
+        {
+          "id": "src/document/text-title.ts",
+          "bytes": 206
+        },
+        {
+          "id": "src/icons/icon-library.ts",
+          "bytes": 140
+        },
+        {
+          "id": "src/components/CalendarGridTemplateCard.vue",
+          "bytes": 110
+        },
+        {
+          "id": "src/components/ProgramSettingsDialog.vue",
+          "bytes": 107
+        },
+        {
+          "id": "src/components/PrintProfileDialog.vue",
+          "bytes": 104
+        },
+        {
+          "id": "src/components/PrintContactDialog.vue",
+          "bytes": 104
+        },
+        {
+          "id": "src/components/PhotoLibraryPanel.vue",
+          "bytes": 103
+        },
+        {
+          "id": "src/components/ResourceBrowser.vue",
+          "bytes": 101
+        },
+        {
+          "id": "src/components/PrintProfileDialog.vue?vue&type=style&index=0&scoped=bd99d9ad&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/PhotoLibraryPanel.vue?vue&type=style&index=0&scoped=9a433b31&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/ResourceBrowser.vue?vue&type=style&index=0&scoped=3010b120&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/PrintContactDialog.vue?vue&type=style&index=0&scoped=b46abb64&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/ProgramSettingsDialog.vue?vue&type=style&index=0&scoped=1447a1e4&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/CalendarGridTemplateCard.vue?vue&type=style&index=0&scoped=b10f2fd8&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/App.vue",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/index-CSubA-5E.js",
+      "entry": true,
+      "bytes": 223349,
+      "gzipBytes": 77021,
+      "imports": [],
+      "dynamicImports": [
+        "assets/HomeRoute-DomXHJxt.js",
+        "assets/AccountRoute-CZPGI6WS.js",
+        "assets/AdminRoute-L02qIsPt.js",
+        "assets/PublicSitePage-DqCeKIMu.js",
+        "assets/ApplicationHelpDialog-Wpzbsq5w.js",
+        "assets/VideoLessonsPage-Dgj2bZkc.js",
+        "assets/CalendarApiDocs-DejNdCFl.js"
+      ],
+      "modules": [
+        {
+          "id": "node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js",
+          "bytes": 129460
+        },
+        {
+          "id": "src/i18n/interface-translations.ts",
+          "bytes": 107224
+        },
+        {
+          "id": "node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js",
+          "bytes": 43300
+        },
+        {
+          "id": "node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js",
+          "bytes": 25598
+        },
+        {
+          "id": "src/i18n/interface-language.ts",
+          "bytes": 14735
+        },
+        {
+          "id": "node_modules/@vue/shared/dist/shared.esm-bundler.js",
+          "bytes": 8471
+        },
+        {
+          "id": "src/navigation.ts",
+          "bytes": 4559
+        },
+        {
+          "id": "src/BrowserApp.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3181
+        },
+        {
+          "id": "\u0000vite/preload-helper.js",
+          "bytes": 1877
+        },
+        {
+          "id": "\u0000vite/modulepreload-polyfill.js",
+          "bytes": 1168
+        },
+        {
+          "id": "src/i18n/domain-routing.ts",
+          "bytes": 1105
+        },
+        {
+          "id": "src/domain-session.ts",
+          "bytes": 909
+        },
+        {
+          "id": "src/main.ts",
+          "bytes": 542
+        },
+        {
+          "id": "src/document-routes.ts",
+          "bytes": 259
+        },
+        {
+          "id": "src/BrowserApp.vue?vue&type=style&index=0&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/styles.css",
+          "bytes": 0
+        },
+        {
+          "id": "index.html",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/paint-8EHI50qB.js",
+      "entry": false,
+      "bytes": 92936,
+      "gzipBytes": 23270,
+      "imports": [
+        "assets/index-CSubA-5E.js"
+      ],
+      "dynamicImports": [
+        "assets/german-commemorations-L8FXeHAB.js",
+        "assets/slavonic-editorial-titles-Bg-zzkwh.js",
+        "assets/uk-commemorations-BVB-ltyM.js",
+        "assets/pl-commemorations-CepoOy3e.js"
+      ],
+      "modules": [
+        {
+          "id": "src/calendar/localization/calendar-language.ts",
+          "bytes": 35062
+        },
+        {
+          "id": "src/calendar/localization/marriage-titles.ts",
+          "bytes": 9899
+        },
+        {
+          "id": "src/document/layer-operations.ts",
+          "bytes": 9486
+        },
+        {
+          "id": "src/calendar/localization/reading-descriptions.ts",
+          "bytes": 6059
+        },
+        {
+          "id": "src/calendar/presentation/calendar-content-policy.ts",
+          "bytes": 5504
+        },
+        {
+          "id": "src/calendar/presentation/title-variants.ts",
+          "bytes": 5378
+        },
+        {
+          "id": "src/calendar/localization/fasting-titles.ts",
+          "bytes": 3708
+        },
+        {
+          "id": "src/calendar/localization/scripture-titles.ts",
+          "bytes": 3575
+        },
+        {
+          "id": "src/calendar/localization/church-slavonic.ts",
+          "bytes": 3051
+        },
+        {
+          "id": "src/calendar/localization/slavonic-corpus.ts",
+          "bytes": 1893
+        },
+        {
+          "id": "src/document/paint.ts",
+          "bytes": 1563
+        },
+        {
+          "id": "src/calendar/localization/corpus-data.browser.ts",
+          "bytes": 1209
+        },
+        {
+          "id": "src/calendar/engine/liturgical-cycle.ts",
+          "bytes": 176
+        }
+      ]
+    },
+    {
+      "file": "assets/PageScene.vue_vue_type_script_setup_true_lang-CU1SYlfn.js",
+      "entry": false,
+      "bytes": 43075,
+      "gzipBytes": 13174,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/paint-8EHI50qB.js",
+        "assets/fasting-catalog-BmdnoBbd.js",
+        "assets/marker-packs-waGq3uUO.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/PageScene.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 70238
+        },
+        {
+          "id": "src/layout/calendar-grid-layout.ts",
+          "bytes": 9745
+        },
+        {
+          "id": "src/layout/legend-layout.ts",
+          "bytes": 2591
+        },
+        {
+          "id": "src/document/text-effects.ts",
+          "bytes": 2119
+        },
+        {
+          "id": "src/calendar/presentation/typikon-style.ts",
+          "bytes": 1948
+        },
+        {
+          "id": "src/layout/text-layout.ts",
+          "bytes": 1770
+        },
+        {
+          "id": "src/editor/group-geometry.ts",
+          "bytes": 1528
+        },
+        {
+          "id": "src/components/FoodMarker.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 1519
+        },
+        {
+          "id": "src/calendar/presentation/fasting.ts",
+          "bytes": 1384
+        },
+        {
+          "id": "src/document/image-placement.ts",
+          "bytes": 1221
+        },
+        {
+          "id": "src/rendering/page-scene.ts",
+          "bytes": 1168
+        },
+        {
+          "id": "src/calendar/presentation/typikon-markers.ts",
+          "bytes": 1081
+        },
+        {
+          "id": "src/document/corner-radii.ts",
+          "bytes": 771
+        },
+        {
+          "id": "src/components/TypikonRankMarker.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 692
+        },
+        {
+          "id": "src/calendar/presentation/fasting-colors.ts",
+          "bytes": 295
+        }
+      ]
+    },
+    {
+      "file": "assets/editor-calendar-client-u3KdIx61.js",
+      "entry": false,
+      "bytes": 32002,
+      "gzipBytes": 10341,
+      "imports": [
+        "assets/paint-8EHI50qB.js",
+        "assets/marker-packs-waGq3uUO.js",
+        "assets/editor-snapshot-WbtkBaPc.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/persistence/project-storage.ts",
+          "bytes": 20751
+        },
+        {
+          "id": "src/templates/calendar-templates.ts",
+          "bytes": 9068
+        },
+        {
+          "id": "src/document/factories.ts",
+          "bytes": 6457
+        },
+        {
+          "id": "src/document/branding.ts",
+          "bytes": 5686
+        },
+        {
+          "id": "src/editor/element-creation.ts",
+          "bytes": 4578
+        },
+        {
+          "id": "src/document/project-assets.ts",
+          "bytes": 3850
+        },
+        {
+          "id": "src/calendar/api/editor-calendar-client.ts",
+          "bytes": 3158
+        },
+        {
+          "id": "src/templates/calendar-cell-defaults.ts",
+          "bytes": 1614
+        },
+        {
+          "id": "src/export/print-profile.ts",
+          "bytes": 524
+        }
+      ]
+    },
+    {
+      "file": "assets/page-html-2RuEDqQT.js",
+      "entry": false,
+      "bytes": 29706,
+      "gzipBytes": 11465,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/dompurify/dist/purify.es.mjs",
+          "bytes": 132979
+        },
+        {
+          "id": "src/content/page-html.ts",
+          "bytes": 1103
+        }
+      ]
+    },
+    {
+      "file": "assets/catalog-client-CUPKH2Re.js",
+      "entry": false,
+      "bytes": 29605,
+      "gzipBytes": 5458,
+      "imports": [
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/font-catalog-Cxe1geBi.js",
+        "assets/marker-packs-waGq3uUO.js",
+        "assets/index-CSubA-5E.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/decor/decor-library.generated.ts",
+          "bytes": 26777
+        },
+        {
+          "id": "src/decor/gold-print-library.ts",
+          "bytes": 5622
+        },
+        {
+          "id": "src/collaboration/catalog-client.ts",
+          "bytes": 1618
+        },
+        {
+          "id": "src/templates/calendar-template-presets.ts",
+          "bytes": 464
+        },
+        {
+          "id": "src/decor/decor-library.ts",
+          "bytes": 285
+        }
+      ]
+    },
+    {
+      "file": "assets/CalendarApiDocs-DejNdCFl.js",
+      "entry": false,
+      "bytes": 17245,
+      "gzipBytes": 5758,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/CalendarApiDocs.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 20242
+        },
+        {
+          "id": "src/components/CalendarApiDocs.vue",
+          "bytes": 99
+        },
+        {
+          "id": "src/components/CalendarApiDocs.vue?vue&type=style&index=0&scoped=96cf0860&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/CalendarApiDocs.vue?vue&type=style&index=1&scoped=96cf0860&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminTemplates-DKjbkOFm.js",
+      "entry": false,
+      "bytes": 15921,
+      "gzipBytes": 5952,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js",
+        "assets/PageScene.vue_vue_type_script_setup_true_lang-CU1SYlfn.js",
+        "assets/font-catalog-Cxe1geBi.js",
+        "assets/editor-calendar-client-u3KdIx61.js",
+        "assets/editor-snapshot-WbtkBaPc.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/calendar-grid-presets-DXSRvcr4.js",
+        "assets/paint-8EHI50qB.js",
+        "assets/fasting-catalog-BmdnoBbd.js",
+        "assets/marker-packs-waGq3uUO.js",
+        "assets/merge-monastery-events-DokrXMiv.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/VisualGridEditor.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 21810
+        },
+        {
+          "id": "src/components/AdminTemplates.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 7339
+        },
+        {
+          "id": "src/components/VisualGridEditor.vue",
+          "bytes": 102
+        },
+        {
+          "id": "src/components/AdminTemplates.vue",
+          "bytes": 98
+        },
+        {
+          "id": "src/components/VisualGridEditor.vue?vue&type=style&index=0&scoped=c3f25f90&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/AdminTemplates.vue?vue&type=style&index=0&scoped=808205e6&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AccountRoute-CZPGI6WS.js",
+      "entry": false,
+      "bytes": 15563,
+      "gzipBytes": 5652,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [
+        "assets/App-BCqk1cWc.js"
+      ],
+      "modules": [
+        {
+          "id": "src/components/AccountPanel.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 25671
+        },
+        {
+          "id": "src/components/AccountRoute.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3625
+        },
+        {
+          "id": "src/collaboration/account-client.ts",
+          "bytes": 1132
+        },
+        {
+          "id": "src/components/AccountPanel.vue",
+          "bytes": 98
+        },
+        {
+          "id": "src/editor-intent.ts",
+          "bytes": 24
+        },
+        {
+          "id": "src/components/AccountPanel.vue?vue&type=style&index=0&scoped=9b5d4224&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/AccountRoute.vue",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminDialog-DIPREwt8.js",
+      "entry": false,
+      "bytes": 14375,
+      "gzipBytes": 5553,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/merge-monastery-events-DokrXMiv.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [
+        "assets/PageScene-D1qgp98a.js",
+        "assets/NewsletterEditor-CtW__qJq.js",
+        "assets/AdminTemplates-DKjbkOFm.js",
+        "assets/AdminCatalog-BbekyR01.js",
+        "assets/AdminAccounts-V6P6hAJV.js",
+        "assets/AdminSitePages-DJ-1XTTN.js",
+        "assets/AdminVideoLessons-EVH6qxKX.js",
+        "assets/AdminAiSettings-DZHF3UxX.js",
+        "assets/AiDraftAssistant-Pn0ELh9i.js",
+        "assets/editor-calendar-client-u3KdIx61.js",
+        "assets/editor-snapshot-WbtkBaPc.js"
+      ],
+      "modules": [
+        {
+          "id": "src/components/AdminDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 27832
+        },
+        {
+          "id": "src/components/AdminDialog.vue",
+          "bytes": 95
+        },
+        {
+          "id": "src/components/AdminDialog.vue?vue&type=style&index=0&scoped=f51438c9&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/index-BeoRn2gJ.js",
+      "entry": false,
+      "bytes": 13728,
+      "gzipBytes": 5406,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/html-to-image/es/embed-webfonts.js",
+          "bytes": 7493
+        },
+        {
+          "id": "node_modules/html-to-image/es/clone-node.js",
+          "bytes": 6933
+        },
+        {
+          "id": "node_modules/html-to-image/es/util.js",
+          "bytes": 6467
+        },
+        {
+          "id": "node_modules/html-to-image/es/embed-images.js",
+          "bytes": 2626
+        },
+        {
+          "id": "node_modules/html-to-image/es/dataurl.js",
+          "bytes": 2488
+        },
+        {
+          "id": "node_modules/html-to-image/es/embed-resources.js",
+          "bytes": 2167
+        },
+        {
+          "id": "node_modules/html-to-image/es/index.js",
+          "bytes": 2121
+        },
+        {
+          "id": "node_modules/html-to-image/es/clone-pseudos.js",
+          "bytes": 1581
+        },
+        {
+          "id": "node_modules/html-to-image/es/mimes.js",
+          "bytes": 575
+        },
+        {
+          "id": "node_modules/html-to-image/es/apply-style.js",
+          "bytes": 497
+        }
+      ]
+    },
+    {
+      "file": "assets/ApplicationHelpDialog.vue_vue_type_script_setup_true_lang-Dm5C88ON.js",
+      "entry": false,
+      "bytes": 11909,
+      "gzipBytes": 4432,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/LegalLinks-C1QRu7cR.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/ApplicationHelpDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 9769
+        },
+        {
+          "id": "/brand/logo-symbol-256.webp",
+          "bytes": 53
+        }
+      ]
+    },
+    {
+      "file": "assets/WelcomePage.vue_vue_type_script_setup_true_lang-BgH4WCh9.js",
+      "entry": false,
+      "bytes": 9988,
+      "gzipBytes": 3767,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/LegalLinks-C1QRu7cR.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/WelcomePage.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 13269
+        },
+        {
+          "id": "/brand/logo-kalendar-preview.webp",
+          "bytes": 53
+        },
+        {
+          "id": "/brand/share-card-preview.webp",
+          "bytes": 53
+        },
+        {
+          "id": "/downloads/ready-calendars/orthodox-calendar-2027-cover.webp",
+          "bytes": 53
+        }
+      ]
+    },
+    {
+      "file": "assets/NewsletterEditor-CtW__qJq.js",
+      "entry": false,
+      "bytes": 9712,
+      "gzipBytes": 4083,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/catalog-request-LBBgKG1R.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/VisualContentEditor.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 9080
+        },
+        {
+          "id": "src/components/NewsletterEditor.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 7816
+        },
+        {
+          "id": "src/components/VisualContentEditor.vue",
+          "bytes": 105
+        },
+        {
+          "id": "src/components/NewsletterEditor.vue",
+          "bytes": 100
+        },
+        {
+          "id": "src/components/VisualContentEditor.vue?vue&type=style&index=0&scoped=8e9c3fe6&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/NewsletterEditor.vue?vue&type=style&index=0&scoped=63d09f42&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/font-catalog-Cxe1geBi.js",
+      "entry": false,
+      "bytes": 8130,
+      "gzipBytes": 2322,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/typography/font-catalog.ts",
+          "bytes": 7442
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminSitePages-DJ-1XTTN.js",
+      "entry": false,
+      "bytes": 7376,
+      "gzipBytes": 3050,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/page-html-2RuEDqQT.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/AiDraftAssistant-Pn0ELh9i.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/AdminSitePages.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 9631
+        },
+        {
+          "id": "src/components/PageTextEditor.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3154
+        },
+        {
+          "id": "src/components/PageTextEditor.vue",
+          "bytes": 100
+        },
+        {
+          "id": "src/components/AdminSitePages.vue",
+          "bytes": 98
+        },
+        {
+          "id": "src/components/PageTextEditor.vue?vue&type=style&index=0&scoped=e97add7d&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/AdminSitePages.vue?vue&type=style&index=0&scoped=8d24c146&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminCatalog-BbekyR01.js",
+      "entry": false,
+      "bytes": 7069,
+      "gzipBytes": 3000,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/catalog-client-CUPKH2Re.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/font-catalog-Cxe1geBi.js",
+        "assets/marker-packs-waGq3uUO.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/AdminCatalog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 12203
+        },
+        {
+          "id": "src/components/AdminCatalog.vue",
+          "bytes": 96
+        },
+        {
+          "id": "src/components/AdminCatalog.vue?vue&type=style&index=0&scoped=996e90db&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js",
+      "entry": false,
+      "bytes": 6700,
+      "gzipBytes": 2639,
+      "imports": [
+        "assets/index-CSubA-5E.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/collaboration/shared-project-client.ts",
+          "bytes": 7578
+        },
+        {
+          "id": "src/components/AdminLoginDialog.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3634
+        }
+      ]
+    },
+    {
+      "file": "assets/editor-snapshot-WbtkBaPc.js",
+      "entry": false,
+      "bytes": 5312,
+      "gzipBytes": 2142,
+      "imports": [
+        "assets/merge-monastery-events-DokrXMiv.js",
+        "assets/fasting-catalog-BmdnoBbd.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/api/editor-snapshot.ts",
+          "bytes": 6786
+        }
+      ]
+    },
+    {
+      "file": "assets/calendar-grid-presets-DXSRvcr4.js",
+      "entry": false,
+      "bytes": 4944,
+      "gzipBytes": 1945,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/templates/calendar-grid-presets.ts",
+          "bytes": 6692
+        }
+      ]
+    },
+    {
+      "file": "assets/marker-packs-waGq3uUO.js",
+      "entry": false,
+      "bytes": 4489,
+      "gzipBytes": 1551,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/presentation/marker-packs.ts",
+          "bytes": 4646
+        }
+      ]
+    },
+    {
+      "file": "assets/AiDraftAssistant-Pn0ELh9i.js",
+      "entry": false,
+      "bytes": 3812,
+      "gzipBytes": 1955,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/AiDraftAssistant.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 5037
+        },
+        {
+          "id": "src/components/ContentBlocks.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 1875
+        },
+        {
+          "id": "src/components/AiDraftAssistant.vue",
+          "bytes": 100
+        },
+        {
+          "id": "src/components/ContentBlocks.vue",
+          "bytes": 99
+        },
+        {
+          "id": "src/components/ContentBlocks.vue?vue&type=style&index=0&scoped=69d3836b&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/AiDraftAssistant.vue?vue&type=style&index=0&scoped=4553536f&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminVideoLessons-EVH6qxKX.js",
+      "entry": false,
+      "bytes": 2985,
+      "gzipBytes": 1437,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/video-lessons-8RvsiSuZ.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/AdminVideoLessons.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 5669
+        },
+        {
+          "id": "src/components/AdminVideoLessons.vue",
+          "bytes": 101
+        },
+        {
+          "id": "src/components/AdminVideoLessons.vue?vue&type=style&index=0&scoped=99d14d8d&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminAiSettings-DZHF3UxX.js",
+      "entry": false,
+      "bytes": 2788,
+      "gzipBytes": 1439,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/AdminAiSettings.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4208
+        },
+        {
+          "id": "src/components/AdminAiSettings.vue",
+          "bytes": 99
+        },
+        {
+          "id": "src/components/AdminAiSettings.vue?vue&type=style&index=0&scoped=a878b507&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/fasting-catalog-BmdnoBbd.js",
+      "entry": false,
+      "bytes": 2419,
+      "gzipBytes": 1072,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/fasting/fasting-catalog.ts",
+          "bytes": 2324
+        }
+      ]
+    },
+    {
+      "file": "assets/VideoLessonsPage-Dgj2bZkc.js",
+      "entry": false,
+      "bytes": 2205,
+      "gzipBytes": 1338,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/video-lessons-8RvsiSuZ.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/VideoLessonsPage.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 4023
+        },
+        {
+          "id": "src/components/VideoLessonsPage.vue",
+          "bytes": 100
+        },
+        {
+          "id": "src/components/VideoLessonsPage.vue?vue&type=style&index=0&scoped=9f786c13&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/PublicSitePage-DqCeKIMu.js",
+      "entry": false,
+      "bytes": 2062,
+      "gzipBytes": 1233,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/page-html-2RuEDqQT.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/catalog-request-LBBgKG1R.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/PublicSitePage.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3600
+        },
+        {
+          "id": "src/components/PublicSitePage.vue",
+          "bytes": 98
+        },
+        {
+          "id": "src/components/PublicSitePage.vue?vue&type=style&index=0&scoped=36b8f6d8&lang.css",
+          "bytes": 0
+        },
+        {
+          "id": "src/components/PublicSitePage.vue?vue&type=style&index=1&scoped=36b8f6d8&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminAccounts-V6P6hAJV.js",
+      "entry": false,
+      "bytes": 2018,
+      "gzipBytes": 1178,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/AdminAccounts.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 3075
+        },
+        {
+          "id": "src/components/AdminAccounts.vue",
+          "bytes": 97
+        },
+        {
+          "id": "src/components/AdminAccounts.vue?vue&type=style&index=0&scoped=265b8c84&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/merge-monastery-events-DokrXMiv.js",
+      "entry": false,
+      "bytes": 1982,
+      "gzipBytes": 915,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/calendar/date/calendar-date.ts",
+          "bytes": 1932
+        },
+        {
+          "id": "src/calendar/engine/merge-monastery-events.ts",
+          "bytes": 1671
+        }
+      ]
+    },
+    {
+      "file": "assets/HomeRoute-DomXHJxt.js",
+      "entry": false,
+      "bytes": 924,
+      "gzipBytes": 534,
+      "imports": [
+        "assets/WelcomePage.vue_vue_type_script_setup_true_lang-BgH4WCh9.js",
+        "assets/index-CSubA-5E.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/HomeRoute.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 1105
+        },
+        {
+          "id": "src/components/HomeRoute.vue",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/AdminRoute-L02qIsPt.js",
+      "entry": false,
+      "bytes": 899,
+      "gzipBytes": 588,
+      "imports": [
+        "assets/index-CSubA-5E.js",
+        "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js"
+      ],
+      "dynamicImports": [
+        "assets/AdminDialog-DIPREwt8.js"
+      ],
+      "modules": [
+        {
+          "id": "src/components/AdminRoute.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 1571
+        },
+        {
+          "id": "src/components/AdminRoute.vue",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/video-lessons-8RvsiSuZ.js",
+      "entry": false,
+      "bytes": 738,
+      "gzipBytes": 537,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/content/video-lessons.ts",
+          "bytes": 933
+        }
+      ]
+    },
+    {
+      "file": "assets/site-pages-jFmlRARP.js",
+      "entry": false,
+      "bytes": 632,
+      "gzipBytes": 429,
+      "imports": [
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/index-CSubA-5E.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/content/site-pages.ts",
+          "bytes": 802
+        }
+      ]
+    },
+    {
+      "file": "assets/LegalLinks-C1QRu7cR.js",
+      "entry": false,
+      "bytes": 602,
+      "gzipBytes": 450,
+      "imports": [
+        "assets/site-pages-jFmlRARP.js",
+        "assets/index-CSubA-5E.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/LegalLinks.vue?vue&type=script&setup=true&lang.ts",
+          "bytes": 801
+        },
+        {
+          "id": "src/components/LegalLinks.vue",
+          "bytes": 94
+        },
+        {
+          "id": "src/components/LegalLinks.vue?vue&type=style&index=0&scoped=311f8318&lang.css",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/catalog-request-LBBgKG1R.js",
+      "entry": false,
+      "bytes": 353,
+      "gzipBytes": 302,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/collaboration/catalog-request.ts",
+          "bytes": 482
+        }
+      ]
+    },
+    {
+      "file": "assets/ApplicationHelpDialog-Wpzbsq5w.js",
+      "entry": false,
+      "bytes": 294,
+      "gzipBytes": 226,
+      "imports": [
+        "assets/ApplicationHelpDialog.vue_vue_type_script_setup_true_lang-Dm5C88ON.js",
+        "assets/index-CSubA-5E.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/ApplicationHelpDialog.vue",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/PageScene-D1qgp98a.js",
+      "entry": false,
+      "bytes": 231,
+      "gzipBytes": 188,
+      "imports": [
+        "assets/PageScene.vue_vue_type_script_setup_true_lang-CU1SYlfn.js",
+        "assets/index-CSubA-5E.js",
+        "assets/paint-8EHI50qB.js",
+        "assets/fasting-catalog-BmdnoBbd.js",
+        "assets/marker-packs-waGq3uUO.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/components/PageScene.vue",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+      "entry": false,
+      "bytes": 91,
+      "gzipBytes": 102,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "\u0000plugin-vue:export-helper",
+          "bytes": 159
+        }
+      ]
+    }
+  ],
+  "routeTotals": [
+    {
+      "file": "assets/App-BCqk1cWc.js",
+      "bytes": 749601,
+      "gzipBytes": 233323,
+      "files": [
+        "assets/App-BCqk1cWc.js",
+        "assets/index-CSubA-5E.js",
+        "assets/ApplicationHelpDialog.vue_vue_type_script_setup_true_lang-Dm5C88ON.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js",
+        "assets/editor-calendar-client-u3KdIx61.js",
+        "assets/paint-8EHI50qB.js",
+        "assets/marker-packs-waGq3uUO.js",
+        "assets/editor-snapshot-WbtkBaPc.js",
+        "assets/merge-monastery-events-DokrXMiv.js",
+        "assets/fasting-catalog-BmdnoBbd.js",
+        "assets/AccountRoute-CZPGI6WS.js",
+        "assets/font-catalog-Cxe1geBi.js",
+        "assets/PageScene.vue_vue_type_script_setup_true_lang-CU1SYlfn.js",
+        "assets/catalog-client-CUPKH2Re.js",
+        "assets/WelcomePage.vue_vue_type_script_setup_true_lang-BgH4WCh9.js",
+        "assets/AdminLoginDialog.vue_vue_type_script_setup_true_lang-BB1ELFIb.js",
+        "assets/calendar-grid-presets-DXSRvcr4.js"
+      ]
+    },
+    {
+      "file": "assets/index-CSubA-5E.js",
+      "bytes": 223349,
+      "gzipBytes": 77021,
+      "files": [
+        "assets/index-CSubA-5E.js"
+      ]
+    },
+    {
+      "file": "assets/CalendarApiDocs-DejNdCFl.js",
+      "bytes": 240685,
+      "gzipBytes": 82881,
+      "files": [
+        "assets/CalendarApiDocs-DejNdCFl.js",
+        "assets/index-CSubA-5E.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ]
+    },
+    {
+      "file": "assets/PublicSitePage-DqCeKIMu.js",
+      "bytes": 256193,
+      "gzipBytes": 90552,
+      "files": [
+        "assets/PublicSitePage-DqCeKIMu.js",
+        "assets/index-CSubA-5E.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/page-html-2RuEDqQT.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ]
+    },
+    {
+      "file": "assets/HomeRoute-DomXHJxt.js",
+      "bytes": 235939,
+      "gzipBytes": 82605,
+      "files": [
+        "assets/HomeRoute-DomXHJxt.js",
+        "assets/WelcomePage.vue_vue_type_script_setup_true_lang-BgH4WCh9.js",
+        "assets/index-CSubA-5E.js",
+        "assets/LegalLinks-C1QRu7cR.js",
+        "assets/site-pages-jFmlRARP.js",
+        "assets/catalog-request-LBBgKG1R.js",
+        "assets/_plugin-vue_export-helper-DlAUqK2U.js"
+      ]
+    }
+  ]
+}

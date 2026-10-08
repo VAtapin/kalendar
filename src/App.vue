@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { createApplicationMenus, type ApplicationMenuId, type MenuCommandId } from "./editor/application-menus";
 import { ServerProjectSaver } from './editor/server-project-saver';
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
+import { computed, markRaw, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { editorIntent } from './editor-intent';
 import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print-profile';
 import { preparePrintFontCss } from './export/print-fonts';
 import { packagePrintPages } from './export/print-raster';
 import { flattenPrintSvgTextShadows, inlinePrintSvgStyles } from './export/print-svg-styles';
 import { loadPdfExporter } from './export/load-pdf-exporter';
-import { loadCalendarDictionary } from './calendar/localization/corpus-data';
+import {loadEditorCalendar} from './calendar/api/editor-calendar-client';
+import {snapshotCalendar, snapshotMatches} from './calendar/api/editor-snapshot';
+
 import { setManualTextTitle } from './document/text-title';
-import { loadSlavonicCorpus } from './calendar/localization/slavonic-corpus';
 import { routePath, navigate, isPublicPath, beforeDomainChange } from './navigation';
 import DocumentWorkspace from "./components/DocumentWorkspace.vue";
 import PrintProfileDialog from "./components/PrintProfileDialog.vue";
@@ -96,8 +97,8 @@ import {
   isFoodMarkerPackId,
 } from "./calendar/presentation/marker-packs";
 import { mergeMonasteryEvents } from "./calendar/engine/merge-monastery-events";
-import { FASTING_PROFILES } from "./calendar/fasting/fasting-api";
-import type { MemoryDaysDataset, OrthodoxCalendarYear } from "./calendar/types";
+import { FASTING_PROFILES } from "./calendar/fasting/fasting-catalog";
+import type { OrthodoxCalendarYear } from "./calendar/types";
 import {
   COMMEMORATION_FILTER_OPTIONS,
   COMMEMORATION_FILTER_PRESETS,
@@ -423,7 +424,6 @@ const chromePanelsHidden = ref(false);
 const operationNotice = ref("Документ готов к редактированию");
 // Both structures are immutable and large. Deep Vue proxies only add work to
 // rendering, history and autosave, so keep just their top-level references reactive.
-const calendarDataset = shallowRef<MemoryDaysDataset>();
 const calendarYear = shallowRef<OrthodoxCalendarYear>();
 const calendarLoadState = ref<"loading" | "ready" | "error">("loading");
 const persistenceState = ref<"loading" | "saved" | "saving" | "error">("loading");
@@ -488,12 +488,6 @@ let sharedSaveRequested = false;
 let sharedSaveShowNotice = false;
 let sharedLastSavedSnapshot: string | undefined;
 let persistenceReady = false;
-let calendarDatasetPromise: Promise<MemoryDaysDataset> | undefined;
-let calendarRuntimePromise: Promise<{
-  parseMemoryDaysXml: typeof import("./calendar/xml/parse-memory-days").parseMemoryDaysXml;
-  buildOrthodoxCalendarYear: typeof import("./calendar/engine/build-calendar-year").buildOrthodoxCalendarYear;
-}> | undefined;
-const calendarYearCache = new Map<number, OrthodoxCalendarYear>();
 const EDITOR_STATE_KEY = "orthodox-calendar-layout:editor-state";
 const panelVisibility = ref({
   tools: true,
@@ -1951,55 +1945,40 @@ function deleteCurrentPage(pageId = selectedPage.value.id): void {
 }
 
 let calendarDataRequest = 0;
-async function loadCalendarData(): Promise<void> {
+async function loadCalendarData(refresh = false, announce = true): Promise<void> {
   const request = ++calendarDataRequest;
   const targetProject = project.value;
-  calendarLoadState.value = "loading";
-  const requestedYear = project.value.year;
+  const requestedYear = targetProject.year;
+  const language = targetProject.calendarLanguage ?? 'ru';
+  const previous = targetProject.calendarSnapshot;
+  const keepPrevious = refresh && snapshotMatches(previous, requestedYear, language);
+  calendarLoadState.value = 'loading';
+  if (!keepPrevious) calendarYear.value = undefined;
   try {
-    calendarRuntimePromise ??= Promise.all([
-      import("./calendar/xml/parse-memory-days"),
-      import("./calendar/engine/build-calendar-year"),
-    ]).then(([parser, engine]) => ({
-      parseMemoryDaysXml: parser.parseMemoryDaysXml,
-      buildOrthodoxCalendarYear: engine.buildOrthodoxCalendarYear,
-    }));
-    calendarDatasetPromise ??= (async () => {
-      const [response, runtime] = await Promise.all([
-        fetch("/data/MemoryDays.xml"),
-        calendarRuntimePromise!,
-      ]);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return runtime.parseMemoryDaysXml(await response.text());
-    })().catch((error) => {
-      calendarDatasetPromise = undefined;
-      throw error;
+    const saved = await loadEditorCalendar({year: requestedYear, language,
+      profile: targetProject.fastingProfileId, saved: previous, refresh});
+    if (request !== calendarDataRequest || project.value !== targetProject
+      || project.value.year !== requestedYear || (project.value.calendarLanguage ?? 'ru') !== language) return;
+    const year = snapshotCalendar(saved.snapshot);
+    if (refresh) mutateProject('Обновление календарных данных', () => {
+      project.value.calendarSnapshot = markRaw(saved);
     });
-    const [dataset, runtime] = await Promise.all([calendarDatasetPromise, calendarRuntimePromise,
-      loadCalendarDictionary(project.value.calendarLanguage ?? 'ru'),
-      project.value.calendarLanguage === "cu" ? loadSlavonicCorpus() : Promise.resolve()]);
-    let year = calendarYearCache.get(requestedYear);
-    if (!year) {
-      year = runtime.buildOrthodoxCalendarYear(requestedYear, dataset);
-      calendarYearCache.set(requestedYear, year);
-      // Switching through many years must not grow memory without a bound.
-      if (calendarYearCache.size > 3) {
-        const oldestYear = calendarYearCache.keys().next().value as number | undefined;
-        if (oldestYear !== undefined) calendarYearCache.delete(oldestYear);
-      }
-    }
-    if (request !== calendarDataRequest || project.value !== targetProject || project.value.year !== requestedYear) return;
-    calendarDataset.value = dataset;
+    else project.value.calendarSnapshot = markRaw(saved);
     calendarYear.value = year;
-    calendarLoadState.value = "ready";
-    operationNotice.value = `Загружено ${dataset.statistics.recordCount} календарных записей`;
+    calendarLoadState.value = 'ready';
+    if (announce) operationNotice.value = 'Календарные данные BibleDesktop готовы';
   } catch (error) {
     if (request !== calendarDataRequest || project.value !== targetProject) return;
-    calendarLoadState.value = "error";
+    calendarLoadState.value = keepPrevious ? 'ready' : 'error';
     operationNotice.value = `Ошибка календарных данных: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
+async function refreshCalendarData(): Promise<void> {
+  if (!confirmInterface('Обновить календарные данные? Содержимое календарных ячеек может измениться.')) return;
+  await createRecoveryPoint('Перед обновлением календарных данных');
+  await loadCalendarData(true);
+}
 function updateFormat(formatId: PageFormatId): void {
   mutateProject("Изменение формата календаря", () =>
     project.value.document.pages.forEach((page) => changePageFormat(page, formatId, page.orientation)),
@@ -2041,15 +2020,6 @@ async function updateCalendarLanguage(event: Event): Promise<void> {
   const targetProject = project.value;
   const language = normalizeCalendarLanguage((event.target as HTMLSelectElement).value) as CalendarLanguage;
   if (language === project.value.calendarLanguage) return;
-  {
-    try { await Promise.all([loadCalendarDictionary(language), language === 'cu' ? loadSlavonicCorpus() : Promise.resolve()]); }
-    catch (error) {
-      if (request !== calendarLanguageRequest || project.value !== targetProject) return;
-      (event.target as HTMLSelectElement).value = project.value.calendarLanguage ?? "ru";
-      operationNotice.value = `Не удалось загрузить названия календаря: ${String(error)}`;
-      return;
-    }
-  }
   // A slow corpus request must not overwrite a later language choice or a different project.
   if (request !== calendarLanguageRequest || project.value !== targetProject) return;
   mutateProject("Изменение языка календаря", () => {
@@ -2063,6 +2033,7 @@ async function updateCalendarLanguage(event: Event): Promise<void> {
     }
   });
   operationNotice.value = `Язык календаря: ${calendarLanguageOptions.find((item) => item.id === language)?.label ?? language}`;
+  await loadCalendarData(false, false);
 }
 
 function findLayer(layerId: string) {
@@ -4001,6 +3972,8 @@ defineExpose({ saveBeforeLeave: async () => {
   if (accountUser.value && serverCalendarId.value) await saveServerCalendar();
 } });
 onBeforeUnmount(removeDomainPreparation);
+// Undo/redo can restore a different pinned calendar without changing the layout.
+watch(project, () => { void loadCalendarData(false, false); });
 watch(project, () => {
   scheduleAutosave();
   scheduleSharedSave();
@@ -4145,7 +4118,7 @@ onBeforeUnmount(() => {
           <span class="status-chip">{{ selectedPage.formatId }} · {{ orientationLabel }}</span>
           <span class="status-chip status-chip--accent">Источник: мм</span>
           <span v-if="calendarLoadState === 'ready'" class="status-chip">
-            XML: {{ calendarDataset?.statistics.recordCount }}
+            BibleDesktop
           </span>
           <span v-if="sharedAccessMode === 'editing'" class="status-chip status-chip--online">● Общий календарь</span>
         </div>
@@ -4561,8 +4534,10 @@ onBeforeUnmount(() => {
               <label class="field-control"><span>Язык календаря</span><select data-testid="calendar-language-select" :value="project.calendarLanguage ?? 'ru'" @change="updateCalendarLanguage"><option v-for="language in calendarLanguageOptions" :key="language.id" :value="language.id">{{ language.label }}</option></select></label>
               <p class="property-help">Язык месяцев, дней недели, праздников, постов и имён святых. Он не зависит от языка программы.</p>
               <label class="field-control"><span>Правила поста</span><select v-model="project.fastingProfileId"><option v-for="profile in fastingProfileOptions" :key="profile.id" :value="profile.id">{{ profile.label }}</option></select></label>
-              <p class="property-help">{{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].description }} Версия правил {{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].rulesVersion }}.</p>
+              <p class="property-help">{{ FASTING_PROFILES[project.fastingProfileId ?? 'typikon-strict'].description }} Версия правил {{ project.calendarSnapshot?.snapshot.fastingProfiles[project.fastingProfileId === 'parish' ? 'parish' : 'typikonStrict'].rulesVersion ?? '—' }}.</p>
               <p class="property-help">Выбор действует только в этом календаре. Местные обычаи одного монастыря или прихода не являются общими правилами программы.</p>
+              <p v-if="project.calendarSnapshot" class="property-help">Календарные данные сохранены в проекте.</p>
+              <button type="button" :disabled="calendarLoadState === 'loading' || pdfExportState === 'exporting'" @click="refreshCalendarData">Обновить календарные данные</button>
               <label class="field-stack"><span>Издатель / монастырь</span><input v-model="project.publisherProfile.name" type="text" /></label>
               <h2 class="property-subheading">Шрифты проекта</h2>
               <button class="font-upload-button" type="button" @click="requestCustomFontFile">

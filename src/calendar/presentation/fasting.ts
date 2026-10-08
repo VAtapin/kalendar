@@ -2,20 +2,14 @@ import type { OrthodoxCalendarDay } from "../types";
 import type { CalendarLanguage } from "../../document/types";
 import { calendarFoodRuleLabel } from "../localization/calendar-language";
 import {
-  resolveFoodRuleForDay,
+  FOOD_RULES,
   type FoodRule,
   type FoodRuleId,
   type FastingProfileId,
-} from "../fasting/fasting-api";
+} from "../fasting/fasting-catalog";
 
-export type { FoodRule, FoodRuleId } from "../fasting/fasting-api";
-export {
-  FOOD_RULES,
-  calculateFastingDay,
-  calculateFastingPeriods,
-  fastingPeriodForDate,
-  FASTING_PROFILES,
-} from "../fasting/fasting-api";
+export type { FoodRule, FoodRuleId } from "../fasting/fasting-catalog";
+export { FOOD_RULES, FASTING_PROFILES } from "../fasting/fasting-catalog";
 
 const FOOD_RULE_LEGEND_LABELS: Record<FoodRuleId, string> = {
   "no-fast": "",
@@ -45,7 +39,9 @@ export function resolveFoodRule(
   let byProfile = foodRuleCache.get(day);
   const cached = byProfile?.get(profileId);
   if (cached) return cached;
-  const calculated = resolveFoodRuleForDay(day, profileId);
+  const resolution = day.fastingByProfile?.[profileId];
+  if (!resolution) throw new Error('В календарном снимке отсутствуют правила поста');
+  const calculated = resolution.memorial ? FOOD_RULES.memorial : resolution.foodRule;
   byProfile ??= new Map();
   byProfile.set(profileId, calculated);
   foodRuleCache.set(day, byProfile);

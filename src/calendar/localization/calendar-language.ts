@@ -491,6 +491,10 @@ export function localizeCalendarEventTitle(title: string, language: CalendarLang
 
 export function localizeCalendarEvent(event: ResolvedCalendarEvent, language: CalendarLanguage = "ru"): ResolvedCalendarEvent {
   const resolvedLanguage = normalizeCalendarLanguage(language);
+  if (event.apiLocalization?.language === resolvedLanguage) {
+    const {title, shortTitle, veryShortTitle, description} = event.apiLocalization;
+    return {...event, title, shortTitle, veryShortTitle, description};
+  }
   if (resolvedLanguage === "ru") return event;
   const full = localizeCalendarEventTitleWithStatus(event.title, resolvedLanguage);
   if (full.status === "source-fallback") return { ...event };

@@ -32,6 +32,7 @@ it("invalidates fasting evidence when the calculation engine changes", () => {
   const engineHash = createHash("sha256").update(readFileSync("src/calendar/fasting/fasting-api.ts")).digest("hex");
   for (const name of ["fasting-independent", "official-trapeza", "fasting-adjudications"]) {
     expect(read(name).summary.fastingEngineSha256, name).toBe(engineHash);
+    expect(read(name).summary.fastingCatalogSha256, name).toBe(createHash('sha256').update(readFileSync('src/calendar/fasting/fasting-catalog.ts')).digest('hex'));
   }
 });
 

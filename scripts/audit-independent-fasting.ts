@@ -40,7 +40,7 @@ if (rows.length !== 366) throw new Error(`Incomplete snapshot set (${rows.length
 const hashFile = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
 const summary = { dates: rows.length,
   xmlSha256: hashFile("public/data/MemoryDays.xml"),
-  fastingEngineSha256: hashFile("src/calendar/fasting/fasting-api.ts"),
+  fastingEngineSha256: hashFile("src/calendar/fasting/fasting-api.ts"), fastingCatalogSha256: hashFile("src/calendar/fasting/fasting-catalog.ts"),
   strict: rows.reduce((counts, row) => { counts[row.strictComparison] = (counts[row.strictComparison] ?? 0) + 1; return counts; }, {} as Record<string, number>),
   notes: ["Read-only comparison, not a decision to replace a Typikon or parish rule with a web-calendar's rule.",
     "Source old-style 2026 spans civil 2026/2027; February 29 uses 2024. This is not a complete civil-year 2027 audit.",

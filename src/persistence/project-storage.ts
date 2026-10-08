@@ -10,11 +10,14 @@ import { applyDefaultCalendarCellGeometry } from "../templates/calendar-cell-def
 import { normalizedOpacity } from "../document/paint";
 import { isFoodMarkerPackId } from "../calendar/presentation/marker-packs";
 import { compactProjectAssets } from "../document/project-assets";
+import type {SavedEditorCalendarSnapshot} from '../calendar/api/editor-snapshot';
+import {assertEditorSnapshot} from '../calendar/api/editor-snapshot';
 
 const DATABASE_NAME = "orthodox-calendar-layout";
 let storageAccountId = '';
 export function setStorageAccount(id: string | null): void { storageAccountId = id && /^[0-9a-f-]{36}$/i.test(id) ? id : ''; }
 const DATABASE_VERSION = 4;
+const CALENDAR_SNAPSHOT_STORE = 'calendar-snapshots';
 const STORE_NAME = "projects";
 const BACKUP_STORE_NAME = "backups";
 const TEMPLATE_STORE_NAME = "templates";
@@ -193,6 +196,44 @@ function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
+/** Public calendar responses only; private project overlays never enter this cache. */
+function openCalendarSnapshotCache(): Promise<IDBDatabase> {
+  // Do not upgrade the private project DB or block tabs running its old version.
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DATABASE_NAME + ':public-calendar-snapshots', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore(CALENDAR_SNAPSHOT_STORE);
+    request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
+  });
+}
+
+export async function loadCachedCalendarSnapshot(key: string): Promise<SavedEditorCalendarSnapshot | undefined> {
+  const database = await openCalendarSnapshotCache();
+  try {
+    return await new Promise((resolve, reject) => {
+      const request = database.transaction(CALENDAR_SNAPSHOT_STORE).objectStore(CALENDAR_SNAPSHOT_STORE).get(key);
+      request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
+    });
+  } finally { database.close(); }
+}
+
+export async function saveCachedCalendarSnapshot(key: string, saved: SavedEditorCalendarSnapshot): Promise<void> {
+  const database = await openCalendarSnapshotCache();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = database.transaction(CALENDAR_SNAPSHOT_STORE, 'readwrite');
+      const store = transaction.objectStore(CALENDAR_SNAPSHOT_STORE);
+      store.put(saved, key);
+      const request = store.getAllKeys();
+      request.onsuccess = () => {
+        const oldKeys = request.result.filter(value => value !== key);
+        while (oldKeys.length >= 12) store.delete(oldKeys.shift()!);
+      };
+      transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => reject(transaction.error);
+    });
+  } finally { database.close(); }
+}
+
 /**
  * File System Access handles are structured-cloneable and can be kept in
  * IndexedDB. Persisting the active handle lets Ctrl+S continue writing to the
@@ -240,9 +281,7 @@ export async function clearActiveProjectFileReference(): Promise<void> {
 }
 
 export function createPersistentProjectSnapshot(project: CalendarProject): CalendarProject {
-  // Exclude the immutable XML dataset before cloning. Clearing it afterwards
-  // still makes JSON.stringify walk and copy thousands of records on every
-  // history entry and autosave.
+  // Exclude obsolete transient state; explicit calendarSnapshot stays in archives.
   return JSON.parse(JSON.stringify({ ...project, calendarData: null })) as CalendarProject;
 }
 
@@ -278,9 +317,12 @@ export function normalizeCalendarProject(project: CalendarProject): CalendarProj
   const needsLargeCalendarTypography = layoutRevision < 2;
   const needsLargerEventTypography = layoutRevision < 3;
   const needsPrintScaleTypography = layoutRevision < 4;
-  // Calendar source data is loaded once per application session and must not
-  // become part of Vue's deep-reactive editable document.
+  // Legacy transient data stays separate; an explicit API snapshot is persisted.
   project.calendarData = null;
+  if (project.calendarSnapshot) {
+    assertEditorSnapshot(project.calendarSnapshot.snapshot);
+    if (!Number.isFinite(Date.parse(project.calendarSnapshot.fetchedAt))) throw new Error('Неподдерживаемый календарный снимок');
+  }
   const savedInterfaceLanguage = project.programSettings?.interfaceLanguage;
   project.programSettings = {
     interfaceLanguage: savedInterfaceLanguage === "de" || savedInterfaceLanguage === "en" || savedInterfaceLanguage === "uk"

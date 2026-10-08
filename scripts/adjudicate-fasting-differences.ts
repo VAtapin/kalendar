@@ -78,7 +78,7 @@ const rows = [...allDates].sort().map(date => {
     disposition: decision.disposition, reason: decision.reason, sources: decision.sources,
     unconditionalApproval: false };
 });
-const summary = { xmlSha256: current.summary.xmlSha256, fastingEngineSha256: current.summary.fastingEngineSha256,
+const summary = { xmlSha256: current.summary.xmlSha256, fastingEngineSha256: current.summary.fastingEngineSha256, fastingCatalogSha256: current.summary.fastingCatalogSha256,
   baselineCommit: "3ec616e", originalDifferences: 76, originalMissingLabel: 1,
   rows: rows.length, originalDatesAccountedFor: rows.filter(r => r.originalDiscrepancy).length,
   unresolvedLocalServiceChoices: rows.filter(r => r.disposition === "rank-dependent-not-universal").map(r => r.isoDate),

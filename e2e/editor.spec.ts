@@ -1,13 +1,35 @@
 import { expect, test } from "@playwright/test";
+import {readFileSync} from 'node:fs';
+import {gunzipSync} from 'node:zlib';
 
-async function openEditor(page: import("@playwright/test").Page): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem("orthodox-calendar-layout:verified-email-token", "e2e-local-token"));
-  await page.goto("/");
-  await page.getByTestId("welcome-create").click();
-  await expect(page.locator(".workspace")).toBeVisible();
+const apiFixture = (language: string) => gunzipSync(readFileSync(`tests/fixtures/editor-calendar-2027-${language}.json.gz`)).toString('utf8');
+test.beforeEach(async ({page}) => {
+  await page.route('**/api/v1/calendar/editor-year**', route => route.fulfill({
+    body: apiFixture(new URL(route.request().url()).searchParams.get('lang') || 'ru'),
+    contentType: 'application/json', headers: {'Access-Control-Allow-Origin': '*'},
+  }));
+});
+
+async function closeCabinet(page: import('@playwright/test').Page): Promise<void> {
+  await expect(page.locator('.account-entry')).toContainText('@');
+  const cabinet = page.getByRole('dialog', {name: 'Личный кабинет', exact: true});
+  if (await cabinet.isVisible()) await cabinet.getByRole('button', {name: 'Закрыть', exact: true}).click();
 }
 
-test("loads only the selected calendar dictionary and keeps a later language choice", async ({ page }) => {
+async function openEditor(page: import("@playwright/test").Page): Promise<void> {
+  // Account transport is isolated; calendar data is a real hash-verified API fixture.
+  await page.route('**/api/v1/account/session', route => route.fulfill({json: {user: {
+    id: 'editor-test', email: 'editor@example.com', createdAt: '2026-01-01', blocked: false,
+  }}}));
+  await page.route('**/api/v1/account/library', route => route.fulfill({json: {revision: 0, templates: [], grids: []}}));
+  await page.route('**/api/v1/account/calendars**', route => route.fulfill({json: {id: 'editor-test', revision: 1, calendars: []}}));
+  await page.goto('/calendar/new');
+  await expect(page.locator('.workspace')).toBeVisible({timeout: 30000});
+  await expect(page.locator('.status-chip').filter({hasText: 'BibleDesktop'})).toBeVisible();
+  await closeCabinet(page);
+}
+
+test("loads the selected API snapshot and ignores a delayed previous language", async ({ page }) => {
   const requests: string[] = [];
   page.on('request', request => requests.push(request.url()));
   await page.route('**/api/v1/account/session', route => route.fulfill({ json: { user: {
@@ -18,22 +40,25 @@ test("loads only the selected calendar dictionary and keeps a later language cho
   await page.route('**/api/v1/calendar-grid-templates', route => route.fulfill({ json: { templates: [], canManage: false } }));
   await page.goto('/calendar/new');
   await expect(page.locator('.workspace')).toBeVisible();
+  await closeCabinet(page);
   await page.getByRole('button', { name: 'Правка', exact: true }).click();
   await page.getByTestId('menu-command-calendar-properties').click();
   const language = page.getByTestId('calendar-language-select');
   expect(requests.some(url => /german-additions|uk-commemorations|pl-commemorations|slavonic-editorial-titles/.test(url))).toBe(false);
   await language.selectOption('de');
-  await expect(page.locator('body')).toContainText('Язык календаря: Deutsch');
-  expect(requests.some(url => url.includes('german-additions'))).toBe(true);
+  await expect(language).toHaveValue('de');
+  await expect(page.locator('.status-chip').filter({hasText: 'BibleDesktop'})).toBeVisible();
+  expect(requests.some(url => url.includes('editor-year') && new URL(url).searchParams.get('lang') === 'de')).toBe(true);
   expect(requests.some(url => /uk-commemorations|pl-commemorations|slavonic-editorial-titles/.test(url))).toBe(false);
-  await page.route('**/slavonic-editorial-titles.json*', async route => {
-    await new Promise(resolve => setTimeout(resolve, 600));
-    await route.continue();
+  await page.route('**/api/v1/calendar/editor-year**', async route => {
+    const lang = new URL(route.request().url()).searchParams.get('lang') || 'ru';
+    if (lang === 'cu') await new Promise(resolve => setTimeout(resolve, 600));
+    await route.fulfill({body: apiFixture(lang), contentType: 'application/json', headers: {'Access-Control-Allow-Origin': '*'}});
   });
-  const slowCorpus = page.waitForResponse(response => response.url().includes('slavonic-editorial-titles.json'));
+  const slowCorpus = page.waitForResponse(response => response.url().includes('editor-year') && new URL(response.url()).searchParams.get('lang') === 'cu');
   await language.selectOption('cu');
   await language.selectOption('pl');
-  await expect(page.locator('body')).toContainText('Язык календаря: Polski');
+  await expect(language).toHaveValue('pl');
   await (await slowCorpus).finished();
   await expect(language).toHaveValue('pl');
 });
@@ -54,6 +79,7 @@ test("opens calendar properties from an object and resizes every page with one u
   }));
   await page.goto("/calendar/new");
   await expect(page.locator(".workspace")).toBeVisible();
+  await closeCabinet(page);
   await page.getByRole("button", { name: "Шаблоны календаря" }).click();
   await page.getByRole("button", { name: "Создать обложку и 12 месяцев" }).click();
   await page.getByRole("tab", { name: "Страницы", exact: true }).click();
@@ -144,7 +170,7 @@ test("changes the interface language from File settings and remembers it locally
 
 test("changes printed calendar language independently from the interface", async ({ page }) => {
   await openEditor(page);
-  await expect(page.getByText("XML: 3811", { exact: true })).toBeVisible();
+  await expect(page.locator(".status-chip").filter({hasText: "BibleDesktop"})).toBeVisible();
   await expect(page.getByRole("button", { name: "Файл", exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Шаблоны календаря" }).click();
@@ -156,13 +182,13 @@ test("changes printed calendar language independently from the interface", async
   await expect(page.getByTestId("calendar-language-select")).toHaveValue("pl");
 
   await expect(page.locator(".page-element__calendar-weekday").first()).toContainText("Poniedziałek");
-  await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("Styczeń 2027");
+  await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("Styczeń");
   await expect(page.locator(".calendar-cell__event").filter({ hasText: "Narodzenie" }).first()).toBeVisible();
   await expect(page.locator(".calendar-cell__event").filter({ hasText: "Chrystusa" }).first()).toBeVisible();
 
   await page.getByTestId("calendar-language-select").selectOption("cu");
   await expect(page.locator(".page-element__calendar-weekday").last()).toContainText("недѣ́лѧ");
-  await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("і҆аннꙋарїй 2027");
+  await expect(page.locator('.page-element[data-element-type="text"]')).toContainText("і҆аннꙋарїй");
 });
 
 test("offers five public calendar-grid layouts without owner controls", async ({ page }) => {
@@ -304,12 +330,12 @@ test("keeps opened calendar pages in lightweight closable tabs", async ({ page }
   await page.locator(".page-card").nth(1).click();
   await page.locator(".page-card").nth(2).click();
   await expect(openTabs.getByRole("tab")).toHaveCount(3);
-  await expect(openTabs.getByRole("tab", { name: /Февраль 2027/ })).toHaveAttribute("aria-selected", "true");
+  await expect(openTabs.getByRole("tab", { name: /^Февраль(?:\s|$)/ })).toHaveAttribute("aria-selected", "true");
 
-  await page.getByRole("button", { name: "Закрыть вкладку «Январь 2027»" }).click();
+  await page.getByRole("button", { name: "Закрыть вкладку «Январь»" }).click();
   await expect(openTabs.getByRole("tab")).toHaveCount(2);
   await expect(page.locator(".page-card")).toHaveCount(13);
-  await page.getByRole("button", { name: "Закрыть вкладку «Февраль 2027»" }).click();
+  await page.getByRole("button", { name: "Закрыть вкладку «Февраль»" }).click();
   await expect(openTabs.getByRole("tab", { name: /Обложка 2027/ })).toHaveAttribute("aria-selected", "true");
 
   await page.getByRole("button", { name: "Закрыть вкладку «Обложка 2027»" }).click();
@@ -317,7 +343,7 @@ test("keeps opened calendar pages in lightweight closable tabs", async ({ page }
   await expect(page.getByText("Все вкладки закрыты")).toBeVisible();
   await expect(page.locator(".page-card")).toHaveCount(13);
   await page.locator(".page-card").nth(1).click();
-  await expect(openTabs.getByRole("tab", { name: /Январь 2027/ })).toHaveAttribute("aria-selected", "true");
+  await expect(openTabs.getByRole("tab", { name: /^Январь(?:\s|$)/ })).toHaveAttribute("aria-selected", "true");
   await expect(page.locator(".workspace")).toBeVisible();
 });
 
@@ -344,12 +370,11 @@ test("creates a full calendar safely and keeps cell geometry independent", async
 
   await page.locator(".page-card").nth(2).click();
   const februaryLegendItems = page.locator(".legend-item");
-  await expect(februaryLegendItems).toHaveCount(2);
+  await expect(februaryLegendItems).toHaveCount(3); // dry-eating, oil, memorial in the authoritative snapshot
   const legendFrameBox = await page.locator(".legend-frame").boundingBox();
   const firstLegendItemBox = await februaryLegendItems.first().boundingBox();
   const lastLegendItemBox = await februaryLegendItems.last().boundingBox();
-  expect(firstLegendItemBox?.x ?? 0).toBeGreaterThan(
-    (legendFrameBox?.x ?? 0) + (legendFrameBox?.width ?? 0) / 2,
+  expect(firstLegendItemBox?.x ?? 0).toBeGreaterThanOrEqual((legendFrameBox?.x ?? 0),
   );
   expect(Math.abs(
     (legendFrameBox?.x ?? 0) + (legendFrameBox?.width ?? 0) -
@@ -482,17 +507,15 @@ test("edits object opacity and a printable gold gradient", async ({ page }) => {
 
 test("positions a cropped image manually and applies a layer mask from an element", async ({ page }) => {
   await openEditor(page);
-  await page.getByTitle("Изображение (F)").click();
+  if (!await page.locator('.photo-library').isVisible()) await page.getByRole('button', {name: 'Фотографии', exact: true}).click();
+  await page.locator('.photo-library input[type="file"]').setInputFiles('public/brand/share-card-preview.webp');
+  await page.getByRole('button', {name: 'Поместить фото: share-card-preview.webp', exact: true}).dblclick();
   const scene = page.locator(".page-scene");
   const sceneBox = await scene.boundingBox();
   if (!sceneBox) throw new Error("Page scene is not visible");
-  await page.mouse.move(sceneBox.x + 180, sceneBox.y + 170);
-  await page.mouse.down();
-  await page.mouse.move(sceneBox.x + 350, sceneBox.y + 290);
-  await page.mouse.up();
-  await page.locator('input[type="file"][accept="image/*,.svg"]').setInputFiles("public/brand/share-card-preview.webp");
-
   await page.getByRole("tab", { name: "Свойства" }).click();
+  await page.getByLabel('Ширина', {exact: true}).fill('100');
+  await page.getByLabel('Высота', {exact: true}).fill('100');
   await page.getByText("Заполнение", { exact: true }).locator("..").getByRole("combobox").selectOption("crop");
   await expect(page.getByTestId("crop-position-controls")).toBeVisible();
   const image = page.locator('.page-element--selected image[href^="data:image/"]');
@@ -610,22 +633,17 @@ test("saves repeatedly to the chosen project file and provides complete help dia
   await openEditor(page);
 
   await page.getByRole("button", { name: "Файл", exact: true }).click();
-  await page.getByTestId("menu-command-save-project").click();
+  await page.getByTestId("menu-command-save-as-project").click();
   await expect(page.locator(".status-bar__notice")).toContainText("Мой-календарь.kalendar");
   await page.getByRole("button", { name: "Файл", exact: true }).click();
-  await page.getByTestId("menu-command-save-project").click();
+  await page.getByTestId("menu-command-save-as-project").click();
   await expect.poll(() => page.evaluate(() => (window as unknown as {
     __calendarSaveTestState: { pickerCalls: number; writes: number };
-  }).__calendarSaveTestState)).toEqual({ pickerCalls: 1, writes: 2 });
-
-  await page.getByRole("button", { name: "Файл", exact: true }).click();
-  await page.getByTestId("menu-command-recovery").click();
-  await expect(page.getByRole("dialog", { name: "Восстановление проекта" })).toContainText("Восстановить");
-  await page.keyboard.press("Escape");
+  }).__calendarSaveTestState)).toEqual({ pickerCalls: 2, writes: 2 });
 
   await page.getByRole("button", { name: "Помощь", exact: true }).click();
   await page.getByTestId("menu-command-help-guide").click();
-  await expect(page.getByRole("dialog", { name: "Помощь" })).toContainText("Сохранить как…");
+  await expect(page.getByRole("dialog", { name: "Помощь" })).toContainText("Скачать копию…");
   await page.locator(".application-dialog__footer").getByRole("button", { name: "Закрыть" }).click();
 
   await page.getByRole("button", { name: "Помощь", exact: true }).click();

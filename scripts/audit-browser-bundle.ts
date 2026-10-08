@@ -37,6 +37,9 @@ await build({ root, logLevel: 'error', build: { copyPublicDir: false,
   await writeFile(resolve(root, `artifacts/bundle-audit-${label}.json`), JSON.stringify({ reports, routeTotals }, null, 2));
   console.log(JSON.stringify({ largest: reports.slice(0, 4).map(({ file, bytes, gzipBytes }) => ({ file, bytes, gzipBytes })), routeTotals }, null, 2));
   if (label !== 'before') {
+    const embeddedEngine = reports.flatMap(item => item.modules).filter(module => module.bytes > 0 &&
+      /calendar\/(?:engine\/(?:build-calendar-year|resolve-record|weekday-gospel-cycle|royal-hours)|fasting\/fasting-api|xml\/parse-memory-days|pascha\/orthodox-pascha)\.ts$/.test(module.id));
+    if (embeddedEngine.length) throw new Error('Editor still bundles local calendar calculations: ' + embeddedEngine.map(module => module.id).join(', '));
     const home = routeTotals.find(item => /\/HomeRoute-/.test(item.file));
     if (!home || home.bytes > 350_000) throw new Error('Home JavaScript exceeds 350 kB; inspect static dependencies');
     const homeChunks = reports.filter(item => home.files.includes(item.file));

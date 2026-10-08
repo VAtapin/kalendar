@@ -76,6 +76,8 @@ export function translateInterfaceText(source: string, language = interfaceLangu
     if (language === "en") return `Page ${pageCount[1]} of ${pageCount[2]}`;
     return `Сторінка ${pageCount[1]} з ${pageCount[2]}`;
   }
+  const calendarError = /^Ошибка календарных данных: (.*)$/.exec(source);
+  if (calendarError) return `${translateInterfaceText('Ошибка календарных данных', language)}: ${translateInterfaceText(calendarError[1]!, language)}`;
   const loadedRecords = /^Загружено (\d+) календарных записей$/.exec(source);
   if (loadedRecords) {
     if (language === "de") return `${loadedRecords[1]} Kalendereinträge geladen`;

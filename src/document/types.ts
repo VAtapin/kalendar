@@ -384,6 +384,8 @@ export interface CalendarProject {
   calendarLanguage?: CalendarLanguage;
   fastingProfileId?: "typikon-strict" | "parish";
   calendarData: unknown;
+  /** Explicitly pinned public API data; preserved in files, backups and shared projects. */
+  calendarSnapshot?: import('../calendar/api/editor-snapshot').SavedEditorCalendarSnapshot;
   monasteryEvents: MonasteryEvent[];
   styleTheme: StyleTheme;
   assets: DocumentAsset[];

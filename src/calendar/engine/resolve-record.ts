@@ -41,15 +41,21 @@ function fixedSpanForSourceYear(record: MemoryDayRecord, sourceYear: number) {
   const finishRollsToNextYear =
     record.finishMonth < record.startMonth ||
     (record.finishMonth === record.startMonth && record.finishDate < record.startDate);
+  // Reference/audit engine: 29 Feb memories use 28 Feb in a non-leap Julian
+  // year. The production editor obtains this rule from BibleDesktop.
+  // https://www.pravoslavie.ru/6257.html
+  const normalize = (year: number, month: number, day: number) =>
+    month === 2 && day === 29 && year % 4 !== 0 ? 28 : day;
+  const finishYear = sourceYear + (finishRollsToNextYear ? 1 : 0);
   const start = julianToGregorian({
     year: sourceYear,
     month: record.startMonth,
-    day: record.startDate,
+    day: normalize(sourceYear, record.startMonth, record.startDate),
   });
   const finish = julianToGregorian({
-    year: sourceYear + (finishRollsToNextYear ? 1 : 0),
+    year: finishYear,
     month: record.finishMonth,
-    day: record.finishDate,
+    day: normalize(finishYear, record.finishMonth, record.finishDate),
   });
   return { start, finish };
 }

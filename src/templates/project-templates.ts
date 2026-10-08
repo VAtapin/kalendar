@@ -60,6 +60,7 @@ export function cloneProjectForYear(
   project.document.title = replaceYearText(project.document.title, oldYear, year);
   project.document.pages.forEach((page) => updatePageCalendarYear(page, oldYear, year, project.calendarLanguage));
   project.calendarData = null;
+  delete project.calendarSnapshot;
   return project;
 }
 
