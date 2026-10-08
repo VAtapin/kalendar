@@ -1,249 +1,29 @@
 import assert from 'node:assert/strict';
-import { spawn, execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { createServer } from 'node:net';
-import { chromium } from 'playwright';
+import {spawn} from 'node:child_process';
+import {createServer} from 'node:net';
+import {mkdtempSync,mkdirSync,existsSync,readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
 
-// Test only an isolated local PHP server and its disposable generated cache.
-mkdirSync('tmp', { recursive: true });
-const data = mkdtempSync(resolve('tmp/calendar-api-test-'));
-const unitData = mkdtempSync(resolve('tmp/calendar-access-test-'));
-console.log(execFileSync('php', ['scripts/test-calendar-access.php', unitData], {encoding:'utf8'}).trim());
-const key = execFileSync('php', ['scripts/test-calendar-access.php', data, '--fixture'], {encoding:'utf8'}).trim();
-const systemKey = execFileSync('php', ['scripts/test-calendar-access.php', data, '--system-fixture'], {encoding:'utf8'}).trim();
-const probe = createServer();
-await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
-const port = probe.address().port;
-await new Promise(resolve => probe.close(resolve));
-const origin = `http://127.0.0.1:${port}`;
-const base = `${origin}/api/v1/calendar`;
-const publicApiUrl = process.env.PUBLIC_API_URL
-  || readFileSync('.env', 'utf8').match(/^PUBLIC_API_URL=(.+)$/m)?.[1]?.trim();
-assert.ok(publicApiUrl, 'PUBLIC_API_URL is required for the public API test');
-const wordpressHeaders={'X-Calendar-Client':'orthocal-wordpress'};
-let logs = '';
-const server = spawn('php', ['-S', `127.0.0.1:${port}`, '-t', resolve('dist'), 'scripts/php-dev-router.php'], {
-  windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'],
-  env: { ...process.env, CALENDAR_DATA_DIR: data, APP_PUBLIC_URL: origin, PUBLIC_API_URL: publicApiUrl },
-});
-server.stderr.on('data', chunk => { logs += chunk; });
-let browser;
+// Kalendar retains editor storage routes, but must never serve calendar data.
+mkdirSync('tmp',{recursive:true});
+const data=mkdtempSync(resolve('tmp/removed-calendar-api-'));
+const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
+const origin=`http://127.0.0.1:${port}`;
+const server=spawn(process.env.PHP_BINARY||'php',['-S',`127.0.0.1:${port}`,'-t',resolve('dist'),'scripts/php-dev-router.php'],{windowsHide:true,stdio:'ignore',env:{...process.env,CALENDAR_DATA_DIR:data,APP_PUBLIC_URL:origin}});
 try {
-  for (let attempt = 0; attempt < 60; attempt++) {
-    try { await fetch(base); break; } catch { await new Promise(resolve => setTimeout(resolve, 100)); }
+  for(let i=0;i<60;i++){try{if((await fetch(origin+'/health')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+  for(const route of ['calendar','calendar/today','calendar/day?date=2026-10-08','calendar/month?year=2026&month=10','calendar/year?year=2026','calendar/pascha?year=2026','calendar/upcoming?date=2026-10-08','calendar/service?date=2026-10-08','calendar-demo/day?date=2026-10-08','calendar-texts','calendar-access/plans','liturgical/works']) {
+    for(const method of ['GET','POST']) {
+      const response=await fetch(`${origin}/api/v1/${route}`,{method});
+      assert.equal(response.status,404,`${method} ${route} must be retired`);
+    }
   }
-  const request = async (path, options) => {
-    const response = await fetch(base + path, {...options, headers:{'X-API-Key':key,...options?.headers}});
-    return { response, body: await response.json() };
-  };
-  assert.equal((await fetch(base)).status,200);
-  const demoUrl=origin+'/api/v1/calendar-demo/day?date=2027-05-02';
-  const demoHeaders={Origin:origin,Referer:origin+'/calendar-api-test.html','Sec-Fetch-Site':'same-origin','X-Calendar-Demo':'1'};
-  assert.equal((await fetch(demoUrl)).status,405);
-  assert.equal((await fetch(demoUrl,{method:'OPTIONS'})).status,405);
-  assert.equal((await fetch(demoUrl,{method:'POST'})).status,403);
-  for(const overrides of [{Origin:'https://foreign.test'},{Origin:'null'},{Referer:origin+'/other.html'},{Referer:origin+'/calendar-api-test.html/other'},{Referer:origin+'/web-calendar/other'},{'Sec-Fetch-Site':'cross-site'},{'X-Calendar-Demo':''}]) {
-    const denied=await fetch(demoUrl,{method:'POST',headers:{...demoHeaders,...overrides}});
-    assert.equal(denied.status,403);assert.equal(denied.headers.get('access-control-allow-origin'),null);
+  for(const file of ['api/calendar-public.php','api/calendar-access.php','api/calendar-service.php','api/calendar-texts.php','api/liturgical.php','api/calendar-runtime.mjs','api/calendar-runtime.json','calendar-api-font.php','calendar-api-test.html']) {
+    assert.equal(existsSync(resolve('dist',file)),false,`${file} must be absent after publication`);
   }
-  for(const referer of ['/calendar-api-test.html','/calendar-api-test','/web-calendar']) {
-    const demo=await fetch(demoUrl,{method:'POST',headers:{...demoHeaders,Referer:origin+referer}});
-    assert.equal(demo.status,200);assert.equal((await demo.json()).day.date,'2027-05-02');
-    assert.equal(demo.headers.get('x-api-month-limit'),null);
-    assert.equal(demo.headers.get('access-control-allow-origin'),null);
-  }
-  const demoMonthUrl=origin+'/api/v1/calendar-demo/month?year=2027&month=05&lang=de&view=summary';
-  const demoMonth=await fetch(demoMonthUrl,{method:'POST',headers:{...demoHeaders,Referer:origin+'/web-calendar'}});
-  assert.equal(demoMonth.status,200);const demoMonthBody=await demoMonth.json();
-  assert.equal(demoMonthBody.month,5);assert.equal(demoMonthBody.days.length,31);assert.equal(demoMonthBody.view,'summary');
-  assert.equal((await fetch(demoUrl+'&unknown=1',{method:'POST',headers:demoHeaders})).status,400);
-  const demoYear=await fetch(origin+'/api/v1/calendar-demo/year?year=2027&lang=de&view=summary',{method:'POST',headers:{...demoHeaders,Referer:origin+'/web-calendar'}});
-  assert.equal(demoYear.status,200);assert.equal((await demoYear.json()).days.length,365);
-  assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:demoHeaders})).status,401);
-  console.log('PASS hosted demo: origin/page checks, no key or quota, day/month scope, normal API still protected');
-  for (const path of ['/day?date=2027-05-02','/month?year=2027&month=5','/year?year=2027','/pascha?year=2027','/upcoming?date=2027-01-01&limit=5']) {
-    const response=await fetch(base+path,{headers:wordpressHeaders});assert.equal(response.status,200,path);await response.arrayBuffer();
-  }
-  assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:{'X-Calendar-Client':'other-client'}})).status,401);
-  console.log('PASS public WordPress client: day, month, year, Pascha and upcoming without API key');
-  const textsBase=origin+'/api/v1/calendar-texts/';
-  assert.equal((await fetch(textsBase)).status,401);
-  assert.equal((await fetch(textsBase,{headers:wordpressHeaders})).status,401,'WordPress public mode must not expose calendar-texts');
-  const textRequest=(suffix='',options={})=>fetch(textsBase+suffix,{...options,headers:{'X-API-Key':systemKey,...options.headers}});
-  const libraryResponse=await textRequest();const library=await libraryResponse.json();
-  assert.equal(libraryResponse.status,200);assert.equal(library.count,98);
-  assert.equal(library.assignment,'reference-only');assert.equal('completeness' in library,false);assert.equal('availability' in library,false);
-  assert.equal(libraryResponse.headers.get('X-Calendar-Application-Cache-TTL'),'300');
-  assert.equal(library.contentHash,JSON.parse(readFileSync('public/data/liturgical-texts.json','utf8')).contentHash);
-  assert.ok(library.texts.every(text=>!('review' in text)&&!('note' in text)));
-  assert.equal((await textRequest('',{headers:{'If-None-Match':libraryResponse.headers.get('etag')}})).status,304);
-  assert.equal((await (await textRequest('?scope=resurrection&tone=1&type=troparion')).json()).count,1);
-  assert.equal((await (await textRequest('?language=de')).json()).count,0);
-  assert.equal((await textRequest('?id=not-a-real-text')).status,404);
-  for(const query of ['?tone=9','?weekday=7','?type[]=prayer','?date=2027-05-02'])assert.equal((await textRequest(query)).status,400);
-  assert.equal((await textRequest('',{method:'HEAD'})).status,200);
-  console.log('PASS liturgical reference API: 98 texts, filters, auth, conditional cache, no automatic date assignment');
-  const serviceBase=base+'/service';
-  assert.equal((await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour')).status,401);
-  assert.equal((await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour',{headers:wordpressHeaders})).status,401,'WordPress public mode must not expose service');
-  const demoService=await fetch(origin+'/api/v1/calendar-demo/service?date=2027-06-06&office=sixth-hour&lang=cu',{method:'POST',headers:{...demoHeaders,Referer:origin+'/web-calendar'}});
-  assert.equal(demoService.status,200);assert.equal((await demoService.json()).date,'2027-06-06');
-  assert.equal((await fetch(origin+'/api/v1/calendar-demo/service?date=2027-06-06',{method:'POST',headers:demoHeaders})).status,403);
-  const serviceResponse=await fetch(serviceBase+'?date=2027-06-06&office=sixth-hour&lang=cu&expansion=full',{headers:{'X-API-Key':systemKey}});
-  const service=await serviceResponse.json();
-  assert.equal(serviceResponse.status,200);assert.equal(service.schemaVersion,1);assert.equal(service.date,'2027-06-06');assert.equal(service.office,'sixth-hour');
-  assert.equal(service.textLanguage,'cu');assert.ok(service.cycles.daily);assert.ok(service.cycles.weekly);assert.ok(service.cycles.movable);assert.ok(service.cycles.annual);
-  assert.ok(Array.isArray(service.assignments));assert.ok(service.assignments.every(item=>['troparion-of-day','kontakion-of-day'].includes(item.slot)&&item.textId&&item.text));
-  assert.ok(service.expansions.find(item=>item.id==='come-worship').text.length>40);
-  assert.ok(service.expansions.some(item=>item.id==='lord-have-mercy-12'));
-  for(const path of ['?date=2027-02-29&office=sixth-hour','?date=2027-06-06&office=mass','?date=2027-06-06&office=sixth-hour&expansion=other','?date=2027-06-06&office=sixth-hour&unexpected=1'])assert.equal((await fetch(serviceBase+path,{headers:{'X-API-Key':systemKey}})).status,400,path);
-  console.log('PASS date-bound service API: four liturgical cycles, office slots, full abbreviations, key and parameter checks');
-  for (const path of ['/day?date=2027-05-02','/month?year=2027&month=5','/year?year=2027','/pascha?year=2027']) {
-    const denied=await fetch(base+path);assert.equal(denied.status,401);assert.equal(denied.headers.get('cache-control'),'private, no-store');
-  }
-  const today=await fetch(base+'/today');assert.equal(today.status,200);
-  const berlin=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-  assert.equal((await today.json()).day.date,berlin);
-  for (const path of ['/today?date=2027-05-02','/today?year=2027','/today?api_key=example','/day?date=2027-05-02&unknown=1']) assert.equal((await fetch(base+path)).status,400);
-  assert.equal((await fetch(base+'/day?date=2027-05-02',{headers:{'X-API-Key':'cal_'+ '0'.repeat(64)}})).status,401);
-  const systemResponse=await fetch(base+'/day?date=2027-05-02',{headers:{'X-API-Key':systemKey}});
-  await systemResponse.json();
-  assert.equal(systemResponse.status,200);assert.equal(systemResponse.headers.get('X-API-Month-Limit'),null);assert.equal(systemResponse.headers.get('X-API-Month-Remaining'),null);
-  assert.equal((await fetch(base+'/day?date=2027-05-02',{method:'POST',headers:{'X-API-Key':systemKey}})).status,405);
-  const metadata = await request('');
-  assert.equal(metadata.response.status, 200);
-  assert.equal(metadata.body.apiVersion, '1.0.0');
-  assert.equal(metadata.response.headers.get('access-control-allow-origin'), '*');
-  assert.equal(metadata.response.headers.get('access-control-allow-credentials'), null);
-  assert.equal(metadata.response.headers.get('set-cookie'), null);
-  assert.deepEqual(metadata.body.yearRange, { min: 1900, max: 2200 });
-  assert.deepEqual(metadata.body.authentication.wordpressClient.endpoints,['/day','/month','/year','/pascha','/upcoming']);
-  const options = await fetch(base + '/day', { method: 'OPTIONS', headers: { Origin: 'null', 'Access-Control-Request-Method': 'GET' } });
-  assert.equal(options.status, 204);
-  assert.equal(options.headers.get('access-control-allow-origin'), '*');
-  assert.match(options.headers.get('access-control-allow-headers'),/X-Calendar-Client/i);
-  assert.equal((await request('/day', {method:'POST'})).response.status, 405);
-  for (const path of ['/day?date=2027-02-29', '/day?date=2027-13-01', '/day?date[]=2027-05-02',
-    '/year?year=../2027', '/year?year=1899', '/year?year=2201', '/month?year=2027&month=13',
-    '/day?date=2027-05-02&lang=en', '/day?date=2027-05-02&profile=unknown']) {
-    assert.equal((await request(path)).response.status, 400, path);
-  }
-  assert.equal((await request('/unknown')).response.status, 404);
-  const first = await request('/day?date=2027-05-02', {headers:{Origin:'null'}});
-  assert.equal(first.response.status, 200, JSON.stringify(first.body));
-  assert.equal(first.body.day.pascha, '2027-05-02');
-  assert.equal(first.body.day.daysFromPascha, 0);
-  assert.equal(first.body.day.events[0].typikonMark.id, 'great');
-  assert.equal(first.body.day.events[0].source.raw.name, 'Светлое Христово Воскресение. Пасха');
-  assert.ok(first.body.day.events.some(event => event.category === 'scripture-reading'));
-  assert.ok(first.body.day.events.some(event => event.typeCode > 6 && event.typikonMark === null));
-  assert.ok(first.body.day.foodMarkers.length > 1);
-  const etag = first.response.headers.get('etag');
-  const unchanged = await fetch(base + '/day?date=2027-05-02', {headers:{'If-None-Match':etag,'X-API-Key':key}});
-  assert.equal(unchanged.status, 304); assert.equal(await unchanged.text(), '');
-  const head = await fetch(base + '/day?date=2027-05-02', {method:'HEAD',headers:{'X-API-Key':key}});
-  assert.equal(head.status, 200); assert.equal(await head.text(), '');
-  const year = await request('/year?year=2027');
-  assert.equal(year.body.days.length, 365);
-  assert.deepEqual(year.body.days.find(day => day.date === '2027-05-02'), first.body.day);
-  const leap = await request('/month?year=2028&month=02');
-  assert.equal(leap.body.days.length, 29); assert.equal(leap.body.days.at(-1).date, '2028-02-29');
-  const summary = await request('/month?year=2028&month=02&view=summary');
-  assert.equal(summary.body.view,'summary'); assert.equal(summary.body.days.length,29);
-  assert.equal(summary.body.days[0].date,leap.body.days[0].date);
-  assert.ok(!('source' in summary.body.days[0].events[0]));
-  assert.ok(JSON.stringify(summary.body).length < JSON.stringify(leap.body).length / 2);
-  assert.equal(summary.response.headers.get('x-calendar-application-cache-ttl'),'300');
-  const upcoming = await request('/upcoming?date=2027-12-30&limit=5&filter=twelve');
-  assert.equal(upcoming.response.status,200); assert.equal(upcoming.body.items.length,5);
-  assert.ok(upcoming.body.items.every(item=>item.date>='2027-12-30'&&item.date<='2028-12-30'&&item.event.typeCode<=1));
-  assert.ok(upcoming.body.items.some(item=>item.date.startsWith('2028')));
-  for(const path of ['/month?year=2027&month=5&view=bad','/upcoming?date=2027-02-29','/upcoming?date=2027-01-01&limit=11','/upcoming?date=2027-01-01&filter=bad']) assert.equal((await request(path)).response.status,400);
-  assert.equal((await fetch(base+'/upcoming?date=2027-01-01')).status,401);
-  const pascha = await request('/pascha?year=2027'); assert.equal(pascha.body.pascha, first.body.day.pascha);
-  for (const lang of ['de', 'cu', 'uk', 'pl']) {
-    const localized = await request(`/day?date=2027-05-02&lang=${lang}`);
-    assert.equal(localized.response.status, 200);
-    assert.equal(localized.body.metadata.language, lang);
-    assert.equal(localized.body.day.events.length, first.body.day.events.length);
-    assert.notEqual(localized.body.day.events[0].localization, 'source-fallback');
-  }
-  const strict = await request('/day?date=2027-07-14');
-  const parish = await request('/day?date=2027-07-14&profile=parish');
-  assert.equal(strict.body.day.fasting.foodRule.id, 'dry-eating');
-  assert.equal(parish.body.day.fasting.foodRule.id, 'oil');
-  assert.notEqual(strict.body.metadata.fastingProfileId, parish.body.metadata.fastingProfileId);
-  const wordpressRateHeaders={...wordpressHeaders,'X-Forwarded-For':'198.51.100.61'};
-  for(let i=0;i<90;i++){const response=await fetch(base+'/pascha?year=2027',{headers:wordpressRateHeaders});assert.equal(response.status,200);await response.arrayBuffer();}
-  const limited=await fetch(base+'/pascha?year=2027',{headers:wordpressRateHeaders});assert.equal(limited.status,429);await limited.arrayBuffer();assert.ok(Number(limited.headers.get('retry-after'))>0);
-  assert.ok(readdirSync(data).every(file => ['public-calendar-cache','api-access.json','calendar-wordpress-public-rate-limits.json','locks'].includes(file)), 'Public API must not create account or project storage');
-  for (const [path,method] of [['','GET'],['','PUT'],['/clients','POST'],['/clients/00000000-0000-4000-8000-000000000000/rotate','POST']]) {
-    const denied=await fetch(origin+'/api/v1/admin/calendar-api'+path,{method,headers:{'Content-Type':'application/json','X-API-Key':systemKey},...(method==='GET'?{}:{body:'{}'})});
-    assert.equal(denied.status,403);assert.equal(denied.headers.get('cache-control'),'private, no-store');
-  }
-  const privateSession=await fetch(origin+'/api/v1/account/session',{headers:{Origin:'null'}});
-  assert.equal(privateSession.headers.get('access-control-allow-origin'),null,'Private routes must not inherit public CORS');
-  assert.ok(readdirSync(resolve(data,'public-calendar-cache')).filter(file=>file.endsWith('.json')).length <= 32);
-  console.log('PASS: real PHP/Node HTTP API, public WordPress client limits, all endpoints, dates, profiles, five languages, CORS, cache/ETag/HEAD and public-data isolation');
-
-  browser = await chromium.launch(process.platform === 'win32' ? { channel:'msedge' } : {});
-  const page = await browser.newPage({ viewport:{width:1200,height:1000} });
-  await page.route(publicApiUrl+'/api/**',route=>route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{data:[]}}));
-  await page.goto(origin+'/calendar-api-test.html');
-  assert.equal(await page.locator('#api-key').count(),0);
-  await page.locator('#date').fill('2027-05-02');
-  await page.locator('#submit').click();
-  await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Получено'));
-  assert.equal(await page.locator('#events article').count(),first.body.day.events.length);
-  assert.deepEqual(JSON.parse(await page.locator('#raw').textContent()), first.body);
-  const marker=page.locator('img.mark').first();
-  await marker.waitFor();
-  await page.waitForFunction(()=>document.querySelector('img.mark')?.naturalWidth>0);
-  await page.screenshot({path:'tmp/calendar-api-local-test.png',fullPage:false});
-  await page.locator('#events article').first().scrollIntoViewIfNeeded();
-  await page.screenshot({path:'tmp/calendar-api-local-events.png',fullPage:false});
-  await page.evaluate(()=>scrollTo(0,0));
-  await page.setViewportSize({width:390,height:844});
-  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  await page.screenshot({path:'tmp/calendar-api-local-mobile.png',fullPage:false});
-  await page.setViewportSize({width:1200,height:1000});await page.goto(origin+'/icons-of-mother-of-god.html');await page.locator('#gallery .card').first().waitFor();
-  assert.equal(await page.locator('#page-size').inputValue(),'12');assert.equal(await page.locator('#gallery .card').count(),12);await page.locator('#gallery .picture').first().click();await page.locator('#lightbox[open] #large').waitFor();await page.waitForFunction(()=>document.querySelector('#large')?.naturalWidth>0);
-  await page.screenshot({path:'artifacts/icon-library-desktop.png',fullPage:true});await page.locator('#lightbox button').click();await page.locator('#page-size').selectOption('6');assert.equal(await page.locator('#gallery .card').count(),6);await page.locator('#place').selectOption({index:1});assert.ok(await page.locator('#gallery .card').count());
-  // Render hostile data as plain text even when pointed at an untrusted endpoint.
-  await page.goto(origin+'/calendar-api-test.html');
-  await page.route('**/api/v1/calendar-demo/day*', route => route.fulfill({
-    contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},
-    body:JSON.stringify({...first.body,day:{...first.body.day,events:[{...first.body.day.events[0],title:'<img src=x onerror="window.compromised=true">'}]}}),
-  }));
-  await page.locator('#submit').click();
-  await page.waitForFunction(()=>document.querySelector('#events h3')?.textContent.includes('<img'));
-  assert.equal(await page.evaluate(()=>window.compromised),undefined);
-  assert.equal(await page.locator('#events [onerror]').count(),0);
-  assert.ok(!readFileSync('public/calendar-api-test.html','utf8').includes('innerHTML'));
-  console.log('PASS: hosted HTML without API key, real same-origin demo fetch, Typikon images, complete JSON, mobile layout and escaped content');
-  await page.goto(origin+'/web-calendar.html');
-  await page.locator('#year').selectOption('2027');await page.locator('#month').selectOption('05');await page.locator('#submit').click();
-  await page.waitForFunction(()=>document.getElementById('status').textContent.includes('Календарь готов'));
-  assert.equal(await page.locator('#days .day').count(),31);
-  await page.locator('#days .day').first().click();await page.locator('#detail[open] h2').waitFor();
-  assert.ok(!readFileSync('public/web-calendar.html','utf8').includes('JSON.stringify(value,null,2)'));
-  console.log('PASS web calendar: public month, language/profile controls and day dialog without diagnostic JSON');
-  await page.route(origin+'/calendar-api',route=>route.fulfill({contentType:'text/html',body:readFileSync('dist/index.html','utf8')}));
-  let publishedPlans=[];
-  await page.route('**/api/v1/calendar-access/plans',route=>route.fulfill({json:{plans:publishedPlans,settings:{}}}));
-  await page.goto(origin+'/calendar-api');
-  await page.locator('#connection').waitFor();
-  assert.equal(await page.locator('#plans, a[href="#plans"]').count(),0);
-  publishedPlans=[{id:'demo',name:'Опубликованный тариф',priceCents:1000,currency:'EUR',perMinute:10,perDay:100,perMonth:1000}];
-  await page.reload();
-  await page.locator('#plans article').waitFor();
-  assert.equal(await page.locator('a[href="#plans"]').count(),1);
-  assert.ok(await page.locator('#plans').textContent().then(text=>text.includes('Опубликованный тариф')));
-  console.log('PASS: unpublished tariffs and navigation hidden, published tariffs visible');
-} catch (error) {
-  console.error(logs.slice(-5000)); throw error;
-} finally {
-  if (browser) await browser.close();
-  server.kill();
-}
+  assert.equal((await fetch(origin+'/api/v1/calendar-grid-templates')).status,200,'Editor grid templates remain available');
+  const client=readFileSync('public/calendar-ui/web-calendar.js','utf8');
+  assert.ok(client.includes("new URL('/api/v1/calendar/' + path, globalThis.KalendarConfig.publicApiUrl)"));
+  assert.ok(!client.includes('/api/v1/calendar-demo/'));
+  console.log('PASS retired calendar endpoints return 404, deployed runtime is absent, editor templates remain available, calendar client uses Bible Desktop');
+} finally {server.kill();}

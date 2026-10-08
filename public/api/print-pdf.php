@@ -5,9 +5,9 @@ declare(strict_types=1);
 /** Build PDF/X-1a directly from opaque page images and a CMYK output profile. */
 function calendar_build_print_pdf(string $source, string $destination, string $profile, string $profileName): int
 {
-    $runtimeDirectory = is_file(__DIR__ . '/calendar-runtime.json') ? __DIR__ : calendar_project_root() . '/dist/api';
-    $manifest = calendar_read_json_file($runtimeDirectory . '/calendar-runtime.json', null);
-    $node = calendar_config_value('CALENDAR_NODE_BINARY', is_array($manifest) ? (string) ($manifest['nodeBinary'] ?? '') : '');
+    $runtimeDirectory = is_file(__DIR__ . '/print-runtime.json') ? __DIR__ : calendar_project_root() . '/dist/api';
+    $manifest = calendar_read_json_file($runtimeDirectory . '/print-runtime.json', null);
+    $node = calendar_config_value('PRINT_NODE_BINARY', is_array($manifest) ? (string) ($manifest['nodeBinary'] ?? '') : '');
     $builder = calendar_project_root() . '/scripts/build-print-pdf.mjs';
     if ($node === '' || !is_file($node) || !is_file($builder)) {
         calendar_fail('print_runtime_unavailable', 503, 'Node.js 22 для печатного PDF недоступен');

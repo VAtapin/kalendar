@@ -81,19 +81,16 @@
 
 ## HTTP API и WordPress
 
-`GET /api/v1/calendar-texts/` — защищённый тем же API-ключом и квотой календаря
-справочник. Поддерживает GET/HEAD/OPTIONS, ETag/304 и разрешённый прикладной кэш
-300 секунд. Фильтры HTTP: `id`, `type`, `scope`, `tone`, `weekday`, `language`;
-`subject` доступен только в чистом TypeScript-модуле. Неверный параметр даёт 400,
-неизвестный ID — 404, язык без текстов — пустую выдачу. Назначения по `date` нет.
-Ответ дополнен `assignment: reference-only`, `language`, `count`; для
-календарного плана службы используется `/api/v1/calendar/service`.
+`GET https://bible-desktop.com/api/liturgical/calendar-texts` — предоставляемый только Bible Desktop
+справочник. Валидация, лимиты и формат ответа определяются API Bible Desktop.
+Фильтры: `id`, `type`, `scope`, `tone`, `weekday`, `language`.
+Для календарного плана службы используется
+`https://bible-desktop.com/api/v1/calendar/service`.
 
-Пример: `/api/v1/calendar-texts/?type=troparion&scope=resurrection&tone=1`.
-WordPress получает корпус с сервера календаря, показывает источники, статус
+Пример: `https://bible-desktop.com/api/liturgical/calendar-texts?type=troparion&scope=resurrection&tone=1`.
+WordPress получает корпус с Bible Desktop, показывает источники, статус
 проверки, фильтры и копирование. В ZIP полный корпус не дублируется.
-Маршрут подготовлен локально; доступ на рабочем сервере появится после обычного
-развёртывания кода и JSON. HTTP-проверки: `node scripts/test-calendar-public-api.mjs`.
+Kalendar больше не предоставляет этот HTTP-маршрут и не управляет его доступом.
 
 ## Общий богослужебный корпус
 

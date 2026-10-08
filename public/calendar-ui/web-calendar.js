@@ -68,20 +68,20 @@ function setStatus(value, error = false) {
 }
 
 function queryPath(path, params = {}) {
-  const url = new URL('/api/v1/calendar-demo/' + path, location.origin);
+  const url = new URL('/api/v1/calendar/' + path, globalThis.KalendarConfig.publicApiUrl);
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
   return url;
 }
 
 async function api(path, params) {
-  const response = await fetch(queryPath(path, params), { method: 'POST', credentials: 'omit', headers: { Accept: 'application/json', 'X-Calendar-Demo': '1' } });
+  const response = await fetch(queryPath(path, params), { credentials: 'omit', headers: { Accept: 'application/json' } });
   const value = await response.json();
   if (!response.ok) throw new Error(value.message || value.error || 'Ошибка API');
   return value;
 }
 
 async function loadCalendarFont() {
-  const url = new URL('/calendar-api-font.php', location.origin).href;
+  const url = new URL('/fonts/MonomakhUnicode.ttf', location.origin).href;
   if (slavonicFontUrl === url) return;
   const face = new FontFace('Calendar API Slavonic', 'url(' + JSON.stringify(url) + ')', { weight: '400', style: 'normal' });
   await face.load();
@@ -343,9 +343,10 @@ function safeIconUrl(source) {
 
 function iconImages(icon) {
   const images = Array.isArray(icon.images) ? icon.images : [];
-  const values = images.length ? images : [{url: icon.imageUrl || icon.image_url, width: icon.width, height: icon.height, sha256: icon.sha256}];
+  const values = images.length ? images : [{url: icon.imageUrl || icon.image_url, previewUrl: icon.imagePreviewUrl, width: icon.width, height: icon.height, sha256: icon.sha256}];
   return values.map(image => ({
     url: safeIconUrl(image?.url || image?.imageUrl || image?.image_url),
+    previewUrl: safeIconUrl(image?.previewUrl || image?.imagePreviewUrl),
     width: image?.width || null,
     height: image?.height || null,
     sha256: image?.sha256 || null,
@@ -374,7 +375,7 @@ function iconSection(icons) {
     button.setAttribute('aria-label', 'Открыть: ' + title);
     if (first) {
       const image = e('img');
-      image.src = iconThumbnailUrl(first.url);
+      image.src = iconThumbnailUrl(first.url, first.previewUrl);
       image.alt = title;
       image.loading = 'lazy';
       image.decoding = 'async';
@@ -399,9 +400,11 @@ function iconSection(icons) {
 
 let iconLightboxItems = [], iconLightboxIndex = 0, iconTouchStartX = 0, iconThumbnailObserver = null;
 
-function iconThumbnailUrl(source) {
-  const url = new URL('/api/v1/calendar-demo/icon-thumbnail', location.origin);
-  url.searchParams.set('source', source);
+function iconThumbnailUrl(source, preview = '') {
+  const explicit = safeIconUrl(preview);
+  if (explicit) return explicit;
+  const url = new URL(source, globalThis.KalendarConfig.publicApiUrl);
+  url.searchParams.set('preview', '1');
   return url.href;
 }
 
@@ -430,6 +433,7 @@ function renderIconThumbnails() {
     image.alt = '';
     image.loading = 'lazy';
     image.dataset.iconThumbnailSource = item.url;
+    image.dataset.iconThumbnailPreview = item.previewUrl || '';
     image.decoding = 'async';
     button.append(image);
     strip.append(button);
@@ -437,7 +441,7 @@ function renderIconThumbnails() {
   });
   const load = image => {
     if (image.src || !image.dataset.iconThumbnailSource) return;
-    image.src = iconThumbnailUrl(image.dataset.iconThumbnailSource);
+    image.src = iconThumbnailUrl(image.dataset.iconThumbnailSource, image.dataset.iconThumbnailPreview);
   };
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(entries => entries.forEach(entry => {
@@ -607,7 +611,9 @@ function renderYear(value) {
   panel.append(grid);
 }
 
-async function serviceFor(date) { return api('service', { date, lang: state.lang, profile: state.profile, office: 'sixth-hour', expansion: 'full' }); }
+// The service edition is independent of the calendar UI language. Preserve
+// the editions previously requested by Kalendar's removed service adapter.
+async function serviceFor(date) { return api('service', { date, lang: state.lang === 'cu' ? 'cu' : 'cu-civil', profile: state.profile, office: 'sixth-hour', expansion: 'full' }); }
 
 async function showDay(date, dialog = false) {
   const request = ++daySequence;
@@ -677,7 +683,7 @@ async function load() {
       if (request !== loadSequence) return;
       renderYear(value);
     } else {
-      const value = await api('month', { ...common, year: state.date.slice(0, 4), month: state.date.slice(5, 7), view: 'summary' });
+      const value = await api('month', { ...common, year: state.date.slice(0, 4), month: Number(state.date.slice(5, 7)), view: 'summary' });
       if (request !== loadSequence) return;
       renderMonth(value);
     }

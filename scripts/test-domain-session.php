@@ -12,7 +12,7 @@ function check(bool $ok):void{if(!$ok)throw new RuntimeException('Assertion fail
 function denied(callable $fn):void{try{$fn();throw new RuntimeException('Expected rejection');}catch(ApiFailure $e){check(in_array($e->httpStatus,[400,403,410],true));}}
 check(calendar_public_origin()===$ru);
 check(calendar_public_origins()===[$ru,$de]);
-check(calendar_public_url('/api/v1/calendar/')===$ru.'/api/v1/calendar/');
+check(calendar_public_url('/api/v1/site-pages')===$ru.'/api/v1/site-pages');
 $mail=calendar_verification_html('alias@example.org',$ru.'/verify');
 check(str_contains($mail,$ru.'/brand/logo-kalendar.png')&&!str_contains($mail,'kalender.georg-kloster.ru'));
 $created=$store->domainSession('create',['target'=>$de,'path'=>'/account'],$ru,'',$token,'');

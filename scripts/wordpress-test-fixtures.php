@@ -1,9 +1,9 @@
 <?php
 // Installed only in the disposable local test site. Never packaged in the plugin.
-$calendarOrigin=defined('ORTHOCAL_API_ORIGIN')?rtrim((string)ORTHOCAL_API_ORIGIN,'/'):'https://kalender.georg-kloster.ru';
-add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
+add_filter('pre_http_request', function($pre,$args,$url) {
     $options=get_option('orthocal_options',[]);$publicApiOrigin=rtrim((string)($options['public_api_url']??''),'/');
     $mediaOrigin='https://calendar-media.example';
+    $calendarOrigin=$publicApiOrigin;
     if(str_starts_with($url,$publicApiOrigin.'/api/liturgical/works')) {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Calendar key leaked to library');
         parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
@@ -21,16 +21,7 @@ add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
         }
         return ['headers'=>[],'body'=>wp_json_encode(['data'=>$value]),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,$calendarOrigin.'/api/v1/calendar/service')) {
-        require_once ORTHOCAL_TEST_ASSET_ROOT.'/api/calendar-service.php';
-        parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
-        $library=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
-        $value=['date'=>$query['date'],'office'=>$query['office'],'textLanguage'=>'cu',
-            'assignments'=>calendar_service_assignments($library,3,6,'cross'),
-            'expansions'=>calendar_service_expansions($query['expansion']??'short', 'cu')];
-        return ['headers'=>[],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
-    }
-    if(str_starts_with($url,$calendarOrigin.'/api/v1/calendar-texts/') || str_starts_with($url,$publicApiOrigin.'/api/liturgical/calendar-texts')) {
+    if(str_starts_with($url,$publicApiOrigin.'/api/liturgical/calendar-texts')) {
         if(str_starts_with($url,$publicApiOrigin.'/') && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible texts');
         $value=json_decode(file_get_contents(ORTHOCAL_TEST_ASSET_ROOT.'/data/liturgical-texts.json'),true);
         foreach($value['texts'] as &$text)if($text['language']==='cu'&&($text['orthography']??'')!=='traditional')$text['language']='cu-civil';
@@ -45,9 +36,9 @@ add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
         $value['count']=count($value['texts']);$value['assignment']='reference-only';
         return ['headers'=>['x-calendar-application-cache-ttl'=>'300'],'body'=>wp_json_encode($value),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }
-    if(str_starts_with($url,$calendarOrigin.'/assets/')||$url===$calendarOrigin.'/calendar-api-font.php') {
+    if(str_starts_with($url,$calendarOrigin.'/assets/')||$url===$calendarOrigin.'/fonts/MonomakhUnicode.ttf') {
         if(isset($args['headers']['X-API-Key']))throw new Exception('Key sent to static media');
-        $path=parse_url($url,PHP_URL_PATH);$file=ORTHOCAL_TEST_ASSET_ROOT.($path==='/calendar-api-font.php'?'/fonts/MonomakhUnicode.ttf':$path);
+        $path=parse_url($url,PHP_URL_PATH);$file=ORTHOCAL_TEST_ASSET_ROOT.($path==='/fonts/MonomakhUnicode.ttf'?'/fonts/MonomakhUnicode.ttf':$path);
         if(!is_file($file))return new WP_Error('fixture_missing','Missing media fixture');
         $body=file_get_contents($file);$etag='"'.hash('sha256',$body).'"';$same=($args['headers']['If-None-Match']??'')===$etag;
         return ['headers'=>['etag'=>$etag,'last-modified'=>'Wed, 09 Sep 2026 00:00:00 GMT'],'body'=>$same?'':$body,'response'=>['code'=>$same?304:200,'message'=>'OK'],'cookies'=>[]];
@@ -55,11 +46,12 @@ add_filter('pre_http_request', function($pre,$args,$url) use ($calendarOrigin) {
     if(preg_match('#^'.preg_quote($mediaOrigin,'#').'/api/calendar/icons/[0-9]+/images/[0-9]+$#',$url)) {
         preg_match('#/images/([0-9]+)$#',$url,$imageMatch);$fill=((int)($imageMatch[1]??0)%2===0)?'#9a352d':'#d8b35c';
         $svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160"><rect width="120" height="160" fill="'.$fill.'"/></svg>';
-        return ['headers'=>['content-type'=>'image/svg+xml'],'body'=>$svg,'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
+        $etag='"'.hash('sha256',$svg).'"';$same=($args['headers']['If-None-Match']??'')===$etag;
+        return ['headers'=>['content-type'=>'image/svg+xml','etag'=>$etag],'body'=>$same?'':$svg,'response'=>['code'=>$same?304:200,'message'=>'OK'],'cookies'=>[]];
     }
     if(str_starts_with($url,$publicApiOrigin.'/api/calendar/icons')) return ['headers'=>[],'body'=>'{"data":[],"total":0}','response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     if (!str_starts_with($url,$calendarOrigin.'/api/v1/calendar/') && !str_starts_with($url,$publicApiOrigin.'/api/')) return new WP_Error('offline_test','External requests disabled in test');
-    $calendar=str_starts_with($url,$calendarOrigin.'/');
+    $calendar=str_starts_with($url,$calendarOrigin.'/api/v1/calendar/');
     if (!$calendar && isset($args['headers']['X-API-Key'])) throw new Exception('Calendar key leaked to Bible');
     $path=parse_url($url,PHP_URL_PATH);parse_str(parse_url($url,PHP_URL_QUERY)??'',$q);
     $status=200;

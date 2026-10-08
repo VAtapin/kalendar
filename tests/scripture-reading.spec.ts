@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { parseScriptureReading } from '../src/calendar/api/scripture-reading';
-import { createCalendarPublicApi, createOrthodoxCalendarApiFromXml } from '../src/calendar';
 import { parseMemoryDaysXml } from '../src/calendar/xml/parse-memory-days';
 
 const compact = (title: string) => parseScriptureReading(title).passages.map(p =>
@@ -38,18 +37,6 @@ describe('structured scripture readings', () => {
     expect(result.parseStatus).toBe('partial');
     expect(compact('Гал.1:1-2,ошибка,4-5,2:1; Неизв.1:1')).toEqual(['Gal 1:1-1:2', 'Gal 2:1-2:1']);
     expect(result.issues.map(i => i.sourceFragment)).toEqual(['ошибка', '4-5', ' Неизв.1:1']);
-  });
-
-  it('uses source titles in localized day and year responses', () => {
-    const xml = '<MemoryDays><event><s_month>1</s_month><s_date>1</s_date><f_month>1</f_month><f_date>1</f_date><name>Гал.2:21-3:7</name><type>204</type></event><event><s_month>1</s_month><s_date>1</s_date><f_month>1</f_month><f_date>1</f_date><name>Праздник</name><type>1</type></event></MemoryDays>';
-    const engine = createOrthodoxCalendarApiFromXml(xml);
-    for (const language of ['ru', 'cu', 'de', 'uk', 'pl'] as const) {
-      const api = createCalendarPublicApi(engine, language);
-      const day = api.getDay({year: 2027, month: 1, day: 14})!;
-      expect(day.events.find(e => e.typeCode === 204)?.reading).toEqual(parseScriptureReading('Гал.2:21-3:7'));
-      expect(day.events.find(e => e.typeCode === 1)?.reading).toBeNull();
-      expect(api.getYear(2027).days.find(d => d.date === day.date)?.events).toEqual(day.events);
-    }
   });
 
   it('audits every source reading and reports unresolved records', () => {

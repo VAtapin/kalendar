@@ -3,18 +3,19 @@ import fs from 'node:fs';
 import {chromium} from 'playwright';
 const browser=await chromium.launch(process.platform==='win32'?{channel:'msedge'}:{});
 try{
- const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[],thumbnailRequests=[],fullIconRequests=[];
+ const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[],thumbnailRequests=[],fullIconRequests=[],calendarRequests=[];
  let serviceAvailable=false, slowDetail=false;
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const NativeDate=Date,fixed=new NativeDate('2026-02-01T12:00:00Z');window.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[fixed.getTime()]));}static now(){return fixed.getTime();}};});
  const makeDay=date=>{const pascha=date.endsWith('-02-01'),title=pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай';return {date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:pascha?'поста нет':'пища с маслом',dayStyle:{rank:pascha?'pascha':'great-feast'},events:[{category:'commemoration',title,typeCode:pascha?0:2,typikonMark:{id:'great',label:'Великий праздник',svgSource:'/assets/typikon/great.svg'}},{category:'commemoration',title:'Святитель Спиридон',typeCode:6},{category:'commemoration',title:'Мученица Наталья',typeCode:6},{category:'commemoration',title:'Преподобный Сергий',typeCode:6}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',dates:[{label:'1 февраля'},{label:'9 мая (переходящая) - Собор новомучеников'}],images:[{url:'https://public-api.example/api/calendar/icons/1/images/2'},{url:'https://public-api.example/api/calendar/icons/1/images/3'}]},{id:2,title:'Мученица Наталья Козлова',description:'Описание второй иконы',dates:[{label:'1 февраля'}],images:[{url:'https://public-api.example/api/calendar/icons/2/images/4'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]};};
- await page.route('https://web.test/**',async route=>{
+ const handle=async route=>{
   const url=new URL(route.request().url());
   if(url.pathname==='/public-api-config.php')return route.fulfill({contentType:'text/javascript',body:'globalThis.KalendarConfig=Object.freeze({publicApiUrl:"https://public-api.example"});'});
   if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync('public'+url.pathname)});
-  if(url.pathname==='/api/v1/calendar-demo/icon-thumbnail') { thumbnailRequests.push(url); return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="48" height="60"><rect width="48" height="60" fill="gold"/></svg>'}); }
+  if(url.pathname.match(/^\/api\/calendar\/icons\/\d+\/images\/\d+$/) && url.searchParams.get('preview')==='1') { thumbnailRequests.push(url); return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="48" height="60"><rect width="48" height="60" fill="gold"/></svg>'}); }
   if (url.pathname.startsWith('/assets/typikon/')) return route.fulfill({contentType:'image/svg+xml',body:fs.readFileSync('public'+url.pathname)});
-  if(url.pathname==='/calendar-api-font.php')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
+  if(url.pathname==='/fonts/MonomakhUnicode.ttf')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
+  if(url.pathname.startsWith('/api/v1/calendar/')) { assert.equal(url.origin,'https://public-api.example'); assert.equal(route.request().method(),'GET'); if(url.pathname.endsWith('/month'))assert.equal(url.searchParams.get('month'),String(Number(url.searchParams.get('month')))); if(url.pathname.endsWith('/service'))assert.ok(['cu','cu-civil'].includes(url.searchParams.get('lang'))); calendarRequests.push(url); }
   if(url.pathname.endsWith('/service')){if(slowDetail)await new Promise(resolve=>setTimeout(resolve,250));return serviceAvailable
    ? route.fulfill({json:{assignments:[{title:'Назначенный тропарь',text:'Текст тропаря',insert:true,rubric:'Слава:'}],properCoverage:{status:'partial'}}})
    : route.fulfill({status:503,json:{message:'Temporarily unavailable'}});}
@@ -24,9 +25,11 @@ try{
    for(let m=month?Number(month):1;m<=(month?Number(month):12);m++)for(let d=1;d<=new Date(Date.UTC(year,m,0)).getUTCDate();d++)days.push(makeDay(`${year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`));
    return route.fulfill({json:{days}});
   }
+  if(url.origin==='https://public-api.example'){fullIconRequests.push(url.href);return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="gold"/></svg>'});}
   return route.fulfill({contentType:'text/html',body:fs.readFileSync('public/web-calendar.html','utf8')});
- });
- await page.route('https://public-api.example/**',r=>{fullIconRequests.push(r.request().url());return r.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="gold"/></svg>'});});
+ };
+ await page.route('https://web.test/**',handle);
+ await page.route('https://public-api.example/**',handle);
  await page.goto('https://web.test/web-calendar?date=2026-01-31');
  await page.locator('.day').first().waitFor();
  assert.equal(await page.locator('#days .day').first().locator('.event').count(),3);
@@ -72,6 +75,8 @@ try{
  assert.equal(await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').count(),2);
  assert.ok((await page.locator('#icon-modal-thumbnails').evaluate(el=>el.getBoundingClientRect().top)) < (await page.locator('#icon-modal-description').evaluate(el=>el.getBoundingClientRect().top)));
  assert.ok(thumbnailRequests.length>0);
+ assert.ok(calendarRequests.some(url=>url.pathname.endsWith('/day')));
+ assert.ok(calendarRequests.some(url=>url.pathname.endsWith('/month')));
  assert.equal(fullIconRequests.length,0);
  await page.locator('#icon-modal-thumbnails .icon-modal-thumbnail').first().click();
  await page.locator('#icon-lightbox[open] #icon-large').waitFor({state:'visible'});

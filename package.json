@@ -17,10 +17,11 @@
     "export:sample": "tsx scripts/generate-sample-pdf.ts",
     "typecheck": "vue-tsc -b",
     "audit:bundle": "tsx scripts/audit-browser-bundle.ts",
-    "test": "vitest run tests",
+    "test": "vitest run --dir tests",
     "test:e2e": "playwright test",
     "test:build-update": "tsx scripts/test-build-update.ts",
     "test:calendar-api": "node scripts/test-calendar-public-api.mjs",
+    "test:print-runtime": "tsx scripts/test-print-runtime.ts",
     "test:visual": "tsx scripts/visual-regression.ts",
     "test:visual:update": "tsx scripts/visual-regression.ts --update",
     "benchmark": "tsx scripts/benchmark.ts"

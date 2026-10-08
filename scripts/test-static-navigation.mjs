@@ -34,6 +34,6 @@ try {
     await expect(page.locator('.welcome-page')).toHaveCount(0);
   }
   const apache=readFileSync('public/.htaccess','utf8');
-  assert.match(apache,/RewriteRule \^\(icons\|icons-of-mother-of-god\|web-calendar\|wordpress-plugin\|calendar-api-test\|calendar-icons-test\)\/\?\$ \$1\.html \[L\]/);
+  assert.match(apache,/RewriteRule \^\(icons\|icons-of-mother-of-god\|web-calendar\|wordpress-plugin\|calendar-icons-test\)\/\?\$ \$1\.html \[L\]/);
   console.log('PASS: clean document URLs, first click/reload/Back/Forward; API/videos retain SPA navigation; Apache route mapping');
 } finally {await browser.close();await server.close();}

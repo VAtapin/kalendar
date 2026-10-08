@@ -4,6 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {readWordPressPluginVersion} from './wordpress-plugin-version.mjs';
 
 const root=resolve('wordpress/orthocal');
+await import('./build-wordpress-decoration-assets.mjs');
 const version=readWordPressPluginVersion(resolve('.'));
 const archive=`orthocal-${version}.zip`;
 const php=process.env.ORTHOCAL_PHP_BINARY || (process.platform==='win32' ? null : 'php');

@@ -21,12 +21,11 @@ writeFileSync(site+'/wp-config.php',`<?php
 define('DB_NAME','orthocal_test'); define('DB_USER',''); define('DB_PASSWORD',''); define('DB_HOST','localhost');
 define('DB_ENGINE','sqlite'); define('WP_HOME','${origin}'); define('WP_SITEURL','${origin}');
 define('AUTH_KEY','orthocal-local-test-only'); define('AUTH_SALT','orthocal-local-salt');
-define('ORTHOCAL_API_ORIGIN','https://calendar-api.example');
 define('ORTHOCAL_TEST_ASSET_ROOT',${JSON.stringify(resolve('public').replaceAll('\\','/'))});
 define('WP_DEBUG',true); define('WP_DEBUG_DISPLAY',false); define('WP_DEBUG_LOG',true); define('DISABLE_WP_CRON',true);
 $table_prefix='oc_'; if(!defined('ABSPATH')) define('ABSPATH',__DIR__.'/'); require_once ABSPATH.'wp-settings.php';
 `);
-const year=JSON.parse(execFileSync(process.execPath,['dist/api/calendar-runtime.mjs','2027','typikon-strict','ru'],{encoding:'utf8',maxBuffer:32*1024*1024}));
+const year=JSON.parse(execFileSync(process.execPath,[process.env.BIBLE_CALENDAR_RUNTIME||'../BibleDesktop/resources/calendar-engine/api/calendar-runtime.mjs','2027','typikon-strict','ru'],{encoding:'utf8',maxBuffer:32*1024*1024}));
 writeFileSync(site+'/wp-content/calendar-fixture.json',JSON.stringify(year));
 cpSync(resolve('scripts/wordpress-test-fixtures.php'),site+'/wp-content/mu-plugins/fixtures.php');
 writeFileSync(site+'/install-test.php',`<?php
@@ -96,7 +95,7 @@ try {
   const invalidMedia=await fetch(origin+'/?rest_route=/orthocal/v1/media&source=https://evil.test/icon.png');assert.equal(invalidMedia.status,400);
   browser=await chromium.launch({channel:process.platform==='win32'?'msedge':undefined,headless:true});
   const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const remoteAssets=[];page.on('request',r=>{if(r.url().startsWith('https://calendar-api.example/')||r.url().startsWith('https://calendar-media.example/'))remoteAssets.push(r.url());});
+  const remoteAssets=[];page.on('request',r=>{if(r.url().startsWith('https://public-api.example/')||r.url().startsWith('https://calendar-media.example/'))remoteAssets.push(r.url());});
   await page.goto(origin+'/?page_id='+pageId);await page.locator('.orthocal').first().waitFor();
   assert.equal(await page.locator('.orthocal').count(),6);
   console.log('Browser: six blocks rendered');
@@ -159,7 +158,7 @@ try {
   await Promise.all([page.waitForURL('**/wp-admin/**'),page.locator('#wp-submit').click()]);
   await page.goto(origin+'/wp-admin/admin.php?page=orthocal');
   assert.equal(await page.locator('input[name="orthocal_options[public_api_url]"]').inputValue(),'https://public-api.example');
-  assert.equal(await page.locator('input[name="orthocal_options[key]"]').inputValue(),'');
+  assert.equal(await page.locator('input[name="orthocal_options[key]"]').count(),0);
   assert.ok(!(await page.content()).includes('local-test-secret'));
   assert.equal(await page.locator('#toplevel_page_orthocal').count(),1);
   await page.locator('[data-oc-tab="shortcodes"]').click();
@@ -201,8 +200,9 @@ try {
   assert.equal(await page.evaluate(()=>wp.blocks.getBlockTypes().filter(b=>b.name.startsWith('orthocal/')).length),22);
   await page.evaluate(()=>wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/day',{date:'2027-05-02'})));
   await page.waitForFunction(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>[...doc.querySelectorAll('.orthocal')].some(el=>el.textContent.includes('Светлое Христово'))));
-  await page.evaluate(()=>{window.OrthocalEditor.hasApiKey=false;wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/month'));});
-  await page.waitForFunction(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>doc.body?.textContent.includes('API-ключ календаря не задан')));
+  await page.evaluate(()=>wp.data.dispatch('core/block-editor').insertBlocks(wp.blocks.createBlock('orthocal/month',{year:'2027',month:'5'})));
+  await page.waitForFunction(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>[...doc.querySelectorAll('.orthocal')].some(el=>el.textContent.includes('Календарь на месяц'))));
+  assert.equal(await page.evaluate(()=>[document,...[...document.querySelectorAll('iframe')].map(f=>f.contentDocument).filter(Boolean)].some(doc=>doc.body?.textContent.includes('API-ключ календаря не задан'))),false);
   const nojs=await browser.newContext({javaScriptEnabled:false});
   const plain=await nojs.newPage();await plain.goto(origin+'/?page_id='+pageId+'&orthocal_date=2027-05-02');
   assert.ok(await plain.locator('.oc-detail .oc-day').count());await nojs.close();

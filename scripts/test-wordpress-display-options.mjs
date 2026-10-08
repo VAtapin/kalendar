@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {createHash} from 'node:crypto';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 
@@ -35,8 +34,7 @@ export async function testDisplayOptions({page,origin,site,phpArgs,screenshotRoo
   for(const pack of packs) {
     const marker=fish.foodMarkers.find(marker=>marker.packId===pack);
     assert.ok(marker,`${pack}: API mapping exists`);
-    const bytes=readFileSync(resolve('public',marker.source.slice(1)));
-    expected.set(pack,createHash('sha256').update(bytes).digest('hex')+'.png');
+    expected.set(pack,marker.source);
     await field('image_pack').selectOption(pack);
     await page.locator('[data-oc-preview]').click();
     await page.waitForFunction(({pack,date})=>{

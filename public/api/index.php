@@ -3,10 +3,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-public.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-access.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-texts.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'calendar-service.php';
 
 header_remove('X-Powered-By');
 
@@ -240,9 +236,6 @@ function api_serve_pdf(CalendarStore $store, array $upload): never
 try {
     $publicMethod = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $publicPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
-    calendar_texts_routes($publicMethod, preg_replace('#^/api(?=/|$)#', '', $publicPath) ?: '/');
-    calendar_service_routes($publicMethod, preg_replace('#^/api(?=/|$)#', '', $publicPath) ?: '/');
-    calendar_public_routes($publicMethod, preg_replace('#^/api(?=/|$)#', '', $publicPath) ?: '/');
     $defaultDataDirectory = calendar_config_value('APP_PUBLIC_URL') !== ''
         ? calendar_project_root() . DIRECTORY_SEPARATOR . 'storage'
         : calendar_project_root() . DIRECTORY_SEPARATOR . '.data' . DIRECTORY_SEPARATOR . 'php-api';
@@ -253,7 +246,6 @@ try {
     $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $path = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
     $path = preg_replace('#^/api(?=/|$)#', '', $path) ?: '/';
-    calendar_access_routes($store, $method, $path);
     calendar_print_routes($store, $method, $path);
     calendar_domain_session_routes($store, $method, $path);
     calendar_site_routes($store, $method, $path);

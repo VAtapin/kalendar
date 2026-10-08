@@ -94,6 +94,7 @@ function calendar_config(): array
         'STRIPE_WEBHOOK_SECRET' => '',
         'PUBLIC_API_URL' => '',
         'BIBLE_DESKTOP_API_KEY' => '',
+        'PRINT_NODE_BINARY' => '',
     ]) as $key) {
         $environmentValue = getenv($key);
         if ($environmentValue !== false) {

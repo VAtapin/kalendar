@@ -15,12 +15,14 @@ try {
   browser=await chromium.launch(process.platform==='win32'?{channel:'msedge'}:{});
   const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[],requests=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
-  await page.route('**/api/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify(route.request().url().includes('calendar-access/plans')?{plans:[{id:'free',name:'Free',priceCents:0,currency:'EUR',perMinute:30,perDay:300,perMonth:1000}],settings:{contactEmail:'test@example.invalid'}}:{items:[],pages:[]})}));
+  await page.route('**/api/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({items:[],pages:[]})}));
   await page.goto(origin);await page.getByRole('link',{name:'API календаря',exact:true}).click();
   await page.getByRole('heading',{name:'API календаря',exact:true}).waitFor();
-  await page.getByRole('heading',{name:'Free',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Подключение к Bible Desktop',exact:true}).waitFor();
   assert.ok(page.url().endsWith('/calendar-api'));
-  assert.equal(await page.getByRole('link',{name:'Запросить API-ключ'}).getAttribute('href'),'mailto:test@example.invalid');
+  assert.equal(requests.some(url=>new URL(url).pathname.startsWith('/api/v1/calendar')),false);
+  assert.equal(await page.locator('#plans').count(),0);
+  assert.ok((await page.locator('#connection pre').first().textContent()).includes('/api/v1/calendar/'));
   const catalog=page.locator('#plugins');
   assert.equal(await catalog.locator('tbody tr').count(),3);
   assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginDownload);
@@ -62,12 +64,12 @@ try {
   assert.match(await translatorSection.textContent(),/Georg-Kloster Slavonic Translator/);
   assert.match(await translatorSection.textContent(),/деактивируйте старую копию/);
   assert.match(await page.locator('#connection').textContent(),/X-Calendar-Client: orthocal-wordpress/);
-  const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('X-API-Key'));assert.ok(guideText.includes(wordpressPluginDownload));
+  const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('bible-desktop.com/api/v1/calendar/'));assert.ok(guideText.includes(wordpressPluginDownload));
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
   if(process.env.CALENDAR_API_DOCS_SCREENSHOTS!=='0'){mkdirSync('artifacts',{recursive:true});await page.screenshot({path:'artifacts/calendar-api-docs-desktop.png',fullPage:true});}
   await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.querySelector('.route-shell').scrollWidth<=innerWidth));if(process.env.CALENDAR_API_DOCS_SCREENSHOTS!=='0')await page.screenshot({path:'artifacts/calendar-api-docs-mobile.png',fullPage:true});
   await catalog.screenshot({path:'tmp/plugin-catalog/mobile.png'});
   await page.reload();await page.getByRole('heading',{name:'API календаря',exact:true}).waitFor();
   assert.equal(await page.locator('#translator-plugin').getAttribute('open'),'');
-  assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, published plans/contact, real ZIP and guide, mobile width, no editor download');
+  assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, Bible Desktop connection, real ZIP and guide, mobile width, no editor download');
 }finally{await browser?.close();server.kill();}
