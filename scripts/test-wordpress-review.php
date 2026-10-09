@@ -25,6 +25,24 @@ review_check(Orthocal_Plugin::periods(null)==='','Invalid period collection was 
 review_check(str_contains(Orthocal_Plugin::periods(array_merge($bad,[$valid])),'Checked period'),'Malformed periods suppressed valid periods');
 review_check(isset(Orthocal_Plugin::options()['public_api_url']),'Existing settings unavailable');
 review_check(shortcode_exists('orthocal_today'),'Existing shortcode unavailable');
+$saved_get=$_GET;$saved_server=$_SERVER;
+foreach (['2028-02-29'=>'2028-02-29','2027-02-29'=>'','2028-13-01'=>'','bad'=>''] as $input=>$expected) {
+    $_GET['orthocal_date']=$input;
+    review_check(Orthocal_Plugin::requested_date()===$expected,'Public date validation failed');
+}
+$_GET['orthocal_date']=[];
+review_check(Orthocal_Plugin::requested_date()==='','Array date accepted');
+unset($_GET['orthocal_date']);
+review_check(Orthocal_Plugin::requested_date()==='','Missing date accepted');
+foreach (['192.0.2.10'=>'192.0.2.10','2001:db8::1'=>'2001:db8::1','invalid'=>'','192.0.2.10, 192.0.2.11'=>''] as $input=>$expected) {
+    $_SERVER['REMOTE_ADDR']=$input;
+    review_check(Orthocal_Plugin::client_ip()===$expected,'Client IP validation failed');
+}
+$_SERVER['REMOTE_ADDR']=[];
+review_check(Orthocal_Plugin::client_ip()==='','Array client IP accepted');
+unset($_SERVER['REMOTE_ADDR']);
+review_check(Orthocal_Plugin::client_ip()==='','Missing client IP accepted');
+$_GET=$saved_get;$_SERVER=$saved_server;
 Orthocal_Plugin::throttle();Orthocal_Plugin::media_throttle();
 global $wpdb;
 $keys=$wpdb->get_col("SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '_transient_orthocal_%'");
