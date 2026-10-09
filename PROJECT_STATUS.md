@@ -17,3 +17,6 @@
 - Последний связанный commit выпуска: Address WordPress.org source and validation review; hash сообщается после commit.
 
 - Дополнительная проверка: полный WordPress/SQLite + Edge сценарий прошёл на новой пустой базе с WP_DEBUG; прежние тестовые базы сохранены.
+
+- Production-публикация плагина 1.3.72 подтверждена 09.10.2026: /calendar-api содержит версию 1.3.72; публичный ZIP отвечает HTTP 200 и побайтно совпадает с проверенным локальным архивом (SHA-256 8be36302cea92c98debd48fec1bbf52a56628b8039aa0a2a144b272f5bba6049). Пользователь подтвердил успешную серверную сборку. Предупреждение Vite о размере chunks не остановило сборку. Публикация изменений и editor-year Bible Desktop этой проверкой отдельно не подтверждается.
+- Последний связанный commit проверки: Record published WordPress plugin 1.3.72 verification; implementation — 1ffa66ba.
