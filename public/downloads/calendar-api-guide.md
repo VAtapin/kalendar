@@ -15,8 +15,10 @@ https://bible-desktop.com/api/v1/calendar/
 Адрес поставщика задаётся `PUBLIC_API_URL=https://bible-desktop.com` в `.env`
 Kalendar и полем «Адрес API» в WordPress-плагине. Корень указывается без `/api`.
 Веб-календарь выполняет GET-запросы прямо к Bible Desktop, без посредника Kalendar.
-Локальное TypeScript-ядро редактора остаётся для редактирования и экспорта PDF;
-оно не публикуется как серверный API.
+Редактор, его предпросмотры и PDF используют проверенный годовой снимок
+BibleDesktop `/api/v1/calendar/editor-year`; исходное XML-ядро остаётся только
+для тестов и аудитов и не попадает в production-бандл.
+Хранение и обновление снимков: [Календарные данные редактора](EDITOR-BIBLE-SNAPSHOTS.md).
 
 | GET-маршрут Bible Desktop | Ответ |
 | --- | --- |
@@ -57,7 +59,7 @@ curl 'https://bible-desktop.com/api/v1/calendar/day?date=2026-10-08&lang=uk&prof
 
 ## WordPress
 
-[ZIP текущего выпуска](/downloads/orthocal-1.3.71.zip).
+[ZIP текущего выпуска](/downloads/orthocal-1.3.72.zip).
 Шорткоды и Gutenberg-блоки сохранены. Календарные данные, тексты и иконы
 плагин получает с одного настроенного адреса Bible Desktop. Знаки Типикона,
 все 16 оформлений поста, общие декоративные ресурсы и Monomakh с лицензией включены в плагин как статические

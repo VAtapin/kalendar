@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {readFileSync,writeFileSync,mkdirSync,cpSync,existsSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,mkdtempSync,cpSync,existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {execFileSync,spawn} from 'node:child_process';
 import {createServer} from 'node:net';
@@ -17,9 +17,11 @@ cpSync(site+'/wp-content/plugins/sqlite-database-integration/db.copy',site+'/wp-
 mkdirSync(site+'/wp-content/mu-plugins',{recursive:true});
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin='http://127.0.0.1:'+port;
+const databaseDirectory=mkdtempSync(resolve('tmp','orthocal-clean-db-')).replaceAll('\\','/');
 writeFileSync(site+'/wp-config.php',`<?php
 define('DB_NAME','orthocal_test'); define('DB_USER',''); define('DB_PASSWORD',''); define('DB_HOST','localhost');
 define('DB_ENGINE','sqlite'); define('WP_HOME','${origin}'); define('WP_SITEURL','${origin}');
+define('DB_DIR','${databaseDirectory}/');
 define('AUTH_KEY','orthocal-local-test-only'); define('AUTH_SALT','orthocal-local-salt');
 define('ORTHOCAL_TEST_ASSET_ROOT',${JSON.stringify(resolve('public').replaceAll('\\','/'))});
 define('WP_DEBUG',true); define('WP_DEBUG_DISPLAY',false); define('WP_DEBUG_LOG',true); define('DISABLE_WP_CRON',true);
@@ -80,6 +82,7 @@ $attrs=Orthocal_Plugin::config(['theme'=>'','compact'=>'']); if(is_wp_error($att
 echo 'PASS WordPress registration, server rendering, validation, escaping and key isolation';
 `);
 console.log(execFileSync('php',[...phpArgs,site+'/verify-test.php'],{encoding:'utf8'}));
+console.log(execFileSync('php',[...phpArgs,resolve('scripts/test-wordpress-review.php'),site],{encoding:'utf8'}));
 // Separate PHP request: prove the date is served from persistent WordPress cache,
 // not merely the in-process memo. Any upstream call here fails the test.
 const cachedProbe=`require '${site.replaceAll('\\','/')}/wp-load.php'; add_filter('pre_http_request',function(){throw new Exception('Repeated date called upstream instead of cache');},1,3); $html=do_shortcode('[orthocal_day date="2027-05-02"]'); if(!str_contains($html,'Светлое Христово')) throw new Exception('Cached date missing'); echo 'PASS persistent cache across PHP requests';`;

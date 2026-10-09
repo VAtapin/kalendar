@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 // Called by the real WordPress/SQLite browser suite after administrator login.
 export async function testDisplayOptions({page,origin,site,phpArgs,screenshotRoot}) {
   // Each phase is a separate local test scenario; production rate limits stay unchanged.
-  const resetRateWindow=()=>execFileSync('php',[...phpArgs,'-r',`require '${site.replaceAll('\\','/')}/wp-load.php'; foreach(['global',hash('sha256','127.0.0.1'.wp_salt())] as $id)delete_transient('oc_rate_'.md5($id.gmdate('YmdHi')));`]);
+  const resetRateWindow=()=>execFileSync('php',[...phpArgs,'-r',`require '${site.replaceAll('\\','/')}/wp-load.php'; foreach(['global',hash('sha256','127.0.0.1'.wp_salt())] as $id)delete_transient('orthocal_rate_'.md5($id.gmdate('YmdHi')));`]);
   resetRateWindow();
   const preview=page.locator('[data-oc-preview-slot]');
   const field=name=>page.locator(`[data-oc-build="${name}"]`);
