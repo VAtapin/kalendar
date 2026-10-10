@@ -13,7 +13,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $parts=explode('/',trim(parse_url($url,PHP_URL_PATH),'/'));$value=[];
         if(count($parts)===3)foreach($corpus['works'] as $work) {
             if(!in_array($query['collection']??'', $work['collections'],true))continue;
-            $value[]=['slug'=>$work['slug'],'title'=>$work['title'],'available_languages'=>array_map(static fn($language)=>$language==='traditional'?'cu':($language==='cu'?'cu-civil':$language),array_keys($work['versions']))];
+            $value[]=['slug'=>$work['slug'],'title'=>$work['title'],'prayer_groups'=>in_array('prayers',$work['collections'],true)?['short']:[], 'available_languages'=>array_map(static fn($language)=>$language==='traditional'?'cu':($language==='cu'?'cu-civil':$language),array_keys($work['versions']))];
         }
         else foreach($corpus['works'] as $work)if($work['slug']===($parts[3]??'')) {
             $language=$parts[5]??'ru';$blocks=$work['versions'][$language==='cu'?'traditional':($language==='cu-civil'?'cu':$language)]??[];

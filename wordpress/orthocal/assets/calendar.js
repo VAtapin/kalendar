@@ -752,6 +752,7 @@
         void render(
           {
             mode: library.dataset.ocLibrary,
+            prayer_group: "",
             scope: "",
             tone: "",
             weekday: "",
@@ -830,6 +831,11 @@
             tone: "",
             text_page: "1",
           }),
+      );
+    root
+      .querySelector("[data-oc-prayer-group]")
+      ?.addEventListener("change", (event) =>
+        void render({ prayer_group: event.target.value, work: "" }),
       );
     root
       .querySelector("[data-oc-library-work]")

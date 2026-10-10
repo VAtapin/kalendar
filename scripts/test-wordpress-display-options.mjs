@@ -118,6 +118,16 @@ echo $id;
   assert.ok((await preview.locator('.oc-library-content').first().textContent()).includes('Богородице Дево'),'default prayer edition is rendered');
   console.log('Browser: default library language follows the largest available edition');
 
+  await preview.locator('[data-oc-prayer-group]').selectOption('short');
+  await page.waitForFunction(()=>JSON.parse(document.querySelector('[data-oc-preview-slot] .orthocal')?.dataset.orthocal||'{}').prayer_group==='short');
+  assert.ok((await preview.locator('.oc-library-content').textContent()).includes('Богородице Дево'));
+  await preview.locator('[data-oc-prayer-group]').selectOption('rules');
+  await page.waitForFunction(()=>JSON.parse(document.querySelector('[data-oc-preview-slot] .orthocal')?.dataset.orthocal||'{}').prayer_group==='rules');
+  assert.equal(await preview.locator('.oc-library-content').count(),0,'empty prayer group has no unrelated body');
+  await preview.locator('[data-oc-prayer-group]').selectOption('');
+  await preview.locator('.oc-library-content').waitFor();
+  console.log('Browser: prayer group changes update the existing reader and preserve actual language');
+
   resetRateWindow();
   for(const mode of ['horologion','kontakia','troparia','canons','akathists','prayers','magnifications','texts']) {
     await field('mode').selectOption(mode);

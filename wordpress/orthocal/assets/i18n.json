@@ -97,7 +97,12 @@
     "Каноны": "Kanones",
     "Язык текста": "Textsprache",
     "На выбранном языке текст пока не добавлен.": "In dieser Sprache ist noch kein Text verfügbar.",
-    "Праздники и святые": "Feste und Heilige"
+    "Праздники и святые": "Feste und Heilige",
+    "Короткие молитвы": "Kurze Gebete",
+    "Молитвенные правила": "Gebetsregeln",
+    "На разные случаи": "Zu verschiedenen Anlässen",
+    "Начальные молитвы": "Anfangsgebete",
+    "Все": "Alle"
   },
   "pl": {
     "Акафисты": "Akatysty",
@@ -109,6 +114,11 @@
     "Скопировать текст": "Kopiuj tekst",
     "На выбранном языке текст пока не добавлен.": "Tekst w tym języku nie został jeszcze dodany.",
     "Празднование:": "Wspomnienia:",
-    "Даты празднования не указаны источником.": "Źródło nie podaje dat wspomnienia."
+    "Даты празднования не указаны источником.": "Źródło nie podaje dat wspomnienia.",
+    "Короткие молитвы": "Krótkie modlitwy",
+    "Молитвенные правила": "Reguły modlitewne",
+    "На разные случаи": "Na różne okazje",
+    "Начальные молитвы": "Modlitwy początkowe",
+    "Все": "Wszystkie"
   }
 }
