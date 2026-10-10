@@ -6,7 +6,7 @@ set_error_handler(static function($severity,$message,$file,$line) {
     return false;
 });
 $package=json_decode(file_get_contents(dirname(__DIR__,2).'/BibleDesktop/resources/data/prayer-catalog.json'),true,512,JSON_THROW_ON_ERROR);
-$works=[];$versions=[];$revision='revision-one';$requestedUrls=[];
+$works=[];$versions=[];$germanVersions=[];$revision='revision-one';$requestedUrls=[];
 foreach($package['works'] as $index=>$entry) {
     $slug=$entry['slug'];
     $works[$slug]=['id'=>$index+1,'slug'=>$slug,'title'=>$entry['title'],'prayer_group'=>$entry['group'],
@@ -16,7 +16,7 @@ foreach($package['works'] as $index=>$entry) {
     $versions[$slug]=['slug'=>$slug,'title'=>$entry['title'],'language'=>$entry['language'],
         'blocks'=>$entry['blocks'],'source_url'=>'https://azbyka.ru/molitvoslov/','credit'=>'Азбука веры'];
 }
-add_filter('pre_http_request',static function($pre,$args,$url)use(&$works,&$versions,&$requestedUrls) {
+add_filter('pre_http_request',static function($pre,$args,$url)use(&$works,&$versions,&$germanVersions,&$requestedUrls) {
     if(!str_contains($url,'/api/liturgical/works'))return $pre;
     $requestedUrls[]=$url;
     $parts=explode('/',trim(parse_url($url,PHP_URL_PATH),'/'));
@@ -27,7 +27,8 @@ add_filter('pre_http_request',static function($pre,$args,$url)use(&$works,&$vers
         $slug=$parts[3];
         foreach($works as $work)if(in_array($slug,$work['legacy_slugs'],true))$slug=$work['slug'];
         if(!isset($works[$slug]))return ['headers'=>[],'body'=>'{}','response'=>['code'=>404],'cookies'=>[]];
-        $value=count($parts)===4?$works[$slug]:$versions[$slug];
+        $value=count($parts)===4?$works[$slug]:(($parts[5]??'')==='de'?($germanVersions[$slug]??null):$versions[$slug]);
+        if($value===null)return ['headers'=>[],'body'=>'{}','response'=>['code'=>404],'cookies'=>[]];
     }
     return ['headers'=>[],'body'=>wp_json_encode(['data'=>$value]),'response'=>['code'=>200],'cookies'=>[]];
 },11,3);
@@ -81,3 +82,32 @@ $data=Orthocal_Library::data(Orthocal_Plugin::config(['mode'=>'prayers','work'=>
 prayer_check(end($data['version']['blocks'])['text']==='New reviewed revision','New revision bypasses cached old body');
 prayer_check(count(array_filter($requestedUrls,static fn($url)=>str_contains($url,'content_revision=revision-two')))===1,'Revision is part of version cache identity');
 echo "PASS prayer catalogue: 24 legacy links/full bodies, 21 visible identities, groups, actual languages, external German source, revision cache\n";
+
+// Simulate the additive publication of the real reviewed German package.
+$german=json_decode(file_get_contents(dirname(__DIR__,2).'/BibleDesktop/resources/data/german-prayers.json'),true,512,JSON_THROW_ON_ERROR);
+foreach($german['works'] as $entry) {
+    $slug=$entry['slug'];
+    $works[$slug]['available_languages'][]='de';
+    $works[$slug]['content_revision'].=':'.$entry['content_sha256'];
+    $germanVersions[$slug]=['slug'=>$slug,'title'=>$works[$slug]['title'],'language'=>'de',
+        'orthography'=>'historic-1911','blocks'=>$entry['blocks'],'content_hash'=>$entry['content_sha256'],
+        'source_url'=>$german['source']['url'],'credit'=>$german['source']['title']];
+}
+$data=prayer_data(['text_language'=>'de']);
+prayer_check(count($data['works'])===7,'Seven actual German cards; hidden parts are not catalogue entries');
+foreach($german['works'] as $entry) {
+    $slug=$entry['slug'];
+    $data=prayer_data(['text_language'=>'de','work'=>$works[$slug]['legacy_slugs'][0]]);
+    prayer_check($data['language']==='de' && $data['version']['blocks']===$entry['blocks'],'Full stored German edition '.$slug);
+    prayer_check($data['version']['content_hash']===$entry['content_sha256'] && $data['version']['orthography']==='historic-1911','German edition metadata preserved '.$slug);
+    $html=Orthocal_Library::render($data,Orthocal_Plugin::config(['mode'=>'prayers','lang'=>'de','text_language'=>'de']));
+    prayer_check(str_contains($html,'lang="de"') && str_contains($html,esc_html($entry['first_text'])) && str_contains($html,esc_html($entry['last_text'])),'Actual German boundaries rendered '.$slug);
+    prayer_check(str_contains($html,esc_html($german['source']['title'])) && str_contains($html,esc_url($german['source']['url'])),'Historic source credit/link rendered '.$slug);
+}
+$data=prayer_data(['text_language'=>'de','prayer_group'=>'rules']);
+prayer_check($data['works']===[] && $data['version']===null,'German full rules unavailable, no fallback');
+foreach($works as $slug=>$work)if($versions[$slug]['language']==='ru') {
+    $data=prayer_data(['text_language'=>'de','work'=>$slug]);
+    prayer_check($data['version']===null,'Optina has no German substitute');
+}
+echo "PASS German package: 10 complete editions, 7 visible/3 hidden, identity/revision, boundaries, credit, missing rules/Optina\n";
