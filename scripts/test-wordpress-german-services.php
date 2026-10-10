@@ -6,18 +6,29 @@ set_error_handler(static function($severity,$message,$file,$line) {
     return false;
 });
 $package=json_decode(file_get_contents(dirname(__DIR__,2).'/BibleDesktop/resources/data/german-services-1895.json'),true,512,JSON_THROW_ON_ERROR);
+$corpus=json_decode(file_get_contents(dirname(__DIR__,2).'/BibleDesktop/resources/data/liturgical-corpus.json'),true,512,JSON_THROW_ON_ERROR);
+$companions=[];
+foreach($package['works'] as $entry)if(($entry['canonical_companion_language']??'')==='cu-civil')foreach($corpus['works'] as $work)if($work['slug']===$entry['slug'])$companions[$entry['slug']]=$work;
+unset($corpus);
 $invalid=false;$withdrawn=false;
-add_filter('pre_http_request',static function($pre,$args,$url)use($package,&$invalid,&$withdrawn) {
+add_filter('pre_http_request',static function($pre,$args,$url)use($package,$companions,&$invalid,&$withdrawn) {
     if(!str_contains($url,'/api/liturgical/works'))return $pre;
     $parts=explode('/',trim(parse_url($url,PHP_URL_PATH),'/'));parse_str(parse_url($url,PHP_URL_QUERY)??'',$query);
     $data=[];$status=200;
     if(count($parts)===3)foreach($package['works'] as $entry) {
         if($entry['collection']!==($query['collection']??''))continue;
         $data[]=['slug'=>$entry['slug'],'title'=>$entry['slug'],'collections'=>[$entry['collection']],
-            'available_languages'=>$withdrawn?[]:['de'],'prayer_groups'=>[],'prayer_group'=>null];
+            'available_languages'=>$withdrawn?[]:(isset($companions[$entry['slug']])?['de','cu-civil']:['de']),'prayer_groups'=>[],'prayer_group'=>null];
     }
     else foreach($package['works'] as $entry)if($parts[3]===$entry['slug']) {
         if($invalid){$status=409;break;}
+        if(($parts[5]??'')==='cu-civil' && isset($companions[$entry['slug']])) {
+            $work=$companions[$entry['slug']];
+            $data=['slug'=>$entry['slug'],'title'=>$work['title'],'language'=>'cu-civil','blocks'=>$work['versions']['cu'],
+                'orthography'=>'civil','credit'=>'Азбука веры','source_url'=>$work['url'],
+                'content_hash'=>hash('sha256',json_encode($work['versions']['cu'],JSON_UNESCAPED_UNICODE)),'completeness'=>'complete'];
+            break;
+        }
         $data=['slug'=>$entry['slug'],'title'=>$entry['slug'],'language'=>'de','blocks'=>$entry['blocks'],
             'orthography'=>$package['orthography'],'credit'=>$package['source']['title'],'source_url'=>$package['source']['url'],
             'content_hash'=>$entry['content_sha256'],'review_status'=>'source-verified-complete','completeness'=>'complete'];
@@ -40,6 +51,16 @@ foreach($package['works'] as $entry) {
     $a['text_language']='ru';update_option('orthocal_cache_generation',wp_generate_uuid4());
     $data=Orthocal_Library::data($a);
     service_check($data['version']===null && $data['works']===[],'Missing Russian must not fall back to German');
+    $a['text_language']='cu';update_option('orthocal_cache_generation',wp_generate_uuid4());
+    $data=Orthocal_Library::data($a);
+    service_check($data['version']===null && $data['works']===[],'Missing traditional Slavonic must not fall back to civil');
+    if(isset($companions[$entry['slug']])) {
+        $a['text_language']='cu-civil';update_option('orthocal_cache_generation',wp_generate_uuid4());
+        $data=Orthocal_Library::data($a);$companion=$companions[$entry['slug']];
+        service_check($data['version']['slug']===$entry['slug'] && $data['version']['language']==='cu-civil' && $data['version']['blocks']===$companion['versions']['cu'],'Same canonical work with full civil Slavonic edition');
+        $html=Orthocal_Library::render($data,$a);
+        service_check(str_contains($html,'lang="cu-civil"') && str_contains($html,esc_url($companion['url'])) && !str_contains($html,'Historische Ausgabe'),'Companion uses its own language/source/edition');
+    }
 }
 update_option('orthocal_cache_generation',wp_generate_uuid4());
 $data=Orthocal_Library::data(Orthocal_Plugin::config(['mode'=>'prayers','text_language'=>'de']));
@@ -51,4 +72,4 @@ $withdrawn=true;update_option('orthocal_cache_generation',wp_generate_uuid4());
 $data=Orthocal_Library::data(Orthocal_Plugin::config(['mode'=>'akathists','text_language'=>'de']));
 service_check($data['works']===[] && $data['version']===null,'Withdrawn edition no longer appears');
 update_option('orthocal_cache_generation',wp_generate_uuid4());
-echo "PASS German services: full66/179blocks, separate collections, actualde/1895/credit/hash, no language fallback, withdrawn edition\n";
+echo 'PASS German services: full'.implode('/',array_map(static fn($entry)=>count($entry['blocks']),$package['works']))." blocks, separate collections, actualde/1895/credit/hash, full civil companions, no ru/cu fallback, withdrawn edition\n";
