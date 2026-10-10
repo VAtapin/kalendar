@@ -105,5 +105,21 @@ content_revision исключает прежнюю версию тела. Вне
 Регрессия читает оба проверенных пакета соседнего BibleDesktop, проверяет все
 полные тела/границы/источники/исторические годы, видимость, rules и отсутствие
 подмены языка. Браузерный fixture использует полный настоящий Vater unser.
-Сначала backend import/check, затем Kalendar/ZIP 1.3.76; production 14 DE ещё
-требует отдельного подтверждения SSH-чата.
+Backend cb08fdf2 и 14 DE проверены фактическим API; установка ZIP 1.3.76
+на WordPress требует отдельного подтверждения SSH-чата.
+
+## Немецкие службы — совместимость читателя
+
+Проверены настоящий production API и локальный WordPress-рендер существующих
+произведений: standalone Jesus Akathist (66 полных блоков) в akathists и
+combined Jesus canon (179 полных блоков) в canons. Их DE-редакции 1895 имеют
+полные body/hash/completeness и точную атрибуцию. Коллекции не смешиваются
+с prayer rules, русский язык не подменяется церковнославянским/немецким.
+API languagefilter строгий; клиент также проверяет available_languages и
+version.language. Отозванная редакция/409 не вызывают fallback.
+Новая регрессия scripts/test-wordpress-german-services.php входит в общий
+WordPress-сценарий и читает полный пакет german-services-1895.json соседнего
+BibleDesktop. Runtime и ZIP в этой проверке не изменились; новый выпуск не нужен.
+Молитвенного/служебного offline-пакета в WordPress нет, используется transient
+API-кэш <=300с. WordPress 1.3.76 сохраняет и показывает исторический год;
+предыдущая 1.3.75 уже отображает полноценный источник/credit и body.
