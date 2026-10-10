@@ -68,6 +68,12 @@ add_filter('pre_http_request', function($pre,$args,$url) {
                 ['id'=>2,'title'=>'Икона Святого Великого','description'=>'Описание второго образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Обретение мощей','monthDay'=>'05-02']],'imageUrl'=>$mediaOrigin.'/api/calendar/icons/2/images/1','images'=>[['url'=>$mediaOrigin.'/api/calendar/icons/2/images/1']]],
                 ['id'=>3,'title'=>'Икона Преподобного Малого','description'=>'Описание третьего образа','kind'=>'saint','dates'=>[['label'=>'2 мая — Память святого','monthDay'=>'05-02']],'imageUrl'=>$mediaOrigin.'/api/calendar/icons/3/images/1','images'=>[['url'=>$mediaOrigin.'/api/calendar/icons/3/images/1']]],
             ];
+            // New additive contract fixture, with real John 1 source coordinates.
+            foreach($value['day']['events'] as &$event)if(($event['sourceTitle']??'')==='Ин.1:1-17') {
+                $event['reading']['lectionary']=['status'=>'exact-reference-match','basis'=>'exact-source-coordinates','translation_mapping_verified'=>false,
+                    'candidates'=>[['id'=>'John-1','kind'=>'gospel','book'=>'John','number'=>1,'source_variant'=>'','reference'=>'Ин.1:1–17','source_url'=>'https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-evangelija.shtml']]];
+            }
+            unset($event);
         } elseif($action==='upcoming') {
             $items=[];foreach($year['days'] as $day) foreach($day['events'] as $e) if($day['date']>=($q['date']??'2027-01-01')&&$e['category']==='commemoration'&&$e['typeCode']<=2) $items[]=['date'=>$day['date'],'oldStyleDate'=>$day['oldStyleDate'],'event'=>$e];
             $value=['items'=>array_slice($items,0,(int)($q['limit']??5))];

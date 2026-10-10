@@ -102,7 +102,11 @@
     "Молитвенные правила": "Gebetsregeln",
     "На разные случаи": "Zu verschiedenen Anlässen",
     "Начальные молитвы": "Anfangsgebete",
-    "Все": "Alle"
+    "Все": "Alle",
+    "Зачало": "Perikope",
+    "Источник зачала": "Quelle der Perikope",
+    "Возможные соответствия зачал": "Mögliche Perikopenzuordnungen",
+    "Соответствие относится к координатам источника; нумерация стихов других переводов отдельно не проверена.": "Die Zuordnung gilt für die Versangaben der Quelle; die Verszählung anderer Übersetzungen wurde nicht gesondert geprüft."
   },
   "pl": {
     "Акафисты": "Akatysty",
@@ -119,6 +123,10 @@
     "Молитвенные правила": "Reguły modlitewne",
     "На разные случаи": "Na różne okazje",
     "Начальные молитвы": "Modlitwy początkowe",
-    "Все": "Wszystkie"
+    "Все": "Wszystkie",
+    "Зачало": "Perykopa",
+    "Источник зачала": "Źródło perykopy",
+    "Возможные соответствия зачал": "Możliwe przyporządkowania perykop",
+    "Соответствие относится к координатам источника; нумерация стихов других переводов отдельно не проверена.": "Przyporządkowanie dotyczy numeracji wersetów źródła; numeracja innych przekładów nie została osobno sprawdzona."
   }
 }

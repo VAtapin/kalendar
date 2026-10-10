@@ -1,9 +1,10 @@
 <?php
 if (!defined('ABSPATH')) exit;
 require_once __DIR__.'/library.php';
+require_once __DIR__.'/lectionary.php';
 
 final class Orthocal_Plugin {
-    const VERSION = '1.3.74';
+    const VERSION = '1.3.75';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Сегодня', 'upcoming'=>'Ближайшие праздники', 'month'=>'Календарь на месяц', 'year'=>'Календарь на год', 'day'=>'День календаря', 'readings'=>'Чтения дня', 'calendar'=>'Православный календарь','fasting'=>'Пост и трапеза','saints'=>'Памяти святых','feasts'=>'Праздники','memorial'=>'Поминальные дни','pascha'=>'Пасха','fasts'=>'Посты на год','date'=>'Дата по двум стилям','texts'=>'Богослужебные тексты','troparia'=>'Тропари','kontakia'=>'Кондаки','prayers'=>'Молитвы','magnifications'=>'Величания','horologion'=>'Часослов','akathists'=>'Акафисты','canons'=>'Каноны'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];
@@ -449,7 +450,10 @@ final class Orthocal_Plugin {
         $readings=array_values(array_filter($day['events'],static fn($e)=>$e['category']==='scripture-reading'&&(int)($e['typeCode']??0)!==302));
         if (($readings || $psalter) && in_array('readings',$sections,true)) {
             $html .= '<div class="oc-readings">'.($a['show_section_titles']==='1'?('<h3>'.self::ui('Библейские чтения',$a['lang']).'</h3>'):'').self::reading_controls($a);
-            foreach ($readings as $event) $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title']).('</summary><div class="oc-reading-body"><button type="button" data-oc-copy-reading>'.self::ui('Скопировать текст',$a['lang']).'</button><div class="oc-verses" aria-live="polite"></div></div></details>');
+            foreach ($readings as $event) {
+                $lectionary=Orthocal_Lectionary::presentation($event['reading']??null,$a['lang']);
+                $html .= '<details data-oc-reading="'.esc_attr(wp_json_encode($event['reading'] ?? null)).'"><summary>'.esc_html($event['title'].$lectionary['label']).('</summary><div class="oc-reading-body">'.$lectionary['details'].'<button type="button" data-oc-copy-reading>'.self::ui('Скопировать текст',$a['lang']).'</button><div class="oc-verses" aria-live="polite"></div></div></details>');
+            }
             foreach ($psalter as $event) {
                 $parts=array_values(array_filter(array_map('trim',explode(';',(string)($event['title']??'')))));
                 if (!$parts) continue;

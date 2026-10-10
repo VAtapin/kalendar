@@ -46,6 +46,7 @@ echo $id;
 const phpArgs=['-d','extension=mbstring','-d','extension=pdo_sqlite','-d','extension=sqlite3','-d','memory_limit=256M'];
 const install=execFileSync('php',[...phpArgs,site+'/install-test.php'],{encoding:'utf8'});const pageId=Number(install.trim());assert.ok(pageId,install);
 execFileSync('php',[...phpArgs,'scripts/test-wordpress-prayer-catalog.php',site],{stdio:'inherit'});
+execFileSync('php',[...phpArgs,'scripts/test-wordpress-lectionary.php',site],{stdio:'inherit'});
 writeFileSync(site+'/verify-test.php',`<?php
 require __DIR__.'/wp-load.php';
 Orthocal_Media_Cache::clear();
@@ -140,6 +141,14 @@ try {
   await day.locator('[data-oc-translation] option[value="test-ru"]').waitFor({state:'attached'});
   await page.waitForFunction(()=>[...document.querySelectorAll('.oc-detail .oc-verses')].some(e=>e.textContent.includes('Тестовый стих')));
   console.log('Browser: Bible verses rendered');
+  const gospel=day.locator('[data-oc-reading]').filter({has:page.locator(':scope > summary',{hasText:'Ин.1:1-17'})});
+  assert.match(await gospel.locator(':scope > summary').textContent(),/Зачало 1/);
+  await gospel.locator(':scope > summary').click();
+  await gospel.locator('.oc-lectionary > summary').click();
+  assert.equal(await gospel.locator('.oc-lectionary a').getAttribute('href'),'https://azbyka.ru/shemy/spisok-vseh-bogosluzhebnyh-zachal-evangelija.shtml');
+  const payload=JSON.parse(await gospel.getAttribute('data-oc-reading'));
+  assert.equal(payload.lectionary.translation_mapping_verified,false);
+  assert.match(await gospel.locator('.oc-lectionary').innerText(),/других переводов отдельно не проверена/);
   assert.ok(await day.locator('.oc-verses').first().textContent());
   await day.locator('[data-oc-translation]').selectOption('test-missing');
   await page.waitForFunction(()=>[...document.querySelectorAll('.oc-detail .oc-verses')].some(e=>e.textContent.includes('отсутствуют запрошенные стихи')));
