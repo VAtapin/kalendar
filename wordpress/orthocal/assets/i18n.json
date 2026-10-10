@@ -106,7 +106,8 @@
     "Зачало": "Perikope",
     "Источник зачала": "Quelle der Perikope",
     "Возможные соответствия зачал": "Mögliche Perikopenzuordnungen",
-    "Соответствие относится к координатам источника; нумерация стихов других переводов отдельно не проверена.": "Die Zuordnung gilt für die Versangaben der Quelle; die Verszählung anderer Übersetzungen wurde nicht gesondert geprüft."
+    "Соответствие относится к координатам источника; нумерация стихов других переводов отдельно не проверена.": "Die Zuordnung gilt für die Versangaben der Quelle; die Verszählung anderer Übersetzungen wurde nicht gesondert geprüft.",
+    "Историческая редакция": "Historische Ausgabe"
   },
   "pl": {
     "Акафисты": "Akatysty",
@@ -127,6 +128,7 @@
     "Зачало": "Perykopa",
     "Источник зачала": "Źródło perykopy",
     "Возможные соответствия зачал": "Możliwe przyporządkowania perykop",
-    "Соответствие относится к координатам источника; нумерация стихов других переводов отдельно не проверена.": "Przyporządkowanie dotyczy numeracji wersetów źródła; numeracja innych przekładów nie została osobno sprawdzona."
+    "Соответствие относится к координатам источника; нумерация стихов других переводов отдельно не проверена.": "Przyporządkowanie dotyczy numeracji wersetów źródła; numeracja innych przekładów nie została osobno sprawdzona.",
+    "Историческая редакция": "Wydanie historyczne"
   }
 }

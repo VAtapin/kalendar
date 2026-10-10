@@ -10,6 +10,8 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         $corpus=json_decode(file_get_contents(dirname(ORTHOCAL_TEST_ASSET_ROOT).'/scripts/fixtures/liturgical-reader.json'),true);
         $display=json_decode(file_get_contents(dirname(ORTHOCAL_TEST_ASSET_ROOT).'/scripts/fixtures/liturgical-display.json'),true);
         $corpus['works']=array_merge($corpus['works'],$display['works']);
+        $german=json_decode(file_get_contents(dirname(dirname(ORTHOCAL_TEST_ASSET_ROOT)).'/BibleDesktop/resources/data/german-prayers.json'),true);
+        foreach($german['works'] as $entry)if($entry['slug']==='prayer-lords')$corpus['works'][]=['slug'=>$entry['slug'],'title'=>'Отче наш','collections'=>['prayers'],'versions'=>['de'=>$entry['blocks']],'url'=>$german['source']['url'],'credit'=>$german['source']['title'],'orthography'=>'historic-1911'];
         $parts=explode('/',trim(parse_url($url,PHP_URL_PATH),'/'));$value=[];
         if(count($parts)===3)foreach($corpus['works'] as $work) {
             if(!in_array($query['collection']??'', $work['collections'],true))continue;
@@ -17,7 +19,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         }
         else foreach($corpus['works'] as $work)if($work['slug']===($parts[3]??'')) {
             $language=$parts[5]??'ru';$blocks=$work['versions'][$language==='cu'?'traditional':($language==='cu-civil'?'cu':$language)]??[];
-            $value=['slug'=>$work['slug'],'title'=>$work['title'],'language'=>$language,'orthography'=>$language==='cu'?'traditional':'civil','blocks'=>$blocks,'source_url'=>$work['url'],'credit'=>'Азбука веры'];
+            $value=['slug'=>$work['slug'],'title'=>$work['title'],'language'=>$language,'orthography'=>$language==='cu'?'traditional':($work['orthography']??'civil'),'blocks'=>$blocks,'source_url'=>$work['url'],'credit'=>$work['credit']??'Азбука веры'];
         }
         return ['headers'=>[],'body'=>wp_json_encode(['data'=>$value]),'response'=>['code'=>200,'message'=>'OK'],'cookies'=>[]];
     }

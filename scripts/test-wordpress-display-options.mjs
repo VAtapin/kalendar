@@ -127,6 +127,15 @@ echo $id;
   await preview.locator('[data-oc-prayer-group]').selectOption('');
   await preview.locator('.oc-library-content').waitFor();
   console.log('Browser: prayer group changes update the existing reader and preserve actual language');
+  await preview.locator('[data-oc-library-language]').selectOption('de');
+  await preview.locator('.oc-library-content[lang="de"][data-orthography="historic-1911"]').waitFor();
+  assert.match(await preview.locator('.oc-library-content').textContent(),/Vater unser/);
+  assert.match(await preview.locator('.oc-text-source').textContent(),/Historische Ausgabe|Историческая редакция/);
+  assert.match(await preview.locator('.oc-text-source').textContent(),/1911/);
+  assert.equal(await preview.locator('.oc-text-source a').getAttribute('href'),'https://orthodoxe-bibliothek.de/pdf/buecher/Maltzew/Maltzew_Gebetbuch_1911_ocr.pdf');
+  await preview.locator('[data-oc-library-language]').selectOption('cu-civil');
+  await preview.locator('.oc-library-content[lang="cu-civil"]').waitFor();
+  console.log('Browser: stored German full body, actual historical edition and source; language switch remains explicit');
 
   resetRateWindow();
   for(const mode of ['horologion','kontakia','troparia','canons','akathists','prayers','magnifications','texts']) {

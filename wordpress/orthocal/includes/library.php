@@ -24,7 +24,8 @@ final class Orthocal_Library {
     static function text_attributes($a,$text) {
         $language=$text['language']??self::language($a);
         $orthography=$language==='cu'?'traditional':'civil';
-        return 'lang="'.esc_attr($language).'" data-orthography="'.$orthography.'"';
+        if(is_string($text['orthography']??null) && preg_match('/^historic-[0-9]{4}$/D',$text['orthography']))$orthography=$text['orthography'];
+        return 'lang="'.esc_attr($language).'" data-orthography="'.esc_attr($orthography).'"';
     }
 
     static function language_control($a,$languages=null) {
@@ -131,7 +132,9 @@ final class Orthocal_Library {
             else $html.=nl2br(esc_html($block['text']??''));
             $html.='</'.$tag.'>';
         }
-        return $html.'</div><p class="oc-text-source"><a href="'.esc_url($version['source_url']??'').'" target="_blank" rel="noopener noreferrer">'.esc_html($version['credit']??'Источник').'</a></p></article>';
+        $edition='';
+        if(is_string($version['orthography']??null) && preg_match('/^historic-([0-9]{4})$/D',$version['orthography'],$matches))$edition=esc_html(Orthocal_Plugin::ui('Историческая редакция',$a['lang']).' ('.$matches[1].')').' · ';
+        return $html.'</div><p class="oc-text-source">'.$edition.'<a href="'.esc_url($version['source_url']??'').'" target="_blank" rel="noopener noreferrer">'.esc_html($version['credit']??'Источник').'</a></p></article>';
     }
 
     static function sources($a) {
