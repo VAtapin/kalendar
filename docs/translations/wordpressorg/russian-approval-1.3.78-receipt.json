@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-11",
+  "plugin": "georg-kloster-calendar-workshop",
+  "version": "1.3.78",
+  "locale": "ru_RU",
+  "project_url": "https://translate.wordpress.org/projects/wp-plugins/georg-kloster-calendar-workshop/",
+  "initial_state": {
+    "stable": "441/441 approved",
+    "stable_readme": "67/67 approved",
+    "development": "429/441 approved",
+    "development_readme": "67/67 approved"
+  },
+  "actions": [
+    "Added and approved 12 Development date-month translations in lowercase Russian genitive form.",
+    "Discarded false initial-uppercase warnings after verifying date-month context."
+  ],
+  "verified_state": {
+    "stable": "441/441 approved",
+    "stable_readme": "67/67 approved",
+    "development": "441/441 approved",
+    "development_readme": "67/67 approved",
+    "untranslated": 0,
+    "waiting": 0,
+    "fuzzy": 0,
+    "changes_requested": 0,
+    "warnings": 0
+  },
+  "checks": [
+    "Reviewed all 441 UI translations and 67 readme translations against their originals.",
+    "Exported all four approved PO catalogues and verified exact context/source/translation equality with the prepared 1.3.78 Russian catalogues.",
+    "Verified nonempty translations and preservation of URLs, HTML tags, gettext placeholders and orthocal shortcodes in all four exports.",
+    "Verified live GlotPress counters and all four 100% project indicators."
+  ],
+  "language_pack": {
+    "api": "https://api.wordpress.org/translations/plugins/1.0/?slug=georg-kloster-calendar-workshop&version=1.3.78",
+    "observed_response": {"translations": []},
+    "status": "Automatic WordPress.org language-pack generation pending; downloadable ZIP not yet verified."
+  },
+  "known_source_issues": [
+    "English readme originals contain mojibake arrows/dashes and an outdated claim that akathists are not connected. Russian faithfully reflects source functionality claims while using correct typography; English-source cleanup requires a separate release."
+  ],
+  "screenshot": "russian-approval-1.3.78.jpg",
+  "deployment_required": false,
+  "implementation_base_commit": "cddebf16",
+  "receipt_commit_message": "Record complete Russian translation approval"
+}
