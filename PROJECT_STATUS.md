@@ -1,9 +1,9 @@
 # Состояние проекта
 
-- Актуальная подтверждённая версия на сервере владельца — WordPress 1.3.77, активна; все 202 установленных файла побайтно совпадают с проверенным ZIP. Kalendar production HEAD — 9c86610918b201363a3098363e67bdb3ec6b0ea4. Источник подтверждения SSH-чата: wp1377-20261011-163247/state.json, 11.10.2026; связанный commit receipt — dae18d9d (Record verified WordPress 1.3.77 deployment).
-- BibleDesktop production — 9ca087059a7d3cbe572f996238dc3f04a51189d7. Немецкий акафист Богородице доступен: 61 блок, полный текст, повторы, все рубрики и историческая редакция 1895 проверены через production API и установленный WordPress 1.3.77. SHA-256 текста — 376ced3df20feab3429d87d0f121fd4fbee0c67b84804c51c328a3e9ca95e962.
-- Команды установки 1.3.76 и прежний статус ожидания публикации устарели. Повторные deployment/import не требуются. WordPress.org уже опубликовал отдельный выпуск 1.3.78; его установка на сервер владельца не подтверждена. Следующий внешний этап — синхронизация новых английских originals и утверждение переводов GlotPress.
-- Последняя актуализация статуса: Record confirmed WordPress 1.3.77 project status (текущий atomic commit). Для этой документационной задачи deployment не требуется; runtime и ZIP не меняются.
+- Актуальная версия на сервере владельца — WordPress1.3.78, активна; все199 installed файлов совпадают с проверенным ZIP. Kalendar production HEAD39d1db24a4114409e7a29c71e0acad1531ad8d99. Fresh private backup/receipt wp1378-20261011-181118/state.json; публикация11.10.2026.
+- BibleDesktop production — 9ca087059a7d3cbe572f996238dc3f04a51189d7. Немецкий акафист Богородице доступен: 61 блок, полный текст, повторы, все рубрики и историческая редакция 1895 проверены через production API и установленный WordPress 1.3.78. SHA-256 текста — 376ced3df20feab3429d87d0f121fd4fbee0c67b84804c51c328a3e9ca95e962.
+- Старые команды установки1.3.76/1.3.77 и ожидание серверной1.3.78 устарели. Сайт/каталог/ZIP и установленный WordPress синхронизированы на1.3.78. Английские originals уже синхронизированы, четыре перевода импортированы; утверждение GlotPress остаётся внешним этапом.
+- Последний receipt commit: Record verified WordPress 1.3.78 deployment (hash в Git), main→origin/main. Повторная публикация не требуется.
 
 - Каталог /calendar-api#plugins подготовлен для kloster-prayer 1.2.10: версия, описание помощи PayPal и обе ссылки скачивания. ZIP в artifacts/public/downloads соответствует выпуску dcb01e6. Production предыдущей 1.2.9 проверен 11.10.2026; новая1.2.10 опубликована11.10.2026 вместе с exact9c866109. Commit задачи — Publish prayer plugin 1.2.10 download.
 - Проверки 1.2.10: production build с TypeScript и git diff --check прошли; ZIP в dist/public/artifacts побайтно совпадает, заголовок внутри ZIP содержит 1.2.10; SHA-256 29120e9a7f09046323e91d5954712b61b28806352627828b22d9073847889dc1. Браузерный test-calendar-api-docs дважды остановился на навигации главной страницы (load / ссылка API календаря), до проверки каталога; не считается успешным. Production обновлён: actual public ZIP pinnedSHA и каталог браузером PASS.
@@ -98,8 +98,20 @@
 
 - Последняя проверка переводов: все восемь импортов UI/readme подтверждены страницами GlotPress; непереведённых строк нет, PO count/nonempty checks и git diff --check PASS. Последний связанный commit: Record complete WordPress translation imports (текущий atomic commit). Deployment для этого receipt не требуется: runtime/ZIP не менялись.
 
-- English-source исправление 1.3.78: причина отказа Polyglots (русский исходный язык) устранена. WP-CLI extraction ровно 441 английская строка, PO coverage 441/441; migration receipt подтверждает RU/UK/PL 441 неизменённых переводов, DE 440 плюс один исправленный лишний пробел. en_US без пакета, четыре locale PHP/JS/Gutenberg, контексты месяцев/названия языков/пользовательские страницы и отдельные языки блоков PASS; полный WordPress/SQLite+Edge/WP_DEBUG, Plugin Check 0/0, lint/JS, production build PASS. ZIP artifacts/public/downloads 1.3.78; Git tag/SVN публикация завершена по прямой команде владельца. Повторный запрос редакторам подготовлен в docs/translations/wordpressorg/editor-request-1.3.78.txt, не отправлен. Английские Stable originals синхронизированы, переводы четырёх языков импортированы; редакторское утверждение остаётся внешним этапом. Сервер владельца пока 1.3.77, его deployment не выполнялся этой задачей. Последний связанный commit: Use English originals and preserve WordPress translations (текущий atomic commit).
+- English-source исправление 1.3.78: причина отказа Polyglots (русский исходный язык) устранена. WP-CLI extraction ровно 441 английская строка, PO coverage 441/441; migration receipt подтверждает RU/UK/PL 441 неизменённых переводов, DE 440 плюс один исправленный лишний пробел. en_US без пакета, четыре locale PHP/JS/Gutenberg, контексты месяцев/названия языков/пользовательские страницы и отдельные языки блоков PASS; полный WordPress/SQLite+Edge/WP_DEBUG, Plugin Check 0/0, lint/JS, production build PASS. ZIP artifacts/public/downloads 1.3.78; Git tag/SVN публикация завершена по прямой команде владельца. Повторный запрос редакторам подготовлен в docs/translations/wordpressorg/editor-request-1.3.78.txt, не отправлен. Английские Stable originals синхронизированы, переводы четырёх языков импортированы; редакторское утверждение остаётся внешним этапом. Сервер владельца обновлён до1.3.78 по отдельной команде пользователя; актуальный receipt ниже. Последний связанный commit: Use English originals and preserve WordPress translations (текущий atomic commit).
 
 - Публикация English-source 1.3.78 подтверждена GitHub Actions, SVN, фактическим ZIP и публичной страницей; повторный серверный deployment не выполнялся. Последний связанный commit: Record verified English-source release (текущий receipt commit); реализация 8e815706 / 459883ec.
 
 - Импорты English-source 1.3.78 проверены непосредственно в GlotPress: RU/DE/UK/PL Stable 441 Waiting, Stable Readme 67 Waiting, непереведённых строк нет. Автоматические warnings: RU/UK/PL по 12 (строчные названия месяцев в датах), DE 3 (прописные существительные); лишний пробел в немецком tone исправлен отдельным предложением. Readme warnings 0 на всех языках. Runtime/ZIP не изменены, deployment не требуется. Последний связанный commit: Record English-source translation imports.
+
+## Подтверждённое обновление сайта / WordPress1.3.78
+
+- nodenv22/Node22.23.3/npmci --include=dev/typecheck/atomicbuild PASS;
+  старые versioned assets сохранены. Fresh private dist/plugin backups/TOC:
+  wp1378-20261011-181118; exactserver39d1db24, actualHTML/entryJS/CSS PASS.
+- Actual ZIP1.3.78 SHAe487cb2da6b6b34506c5e16f5b0de1673faf36df44d7a4954749812f281c41ce,
+  prayer1.2.10 и translator1.0.5 actualHTTPS pinnedSHA PASS. Браузер каталога
+  показывает эти версии и правильные ссылки. APIBibleDesktop200/старыйKalendar404.
+- WordPress1.3.78 установлен и активен, все199 ZIPфайла совпадают;
+  calendar.js HTTP200,22 Gutenbergблока, day/readings и DE61/hash/рубрики PASS.
+  Backend и WordPress.org/SVN не повторялись; другие плагины не переустанавливались.
