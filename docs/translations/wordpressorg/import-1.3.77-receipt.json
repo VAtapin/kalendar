@@ -1,0 +1,93 @@
+{
+  "checkedAt": "2026-10-11T16:51:46.742Z",
+  "version": "1.3.77",
+  "locales": {
+    "ru": {
+      "stable": {
+        "originals": 441,
+        "waiting": 441,
+        "untranslated": 0,
+        "warnings": 0
+      },
+      "stableReadme": {
+        "originals": 64,
+        "waiting": 64,
+        "untranslated": 0,
+        "warnings": 0
+      }
+    },
+    "de": {
+      "stable": {
+        "originals": 441,
+        "waiting": 441,
+        "untranslated": 0,
+        "warnings": 15
+      },
+      "stableReadme": {
+        "originals": 64,
+        "waiting": 64,
+        "untranslated": 0,
+        "warnings": 0
+      }
+    },
+    "uk": {
+      "stable": {
+        "originals": 441,
+        "waiting": 441,
+        "untranslated": 0,
+        "warnings": 0
+      },
+      "stableReadme": {
+        "originals": 64,
+        "waiting": 64,
+        "untranslated": 0,
+        "warnings": 0
+      }
+    },
+    "pl": {
+      "stable": {
+        "originals": 441,
+        "waiting": 441,
+        "untranslated": 0,
+        "warnings": 0
+      },
+      "stableReadme": {
+        "originals": 64,
+        "waiting": 64,
+        "untranslated": 0,
+        "warnings": 0
+      }
+    }
+  },
+  "approval": "Waiting; user atapin has no editor approval rights",
+  "germanWarnings": {
+    "reason": "Initial lowercase warning: Russian originals use lowercase; German nouns and month names correctly use uppercase.",
+    "originals": [
+      "календарю.",
+      "января",
+      "февраля",
+      "марта",
+      "апреля",
+      "мая",
+      "июня",
+      "июля",
+      "августа",
+      "сентября",
+      "октября",
+      "ноября",
+      "декабря",
+      "глас",
+      "календарь"
+    ]
+  },
+  "correctedProposal": "Removed one extra trailing space from German Stable proposal for Молитвы и тексты дня на. The published ZIP is unchanged.",
+  "searchCheck": {
+    "russianWord": "православный",
+    "russianResults": 3,
+    "pluginFound": false,
+    "slugFound": true,
+    "orthodoxFound": true,
+    "catalogueDescription": "English until approved localized readme is published"
+  },
+  "runtimeChanges": false
+}

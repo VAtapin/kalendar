@@ -1627,7 +1627,7 @@ msgstr "Grundgebete"
 
 #: assets/calendar.js
 msgid "Молитвы и тексты дня на "
-msgstr "Gebete und Tagestexte für den  "
+msgstr "Gebete und Tagestexte für den "
 
 #: assets/calendar.js
 msgid "Тексты дня"
