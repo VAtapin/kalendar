@@ -4,6 +4,7 @@ import {createServer} from 'node:net';
 import {mkdirSync,readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const wordpressPluginUrl='https://wordpress.org/plugins/georg-kloster-calendar-workshop/';
+const russianWordpressPluginUrl='https://ru.wordpress.org/plugins/georg-kloster-calendar-workshop/';
 const translatorPluginDownload='/downloads/georg-kloster-slavonic-translator-1.0.5.zip';
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin=`http://127.0.0.1:${port}`;
@@ -24,7 +25,7 @@ try {
   assert.ok((await page.locator('#connection pre').first().textContent()).includes('/api/v1/calendar/'));
   const catalog=page.locator('#plugins');
   assert.equal(await catalog.locator('tbody tr').count(),3);
-  assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginUrl);
+  assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),russianWordpressPluginUrl);
   assert.equal(await catalog.locator('a.download').nth(0).getAttribute('download'),null);
   assert.equal(await catalog.locator('tbody tr').nth(0).locator('.version').textContent(),'WordPress.org');
   assert.equal(await page.locator('a[href^="/downloads/orthocal-"]').count(),0);
@@ -45,7 +46,7 @@ try {
   await catalog.getByRole('link',{name:'Подробнее о календаре',exact:true}).click();
   assert.equal(await page.locator('#wordpress').getAttribute('open'),'');
   const pluginLink=page.locator('#wordpress a.download');
-  assert.equal(await pluginLink.getAttribute('href'),wordpressPluginUrl);
+  assert.equal(await pluginLink.getAttribute('href'),russianWordpressPluginUrl);
   assert.equal(await pluginLink.getAttribute('download'),null);
   assert.match(await page.locator('#wordpress').textContent(),/Новые версии доступны через стандартные обновления WordPress/);
   assert.match(await page.locator('#wordpress').textContent(),/работает сразу, без регистрации и API-ключа/);
@@ -75,5 +76,24 @@ try {
   await catalog.screenshot({path:'tmp/plugin-catalog/mobile.png'});
   await page.reload();await page.getByRole('heading',{name:'API календаря',exact:true}).waitFor();
   assert.equal(await page.locator('#translator-plugin').getAttribute('open'),'');
-  assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, Bible Desktop connection, real ZIP and guide, mobile width, no editor download');
+  await page.context().route(/^https:\/\/(?:ru\.|de\.|uk\.)?wordpress\.org\//,route=>route.fulfill({contentType:'text/html',body:'<title>WordPress plugin link test</title>'}));
+  for(const language of ['ru','de','en','uk']){
+    const expectedUrl=`https://${language==='en'?'':language+'.'}wordpress.org/plugins/georg-kloster-calendar-workshop/`;
+    await page.locator('header select').selectOption(language);
+    await page.waitForFunction(url=>document.querySelector('#plugins a.download')?.getAttribute('href')===url,expectedUrl);
+    await page.locator('#wordpress').evaluate(panel=>{panel.open=true;});
+    for(const link of [catalog.locator('a.download').nth(0),pluginLink]){
+      assert.equal(await link.getAttribute('href'),expectedUrl);
+      assert.equal(await link.getAttribute('target'),'_blank');
+      assert.equal(await link.getAttribute('rel'),'noopener noreferrer');
+      const originalUrl=page.url();
+      const [popup]=await Promise.all([page.waitForEvent('popup'),link.click()]);
+      await popup.waitForLoadState('domcontentloaded');
+      assert.equal(popup.url(),expectedUrl);
+      assert.equal(await popup.evaluate(()=>window.opener),null);
+      assert.equal(page.url(),originalUrl);
+      await popup.close();
+    }
+  }
+  assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, Bible Desktop connection, real ZIP and guide, mobile width, no editor download, localized WordPress links and new tabs in ru/de/en/uk');
 }finally{await browser?.close();server.kill();}
