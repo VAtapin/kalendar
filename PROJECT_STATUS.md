@@ -1,7 +1,7 @@
 # Состояние проекта
 
-- Каталог /calendar-api#plugins подготовлен для kloster-prayer 1.2.10: версия, описание помощи PayPal и обе ссылки скачивания. ZIP в artifacts/public/downloads соответствует выпуску dcb01e6. Production предыдущей 1.2.9 проверен 11.10.2026; новая 1.2.10 ещё требует серверной сборки. Commit задачи — Publish prayer plugin 1.2.10 download.
-- Проверки 1.2.10: production build с TypeScript и git diff --check прошли; ZIP в dist/public/artifacts побайтно совпадает, заголовок внутри ZIP содержит 1.2.10; SHA-256 29120e9a7f09046323e91d5954712b61b28806352627828b22d9073847889dc1. Браузерный test-calendar-api-docs дважды остановился на навигации главной страницы (load / ссылка API календаря), до проверки каталога; не считается успешным. Production не обновлялся.
+- Каталог /calendar-api#plugins подготовлен для kloster-prayer 1.2.10: версия, описание помощи PayPal и обе ссылки скачивания. ZIP в artifacts/public/downloads соответствует выпуску dcb01e6. Production предыдущей 1.2.9 проверен 11.10.2026; новая1.2.10 опубликована11.10.2026 вместе с exact9c866109. Commit задачи — Publish prayer plugin 1.2.10 download.
+- Проверки 1.2.10: production build с TypeScript и git diff --check прошли; ZIP в dist/public/artifacts побайтно совпадает, заголовок внутри ZIP содержит 1.2.10; SHA-256 29120e9a7f09046323e91d5954712b61b28806352627828b22d9073847889dc1. Браузерный test-calendar-api-docs дважды остановился на навигации главной страницы (load / ссылка API календаря), до проверки каталога; не считается успешным. Production обновлён: actual public ZIP pinnedSHA и каталог браузером PASS.
 
 - Календарного HTTP API и календарного серверного runtime в Kalendar нет. Прежние календарные маршруты возвращают 404. Единственный поставщик публичных календарных данных, чтений, служб и икон — Bible Desktop. Внутренние функции аккаунтов, хранения, общих ссылок, заказов и печати сохранены.
 - Главный редактор, администраторский предпросмотр и конструктор сеток используют `/api/v1/calendar/editor-year` BibleDesktop через единый адаптер. Экран и PDF используют готовые события, переводы и оба профиля поста. Локальные расчёты праздников/поста/чтений исключены из production-бандла; справочное ядро оставлено для аудитов и тестов.
@@ -64,11 +64,30 @@
 
 - Production 11.10.2026: exact300efd921af64e71d5528336627bb057b9262040. Fresh private ready-20261011-141947 dist/plugin backups и TOCs сохранены. Plesk Node22/npm ci/editorAPI2027/365days/hash/typecheck/build PASS; actual HTML/orthocal1.3.76/kloster-prayer1.2.9 downloads и pinned SHA PASS. Активный plugin1.3.76 установлен; actual API DE61/hash/allreader rubrics/historic1895 render PASS. Повторная установка не нужна. Последний receipt: Record verified WordPress production release.
 
-- WordPress.org 11.10.2026: версия 1.3.77 опубликована по прямой команде владельца; tag 1.3.77 → public source 9bebb484. GitHub Actions run 38154849578: release/deploy success, SVN revision 3739769. Проверены trunk/tags/1.3.77, скачанный WordPress.org ZIP и byte equality четырёх PO/MO и двенадцати script JSON. Оба логотипа и семь SVN screenshots точно совпадают с исходниками; страница каталога показывает 1.3.77 и все screenshots. WordPress.org сообщает задержку выдачи автоматических обновлений примерно 6 часов. Сервер владельца не менялся.
+- WordPress.org 11.10.2026: версия 1.3.77 опубликована по прямой команде владельца; tag 1.3.77 → public source 9bebb484. GitHub Actions run 38154849578: release/deploy success, SVN revision 3739769. Проверены trunk/tags/1.3.77, скачанный WordPress.org ZIP и byte equality четырёх PO/MO и двенадцати script JSON. Оба логотипа и семь SVN screenshots точно совпадают с исходниками; страница каталога показывает 1.3.77 и все screenshots. WordPress.org сообщает задержку выдачи автоматических обновлений примерно 6 часов. Сервер владельца опубликован и проверен: receipt ниже.
 - Дальнейшие WordPress.org обновления: синхронизировать проверенный выпуск в публичный репозиторий и отправлять отдельный Git-тег соответствующей версии; обычный main push не публикует плагин. SVN credentials хранятся в GitHub Secrets, slug — repository variable; секреты не записаны в проект. Последний связанный commit: Record first WordPress.org publication.
 
 - WordPress 1.3.77: интерфейс PHP/JS/Gutenberg подключён к стандартному gettext/wp-i18n. Полные ru_RU/de_DE/uk/pl_PL PO содержат все 441 строки официального WP-CLI extraction; прежние DE/PL переводы сохранены. MO и три script JSON собираются перед ZIP. Официальные языковые пакеты имеют приоритет; язык календарного блока, язык текста и пользовательские подписи независимы от языка администратора.
 - Логотип St George 128/256 и семь реальных WordPress screenshots опубликованы в SVN assets; служебные изображения каталога не входят в ZIP. Stable/Stable Readme прежнего выпуска импортированы на четырёх языках (27/47), статус Waiting, 0 warnings. Для 1.3.77 подготовлены полные Stable 441/441 и Stable Readme 64/64 PO, включая captions/changelog. GlotPress после публикации ещё показывает старые 27/47 originals; пробный импорт русского Stable добавил 0 строк. Осталось дождаться синхронизации originals и импортировать новые PO. Утверждение требует редакторов locale/PTE; запрос владельцу подготовлен. Receipt: docs/translations/wordpressorg/release-1.3.77-receipt.json.
-- Проверки 1.3.77: официальный Plugin Check 0 errors/0 warnings; PHP lint/JS syntax; полный WordPress/SQLite+Edge/WP_DEBUG с 22 блоками/чтениями/молитвами/DE-службами/медиакэшем/мобильным интерфейсом; отдельные четыре locale с реальными PHP/JS/Gutenberg, mixed block languages/custom branding и приоритетом WordPress.org JSON; полное совпадение WP-CLI POT и PO 441/441; typecheck/production build и git diff --check PASS. ZIP artifacts/public/downloads; сервер владельца не обновлялся. Последний связанный commit: Integrate complete WordPress translations and directory assets (42f7ae44 / 9bebb484).
+- Проверки 1.3.77: официальный Plugin Check 0 errors/0 warnings; PHP lint/JS syntax; полный WordPress/SQLite+Edge/WP_DEBUG с 22 блоками/чтениями/молитвами/DE-службами/медиакэшем/мобильным интерфейсом; отдельные четыре locale с реальными PHP/JS/Gutenberg, mixed block languages/custom branding и приоритетом WordPress.org JSON; полное совпадение WP-CLI POT и PO 441/441; typecheck/production build и git diff --check PASS. ZIP artifacts/public/downloads; сервер владельца обновлён и проверен11.10.2026. Последний связанный commit: Integrate complete WordPress translations and directory assets (42f7ae44 / 9bebb484).
 
 - Проверка публикации и каталогов readme: SVN assets/ZIP locale byte comparison, 64 непустые строки на каждом языке с сохранёнными URL/HTML и git diff --check PASS. Реализация: Kalendar 42f7ae44 / public source 9bebb484. Последний связанный commit: Record WordPress publication and readme translations (текущий atomic commit).
+
+## Подтверждённая публикация Kalendar / WordPress1.3.77
+
+- Actual server HEAD9c86610918b201363a3098363e67bdb3ec6b0ea4, системный
+  пользователь georg-kloster, nodenv local22/Node22.23.3/npm ci --include=dev,
+  typecheck/build штатного atomic publisher PASS. Старые versioned assets сохранены.
+- Fresh private dist/plugin backups+TOC/oldHEAD: wp1377-20261011-163247.
+  Actual HTTPS HTML и entryJS/CSS совпадают со сборкой; API BibleDesktop today200,
+  прежний календарный today на Kalendar404; браузер public каталога PASS.
+- ZIP1.3.77 SHA7ecd9612afa0bc5a539e0955051321b3697999dacc86e8b8fdb6c63d765a86d8
+  и prayer1.2.10 SHA29120e9a7f09046323e91d5954712b61b28806352627828b22d9073847889dc1
+  проверены по actualHTTPS. Prayer опубликован для скачивания, отдельно не установлен.
+- Активный WordPress уже сообщал1.3.77 перед публикацией, но отличался от pinnedZIP;
+  после scopedbackup установлен exactZIP. Все202 installedfiles побайтно совпадают;
+  версия1.3.77/active, calendar.js HTTP200,22 Gutenbergблока зарегистрированы,
+  actual day/readings render и DEакафист61/hash/allrubrics/1895 PASS.
+- Backend и WordPress.org/SVN повторно не публиковались. GlotPress originals
+  sync/editor approval остаются отдельным ограничением, не серверным deployment.
+- Последний receipt commit: Record verified WordPress 1.3.77 deployment (hash в Git).
