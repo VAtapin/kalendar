@@ -1,0 +1,195 @@
+# Complete Stable Readme 1.3.77 translation proposal. Editorial approval pending.
+msgid ""
+msgstr "PO-Revision-Date: 2026-10-11 18:25+0200\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Generator: GlotPress/4.1.0\nLanguage: de\nProject-Id-Version: Plugins - Georg-Kloster Calendar Workshop - Stable Readme (latest release)\n"
+
+msgid "Orthodox calendar for WordPress: feasts, fasting, commemorations, readings, liturgical texts and Gutenberg blocks."
+msgstr "Orthodoxer Kalender für WordPress: Feste, Fasten, Gedenktage, Lesungen, liturgische Texte und Gutenberg-Blöcke."
+
+msgid "Georg-Kloster Calendar Workshop"
+msgstr "Georg-Kloster Calendar Workshop"
+
+msgid "The retired Kalendar key is not sent to Bible Desktop. Saved legacy settings are retained but do not authorize public calendar requests.\nThe calendar, texts, translations, and icons API is configured in Georg-Kloster Calendar Workshop â†’ Connection. Its current default address is https://bible-desktop.com and no file access is required."
+msgstr "Der bisherige Kalendar-Schlüssel wird nicht an Bible Desktop übermittelt. Alte Einstellungen bleiben erhalten, berechtigen aber nicht zu öffentlichen Kalenderanfragen.\nDie API für Kalender, Texte, Übersetzungen und Ikonen wird unter Georg-Kloster Calendar Workshop → Verbindung konfiguriert. Die Standardadresse lautet https://bible-desktop.com; Dateizugriff ist für die Einrichtung nicht erforderlich."
+
+msgid "Add blocks from the Widgets category or shortcodes to a page."
+msgstr "Fügen Sie einer Seite Blöcke aus der Kategorie „Widgets“ oder Shortcodes hinzu."
+
+msgid "The calendar works immediately. Open Georg-Kloster Calendar Workshop â†’ Connection to change the Bible Desktop API address."
+msgstr "Der Kalender funktioniert sofort. Öffnen Sie Georg-Kloster Calendar Workshop → Verbindung, um die Adresse der Bible-Desktop-API zu ändern."
+
+msgid "Activate the plugin."
+msgstr "Aktivieren Sie das Plugin."
+
+msgid "WordPress â†’ Plugins â†’ Add New â†’ Upload Plugin: orthocal-1.3.77.zip."
+msgstr "WordPress → Plugins → Neues Plugin hinzufügen → Plugin hochladen: orthocal-1.3.77.zip."
+
+msgid "22 dynamic Gutenberg blocks and shortcodes, a dedicated plugin menu, a live-preview generator with shortcode copying, built-in help, server-rendered HTML, date switching without reloads, modal dialogs, daily-commemoration search, ?orthocal_date=YYYY-MM-DD permalinks, independent blocks, three themes, responsive layouts, print styles, and keyboard navigation.\nSettings, Gutenberg blocks, day cards and the reader support Russian, German, Ukrainian and Polish labels; the calendar-data language and Bible language are chosen separately. Calendar translations can be incomplete. Built-in liturgical texts are Church Slavonic, with German editions available through links. Icon images and hagiographies are never substituted for missing data."
+msgstr "22 dynamische Gutenberg-Blöcke und Shortcodes, ein eigenes Plugin-Menü, ein Generator mit Live-Vorschau und Kopieren von Shortcodes, integrierte Hilfe, serverseitig erzeugtes HTML, Datumswechsel ohne Neuladen, modale Dialoge, Suche in den Gedenktagen, Permalinks mit ?orthocal_date=YYYY-MM-DD, unabhängige Blöcke, drei Gestaltungsthemen, responsive Layouts, Druckstile und Tastaturbedienung.\nEinstellungen, Gutenberg-Blöcke, Tageskarten und der Textleser unterstützen russische, deutsche, ukrainische und polnische Beschriftungen; die Sprache der Kalenderdaten und der Bibel wird getrennt gewählt. Kalenderübersetzungen können unvollständig sein. Die integrierten liturgischen Texte sind kirchenslawisch; deutsche Ausgaben sind über Links verfügbar. Fehlende Daten werden niemals durch andere Ikonenbilder oder Heiligenviten ersetzt."
+
+msgid "The updated calendar API is required: upcoming, view=summary, and the X-Calendar-Application-Cache-TTL header.\nSuccessful calendar responses are retained for up to 300 seconds only when allowed by the API; access revocation and database changes appear no later than this expiry. Stale data is not used after errors. Responses without the allowing header are not retained between requests.\nBible responses are retained for the selected 0/1/6/24 hours (24 by default); no-store disables retention unless separately permitted by the API. The browser deduplicates simultaneous requests.\nLocal images and fonts are stored in uploads/orthocal-cache. Remote photos are resized to a maximum edge of 1200 pixels and compressed to no more than 100 KB before they are saved. Conditional ETag/Last-Modified checks through WP-Cron run every 6/12/24/168 hours (24 by default). A changed file receives a new hashed URL, while the last working copy remains available after a failure. The limit is 200 MB; old versions can be cleared in the admin area. Media Library files are not affected.\nPublic REST routes are limited to fixed sources and an allowlist of parameters. WordPress counters limit ordinary traffic; configure web-server rate limiting as well for strict protection against distributed quota exhaustion.\nIf the site has full-page caching, exclude calendar pages or use a TTL of no more than 300 seconds and clear it at midnight in the site timezone. Otherwise, HTML can outlive the API data.\nSaving settings invalidates the plugin cache. Deactivation preserves settings."
+msgstr "Die aktualisierte Kalender-API ist erforderlich: upcoming, view=summary und der Header X-Calendar-Application-Cache-TTL.\nErfolgreiche Kalenderantworten werden nur mit Erlaubnis der API und höchstens 300 Sekunden gespeichert; Zugriffsaufhebung und Datenbankänderungen werden spätestens nach Ablauf dieser Frist berücksichtigt. Nach Fehlern werden keine veralteten Daten verwendet. Antworten ohne erlaubenden Header werden nicht zwischen Anfragen gespeichert.\nBibelantworten werden für die gewählten 0, 1, 6 oder 24 Stunden gespeichert (Standard: 24); no-store verhindert die Speicherung, sofern die API sie nicht gesondert erlaubt. Der Browser fasst gleichzeitige identische Anfragen zusammen.\nLokale Bilder und Schriftarten liegen in uploads/orthocal-cache. Entfernte Fotos werden auf höchstens 1200 Pixel an der längsten Seite verkleinert und vor dem Speichern auf maximal 100 KB komprimiert. Bedingte ETag/Last-Modified-Prüfungen über WP-Cron erfolgen alle 6, 12, 24 oder 168 Stunden (Standard: 24). Geänderte Dateien erhalten eine neue URL mit Hash; bei Fehlern bleibt die letzte funktionierende Kopie erhalten. Die Grenze beträgt 200 MB; alte Versionen können im Administrationsbereich gelöscht werden. Dateien der Mediathek bleiben unberührt.\nÖffentliche REST-Routen sind auf feste Quellen und eine Positivliste von Parametern begrenzt. WordPress-Zähler begrenzen normalen Datenverkehr; konfigurieren Sie zusätzlich eine serverseitige Ratenbegrenzung zum strikten Schutz vor verteilter Ausschöpfung der Kontingente.\nBei vollständigem Seiten-Caching schließen Sie Kalenderseiten aus oder setzen Sie eine TTL von höchstens 300 Sekunden und leeren den Cache um Mitternacht in der Zeitzone der Website. Andernfalls kann HTML länger bestehen bleiben als die API-Daten.\nDas Speichern der Einstellungen leert den Plugin-Cache. Die Deaktivierung erhält die Einstellungen."
+
+msgid "Both services receive the requesting server IP address, request time, requested resource and technical HTTP headers. The plugin does not send visitor IP addresses, names, email addresses, WordPress passwords or post contents. Remote media are cached and served locally. Requests may be skipped while a valid cache entry is available. Full texts, icons and hagiographies are not bundled in the ZIP; their respective rights remain applicable.\nThe single Bible Desktop API origin can be changed in the Connection settings. These links describe the default providers; administrators choosing a different provider must review and disclose that provider's terms and privacy policy to their users."
+msgstr "Beide Dienste erhalten die IP-Adresse des anfragenden Servers, Anfragezeit, angeforderte Ressource und technische HTTP-Header. Das Plugin übermittelt keine Besucher-IP-Adressen, Namen, E-Mail-Adressen, WordPress-Passwörter oder Beitragsinhalte. Entfernte Medien werden zwischengespeichert und lokal ausgeliefert. Bei gültigem Cache-Eintrag können Anfragen entfallen. Volltexte, Ikonen und Heiligenviten sind nicht im ZIP enthalten; die jeweiligen Rechte gelten weiterhin.\nDie gemeinsame API-Adresse von Bible Desktop kann in den Verbindungseinstellungen geändert werden. Diese Links beschreiben die Standardanbieter; bei Wahl eines anderen Anbieters müssen Administratoren dessen Nutzungsbedingungen und Datenschutzerklärung prüfen und ihren Nutzern bekannt machen."
+
+msgid "Bible Desktop API: https://bible-desktop.com/api/\nUsed for Bible translations, books, chapters, liturgical libraries, hagiographies and icon catalogues/images. Opening readings or a library sends the selected translation, book/chapter, language, work identifier or pagination/filter parameters. Loading icons sends the calendar month/day or material/image identifier. On cache misses, WordPress downloads images and fonts; scheduled cache revalidation sends conditional HTTP headers. Bible Desktop calculates the calendar locally. The retired Kalendar key is never sent to the replacement provider.\nTerms of Service: https://bible-desktop.com/pages/api-terms\nPrivacy Policy: https://bible-desktop.com/pages/api-privacy"
+msgstr "Bible-Desktop-API: https://bible-desktop.com/api/\nFür Bibelübersetzungen, Bücher, Kapitel, liturgische Bibliotheken, Heiligenviten sowie Ikonenkataloge und Bilder. Beim Öffnen von Lesungen oder Bibliotheken werden Übersetzung, Buch/Kapitel, Sprache, Werkkennung oder Seiten- und Filterparameter übermittelt. Für Ikonen werden Kalendermonat/-tag oder Material-/Bildkennung gesendet. Bei fehlendem Cache lädt WordPress Bilder und Schriftarten herunter; geplante Cache-Prüfungen senden bedingte HTTP-Header. Bible Desktop berechnet den Kalender lokal. Der bisherige Kalendar-Schlüssel wird niemals an den neuen Anbieter übermittelt.\nNutzungsbedingungen: https://bible-desktop.com/pages/api-terms\nDatenschutzerklärung: https://bible-desktop.com/pages/api-privacy"
+
+msgid "Calendar API: https://bible-desktop.com/api/v1/calendar/\nUsed to calculate dates, feasts, fasting, commemorations and reading references. Loading a block, its admin preview or changing the date sends the date/period, language, calendar profile and display/filter parameters from the WordPress server. Public requests include X-Calendar-Client: orthocal-wordpress. Normal public use needs no registration or key.\nTerms of Service: https://bible-desktop.com/pages/api-terms\nPrivacy Policy: https://bible-desktop.com/pages/api-privacy"
+msgstr "Kalender-API: https://bible-desktop.com/api/v1/calendar/\nZur Berechnung von Daten, Festen, Fasten, Gedenktagen und Lesungsverweisen. Laden eines Blocks, Administrationsvorschau oder Datumswechsel übermitteln Datum/Zeitraum, Sprache, Kalenderprofil sowie Anzeige-/Filterparameter vom WordPress-Server. Öffentliche Anfragen enthalten X-Calendar-Client: orthocal-wordpress. Für die normale öffentliche Nutzung sind weder Registrierung noch Schlüssel erforderlich.\nNutzungsbedingungen: https://bible-desktop.com/pages/api-terms\nDatenschutzerklärung: https://bible-desktop.com/pages/api-privacy"
+
+msgid "General parameters: lang=\"ru|cu|de|uk|pl\", profile=\"typikon-strict|parish\", theme=\"book|modern|inherit\", compact=\"0|1\", and oldstyle=\"0|1\". The Horologion uses a protected service route and includes Sixth Hour inserts. An empty date means the current date in the WordPress timezone. Supported years are 1900â€“2200.\nUpcoming-event filters: main (major and memorial), twelve (Pascha and the Twelve Great Feasts), great, memorial, and all. The search covers the supplied date and the next 366 days, with a maximum of 10 events."
+msgstr "Allgemeine Parameter: lang=\"ru|cu|de|uk|pl\", profile=\"typikon-strict|parish\", theme=\"book|modern|inherit\", compact=\"0|1\" und oldstyle=\"0|1\". Das Horologion verwendet eine geschützte Gottesdienstroute und enthält Einschübe der sechsten Stunde. Ein leeres Datum bedeutet das aktuelle Datum in der WordPress-Zeitzone. Unterstützte Jahre: 1900–2200.\nFilter für bevorstehende Ereignisse: main (Haupt- und Totengedenktage), twelve (Pascha und die zwölf großen Feste), great (große Feste), memorial (Totengedenktage) und all (alle). Die Suche umfasst das angegebene Datum und die folgenden 366 Tage und zeigt höchstens zehn Ereignisse."
+
+msgid "open=\"inline|modal|page\" controls how the day opens; reading_open=\"inline|modal\" controls readings. For a separate page, place [orthocal_day] on it and select that page in the settings. sections=\"fasting,saints,readings,texts,icons\", images=\"0|1\", and heading=\"0|1\" control the content. The admin generator previews parameters and output.\nimage_size=\"120\" sets a fasting-image height in pixels; its width retains the source image ratio. Existing small, medium, and large shortcodes continue to use heights of 28, 44, and 72 px.\nThe reference library contains an initial corpus of 98 Church Slavonic texts with sources and awaits liturgical editorial review. It does not automatically assign a text to a daily service. Akathists are planned in BibleDesktop and are not yet connected."
+msgstr "open=\"inline|modal|page\" steuert das Öffnen eines Tages; reading_open=\"inline|modal\" das Öffnen von Lesungen. Für eine eigene Seite platzieren Sie dort [orthocal_day] und wählen die Seite in den Einstellungen. sections=\"fasting,saints,readings,texts,icons\", images=\"0|1\" und heading=\"0|1\" steuern den Inhalt. Der Generator im Administrationsbereich zeigt Parameter und Ausgabe an.\nimage_size=\"120\" legt die Höhe eines Fastenbildes in Pixeln fest; die Breite behält das Seitenverhältnis bei. Bestehende Shortcodes mit small, medium und large verwenden weiterhin Höhen von 28, 44 und 72 Pixeln.\nDie Referenzbibliothek enthält einen Anfangsbestand von 98 kirchenslawischen Texten mit Quellen und wartet auf liturgische redaktionelle Prüfung. Sie ordnet Texte nicht automatisch dem täglichen Gottesdienst zu. Akathiste sind in BibleDesktop geplant und noch nicht angebunden."
+
+msgid "[orthocal_today]\n[orthocal_upcoming limit=\"5\" filter=\"main\"]\n[orthocal_month year=\"2027\" month=\"5\"]\n[orthocal_year year=\"2027\"]\n[orthocal_day date=\"2027-05-02\"]\n[orthocal_readings date=\"2027-05-02\"]\n[orthocal_calendar open=\"modal\"]\n[orthocal_fasting]\n[orthocal_saints]\n[orthocal_feasts limit=\"5\"]\n[orthocal_memorial]\n[orthocal_pascha year=\"2027\"]\n[orthocal_fasts year=\"2027\"]\n[orthocal_date]\n[orthocal_texts]\n[orthocal_troparia scope=\"resurrection\" tone=\"1\"]\n[orthocal_kontakia scope=\"weekday\" weekday=\"1\"]\n[orthocal_prayers]\n[orthocal_magnifications]\n[orthocal_horologion]"
+msgstr "[orthocal_today]\n[orthocal_upcoming limit=\"5\" filter=\"main\"]\n[orthocal_month year=\"2027\" month=\"5\"]\n[orthocal_year year=\"2027\"]\n[orthocal_day date=\"2027-05-02\"]\n[orthocal_readings date=\"2027-05-02\"]\n[orthocal_calendar open=\"modal\"]\n[orthocal_fasting]\n[orthocal_saints]\n[orthocal_feasts limit=\"5\"]\n[orthocal_memorial]\n[orthocal_pascha year=\"2027\"]\n[orthocal_fasts year=\"2027\"]\n[orthocal_date]\n[orthocal_texts]\n[orthocal_troparia scope=\"resurrection\" tone=\"1\"]\n[orthocal_kontakia scope=\"weekday\" weekday=\"1\"]\n[orthocal_prayers]\n[orthocal_magnifications]\n[orthocal_horologion]"
+
+msgid "Edit these source files directly. No npm build is required for plugin installation or development. To check JavaScript syntax, run node --check assets/admin.js, node --check assets/calendar.js and node --check assets/editor.js. PHP files can be checked with php -l. Optional formatting: npx prettier@3.6.2 --write assets/<em>.js assets/</em>.css. The repository includes scripts/build-language-files.mjs for rebuilding MO catalogues with Node.js. The release packaging procedure is documented in the public repository README.md."
+msgstr "Bearbeiten Sie diese Quelldateien direkt. Für Installation und Entwicklung ist kein npm-Build erforderlich. Prüfen Sie JavaScript mit node --check assets/admin.js, node --check assets/calendar.js und node --check assets/editor.js; PHP-Dateien mit php -l. Optionales Formatieren: npx prettier@3.6.2 --write assets/<em>.js assets/</em>.css. Das Repository enthält scripts/build-language-files.mjs zum erneuten Erstellen von MO-Katalogen mit Node.js. Das Verpacken von Releases ist in der README.md des öffentlichen Repositorys beschrieben."
+
+msgid "The files assets/admin.js, assets/calendar.js, assets/editor.js, assets/admin.css and assets/calendar.css are the original, human-readable sources and are included in this ZIP. They are served directly by WordPress. There is no transpilation, bundling, minification or generated JavaScript/CSS, and no separate hidden source tree. The scripts use WordPress-provided Gutenberg libraries rather than bundled copies."
+msgstr "Die Dateien assets/admin.js, assets/calendar.js, assets/editor.js, assets/admin.css und assets/calendar.css sind die originalen, lesbaren Quellen und im ZIP enthalten. WordPress verwendet sie direkt. Es gibt keine Transpilierung, Bündelung, Minifizierung, generierten JavaScript-/CSS-Dateien oder versteckten separaten Quellbaum. Die Skripte verwenden die von WordPress bereitgestellten Gutenberg-Bibliotheken statt mitgelieferter Kopien."
+
+msgid "Public source repository: https://github.com/VAtapin/wp_orthodox_calendar\nJavaScript and CSS sources: https://github.com/VAtapin/wp_orthodox_calendar/tree/main/assets"
+msgstr "Öffentliches Quellcode-Repository: https://github.com/VAtapin/wp_orthodox_calendar\nJavaScript- und CSS-Quellen: https://github.com/VAtapin/wp_orthodox_calendar/tree/main/assets"
+
+msgid "Adds 22 dynamic Gutenberg blocks and shortcodes. Calendar and Bible data come from the external services listed below; no calendar database is included in the plugin."
+msgstr "Fügt 22 dynamische Gutenberg-Blöcke und Shortcodes hinzu. Kalender- und Bibeldaten stammen aus den unten aufgeführten externen Diensten; das Plugin enthält keine Kalenderdatenbank."
+
+msgid "Features"
+msgstr "Funktionen"
+
+msgid "Cache and access"
+msgstr "Cache und Zugriff"
+
+msgid "External Services"
+msgstr "Externe Dienste"
+
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+msgid "Source code and development"
+msgstr "Quellcode und Entwicklung"
+
+msgid "All calendar requests now use the configured Bible Desktop provider. Removed the separate Kalendar API origin and key forwarding. Decorative packs, Typikon signs and Monomakh are bundled locally; shortcodes and galleries are preserved."
+msgstr "Alle Kalenderanfragen verwenden nun den konfigurierten Anbieter Bible Desktop. Der separate Kalendar-API-Ursprung und die Schlüsselweitergabe wurden entfernt. Dekorationspakete, Typikon-Zeichen und Monomakh sind lokal enthalten; Shortcodes und Galerien bleiben erhalten."
+
+msgid "Added Russian and German plugin-header translations."
+msgstr "Russische und deutsche Übersetzungen der Plugin-Kopfdaten ergänzt."
+
+msgid "Prevented theme lightboxes from replacing the plugin's icon gallery."
+msgstr "Verhindert, dass Lightboxen des Themes die Ikonengalerie des Plugins ersetzen."
+
+msgid "The configured number of icons limits only cards in the block; every daily icon and every image remains available in its gallery."
+msgstr "Die konfigurierte Ikonenanzahl begrenzt nur die Karten im Block; jede Tagesikone und jedes Bild bleiben in der Galerie verfügbar."
+
+msgid "Corrected the Plugin URI for WordPress.org submission; it now differs from the author URL."
+msgstr "Plugin URI für die WordPress.org-Einreichung korrigiert; sie unterscheidet sich nun von der Autoren-URL."
+
+msgid "Align the WordPress localization text domain with the approved plugin slug and add the tested WordPress version."
+msgstr "Text Domain der WordPress-Lokalisierung an den genehmigten Plugin-Slug angepasst und getestete WordPress-Version ergänzt."
+
+msgid "Updated the tested WordPress version to 7.1."
+msgstr "Getestete WordPress-Version auf 7.1 aktualisiert."
+
+msgid "Renamed the plugin to Orthodox Calendar – Workshop and aligned the text domain with its WordPress.org slug."
+msgstr "Plugin in Orthodox Calendar – Workshop umbenannt und Text Domain an den WordPress.org-Slug angepasst."
+
+msgid "Increased the persistent local media cache limit from 64 MB to 200 MB."
+msgstr "Grenze des dauerhaften lokalen Medien-Caches von 64 MB auf 200 MB erhöht."
+
+msgid "Centralized the calendar API origin."
+msgstr "Den Ursprung der Kalender-API zentralisiert."
+
+msgid "Added an editable public API address in the plugin settings."
+msgstr "Eine bearbeitbare öffentliche API-Adresse in den Plugin-Einstellungen ergänzt."
+
+msgid "Fixed icon loading when the configured public API returns image files from a separate media domain."
+msgstr "Ikonenladen korrigiert, wenn die konfigurierte öffentliche API Bilddateien von einer separaten Mediendomäne liefert."
+
+msgid "Restored https://bible-desktop.com as the current default public API address."
+msgstr "Die Adresse https://bible-desktop.com als aktuelle öffentliche Standard-API wiederhergestellt."
+
+msgid "Clear full-size files from older plugin versions once after updating."
+msgstr "Dateien in voller Größe aus älteren Plugin-Versionen nach dem Update einmalig entfernen."
+
+msgid "Compress remote icon photos to no more than 100 KB before saving them in WordPress."
+msgstr "Entfernte Ikonenfotos vor dem Speichern in WordPress auf höchstens 100 KB komprimieren."
+
+msgid "Preserve existing blocks, shortcodes and settings."
+msgstr "Bestehende Blöcke, Shortcodes und Einstellungen erhalten."
+
+msgid "Document external API requests and link to provider terms and privacy policies."
+msgstr "Externe API-Anfragen dokumentiert und Nutzungsbedingungen sowie Datenschutzerklärungen der Anbieter verlinkt."
+
+msgid "Rename the plugin to Georg-Kloster Calendar Workshop and use the matching text domain."
+msgstr "Plugin in Georg-Kloster Calendar Workshop umbenannt und passende Text Domain verwendet."
+
+msgid "Use the established orthocal prefix for all response, cooldown and rate-limit transients."
+msgstr "Den etablierten Präfix orthocal für alle Antwort-, Wartezeit- und Ratenbegrenzungs-Transients verwenden."
+
+msgid "Validate complete fasting-period dates before rendering malformed external API data."
+msgstr "Vollständige Daten der Fastenzeiträume vor der Darstellung fehlerhafter externer API-Daten prüfen."
+
+msgid "Include readable JavaScript/CSS sources and document their public repository and development workflow."
+msgstr "Lesbare JavaScript-/CSS-Quellen enthalten und öffentliches Repository sowie Entwicklungsablauf dokumentiert."
+
+msgid "Explain read-only navigation and necessary page-cache/database integrations to Plugin Check."
+msgstr "Schreibfreie Navigation und notwendige Anbindungen an Seiten-Cache und Datenbank für Plugin Check erläutert."
+
+msgid "Unslash, sanitize and validate public date and client IP inputs."
+msgstr "Maskierungszeichen aus öffentlichen Datums- und Client-IP-Eingaben entfernen, die Eingaben bereinigen und validieren."
+
+msgid "Connect settings, Gutenberg and reader labels to WordPress gettext and script translations."
+msgstr "Beschriftungen der Einstellungen, Gutenberg-Blöcke und des Textlesers mit WordPress gettext und Skriptübersetzungen verbunden."
+
+msgid "Preserve existing translations and add complete Russian, German, Ukrainian and Polish catalogues."
+msgstr "Vorhandene Übersetzungen beibehalten und vollständige russische, deutsche, ukrainische und polnische Kataloge hinzugefügt."
+
+msgid "Keep each block language and liturgical text language independent of the site locale."
+msgstr "Die Sprache jedes Blocks und der liturgischen Texte bleibt unabhängig von der Website-Sprache."
+
+msgid "Show the actual historical edition year and credit of stored German prayers."
+msgstr "Das tatsächliche Jahr der historischen Ausgabe und die Quellenangabe gespeicherter deutscher Gebete anzeigen."
+
+msgid "Support the reviewed German morning, evening and Communion rules through existing APIs."
+msgstr "Die geprüften deutschen Morgen-, Abend- und Kommuniongebete über die vorhandenen APIs unterstützen."
+
+msgid "Display lection numbers only for unambiguous exact source-coordinate matches."
+msgstr "Lesungsnummern nur bei eindeutiger, exakter Übereinstimmung der Quellenkoordinaten anzeigen."
+
+msgid "Preserve source variants and ambiguous candidates without guessing a number."
+msgstr "Quellenvarianten und mehrdeutige Kandidaten beibehalten, ohne eine Nummer zu erraten."
+
+msgid "Resolve saved legacy prayer links to complete canonical works."
+msgstr "Gespeicherte ältere Gebetslinks zu vollständigen kanonischen Werken auflösen."
+
+msgid "Add prayer groups and keep actual text languages explicit."
+msgstr "Gebetsgruppen hinzufügen und die tatsächlichen Textsprachen ausdrücklich angeben."
+
+msgid "Invalidate old prayer copies and cache full editions by content revision."
+msgstr "Alte Gebetskopien verwerfen und vollständige Ausgaben nach Inhaltsrevision zwischenspeichern."
+
+msgid "Day card with actual icons, commemorations, fasting rules and Bible readings."
+msgstr "Tageskarte mit tatsächlichen Ikonen, Gedenktagen, Fastenregeln und Bibellesungen."
+
+msgid "Monthly calendar with feast days, fasting rules and dates in the old style."
+msgstr "Monatskalender mit Festtagen, Fastenregeln und Daten nach dem alten Kalenderstil."
+
+msgid "Yearly calendar with Pascha and the twelve monthly grids."
+msgstr "Jahreskalender mit Ostern und den zwölf Monatsübersichten."
+
+msgid "Shortcode generator with block settings and a live preview."
+msgstr "Shortcode-Generator mit Blockeinstellungen und Live-Vorschau."
+
+msgid "Full liturgical text reader with language selection and source attribution."
+msgstr "Leser für vollständige liturgische Texte mit Sprachauswahl und Quellenangabe."
+
+msgid "Church Slavonic text displayed using the Monomakh font."
+msgstr "Kirchenslawischer Text in der Schriftart Monomakh."
+
+msgid "Mobile day card with responsive navigation and actual icons."
+msgstr "Mobile Tageskarte mit responsiver Navigation und tatsächlichen Ikonen."

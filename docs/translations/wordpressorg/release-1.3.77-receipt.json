@@ -1,0 +1,91 @@
+{
+  "checkedAt": "2026-10-11T16:22:02.811Z",
+  "run": "https://github.com/VAtapin/wp_orthodox_calendar/actions/runs/38154849578",
+  "receipts": [
+    {
+      "path": "trunk/orthocal.php",
+      "status": 200,
+      "sha256": "500e40e4dc1f5a134e451f55b206ac4f8321397a291027abfa3b1d117caaf34c"
+    },
+    {
+      "path": "tags/1.3.77/orthocal.php",
+      "status": 200,
+      "sha256": "500e40e4dc1f5a134e451f55b206ac4f8321397a291027abfa3b1d117caaf34c"
+    },
+    {
+      "path": "tags/1.3.77/readme.txt",
+      "status": 200,
+      "sha256": "fd9f05bdbea66183bce2006797fed9278e644960089c573045938e4752a95ceb"
+    },
+    {
+      "path": "assets/icon-128x128.png",
+      "status": 200,
+      "sha256": "92e2fcacda42cccd4b7ca1e0615f0793c4743fa631e4afdb5c967daf20fe9dd3"
+    },
+    {
+      "path": "assets/icon-256x256.png",
+      "status": 200,
+      "sha256": "77166b75744a81500496cab20469c09780e9cf9439c7f427ddbacdbae587759e"
+    },
+    {
+      "path": "assets/screenshot-1.png",
+      "status": 200,
+      "sha256": "da49b6fdc74be2fdc2409f74fd1f360f6c8cd680edac4193e40cd2ca86ebe5d1"
+    },
+    {
+      "path": "assets/screenshot-2.png",
+      "status": 200,
+      "sha256": "0d61d4f5322d9d239cbd26cbc0c6d87aa5ea2e4365e1db115ece9a3e7473716f"
+    },
+    {
+      "path": "assets/screenshot-3.png",
+      "status": 200,
+      "sha256": "741ce6d4b751793d265d917d1dc95f93567073af520b6badc73d68ee0b5afc58"
+    },
+    {
+      "path": "assets/screenshot-4.png",
+      "status": 200,
+      "sha256": "538705798e496565cae5d9cd2a45997e78cfa20c1db6223729afc292f968bb02"
+    },
+    {
+      "path": "assets/screenshot-5.png",
+      "status": 200,
+      "sha256": "3b65199ea4691e8e16118f390116d77063129d781aedd8139014ee065be5fe34"
+    },
+    {
+      "path": "assets/screenshot-6.png",
+      "status": 200,
+      "sha256": "1e0375cf0245477a1bdb9221d1cbada437dc10dfb2f9cdf7ebf973352f72b696"
+    },
+    {
+      "path": "assets/screenshot-7.png",
+      "status": 200,
+      "sha256": "5b77824d0d455ab9e34f18e8f20fed97276c20342ec03b58237260fdd62ee408"
+    }
+  ],
+  "zipStatus": 200,
+  "sourceCommit": "9bebb48402d725228ebbcf0686380ce27d18c89d",
+  "kalendarCommit": "42f7ae4466314dee14056fd6073d9b43b3f183e5",
+  "tag": "1.3.77",
+  "revision": 3739769,
+  "workflowResult": {
+    "release": "success",
+    "deploy": "success"
+  },
+  "zipTranslationCheck": "Four PO/MO and twelve script JSON files match the checked local release exactly",
+  "glotPress": {
+    "checkedAt": "2026-10-11T16:26:10.172Z",
+    "stableOriginals": 27,
+    "stableReadmeOriginals": 47,
+    "fullStablePrepared": 441,
+    "fullReadmePrepared": 64,
+    "importAttemptRussianStable": "0 translations added; current originals still 27",
+    "currentFourLocaleImports": {
+      "stableWaiting": 27,
+      "readmeWaiting": 47,
+      "warnings": 0
+    },
+    "remaining": "Wait for WordPress.org original-string synchronization, import 1.3.77 catalogues, obtain locale-editor approval"
+  },
+  "ownerServerDeployment": "Not performed"
+}
