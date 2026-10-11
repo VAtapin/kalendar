@@ -9,12 +9,12 @@ const version=readWordPressPluginVersion(resolve('.'));
 const archive=`orthocal-${version}.zip`;
 await import('./build-wordpress-translations.mjs');
 const php=process.env.ORTHOCAL_PHP_BINARY || (process.platform==='win32' ? null : 'php');
-const titles={today:'Сегодня',upcoming:'Ближайшие праздники',month:'Календарь на месяц',year:'Календарь на год',day:'День календаря',readings:'Чтения дня',calendar:'Православный календарь',fasting:'Пост и трапеза',saints:'Памяти святых',feasts:'Праздники',memorial:'Поминальные дни',pascha:'Пасха',fasts:'Посты на год',date:'Дата по двум стилям',texts:'Богослужебные тексты',troparia:'Тропари',kontakia:'Кондаки',prayers:'Молитвы',magnifications:'Величания',horologion:'Часослов',akathists:'Акафисты',canons:'Каноны'};
+const titles={today:'Today',upcoming:'Upcoming feasts',month:'Monthly calendar',year:'Yearly calendar',day:'Calendar day',readings:'Daily readings',calendar:'Orthodox calendar',fasting:'Fasting and meals',saints:'Saints commemorations',feasts:'Feasts',memorial:'Memorial days',pascha:'Pascha',fasts:'Yearly fasts',date:'New and old style date',texts:'Liturgical texts',troparia:'Troparia',kontakia:'Kontakia',prayers:'Prayers',magnifications:'Magnifications',horologion:'Horologion',akathists:'Akathists',canons:'Canons'};
 for(const [mode,title] of Object.entries(titles)) {
   const directory=resolve(root,'blocks',mode);mkdirSync(directory,{recursive:true});
   writeFileSync(resolve(directory,'block.json'),JSON.stringify({
     $schema:'https://schemas.wp.org/trunk/block.json',apiVersion:3,name:'orthocal/'+mode,version,
-    title:'Православный календарь: '+title,category:'widgets',icon:'calendar-alt',textdomain:'georg-kloster-calendar-workshop',
+    title:'Orthodox calendar: '+title,category:'widgets',icon:'calendar-alt',textdomain:'georg-kloster-calendar-workshop',
     attributes:Object.fromEntries(['date','year','month','limit','filter','lang','profile','theme','css_mode','compact','oldstyle','show_nav','show_picker','show_copy','show_search','show_section_titles','show_font_size','open','reading_open','images','image_size','image_pack','icons','icon_limit','office','heading','sections','event_levels','scope','tone','weekday','text_id','work','prayer_group','text_language','text_page'].map(name=>[name,{type:'string'}])),
     supports:{html:false},editorScript:'orthocal-editor',style:'orthocal',viewScript:'orthocal',
   },null,2)+'\n');

@@ -1,0 +1,20 @@
+Title: Translation review / renewed PTE request for Georg-Kloster Calendar Workshop — English source strings fixed
+
+Hello Polyglots team,
+
+Thank you for explaining the source-language problem in my previous request. I have corrected it and released version 1.3.78 of Georg-Kloster Calendar Workshop.
+
+All PHP, JavaScript and Gutenberg interface source strings now use US English. The en_US interface works without a translation pack. Russian, German, Ukrainian and Polish translations have been preserved under the English originals, with contexts where month names need different grammatical forms.
+
+Plugin: https://wordpress.org/plugins/georg-kloster-calendar-workshop/
+Translation project: https://translate.wordpress.org/projects/wp-plugins/georg-kloster-calendar-workshop/
+Release source: https://github.com/VAtapin/wp_orthodox_calendar/tree/1.3.78
+
+Could the #ru_RU, #de_DE, #uk and #pl_PL teams please review the updated Stable and Stable Readme translation proposals and reconsider project-specific PTE access for @atapin where I meet your team's requirements? If another qualified reviewer is needed for a locale, I would appreciate your guidance.
+
+Some translations were prepared with AI assistance. I welcome native-speaker corrections and understand that approval and PTE appointment depend on each locale team's standards.
+
+Thank you,
+Vladimir Atapin (@atapin)
+
+#editor-requests #pte-request #ru_RU #de_DE #uk #pl_PL

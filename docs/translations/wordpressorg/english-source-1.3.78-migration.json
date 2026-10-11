@@ -1,0 +1,30 @@
+{
+  "version": "1.3.78",
+  "baseline": "e17bb630",
+  "sourceLanguage": "en_US",
+  "originals": 441,
+  "locales": {
+    "ru_RU": {
+      "retained": 441,
+      "whitespaceOnly": [],
+      "sha256": "ba6bc1b01713ca64ea5d3d360c6af38a1ed6897edccb8cea062e9fe981b54407"
+    },
+    "de_DE": {
+      "retained": 440,
+      "whitespaceOnly": [
+        "Молитвы и тексты дня на "
+      ],
+      "sha256": "eed352d6a81b8c80b9e9dab9dd7aefb5c9060c3cb651df32d3d0262874a28e3a"
+    },
+    "uk": {
+      "retained": 441,
+      "whitespaceOnly": [],
+      "sha256": "e8f3ecdefd5ffe3f796827775c48139a7555dc254350f1e00d7551fe8f2c6ea3"
+    },
+    "pl_PL": {
+      "retained": 441,
+      "whitespaceOnly": [],
+      "sha256": "b1ccd0bbd6688ed695351d9f6be89bec3e74b86840727342a0a79ee401503f4a"
+    }
+  }
+}
