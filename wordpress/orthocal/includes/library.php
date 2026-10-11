@@ -33,7 +33,7 @@ final class Orthocal_Library {
         $languages=$languages===null?array_keys(self::LANGUAGES):array_values(array_intersect(array_keys(self::LANGUAGES),$languages));
         if(!in_array(self::language($a),$languages,true))$languages[]=self::language($a);
         $html='<label>'.esc_html(Orthocal_Plugin::ui('Язык текста',$a['lang'])).' <select data-oc-library-language>';
-        foreach($languages as $code)$html.='<option value="'.esc_attr($code).'" '.selected(self::language($a),$code,false).'>'.esc_html(self::LANGUAGES[$code]).'</option>';
+        foreach($languages as $code)$html.='<option value="'.esc_attr($code).'" '.selected(self::language($a),$code,false).'>'.esc_html(Orthocal_Plugin::ui(self::LANGUAGES[$code],$a['lang'])).'</option>';
         return $html.'</select></label>';
     }
 
@@ -81,7 +81,7 @@ final class Orthocal_Library {
             $response=Orthocal_Plugin::request('bible','liturgical/works/'.rawurlencode($selected['slug']).'/versions/'.rawurlencode($language),$revision?['content_revision'=>$revision]:[]);
             if(is_wp_error($response))return $response;
             $version=$response['data']??null;
-            if(($version['language']??null)!==$language)return new WP_Error('language','Источник вернул другую языковую версию.');
+            if(($version['language']??null)!==$language)return new WP_Error('language',(Orthocal_I18n::text('Источник вернул другую языковую версию.')));
         }
         return ['library'=>true,'works'=>$works,'version'=>$version,'language'=>$language,'languages'=>$languages];
     }
@@ -134,7 +134,7 @@ final class Orthocal_Library {
         }
         $edition='';
         if(is_string($version['orthography']??null) && preg_match('/^historic-([0-9]{4})$/D',$version['orthography'],$matches))$edition=esc_html(Orthocal_Plugin::ui('Историческая редакция',$a['lang']).' ('.$matches[1].')').' · ';
-        return $html.'</div><p class="oc-text-source">'.$edition.'<a href="'.esc_url($version['source_url']??'').'" target="_blank" rel="noopener noreferrer">'.esc_html($version['credit']??'Источник').'</a></p></article>';
+        return $html.'</div><p class="oc-text-source">'.$edition.'<a href="'.esc_url($version['source_url']??'').'" target="_blank" rel="noopener noreferrer">'.esc_html($version['credit']??(Orthocal_I18n::text('Источник'))).'</a></p></article>';
     }
 
     static function sources($a) {

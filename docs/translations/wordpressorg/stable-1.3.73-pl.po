@@ -1,0 +1,147 @@
+# Translation of Plugins - Georg-Kloster Calendar Workshop - Stable (latest release) in Russian
+# This file is distributed under the same license as the Plugins - Georg-Kloster Calendar Workshop - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: +0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: pl\n"
+"Project-Id-Version: Plugins - Georg-Kloster Calendar Workshop - Stable (latest release)\n"
+
+#: blocks/year/block.json
+msgctxt "block title"
+msgid "Православный календарь: Календарь на год"
+msgstr "Kalendarz prawosławny: Kalendarz roczny"
+
+#: blocks/upcoming/block.json
+msgctxt "block title"
+msgid "Православный календарь: Ближайшие праздники"
+msgstr "Kalendarz prawosławny: Nadchodzące święta"
+
+#: blocks/troparia/block.json
+msgctxt "block title"
+msgid "Православный календарь: Тропари"
+msgstr "Kalendarz prawosławny: Tropariony"
+
+#: blocks/today/block.json
+msgctxt "block title"
+msgid "Православный календарь: Сегодня"
+msgstr "Kalendarz prawosławny: Dzisiaj"
+
+#: blocks/texts/block.json
+msgctxt "block title"
+msgid "Православный календарь: Богослужебные тексты"
+msgstr "Kalendarz prawosławny: Teksty liturgiczne"
+
+#: blocks/saints/block.json
+msgctxt "block title"
+msgid "Православный календарь: Памяти святых"
+msgstr "Kalendarz prawosławny: Wspomnienia świętych"
+
+#: blocks/readings/block.json
+msgctxt "block title"
+msgid "Православный календарь: Чтения дня"
+msgstr "Kalendarz prawosławny: Czytania dnia"
+
+#: blocks/prayers/block.json
+msgctxt "block title"
+msgid "Православный календарь: Молитвы"
+msgstr "Kalendarz prawosławny: Modlitwy"
+
+#: blocks/pascha/block.json
+msgctxt "block title"
+msgid "Православный календарь: Пасха"
+msgstr "Kalendarz prawosławny: Pascha"
+
+#: blocks/month/block.json
+msgctxt "block title"
+msgid "Православный календарь: Календарь на месяц"
+msgstr "Kalendarz prawosławny: Kalendarz miesięczny"
+
+#: blocks/memorial/block.json
+msgctxt "block title"
+msgid "Православный календарь: Поминальные дни"
+msgstr "Kalendarz prawosławny: Dni pamięci zmarłych"
+
+#: blocks/magnifications/block.json
+msgctxt "block title"
+msgid "Православный календарь: Величания"
+msgstr "Kalendarz prawosławny: Wieliczanija"
+
+#: blocks/kontakia/block.json
+msgctxt "block title"
+msgid "Православный календарь: Кондаки"
+msgstr "Kalendarz prawosławny: Kontakiony"
+
+#: blocks/horologion/block.json
+msgctxt "block title"
+msgid "Православный календарь: Часослов"
+msgstr "Kalendarz prawosławny: Czasosłow"
+
+#: blocks/feasts/block.json
+msgctxt "block title"
+msgid "Православный календарь: Праздники"
+msgstr "Kalendarz prawosławny: Święta"
+
+#: blocks/fasts/block.json
+msgctxt "block title"
+msgid "Православный календарь: Посты на год"
+msgstr "Kalendarz prawosławny: Posty w roku"
+
+#: blocks/fasting/block.json
+msgctxt "block title"
+msgid "Православный календарь: Пост и трапеза"
+msgstr "Kalendarz prawosławny: Post i posiłki"
+
+#: blocks/day/block.json
+msgctxt "block title"
+msgid "Православный календарь: День календаря"
+msgstr "Kalendarz prawosławny: Dzień kalendarza"
+
+#: blocks/date/block.json
+msgctxt "block title"
+msgid "Православный календарь: Дата по двум стилям"
+msgstr "Kalendarz prawosławny: Data według obu stylów"
+
+#: blocks/canons/block.json
+msgctxt "block title"
+msgid "Православный календарь: Каноны"
+msgstr "Kalendarz prawosławny: Kanony"
+
+#: blocks/calendar/block.json
+msgctxt "block title"
+msgid "Православный календарь: Православный календарь"
+msgstr "Kalendarz prawosławny: Kalendarz prawosławny"
+
+#: blocks/akathists/block.json
+msgctxt "block title"
+msgid "Православный календарь: Акафисты"
+msgstr "Kalendarz prawosławny: Akatysty"
+
+#. Author URI of the plugin
+#: orthocal.php
+msgid "https://atapin.de/"
+msgstr "https://atapin.de/"
+
+#. Author of the plugin
+#: orthocal.php
+msgid "Vladimir Atapin"
+msgstr "Vladimir Atapin"
+
+#. Description of the plugin
+#: orthocal.php
+msgid "Gutenberg blocks and shortcodes for an Orthodox calendar: calendar dates, fasting rules, commemorations, readings and liturgical texts."
+msgstr "Bloki Gutenberga i krótkie kody dla kalendarza prawosławnego: daty, zasady postu, wspomnienia, czytania i teksty liturgiczne."
+
+#. Plugin URI of the plugin
+#: orthocal.php
+msgid "https://github.com/VAtapin/wp_orthodox_calendar"
+msgstr "https://github.com/VAtapin/wp_orthodox_calendar"
+
+#. Plugin Name of the plugin
+#: orthocal.php
+msgid "Georg-Kloster Calendar Workshop"
+msgstr "Georg-Kloster Calendar Workshop"

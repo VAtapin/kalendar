@@ -7,6 +7,7 @@ const root=resolve('wordpress/orthocal');
 await import('./build-wordpress-decoration-assets.mjs');
 const version=readWordPressPluginVersion(resolve('.'));
 const archive=`orthocal-${version}.zip`;
+await import('./build-wordpress-translations.mjs');
 const php=process.env.ORTHOCAL_PHP_BINARY || (process.platform==='win32' ? null : 'php');
 const titles={today:'Сегодня',upcoming:'Ближайшие праздники',month:'Календарь на месяц',year:'Календарь на год',day:'День календаря',readings:'Чтения дня',calendar:'Православный календарь',fasting:'Пост и трапеза',saints:'Памяти святых',feasts:'Праздники',memorial:'Поминальные дни',pascha:'Пасха',fasts:'Посты на год',date:'Дата по двум стилям',texts:'Богослужебные тексты',troparia:'Тропари',kontakia:'Кондаки',prayers:'Молитвы',magnifications:'Величания',horologion:'Часослов',akathists:'Акафисты',canons:'Каноны'};
 for(const [mode,title] of Object.entries(titles)) {
