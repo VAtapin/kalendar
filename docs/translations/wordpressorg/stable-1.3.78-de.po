@@ -1,5 +1,3 @@
-# English source strings; existing translations preserved.
-
 msgid ""
 msgstr "Project-Id-Version: Georg-Kloster Calendar Workshop 1.3.78\nReport-Msgid-Bugs-To: https://wordpress.org/support/plugin/georg-kloster-calendar-workshop/\nPO-Revision-Date: 2026-10-11 18:00+0200\nLanguage: de_DE\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Domain: georg-kloster-calendar-workshop\n"
 
@@ -21,7 +19,7 @@ msgstr "Die lokalen Kopien wurden gelöscht."
 
 #: includes/admin.php
 msgid "Files are being updated. Please try again later."
-msgstr "Die Dateien werden aktualisiert. Bitte später erneut versuchen."
+msgstr "Die Dateien werden aktualisiert. Bitte versuche es später noch einmal."
 
 #: includes/admin.php
 msgid "Ornamental with labels"
@@ -73,19 +71,19 @@ msgstr "Klare Illustration"
 
 #: includes/admin.php
 msgid "Photorealistic — blue"
-msgstr "Fotorealistisch — blau"
+msgstr "Fotorealistisch – blau"
 
 #: includes/admin.php
 msgid "Photorealistic — rustic"
-msgstr "Fotorealistisch — ländlich"
+msgstr "Fotorealistisch – ländlich"
 
 #: includes/admin.php
 msgid "Photorealistic — copper"
-msgstr "Fotorealistisch — kupferfarben"
+msgstr "Fotorealistisch – kupferfarben"
 
 #: includes/admin.php
 msgid "Photorealistic — golden"
-msgstr "Fotorealistisch — goldfarben"
+msgstr "Fotorealistisch – goldfarben"
 
 #: includes/admin.php
 msgid "Connection"
@@ -177,7 +175,7 @@ msgstr "Standard-Bibelübersetzung"
 
 #: includes/admin.php
 msgid "Choose a code below. You can override it for individual blocks in the generator."
-msgstr "Der Code kann unten ausgewählt werden. Im Generator kann er für jeden Block überschrieben werden."
+msgstr "Wähle unten einen Code aus. Im Generator kannst du ihn für einzelne Blöcke überschreiben."
 
 #: includes/admin.php
 msgid "BibleDesktop catalogue"
@@ -197,7 +195,7 @@ msgstr "Zeitzone der Website: "
 
 #: includes/admin.php
 msgid ". Change it in the general WordPress settings."
-msgstr ". Sie wird in den allgemeinen WordPress-Einstellungen geändert."
+msgstr ". Ändere sie in den allgemeinen WordPress-Einstellungen."
 
 #: includes/admin.php
 msgid "Open general settings"
@@ -213,11 +211,11 @@ msgstr " Dateien · "
 
 #: includes/admin.php
 msgid " of 200 MB. Photos are stored locally with a maximum size of 100 KB."
-msgstr " von 200 MB. Fotos werden lokal mit höchstens 100 KB gespeichert."
+msgstr " von 200 MB. Fotos werden lokal mit höchstens 100 KB gespeichert."
 
 #: includes/admin.php
 msgid "Check images and fonts"
-msgstr "Bilder und Schrift prüfen"
+msgstr "Bilder und Schriftarten prüfen"
 
 #: includes/admin.php
 msgid "Every 6 hours"
@@ -285,7 +283,7 @@ msgstr "Shortcode-Generator"
 
 #: includes/admin.php
 msgid "All settings apply only to the block being created. Change them on the left and see the result on the right. Choose Compact for a sidebar."
-msgstr "Alle Parameter gelten nur für den erstellten Block. Ändern Sie sie links; rechts sehen Sie das Ergebnis sofort. Wählen Sie für die Seitenleiste „Kompakt“."
+msgstr "Alle Einstellungen gelten nur für den Block, den du gerade erstellst. Ändere sie links und sieh dir rechts das Ergebnis an. Wähle für eine Seitenleiste „Kompakt“."
 
 #: includes/admin.php
 msgid "What to display"
@@ -345,11 +343,11 @@ msgstr "Design"
 
 #: includes/admin.php
 msgid "Book — warm"
-msgstr "Buchstil — warm"
+msgstr "Buchstil – warm"
 
 #: includes/admin.php
 msgid "Modern — light"
-msgstr "Modern — hell"
+msgstr "Modern – hell"
 
 #: includes/admin.php
 msgid "Site fonts"
@@ -365,7 +363,7 @@ msgstr "Plugin-Design"
 
 #: includes/admin.php assets/editor.js
 msgid "Use only the WordPress site CSS"
-msgstr "Vollständig mit dem CSS der WordPress-Website"
+msgstr "Nur das CSS der WordPress-Website verwenden"
 
 #: includes/admin.php
 msgid "Accent color"
@@ -385,7 +383,7 @@ msgstr "Ausführlich"
 
 #: includes/admin.php
 msgid "Compact — for a sidebar"
-msgstr "Kompakt — für die Seitenleiste"
+msgstr "Kompakt – für die Seitenleiste"
 
 #: includes/admin.php assets/editor.js
 msgid "Opening a day"
@@ -397,7 +395,7 @@ msgstr "Unter dem Block"
 
 #: includes/admin.php
 msgid "In a popup"
-msgstr "Im Dialogfenster"
+msgstr "In einem Pop-up"
 
 #: includes/admin.php
 msgid "In a new window"
@@ -417,7 +415,7 @@ msgstr "Unter dem Link aufklappen"
 
 #: includes/admin.php
 msgid "Open in a popup"
-msgstr "Im Dialogfenster öffnen"
+msgstr "In einem Pop-up öffnen"
 
 #: includes/admin.php assets/editor.js
 msgid "Fasting image height, px"
@@ -545,7 +543,7 @@ msgstr " Abschnittsüberschriften anzeigen"
 
 #: includes/admin.php
 msgid " Show old style dates"
-msgstr " Alten Stil anzeigen"
+msgstr " Datumsangaben nach altem Kalenderstil anzeigen"
 
 #: includes/admin.php
 msgid " Show yesterday/tomorrow"
@@ -557,7 +555,7 @@ msgstr " Datumsauswahl anzeigen"
 
 #: includes/admin.php
 msgid " Show link copying"
-msgstr " Linkkopieren anzeigen"
+msgstr " Kopieren von Links anzeigen"
 
 #: includes/admin.php
 msgid " Show commemoration search"
@@ -581,11 +579,11 @@ msgstr "Code, zum Beispiel synodal"
 
 #: includes/admin.php assets/editor.js
 msgid "Reference section"
-msgstr "Bereich des Nachschlagewerks"
+msgstr "Abschnitt des Nachschlagewerks"
 
 #: includes/admin.php includes/plugin.php assets/editor.js assets/calendar.js
 msgid "Resurrection"
-msgstr "Sonntage"
+msgstr "Auferstehung"
 
 #: includes/admin.php includes/plugin.php assets/editor.js assets/calendar.js
 msgid "Days of the week"
@@ -617,7 +615,7 @@ msgstr "Vorschau"
 
 #: includes/admin.php
 msgid "Configure the block to see the result here."
-msgstr "Konfigurieren Sie den Block; das Ergebnis erscheint hier."
+msgstr "Konfiguriere den Block, um hier das Ergebnis zu sehen."
 
 #: includes/admin.php
 msgid "Ready shortcode"
@@ -641,15 +639,15 @@ msgstr "Anleitung"
 
 #: includes/admin.php
 msgid "If necessary, enter an optional calendar key in the Connection tab."
-msgstr "Geben Sie bei Bedarf einen zusätzlichen Kalenderschlüssel im Tab „Verbindung“ ein."
+msgstr "Gib bei Bedarf einen optionalen Kalenderschlüssel im Tab „Verbindung“ ein."
 
 #: includes/admin.php
 msgid "Open Generator, choose a block type and configure it on the left."
-msgstr "Öffnen Sie den Generator, wählen Sie den Blocktyp und konfigurieren Sie ihn links."
+msgstr "Öffne den Generator, wähle einen Blocktyp aus und konfiguriere ihn links."
 
 #: includes/admin.php
 msgid "Check the live result on the right and copy the line into a WordPress Shortcode block."
-msgstr "Prüfen Sie die Vorschau rechts und kopieren Sie die Zeile in den WordPress-Block „Shortcode“."
+msgstr "Prüfe die Vorschau rechts und kopiere die Zeile in einen WordPress-Block „Shortcode“."
 
 #: includes/admin.php
 msgid "Standard shortcodes"
@@ -657,11 +655,11 @@ msgstr "Standard-Shortcodes"
 
 #: includes/admin.php
 msgid "Insert them directly into a Shortcode block without using the generator:"
-msgstr "Diese können ohne Generator direkt in den Block „Shortcode“ eingefügt werden:"
+msgstr "Füge sie ohne Generator direkt in einen Block „Shortcode“ ein:"
 
 #: includes/admin.php
 msgid "[orthocal_today] — today’s day card\n[orthocal_upcoming limit=\"5\" filter=\"main\"] — upcoming feasts\n[orthocal_month year=\"2027\" month=\"5\"] — monthly calendar\n[orthocal_year year=\"2027\"] — yearly calendar\n[orthocal_day date=\"2027-05-02\"] — card for the selected date\n[orthocal_readings date=\"2027-05-02\"] — daily Bible readings\n[orthocal_calendar] — general calendar\n[orthocal_fasting] — fasting and meals\n[orthocal_saints] — saints commemorations\n[orthocal_feasts limit=\"5\"] — feast list\n[orthocal_memorial] — memorial days\n[orthocal_pascha year=\"2027\"] — Pascha date and related information\n[orthocal_fasts year=\"2027\"] — yearly fasts\n[orthocal_date] — new and old style date\n[orthocal_texts] — liturgical texts library\n[orthocal_troparia] — troparia\n[orthocal_kontakia] — kontakia\n[orthocal_prayers] — prayers\n[orthocal_magnifications] — magnifications\n[orthocal_horologion] — full Horologion reference"
-msgstr "[orthocal_today] — Karte des heutigen Tages\n[orthocal_upcoming limit=\"5\" filter=\"main\"] — bevorstehende Feste\n[orthocal_month year=\"2027\" month=\"5\"] — Monatskalender\n[orthocal_year year=\"2027\"] — Jahreskalender\n[orthocal_day date=\"2027-05-02\"] — Karte des gewählten Datums\n[orthocal_readings date=\"2027-05-02\"] — biblische Lesungen des Tages\n[orthocal_calendar] — allgemeiner Kalender\n[orthocal_fasting] — Fasten und Speisen\n[orthocal_saints] — Heiligengedenktage\n[orthocal_feasts limit=\"5\"] — Festliste\n[orthocal_memorial] — Totengedenktage\n[orthocal_pascha year=\"2027\"] — Paschadatum und zugehörige Angaben\n[orthocal_fasts year=\"2027\"] — Fastenzeiten des Jahres\n[orthocal_date] — Datum im neuen und alten Stil\n[orthocal_texts] — Bibliothek liturgischer Texte\n[orthocal_troparia] — Troparien\n[orthocal_kontakia] — Kontakien\n[orthocal_prayers] — Gebete\n[orthocal_magnifications] — Megalynarien\n[orthocal_horologion] — vollständiges Horologion"
+msgstr "[orthocal_today] – Karte des heutigen Tages\n[orthocal_upcoming limit=\"5\" filter=\"main\"] – bevorstehende Feste\n[orthocal_month year=\"2027\" month=\"5\"] – Monatskalender\n[orthocal_year year=\"2027\"] – Jahreskalender\n[orthocal_day date=\"2027-05-02\"] – Karte des gewählten Datums\n[orthocal_readings date=\"2027-05-02\"] – biblische Lesungen des Tages\n[orthocal_calendar] – allgemeiner Kalender\n[orthocal_fasting] – Fasten und Speisen\n[orthocal_saints] – Heiligengedenktage\n[orthocal_feasts limit=\"5\"] – Festliste\n[orthocal_memorial] – Totengedenktage\n[orthocal_pascha year=\"2027\"] – Paschadatum und zugehörige Angaben\n[orthocal_fasts year=\"2027\"] – Fastenzeiten des Jahres\n[orthocal_date] – Datum im neuen und alten Stil\n[orthocal_texts] – Bibliothek liturgischer Texte\n[orthocal_troparia] – Troparien\n[orthocal_kontakia] – Kontakien\n[orthocal_prayers] – Gebete\n[orthocal_magnifications] – Megalynarien\n[orthocal_horologion] – vollständiges Horologion"
 
 #: includes/admin.php
 msgid "Why does the compact block look different?"
@@ -669,7 +667,7 @@ msgstr "Warum sieht der kompakte Block anders aus?"
 
 #: includes/admin.php
 msgid "It is designed for a sidebar: it reduces cells and hides long grid labels."
-msgstr "Er ist für die Seitenleiste gedacht: kleinere Zellen und kürzere Beschriftungen im Raster."
+msgstr "Der kompakte Block ist für eine Seitenleiste ausgelegt. Er verkleinert die Zellen und blendet lange Beschriftungen im Raster aus."
 
 #: includes/admin.php
 msgid "Why is the Bible translation not loading?"
@@ -689,7 +687,7 @@ msgstr "Alle Ikonen werden angezeigt, die die Kalender-API für das gewählte Da
 
 #: includes/lectionary.php assets/calendar.js
 msgid "Lection number"
-msgstr "Perikope"
+msgstr "Perikopennummer"
 
 #: includes/lectionary.php assets/calendar.js
 msgid "Lection source"
@@ -721,7 +719,7 @@ msgstr "Anfangsgebete"
 
 #: includes/library.php assets/editor.js
 msgid "Church Slavonic — civil font"
-msgstr "Kirchenslawisch — Zivilschrift"
+msgstr "Kirchenslawisch – Zivilschrift"
 
 #: includes/library.php assets/editor.js
 msgctxt "native language name"
@@ -766,7 +764,7 @@ msgstr "Die Datei konnte nicht aktualisiert werden (HTTP "
 
 #: includes/media-cache.php
 msgid "The media cache has reached 200 MB. Clear it under Cache and files."
-msgstr "Der Mediencache hat 200 MB erreicht. Leeren Sie ihn im Bereich „Cache und Dateien“."
+msgstr "Der Mediencache hat 200 MB erreicht. Leere ihn unter „Cache und Dateien“."
 
 #: includes/plugin.php assets/editor.js assets/calendar.js
 msgid "Today"
@@ -862,7 +860,7 @@ msgstr "Ungültige Parameter der Textbibliothek."
 
 #: includes/plugin.php
 msgid "The date must be between 1900 and 2200 in YYYY-MM-DD format."
-msgstr "Das Datum muss zwischen 1900 und 2200 liegen und das Format JJJJ-MM-TT haben."
+msgstr "Das Datum muss zwischen 1900 und 2200 liegen und das Format YYYY-MM-DD haben."
 
 #: includes/plugin.php
 msgid "Invalid year, month or feast count."
@@ -882,7 +880,7 @@ msgstr "Unbekannter Tagesabschnitt."
 
 #: includes/plugin.php
 msgid "The service is temporarily unavailable. Please try again later."
-msgstr "Der Dienst ist vorübergehend nicht verfügbar. Bitte später erneut versuchen."
+msgstr "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuche es später noch einmal."
 
 #: includes/plugin.php
 msgid "Failed to connect to the "
@@ -902,11 +900,11 @@ msgstr "Der API-Zugang wurde deaktiviert oder ist abgelaufen."
 
 #: includes/plugin.php
 msgid "The request limit has been reached. Please try again later."
-msgstr "Das Anfragelimit wurde erreicht. Bitte später erneut versuchen."
+msgstr "Das Anfragelimit wurde erreicht. Bitte versuche es später noch einmal."
 
 #: includes/plugin.php
 msgid "The API is busy or being updated. Please try again later."
-msgstr "Die API ist ausgelastet oder wird aktualisiert. Bitte später erneut versuchen."
+msgstr "Die API ist ausgelastet oder wird aktualisiert. Bitte versuche es später noch einmal."
 
 #: includes/plugin.php
 msgid "The data source is unavailable (HTTP "
@@ -922,7 +920,7 @@ msgstr "Übersetzung"
 
 #: includes/plugin.php assets/calendar.js
 msgid "Load translations…"
-msgstr "Übersetzungen laden…"
+msgstr "Übersetzungen laden …"
 
 #: includes/plugin.php assets/calendar.js
 msgid "The Epistle and Gospel texts open in the selected translation. The Psalter follows the liturgical allocation for the day."
@@ -954,11 +952,11 @@ msgstr "Fastenzeiten"
 
 #: includes/plugin.php
 msgid "How to read the calendar"
-msgstr "So lesen Sie den Kalender"
+msgstr "So liest du den Kalender"
 
 #: includes/plugin.php
 msgid "✦ indicates a great feast. Sundays and great feasts are highlighted in red. The small number is the "
-msgstr "✦ — großes Fest. Sonntage und große Feste sind rot markiert. Die kleine Zahl ist das Datum "
+msgstr "✦ kennzeichnet ein großes Fest. Sonntage und große Feste sind rot hervorgehoben. Die kleine Zahl ist das Datum "
 
 #: includes/plugin.php assets/calendar.js
 msgid "old style date"
@@ -966,7 +964,7 @@ msgstr "nach altem Stil"
 
 #: includes/plugin.php
 msgid ". Select a day to see all commemorations, Typikon symbols and the fasting rule."
-msgstr ". Wählen Sie einen Tag, um alle Gedenktage, Typikonzeichen und die Fastenregel zu sehen."
+msgstr ". Wähle einen Tag aus, um alle Gedenktage, Typikonzeichen und die Fastenregel zu sehen."
 
 #: includes/plugin.php
 msgid "The API needs updating: expected fields are missing."
@@ -1134,11 +1132,11 @@ msgstr "So"
 
 #: includes/plugin.php assets/calendar.js
 msgid " (transferred)"
-msgstr " (beweglich)"
+msgstr " (verlegt)"
 
 #: includes/plugin.php assets/calendar.js assets/calendar.js
 msgid "Icon"
-msgstr "Ikone"
+msgstr "Ikonenbild"
 
 #: includes/plugin.php assets/calendar.js
 msgid "Choose a date"
@@ -1150,7 +1148,7 @@ msgstr ". Woche nach Pfingsten"
 
 #: includes/plugin.php assets/calendar.js
 msgid "tone "
-msgstr "Ton  "
+msgstr "Ton "
 
 #: includes/plugin.php assets/calendar.js
 msgid "Day selection"
@@ -1178,7 +1176,7 @@ msgstr "Gedenktage durchsuchen"
 
 #: includes/plugin.php assets/calendar.js
 msgid "Name or title"
-msgstr "Name oder Bezeichnung"
+msgstr "Name oder Titel"
 
 #: includes/plugin.php
 msgid "Typikon symbol"
@@ -1210,7 +1208,7 @@ msgstr "Für dieses Datum sind keine Lesungen verfügbar."
 
 #: includes/plugin.php assets/calendar.js
 msgid "Open the reference library and choose a text."
-msgstr "Öffnen Sie die Bibliothek und wählen Sie einen Text."
+msgstr "Öffne das Nachschlagewerk und wähle einen Text aus."
 
 #: includes/plugin.php assets/calendar.js
 msgid "Link to this day"
@@ -1222,11 +1220,11 @@ msgstr "Link kopieren"
 
 #: includes/plugin.php assets/calendar.js
 msgid " profile"
-msgstr " profil"
+msgstr " Profil"
 
 #: includes/plugin.php
 msgid "Open icon: "
-msgstr "Ikone öffnen: "
+msgstr "Ikonenbild öffnen: "
 
 #: includes/plugin.php assets/calendar.js
 msgid "All sections"
@@ -1234,7 +1232,7 @@ msgstr "Alle Abschnitte"
 
 #: includes/plugin.php assets/calendar.js
 msgid "General and reference"
-msgstr "Allgemeine Texte"
+msgstr "Allgemeine Texte und Nachschlagewerk"
 
 #: includes/plugin.php assets/calendar.js
 msgid "All tones"
@@ -1246,7 +1244,7 @@ msgstr "Für diese Auswahl sind noch keine Texte verfügbar."
 
 #: includes/plugin.php
 msgid "Too many requests. Try again in a minute."
-msgstr "Zu viele Anfragen. Bitte in einer Minute erneut versuchen."
+msgstr "Zu viele Anfragen. Versuche es in einer Minute noch einmal."
 
 #: includes/plugin.php
 msgid "Invalid parameters."
@@ -1262,7 +1260,7 @@ msgstr "Ungültige Bildadresse."
 
 #: includes/plugin.php
 msgid "The image is temporarily unavailable. Please try again later."
-msgstr "Das Bild ist noch nicht verfügbar. Bitte später erneut versuchen."
+msgstr "Das Bild ist vorübergehend nicht verfügbar. Bitte versuche es später noch einmal."
 
 #: assets/editor.js
 msgid "Hide"
@@ -1334,7 +1332,7 @@ msgstr "Bilder"
 
 #: assets/editor.js
 msgid "In a popup window"
-msgstr "Im Fenster"
+msgstr "In einem Pop-up-Fenster"
 
 #: assets/editor.js
 msgid "Below the link"
@@ -1346,11 +1344,11 @@ msgstr "Lesungen öffnen"
 
 #: assets/editor.js
 msgid "On a page"
-msgstr "Auf der Seite"
+msgstr "Auf einer Seite"
 
 #: assets/editor.js
 msgid "Site style"
-msgstr "Im Stil der Website"
+msgstr "Website-Stil"
 
 #: assets/editor.js
 msgid "Modern"
@@ -1362,7 +1360,7 @@ msgstr "Buchstil"
 
 #: assets/editor.js
 msgid "Appearance"
-msgstr "Darstellung"
+msgstr "Design"
 
 #: assets/editor.js
 msgid "Events"
@@ -1374,7 +1372,7 @@ msgstr "Monat (1–12)"
 
 #: assets/editor.js
 msgid "Date (YYYY-MM-DD), empty for today"
-msgstr "Datum (JJJJ-MM-TT), leer = heute"
+msgstr "Datum (YYYY-MM-DD), für heute leer lassen"
 
 #: assets/editor.js
 msgid "Calendar"
@@ -1382,7 +1380,7 @@ msgstr "Kalender"
 
 #: assets/editor.js
 msgid "Site setting"
-msgstr "Website-Einstellungen"
+msgstr "Website-Einstellung"
 
 #: assets/editor.js
 msgid "orthodox"
@@ -1458,7 +1456,7 @@ msgstr "Fasten- und Speiseregel des gewählten Tages."
 
 #: assets/editor.js
 msgid "Calendar with date selection and navigation to a detailed day card."
-msgstr "Kalender mit Datumsauswahl und Tagesdetails."
+msgstr "Kalender mit Datumsauswahl und Navigation zu einer ausführlichen Tageskarte."
 
 #: assets/editor.js
 msgid "Bible readings for the selected day."
@@ -1474,7 +1472,7 @@ msgstr "Jahreskalender mit orthodoxen Kalenderdaten."
 
 #: assets/editor.js
 msgid "Monthly grid with events, fasting rules and old style dates."
-msgstr "Raster des gewählten Monats mit Ereignissen, Fasten und altem Stil."
+msgstr "Monatsraster mit Ereignissen, Fastenregeln und Datumsangaben nach altem Kalenderstil."
 
 #: assets/editor.js
 msgid "List of upcoming main, great or memorial days."
@@ -1510,7 +1508,7 @@ msgstr "BibleDesktop hat einen Fehler zurückgegeben."
 
 #: assets/admin.js
 msgid "Loading catalogue…"
-msgstr "Katalog wird geladen…"
+msgstr "Katalog wird geladen …"
 
 #: assets/admin.js
 msgid "Preview refreshed."
@@ -1526,11 +1524,11 @@ msgstr "Der Block konnte nicht geladen werden."
 
 #: assets/admin.js
 msgid "Refreshing preview…"
-msgstr "Vorschau wird aktualisiert…"
+msgstr "Vorschau wird aktualisiert …"
 
 #: assets/admin.js
 msgid "Select the line and copy it manually."
-msgstr "Markieren Sie die Zeile und kopieren Sie sie manuell."
+msgstr "Markiere die Zeile und kopiere sie manuell."
 
 #: assets/admin.js
 msgid "Shortcode copied."
@@ -1542,11 +1540,11 @@ msgstr "Kapitel"
 
 #: assets/calendar.js assets/calendar.js
 msgid "Choose a language and translation."
-msgstr "Bitte Sprache und Übersetzung auswählen."
+msgstr "Wähle eine Sprache und eine Übersetzung aus."
 
 #: assets/calendar.js assets/calendar.js
 msgid "Loading text…"
-msgstr "Text wird geladen…"
+msgstr "Text wird geladen …"
 
 #: assets/calendar.js assets/calendar.js
 msgid "Choose a language and translation"
@@ -1558,7 +1556,7 @@ msgstr "Das Übersetzungsverzeichnis muss aktualisiert werden."
 
 #: assets/calendar.js assets/calendar.js
 msgid "The source did not respond in time. Please retry the request."
-msgstr "Die Quelle hat nicht rechtzeitig geantwortet. Bitte erneut versuchen."
+msgstr "Die Quelle hat nicht rechtzeitig geantwortet. Bitte wiederhole die Anfrage."
 
 #: assets/calendar.js assets/calendar.js
 msgid "Close ×"
@@ -1570,7 +1568,7 @@ msgstr "Der Kalender konnte nicht angezeigt werden."
 
 #: assets/calendar.js assets/calendar.js
 msgid "Loading…"
-msgstr "Wird geladen…"
+msgstr "Wird geladen …"
 
 #: assets/calendar.js
 msgid "The translation is missing requested verses. The incomplete text is not displayed."
@@ -1622,7 +1620,7 @@ msgstr "Daten konnten nicht geladen werden."
 
 #: assets/calendar.js assets/calendar.js
 msgid "Copying is unavailable. Select the text and copy it manually."
-msgstr "Kopieren nicht verfügbar. Bitte markieren und manuell kopieren."
+msgstr "Kopieren ist nicht verfügbar. Markiere den Text und kopiere ihn manuell."
 
 #: assets/calendar.js assets/calendar.js
 msgid "Copied."
@@ -1646,7 +1644,7 @@ msgstr "Bilder der Ikone"
 
 #: assets/calendar.js
 msgid "Reference library · Church Slavonic text. Choosing a tone or weekday does not specify the order of a particular service."
-msgstr "Textbibliothek in Kirchenslawisch. Die Auswahl nach Ton oder Wochentag legt keine Gottesdienstordnung fest."
+msgstr "Nachschlagewerk · Kirchenslawischer Text. Die Auswahl eines Tons oder Wochentags legt nicht die Ordnung eines bestimmten Gottesdienstes fest."
 
 #: assets/calendar.js
 msgid "General prayers"
@@ -1682,7 +1680,7 @@ msgstr "Die Quelle nennt keine Gedenktage."
 
 #: assets/calendar.js
 msgid "Text assignments for this day still need clarification. Reference texts are listed separately."
-msgstr "Die Textzuordnung für diesen Tag ist noch unvollständig. Referenztexte werden gesondert gekennzeichnet."
+msgstr "Die Textzuordnungen für diesen Tag müssen noch geklärt werden. Texte des Nachschlagewerks werden gesondert aufgeführt."
 
 #: blocks/year/block.json
 msgctxt "block title"
