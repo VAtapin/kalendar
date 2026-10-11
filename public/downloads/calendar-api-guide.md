@@ -59,7 +59,9 @@ curl 'https://bible-desktop.com/api/v1/calendar/day?date=2026-10-08&lang=uk&prof
 
 ## WordPress
 
-[ZIP текущего выпуска](/downloads/orthocal-1.3.78.zip).
+[Georg-Kloster Calendar Workshop на WordPress.org](https://wordpress.org/plugins/georg-kloster-calendar-workshop/).
+Установите плагин через «Плагины → Добавить», найдя его по названию.
+Новые версии доступны через стандартные обновления WordPress.
 Шорткоды и Gutenberg-блоки сохранены. Календарные данные, тексты и иконы
 плагин получает с одного настроенного адреса Bible Desktop. Знаки Типикона,
 все 16 оформлений поста, общие декоративные ресурсы и Monomakh с лицензией включены в плагин как статические

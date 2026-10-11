@@ -3,8 +3,7 @@ import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
 import {mkdirSync,readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
-import {readWordPressPluginVersion} from './wordpress-plugin-version.mjs';
-const wordpressPluginDownload=`/downloads/orthocal-${readWordPressPluginVersion()}.zip`;
+const wordpressPluginUrl='https://wordpress.org/plugins/georg-kloster-calendar-workshop/';
 const translatorPluginDownload='/downloads/georg-kloster-slavonic-translator-1.0.5.zip';
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin=`http://127.0.0.1:${port}`;
@@ -25,7 +24,10 @@ try {
   assert.ok((await page.locator('#connection pre').first().textContent()).includes('/api/v1/calendar/'));
   const catalog=page.locator('#plugins');
   assert.equal(await catalog.locator('tbody tr').count(),3);
-  assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginDownload);
+  assert.equal(await catalog.locator('a.download').nth(0).getAttribute('href'),wordpressPluginUrl);
+  assert.equal(await catalog.locator('a.download').nth(0).getAttribute('download'),null);
+  assert.equal(await catalog.locator('tbody tr').nth(0).locator('.version').textContent(),'WordPress.org');
+  assert.equal(await page.locator('a[href^="/downloads/orthocal-"]').count(),0);
   assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.10.zip');
   assert.equal(await catalog.locator('tbody tr').nth(1).locator('.version').textContent(),'1.2.10');
   assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginDownload);
@@ -43,7 +45,9 @@ try {
   await catalog.getByRole('link',{name:'Подробнее о календаре',exact:true}).click();
   assert.equal(await page.locator('#wordpress').getAttribute('open'),'');
   const pluginLink=page.locator('#wordpress a.download');
-  assert.equal(await pluginLink.getAttribute('href'),wordpressPluginDownload);
+  assert.equal(await pluginLink.getAttribute('href'),wordpressPluginUrl);
+  assert.equal(await pluginLink.getAttribute('download'),null);
+  assert.match(await page.locator('#wordpress').textContent(),/Новые версии доступны через стандартные обновления WordPress/);
   assert.match(await page.locator('#wordpress').textContent(),/работает сразу, без регистрации и API-ключа/);
   const prayerSection=page.locator('#prayer-plugin');
   await catalog.getByRole('link',{name:'Подробнее о молитвенных записках',exact:true}).click();
@@ -64,7 +68,7 @@ try {
   assert.match(await translatorSection.textContent(),/Georg-Kloster Slavonic Translator/);
   assert.match(await translatorSection.textContent(),/деактивируйте старую копию/);
   assert.match(await page.locator('#connection').textContent(),/X-Calendar-Client: orthocal-wordpress/);
-  const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('bible-desktop.com/api/v1/calendar/'));assert.ok(guideText.includes(wordpressPluginDownload));
+  const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('bible-desktop.com/api/v1/calendar/'));assert.ok(guideText.includes(wordpressPluginUrl));assert.ok(!guideText.includes('/downloads/orthocal-'));
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
   if(process.env.CALENDAR_API_DOCS_SCREENSHOTS!=='0'){mkdirSync('artifacts',{recursive:true});await page.screenshot({path:'artifacts/calendar-api-docs-desktop.png',fullPage:true});}
   await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.querySelector('.route-shell').scrollWidth<=innerWidth));if(process.env.CALENDAR_API_DOCS_SCREENSHOTS!=='0')await page.screenshot({path:'artifacts/calendar-api-docs-mobile.png',fullPage:true});
