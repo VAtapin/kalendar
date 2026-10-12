@@ -145,11 +145,11 @@ msgstr "Адреса API"
 
 #: includes/admin.php
 msgid "Full HTTPS address without /api. Default: https://bible-desktop.com"
-msgstr "Повна HTTPS-адреса без /api. Стандартне значення: https://bible-desktop.com"
+msgstr "Повна HTTPS-адреса без /api. Початкове значення: https://bible-desktop.com"
 
 #: includes/admin.php
 msgid "Default calendar language"
-msgstr "Мова календаря за замовчуванням"
+msgstr "Початкова мова календаря"
 
 #: includes/admin.php includes/library.php assets/editor.js
 msgid "Russian"
@@ -173,7 +173,7 @@ msgstr "Польська"
 
 #: includes/admin.php
 msgid "Default Bible translation"
-msgstr "Переклад Біблії за замовчуванням"
+msgstr "Початковий переклад Біблії"
 
 #: includes/admin.php
 msgid "Choose a code below. You can override it for individual blocks in the generator."
@@ -197,7 +197,7 @@ msgstr "Часовий пояс сайту: "
 
 #: includes/admin.php
 msgid ". Change it in the general WordPress settings."
-msgstr ". Її можна змінити в загальних налаштуваннях WordPress."
+msgstr ". Змініть його в загальних налаштуваннях WordPress."
 
 #: includes/admin.php
 msgid "Open general settings"
@@ -213,11 +213,11 @@ msgstr " файлів · "
 
 #: includes/admin.php
 msgid " of 200 MB. Photos are stored locally with a maximum size of 100 KB."
-msgstr " із 200 МБ. Фотографії зберігаються локально розміром до 100 КБ."
+msgstr " із 200 МБ. Фотографії зберігаються локально розміром до 100 КБ."
 
 #: includes/admin.php
 msgid "Check images and fonts"
-msgstr "Перевіряти зображення та шрифт"
+msgstr "Перевіряти зображення та шрифти"
 
 #: includes/admin.php
 msgid "Every 6 hours"
@@ -281,7 +281,7 @@ msgstr "Поточна сторінка"
 
 #: includes/admin.php
 msgid "Shortcode generator"
-msgstr "Конструктор шорткодів"
+msgstr "Конструктор коротких кодів"
 
 #: includes/admin.php
 msgid "All settings apply only to the block being created. Change them on the left and see the result on the right. Choose Compact for a sidebar."
@@ -365,7 +365,7 @@ msgstr "Оформлення плагіна"
 
 #: includes/admin.php assets/editor.js
 msgid "Use only the WordPress site CSS"
-msgstr "Повністю CSS сайту WordPress"
+msgstr "Використовувати лише CSS сайту WordPress"
 
 #: includes/admin.php
 msgid "Accent color"
@@ -397,7 +397,7 @@ msgstr "Під блоком"
 
 #: includes/admin.php
 msgid "In a popup"
-msgstr "У спливному вікні"
+msgstr "У виринаючому вікні"
 
 #: includes/admin.php
 msgid "In a new window"
@@ -417,7 +417,7 @@ msgstr "Розгортати під посиланням"
 
 #: includes/admin.php
 msgid "Open in a popup"
-msgstr "Відкривати у спливному вікні"
+msgstr "Відкривати у виринаючому вікні"
 
 #: includes/admin.php assets/editor.js
 msgid "Fasting image height, px"
@@ -457,7 +457,7 @@ msgstr "Головні"
 
 #: includes/admin.php assets/editor.js
 msgid "Pascha and the Twelve Great Feasts"
-msgstr "Пасха та дванадесяті"
+msgstr "Пасха та дванадесяті свята"
 
 #: includes/admin.php assets/editor.js
 msgid "Great"
@@ -505,7 +505,7 @@ msgstr "Рівні пам’ятей"
 
 #: includes/admin.php
 msgid "Twelve Great Feasts"
-msgstr "Дванадесяті"
+msgstr "Дванадесяті свята"
 
 #: includes/admin.php
 msgid "Middle rank"
@@ -621,11 +621,11 @@ msgstr "Налаштуйте блок — результат з’явиться
 
 #: includes/admin.php
 msgid "Ready shortcode"
-msgstr "Готовий шорткод"
+msgstr "Готовий короткий код"
 
 #: includes/admin.php
 msgid "Copy shortcode"
-msgstr "Скопіювати шорткод"
+msgstr "Скопіювати короткий код"
 
 #: includes/admin.php
 msgid "Refresh now"
@@ -649,15 +649,15 @@ msgstr "Відкрийте «Конструктор», виберіть тип �
 
 #: includes/admin.php
 msgid "Check the live result on the right and copy the line into a WordPress Shortcode block."
-msgstr "Перевірте результат праворуч і скопіюйте рядок у блок WordPress «Шорткод»."
+msgstr "Перевірте результат праворуч і скопіюйте рядок у блок WordPress «Короткий код»."
 
 #: includes/admin.php
 msgid "Standard shortcodes"
-msgstr "Стандартні шорткоди"
+msgstr "Стандартні короткі коди"
 
 #: includes/admin.php
 msgid "Insert them directly into a Shortcode block without using the generator:"
-msgstr "Їх можна вставити безпосередньо в блок «Шорткод», без конструктора:"
+msgstr "Їх можна вставити безпосередньо в блок «Короткий код», без конструктора:"
 
 #: includes/admin.php
 msgid "[orthocal_today] — today’s day card\n[orthocal_upcoming limit=\"5\" filter=\"main\"] — upcoming feasts\n[orthocal_month year=\"2027\" month=\"5\"] — monthly calendar\n[orthocal_year year=\"2027\"] — yearly calendar\n[orthocal_day date=\"2027-05-02\"] — card for the selected date\n[orthocal_readings date=\"2027-05-02\"] — daily Bible readings\n[orthocal_calendar] — general calendar\n[orthocal_fasting] — fasting and meals\n[orthocal_saints] — saints commemorations\n[orthocal_feasts limit=\"5\"] — feast list\n[orthocal_memorial] — memorial days\n[orthocal_pascha year=\"2027\"] — Pascha date and related information\n[orthocal_fasts year=\"2027\"] — yearly fasts\n[orthocal_date] — new and old style date\n[orthocal_texts] — liturgical texts library\n[orthocal_troparia] — troparia\n[orthocal_kontakia] — kontakia\n[orthocal_prayers] — prayers\n[orthocal_magnifications] — magnifications\n[orthocal_horologion] — full Horologion reference"
@@ -689,7 +689,7 @@ msgstr "Показуються всі ікони, які календарний 
 
 #: includes/lectionary.php assets/calendar.js
 msgid "Lection number"
-msgstr "Зачало"
+msgstr "Номер зачала"
 
 #: includes/lectionary.php assets/calendar.js
 msgid "Lection source"
@@ -766,7 +766,7 @@ msgstr "Не вдалося оновити файл (HTTP "
 
 #: includes/media-cache.php
 msgid "The media cache has reached 200 MB. Clear it under Cache and files."
-msgstr "Кеш медіа досяг 200 МБ. Очистіть його в розділі «Кеш і файли»."
+msgstr "Кеш медіа досяг 200 МБ. Очистіть його в розділі «Кеш і файли»."
 
 #: includes/plugin.php assets/editor.js assets/calendar.js
 msgid "Today"
@@ -862,7 +862,7 @@ msgstr "Неправильні параметри бібліотеки текс�
 
 #: includes/plugin.php
 msgid "The date must be between 1900 and 2200 in YYYY-MM-DD format."
-msgstr "Дата має бути в діапазоні 1900–2200 у форматі РРРР-ММ-ДД."
+msgstr "Дата має бути в діапазоні 1900–2200 у форматі YYYY-MM-DD."
 
 #: includes/plugin.php
 msgid "Invalid year, month or feast count."
@@ -1134,7 +1134,7 @@ msgstr "Нд"
 
 #: includes/plugin.php assets/calendar.js
 msgid " (transferred)"
-msgstr " (пер.)"
+msgstr " (перенесено)"
 
 #: includes/plugin.php assets/calendar.js assets/calendar.js
 msgid "Icon"
@@ -1334,7 +1334,7 @@ msgstr "Зображення"
 
 #: assets/editor.js
 msgid "In a popup window"
-msgstr "У вікні"
+msgstr "У виринаючому вікні"
 
 #: assets/editor.js
 msgid "Below the link"
@@ -1374,7 +1374,7 @@ msgstr "Місяць (1–12)"
 
 #: assets/editor.js
 msgid "Date (YYYY-MM-DD), empty for today"
-msgstr "Дата (РРРР-ММ-ДД), порожньо — сьогодні"
+msgstr "Дата (YYYY-MM-DD), залиште порожньою для сьогоднішнього дня"
 
 #: assets/editor.js
 msgid "Calendar"
@@ -1534,7 +1534,7 @@ msgstr "Виділіть рядок і скопіюйте вручну."
 
 #: assets/admin.js
 msgid "Shortcode copied."
-msgstr "Шорткод скопійовано."
+msgstr "Короткий код скопійовано."
 
 #: assets/calendar.js
 msgid "Chapter"
@@ -1638,11 +1638,11 @@ msgstr "Опис ікони відсутній."
 
 #: assets/calendar.js
 msgid "All icons for the day"
-msgstr "Усі образи дня"
+msgstr "Усі ікони дня"
 
 #: assets/calendar.js assets/calendar.js
 msgid "Icon images"
-msgstr "Зображення образу"
+msgstr "Зображення ікони"
 
 #: assets/calendar.js
 msgid "Reference library · Church Slavonic text. Choosing a tone or weekday does not specify the order of a particular service."
@@ -1654,7 +1654,7 @@ msgstr "Загальні молитви"
 
 #: assets/calendar.js
 msgid "Prayers and daily texts for "
-msgstr "Молитви та тексти дня мовою "
+msgstr "Молитви та тексти дня для "
 
 #: assets/calendar.js
 msgid "Daily texts"
@@ -1804,7 +1804,7 @@ msgstr "Vladimir Atapin"
 
 #: orthocal.php
 msgid "Gutenberg blocks and shortcodes for an Orthodox calendar: calendar dates, fasting rules, commemorations, readings and liturgical texts."
-msgstr "Блоки Gutenberg і шорткоди для православного календаря: календарні дати, правила посту, пам’яті святих, читання та богослужбові тексти."
+msgstr "Блоки Gutenberg і короткі коди для православного календаря: календарні дати, правила посту, пам’яті святих, читання та богослужбові тексти."
 
 #: orthocal.php
 msgid "https://github.com/VAtapin/wp_orthodox_calendar"

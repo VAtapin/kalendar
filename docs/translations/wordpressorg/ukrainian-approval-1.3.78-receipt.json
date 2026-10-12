@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-12",
+  "verified_at_utc": "2026-10-12T21:08:36.480Z",
+  "plugin": "georg-kloster-calendar-workshop",
+  "version": "1.3.78",
+  "locale": "uk",
+  "initial_state": "All four Ukrainian branches already fully approved before this task.",
+  "review": {
+    "ui_corrections": 28,
+    "readme_corrections": 14,
+    "details": [
+      "Preserved API YYYY-MM-DD format.",
+      "Aligned shortcode, popup, default, slug and Media Library with Ukrainian glossary.",
+      "Corrected time-zone pronoun, fonts plural, incomplete meanings and icon terminology.",
+      "Preserved source/context, technical tokens and fragment spacing."
+    ]
+  },
+  "publication": "Current imports in Stable UI and Stable Readme propagated to Development; exact exports verified in all four branches.",
+  "verified_state": {
+    "stable": "441/441 approved",
+    "development": "441/441 approved",
+    "stable_readme": "67/67 approved",
+    "development_readme": "67/67 approved",
+    "untranslated": 0,
+    "waiting": 0,
+    "fuzzy": 0,
+    "changes_requested": 0,
+    "warnings": 0
+  },
+  "checks": [
+    "All original/context/technical-token/glossary/format/spacing/MO checks passed.",
+    "All four final Current exports exactly match corrected catalogues.",
+    "Downloaded official uk package: HTTP 200, 441 nonempty PO entries match initial approved export, valid MO header and three readable script JSON catalogues."
+  ],
+  "catalogue_sha256": {
+    "stable-1.3.78-uk.po": "e530088592724ba277a9639e01087bb574f0fbbfb8ae15bc815fec6c97829edb",
+    "stable-readme-1.3.78-uk.po": "e62cf63268e1b9caae28e590da0e24ae965042a6de8c9f801545b78cff4bdc56"
+  },
+  "export_sha256": [
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-stable-uk (1).po",
+      "sha256": "1249a5073331dc8b222a68d4b4e060a24e56a31aede3e398806af2f199c6158b"
+    },
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-dev-uk (1).po",
+      "sha256": "99516ee331ca00062747c52c1db8058d93817296ae42822cb30214845e9f0671"
+    },
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-stable-readme-uk (1).po",
+      "sha256": "24157f9a3f42d3443dd19a376ae75b5d966361c981ea8ac2cb5334e22d06fc7d"
+    },
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-dev-readme-uk (1).po",
+      "sha256": "9d462b930def78a2c7fbb8875f9c59cbbd60ca2a1229b1b098a3149b9f680f47"
+    }
+  ],
+  "language_pack": {
+    "api_checked_at_utc": "2026-10-12T21:07:38.580Z",
+    "language": "uk",
+    "version": "1.3.78",
+    "updated": "2026-10-12 20:24:43",
+    "english_name": "Ukrainian",
+    "native_name": "Українська",
+    "package": "https://downloads.wordpress.org/translation/plugin/georg-kloster-calendar-workshop/1.3.78/uk.zip",
+    "iso": {
+      "1": "uk",
+      "2": "ukr"
+    },
+    "sha256": "0c7cee5951b516b3ce900005b64432480ddb38d4a756500876eaf6c8ad85f5ff",
+    "available": true,
+    "latest_ui_corrections_in_package": false,
+    "remaining_differences": 28,
+    "status": "Official Ukrainian package available; latest corrections await automatic rebuild."
+  },
+  "runtime_changed": false,
+  "deployment_required": false,
+  "known_source_issues": [
+    "English Readme originals contain damaged arrows and outdated akathist information; originals unchanged."
+  ],
+  "receipt_commit_message": "Publish reviewed Ukrainian WordPress translations"
+}
