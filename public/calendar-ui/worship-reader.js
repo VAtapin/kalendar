@@ -124,6 +124,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     wrapper.append(input); controls.append(wrapper);
   }
   select('Служба', 'office', OFFICES);
+  select('Язык текста', 'textLanguage', { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
   select('Храм', 'temple', TEMPLES);
   select('Порядок службы', 'sequence', MODES[state.office]);
   if (state.office === 'first-hour') select('После первого часа', 'afterHourHymn', { vzbrannoi: 'Взбранной Воеводе', none: 'Без заключительного песнопения' });
@@ -139,6 +140,11 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   content.append(loading); page.append(summary, content);
   function render(result) {
     content.replaceChildren();
+    if (result.status === 'edition-unavailable') {
+      content.append(create('p', 'Выбранная редакция этой службы пока отсутствует в BibleDesktop.', 'reader-message'));
+      const retry = create('button', 'Проверить доступность', 'reader-button'); retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
+      return;
+    }
     if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
         pending: 'BibleDesktop пока не смог составить эту службу для выбранного дня. Назначения переменных частей требуют уточнения.',
@@ -155,6 +161,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       return;
     }
     if (result.status === 'parts') {
+      if (result.fallback) content.append(create('p', 'Церковнославянская редакция пока недоступна; показана следующая доступная редакция.', 'reader-message'));
       const notices = {
         loading: 'Постоянный текст загружен. Уточняю переменные части дня…',
         partial: 'Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.',

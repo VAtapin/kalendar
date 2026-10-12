@@ -2,9 +2,49 @@ import { describe, expect, it } from 'vitest';
 import { templateFor, assignmentsFor, hash } from './fixtures/worship-parts.mjs';
 import { composeParts, fetchWorshipParts, validateTemplate } from '../public/calendar-ui/worship-parts.js';
 
-const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave' };
+const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave', textLanguage: 'cu-civil' };
 const clone = value => structuredClone(value);
 describe('source-bound worship parts', () => {
+  it.each(['sixth-hour', 'liturgy'])('prioritizes actual traditional text for %s automatically', async office => {
+    const selected = { ...state, office, sequence: office === 'liturgy' ? 'default' : state.sequence, textLanguage: 'auto' };
+    const template = templateFor(office);
+    template.language = 'cu'; template.orthography = 'traditional';
+    template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; node.orthography = 'traditional'; });
+    const urls = [];
+    const result = await fetchWorshipParts('https://bible.example', selected, () => {}, async url => {
+      urls.push(url); const assignments = assignmentsFor(template, selected, false); assignments.context.language = 'cu';
+      return { status: 200, json: async () => ({ data: url.pathname.includes('/templates/') ? template : assignments }) };
+    });
+    expect(urls.every(url => url.searchParams.get('language') === 'cu')).toBe(true);
+    expect(result.entries[0].language).toBe('cu'); expect(result.fallback).toBe(false);
+  });
+  it('falls back only for explicit unsupported-language validation and announces it', async () => {
+    const selected = { ...state, textLanguage: 'auto' }, template = templateFor(state.office), urls = [];
+    const result = await fetchWorshipParts('https://bible.example', selected, () => {}, async url => {
+      urls.push(url);
+      if (url.searchParams.get('language') === 'cu') return { status: 422, json: async () => ({ errors: { language: ['validation.in'] } }) };
+      return { status: 200, json: async () => ({ data: url.pathname.includes('/templates/') ? template : assignmentsFor(template, selected, false) }) };
+    });
+    expect(urls.map(url => url.searchParams.get('language'))).toEqual(['cu', 'cu-civil', 'cu-civil']);
+    expect(result.fallback).toBe(true);
+  });
+  it('keeps an explicit unavailable language selected without substituting civil text', async () => {
+    let calls = 0;
+    const result = await fetchWorshipParts('https://bible.example', { ...state, textLanguage: 'cu' }, () => {}, async () => {
+      calls++; return { status: 422, json: async () => ({ errors: { language: ['validation.in'] } }) };
+    });
+    expect(calls).toBe(1); expect(result.status).toBe('edition-unavailable');
+  });
+  it('rejects a civil template disguised as a response to traditional selection', async () => {
+    await expect(fetchWorshipParts('https://bible.example', { ...state, textLanguage: 'cu' }, () => {}, async () => ({ status: 200, json: async () => ({ data: templateFor(state.office) }) }))).rejects.toThrow('Wrong template edition');
+  });
+  it.each([403, 429, 503, 422])('does not change edition on general HTTP %s errors', async status => {
+    let calls = 0;
+    await expect(fetchWorshipParts('https://bible.example', { ...state, textLanguage: 'auto' }, () => {}, async () => {
+      calls++; return { status, json: async () => ({ errors: { date: ['validation.date'] } }) };
+    })).rejects.toThrow();
+    expect(calls).toBe(1);
+  });
   it('keeps the entire fixed base and marks all missing slots on an unconfirmed day', async () => {
     const template = templateFor(state.office), assignments = assignmentsFor(template, state, false);
     const result = await composeParts(template, assignments, state);

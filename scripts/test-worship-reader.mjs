@@ -7,7 +7,16 @@ const browser = await chromium.launch(process.platform === 'win32' ? { channel: 
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const errors = [], requests = [];
-  let published = false, httpFailure = 0, delay = false;
+  let published = false, httpFailure = 0, delay = false, traditional = false;
+  const editionTemplate = (office, language) => {
+    const template = templateFor(office);
+    if (language === 'cu') {
+      template.language = 'cu'; template.orthography = 'traditional';
+      template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; node.orthography = 'traditional'; });
+      template.nodes[0].blocks[1].segments[1].text = 'Бл҃гослове́нъ Бо́гъ на́шъ.';
+    }
+    return template;
+  };
   page.on('pageerror', error => errors.push(error.message));
   const day = date => ({ date, events: [
     { category: 'commemoration', title: 'Святитель Николай' },
@@ -32,7 +41,9 @@ try {
     } });
     if (url.pathname.startsWith('/api/v1/liturgical/templates/')) {
       const office = url.pathname.split('/').at(-1);
-      return route.fulfill({ json: { data: templateFor(office) } });
+      const language = url.searchParams.get('language');
+      if (language === 'ru' || (language === 'cu' && !traditional)) return route.fulfill({ status: 422, json: { errors: { language: ['validation.in'] } } });
+      return route.fulfill({ json: { data: editionTemplate(office, language) } });
     }
     if (url.pathname.startsWith('/api/v1/liturgical/assignments/')) {
       requests.push(url); assert.equal(url.origin, 'https://bible.example');
@@ -40,7 +51,8 @@ try {
       const context = { ...Object.fromEntries(url.searchParams), office, date };
       if (delay && office === 'third-hour') await new Promise(resolve => setTimeout(resolve, 300));
       if (httpFailure) return route.fulfill({ status: httpFailure, json: { error: 'error' } });
-      const data = assignmentsFor(templateFor(office), context, published && office !== 'liturgy');
+      const data = assignmentsFor(editionTemplate(office, context.language), context, published && office !== 'liturgy');
+      data.context.language = context.language;
       if (!published && office === 'liturgy') data.status = 'not-appointed';
       data.fragments = { private: 'PRIVATE MUST NOT RENDER' };
       return route.fulfill({ json: { data } });
@@ -115,6 +127,23 @@ try {
   await page.locator('[data-worship-control="office"]').selectOption('liturgy');
   await page.getByText('Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.', { exact: true }).waitFor();
   assert.equal(await page.locator('.worship-text[data-composition="source-outline"]').count(), 1);
+  await page.locator('[data-worship-control="textLanguage"]').selectOption('cu');
+  await page.getByText('Выбранная редакция этой службы пока отсутствует в BibleDesktop.', { exact: true }).waitFor();
+  assert.equal(await page.locator('.worship-text').count(), 0);
+  assert.equal(new URL(page.url()).searchParams.get('textLanguage'), 'cu');
+  traditional = true;
+  await page.getByRole('button', { name: 'Проверить доступность' }).click();
+  await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();
+  assert.match(await page.locator('.worship-text').innerText(), /Бл҃гослове́нъ Бо́гъ/);
+  assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
+  await page.reload();
+  await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();
+  assert.equal(await page.locator('[data-worship-control="textLanguage"]').inputValue(), 'cu');
+  await page.locator('[data-worship-control="office"]').selectOption('sixth-hour');
+  await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();
+  await page.locator('[data-worship-control="textLanguage"]').selectOption('cu-civil');
+  await page.locator('.worship-part[data-text-language="cu-civil"]').first().waitFor();
+  traditional = false;
   published = true;
   await page.goto('https://web.test/web-calendar?view=worship&date=2027-10-21&lang=de&office=third-hour&temple=george-victorious');
   await page.locator('.worship-text[data-composition="complete"]').waitFor();

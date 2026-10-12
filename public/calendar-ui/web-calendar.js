@@ -12,7 +12,7 @@ function localIsoDate(now = new Date()) {
 }
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
-  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22 };
+  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 
 for (let year = 1900; year <= 2200; year++) $('year').add(new Option(String(year), String(year)));
@@ -137,6 +137,7 @@ function readLocation() {
   if (Number.isInteger(eventLimit) && eventLimit >= 1 && eventLimit <= 5) state.eventLimit = eventLimit;
   if (Object.hasOwn(OFFICES, params.get('office'))) state.office = params.get('office');
   if (Object.hasOwn(TEMPLES, params.get('temple'))) state.temple = params.get('temple');
+  if (['auto', 'cu', 'cu-civil', 'ru'].includes(params.get('textLanguage'))) state.textLanguage = params.get('textLanguage');
   state.sequence = Object.hasOwn(MODES[state.office], params.get('sequence')) ? params.get('sequence') : Object.keys(MODES[state.office])[0];
   if (['none', 'vzbrannoi'].includes(params.get('afterHourHymn'))) state.afterHourHymn = params.get('afterHourHymn');
   if (['nave', 'narthex'].includes(params.get('location'))) state.location = params.get('location');

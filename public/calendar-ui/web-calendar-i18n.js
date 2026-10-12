@@ -1,4 +1,8 @@
 export const UI_DE = {
+  'Язык текста': 'Textsprache',
+  'Автоматически — сначала церковнославянский': 'Automatisch — zuerst Kirchenslawisch',
+  'Выбранная редакция этой службы пока отсутствует в BibleDesktop.': 'Die gewählte Textfassung dieses Gottesdienstes ist in BibleDesktop noch nicht verfügbar.',
+  'Церковнославянская редакция пока недоступна; показана следующая доступная редакция.': 'Die kirchenslawische Textfassung ist noch nicht verfügbar; angezeigt wird die nächste verfügbare Fassung.',
     "Богослужение сегодня": "Gottesdienst heute",
     "Читать службу целиком": "Vollständigen Gottesdienst lesen",
     "← К календарному дню": "← Zum Kalendertag",

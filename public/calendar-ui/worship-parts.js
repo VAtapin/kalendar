@@ -106,21 +106,40 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
     const url = new URL('/api/v1/liturgical/' + path + '/' + state.office, base);
     for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
     const response = await fetcher(url, { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(20_000) });
+    if (response.status === 422 && path === 'templates') {
+      const value = await response.json();
+      // The published API validates the supported edition through errors.language.
+      // Other validation errors must never trigger a language substitution.
+      if (value.errors && Object.keys(value.errors).length === 1 && Array.isArray(value.errors.language)
+        && value.errors.language.length && value.errors.language.every(error => error === 'validation.in')) return null;
+    }
     if (response.status !== 200) throw new Error('Worship parts request failed: ' + response.status);
     return (await response.json()).data;
   };
-  // The current modular API advertises a single cu-civil template. Do not probe
-  // unsupported languages or relabel its civil text as a traditional edition.
-  const template = validateTemplate(await request('templates'), state.office);
+  const requested = state.textLanguage || 'auto';
+  if (!['auto', 'cu', 'cu-civil', 'ru'].includes(requested)) throw new Error('Invalid text language');
+  let template, language;
+  for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {
+    const value = await request('templates', { language: candidate });
+    if (value === null) continue;
+    template = validateTemplate(value, state.office);
+    const sources = template.nodes.filter(node => node.kind !== 'slot');
+    if (sources.some(node => sourceLanguage(node.language ? node : template) !== candidate)) throw new Error('Wrong template edition');
+    language = candidate; break;
+  }
+  if (!template) return { status: 'edition-unavailable' };
+  const fallback = requested === 'auto' && language !== 'cu';
   const baseResult = { status: 'parts', template, entries: baseEntries(template), assignmentsStatus: 'loading',
-    complete: false, outline: template.status === 'source-outline' };
+    complete: false, outline: template.status === 'source-outline', fallback };
   onBase(baseResult);
-  const params = { date: state.date, sequence: state.sequence, calendarStyle: 'julian', templateVersion: template.templateVersion };
+  const params = { date: state.date, sequence: state.sequence, calendarStyle: 'julian', templateVersion: template.templateVersion, language };
   if (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office)) params.temple = state.temple;
   if (state.office === 'first-hour') Object.assign(params, { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') Object.assign(params, { nextOffice: 'vespers', location: state.location });
   try {
-    return await composeParts(template, await request('assignments', params), state);
+    const assignments = await request('assignments', params);
+    if (assignments?.context?.language !== language) throw new Error('Wrong assignment edition');
+    return { ...await composeParts(template, assignments, state), fallback };
   } catch {
     return { ...baseResult, assignmentsStatus: 'error' };
   }
