@@ -17,7 +17,7 @@ try {
     const url = new URL(route.request().url());
     if (url.pathname === '/public-api-config.php') return route.fulfill({ contentType: 'text/javascript', body: 'globalThis.KalendarConfig={publicApiUrl:"https://bible.example"};' });
     if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({ contentType: url.pathname.endsWith('.js') ? 'text/javascript' : 'text/css', body: fs.readFileSync('public' + url.pathname) });
-    if (url.pathname === '/fonts/MonomakhUnicode.ttf') return route.fulfill({ contentType: 'font/ttf', body: fs.readFileSync('public/fonts/MonomakhUnicode.ttf') });
+    if (['/fonts/MonomakhUnicode.ttf','/fonts/Ponomar-Regular.ttf','/fonts/DejaVuSerif.ttf'].includes(url.pathname)) return route.fulfill({ contentType: 'font/ttf', body: fs.readFileSync('public'+url.pathname) });
     if (url.pathname === '/api/v1/calendar/day') return route.fulfill({ json: { day: day(url.searchParams.get('date')) } });
     if (url.pathname === '/api/v1/calendar/service') return route.fulfill({ json: {
       schemaVersion: 2, textPolicy: 'calendar-language-v1', calendarLanguage: 'ru',
@@ -25,7 +25,9 @@ try {
         { title: 'Тропарь', insert: true, text: 'Церковнославянский оригинал', language: 'cu', orthography: 'traditional' },
         { title: 'Кондак', insert: true, text: 'Гражданская запись', language: 'cu-civil', orthography: 'civil-accented' },
         { title: 'Молитва', insert: true, text: 'Русский текст', language: 'ru' },
+        { textId: 'reference-example', title: 'Справочный тропарь', insert: false, text: 'Не вставлять в последование', language: 'cu-civil' },
       ],
+      properAssignments: [{ textId: 'reference-example', title: 'Справочный тропарь', insert: false, text: 'Не вставлять в последование', language: 'cu-civil' }],
     } });
     if (url.pathname.startsWith('/api/v1/liturgical/services/')) {
       requests.push(url); assert.equal(url.origin, 'https://bible.example');
@@ -47,14 +49,18 @@ try {
   await page.route('https://web.test/**', route);
   await page.route('https://bible.example/**', route);
   await page.goto('https://web.test/web-calendar?view=day&date=2026-10-21&lang=ru');
-  await page.locator('.day-texts summary').waitFor();
+  await page.locator('.day-texts summary').first().waitFor();
+  assert.equal(await page.locator('.intro').count(), 0);
   assert.match(await page.locator('.reading-list').innerText(), /Лк.5:17–26 · зачало 19/);
   assert.doesNotMatch(await page.locator('.reading-list .event-card').nth(1).innerText(), /зачало/);
-  assert.equal(await page.locator('.day-texts').evaluate(el => el.open), false);
-  await page.locator('.day-texts summary').click(); await page.evaluate(() => document.fonts.ready);
-  assert.match(await page.locator('[data-text-language="cu"]').evaluate(el => getComputedStyle(el).fontFamily), /Calendar API Slavonic/);
-  assert.doesNotMatch(await page.locator('[data-text-language="cu-civil"]').evaluate(el => getComputedStyle(el).fontFamily), /Calendar API Slavonic/);
-  assert.doesNotMatch(await page.locator('[data-text-language="ru"]').evaluate(el => getComputedStyle(el).fontFamily), /Calendar API Slavonic/);
+  assert.equal(await page.locator('.day-texts').first().evaluate(el => el.open), false);
+  await page.locator('[data-assignment-kind="appointed"] summary').click(); await page.evaluate(() => document.fonts.ready);
+  assert.match(await page.locator('[data-text-language="cu"]').evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
+  assert.match(await page.locator('[data-assignment-kind="appointed"] [data-text-language="cu-civil"]').evaluate(el => getComputedStyle(el).fontFamily), /Calendar Civil Text/);
+  assert.match(await page.locator('[data-text-language="ru"]').evaluate(el => getComputedStyle(el).fontFamily), /Calendar Civil Text/);
+  assert.equal(await page.locator('[data-assignment-kind="reference"] .assignment').count(), 1);
+  assert.equal(await page.evaluate(() => document.fonts.check('21px "Calendar Liturgical Slavonic"')), true);
+  assert.equal(await page.evaluate(() => document.fonts.check('18px "Calendar Civil Text"')), true);
   await page.getByRole('button', { name: 'Читать службу целиком' }).click();
   await page.getByRole('button', { name: 'Проверить доступность' }).waitFor();
   assert.equal(new URL(page.url()).searchParams.get('date'), '2026-10-21');
@@ -117,7 +123,7 @@ try {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.screenshot({ path: 'tmp/worship-reader/mobile.png', fullPage: true });
   await page.getByRole('button', { name: '← Zum Kalendertag' }).click();
-  await page.locator('.day-texts summary').waitFor();
+  await page.locator('.day-texts summary').first().waitFor();
   assert.equal(new URL(page.url()).searchParams.get('date'), '2027-10-21');
   assert.deepEqual(errors, []);
   console.log('PASS worship direct links, altar/Hour modes, live readiness, source order/repeats/rubrics, safe text, edition fonts, lection numbers, stale requests, rate limits, DE, desktop/mobile');

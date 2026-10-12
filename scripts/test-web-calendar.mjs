@@ -14,7 +14,7 @@ try{
   if (/^\/calendar-ui\/[a-z0-9-]+\.(js|css)$/.test(url.pathname)) return route.fulfill({contentType:url.pathname.endsWith('.js')?'text/javascript':'text/css',body:fs.readFileSync('public'+url.pathname)});
   if(url.pathname.match(/^\/api\/calendar\/icons\/\d+\/images\/\d+$/) && url.searchParams.get('preview')==='1') { thumbnailRequests.push(url); return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="48" height="60"><rect width="48" height="60" fill="gold"/></svg>'}); }
   if (url.pathname.startsWith('/assets/typikon/')) return route.fulfill({contentType:'image/svg+xml',body:fs.readFileSync('public'+url.pathname)});
-  if(url.pathname==='/fonts/MonomakhUnicode.ttf')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
+  if(['/fonts/MonomakhUnicode.ttf','/fonts/Ponomar-Regular.ttf','/fonts/DejaVuSerif.ttf'].includes(url.pathname))return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public'+url.pathname)});
   if(url.pathname.startsWith('/api/v1/calendar/')) { assert.equal(url.origin,'https://public-api.example'); assert.equal(route.request().method(),'GET'); if(url.pathname.endsWith('/month'))assert.equal(url.searchParams.get('month'),String(Number(url.searchParams.get('month')))); if(url.pathname.endsWith('/service')){assert.equal(url.searchParams.get('text_policy'),'calendar-language-v1');assert.equal(url.searchParams.get('calendar_lang'),'ru');assert.equal(url.searchParams.has('lang'),false);} calendarRequests.push(url); }
   if(url.pathname.endsWith('/service')){if(slowDetail)await new Promise(resolve=>setTimeout(resolve,250));return serviceAvailable
    ? route.fulfill({json:{schemaVersion:2,textPolicy:'calendar-language-v1',calendarLanguage:'ru',assignments:[{title:'Назначенный тропарь',text:'Текст тропаря',language:'cu',orthography:'traditional',insert:true,rubric:'Слава:'}],properCoverage:{status:'partial'}}})
@@ -116,7 +116,7 @@ try{
  await page.locator('dialog[open] .rubric').waitFor();
  slowDetail=false;
  assert.equal(await page.locator('#detail .rubric').innerText(),'Слава:');
- assert.match(await page.locator('#detail [data-text-language="cu"]').evaluate(el=>getComputedStyle(el).fontFamily),/Calendar API Slavonic/);
+ assert.match(await page.locator('#detail [data-text-language="cu"]').evaluate(el=>getComputedStyle(el).fontFamily),/Calendar Liturgical Slavonic/);
  assert.doesNotMatch(await page.locator('#detail').innerText(),/Textzuordnung|Справочный текст|требуют уточнения/);
  await page.locator('#close').click();
  assert.deepEqual(errors,[]);

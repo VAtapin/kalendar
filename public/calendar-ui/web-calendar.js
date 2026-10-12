@@ -1,5 +1,5 @@
 import { UI_DE } from './web-calendar-i18n.js';
-import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, fetchWorship, renderWorshipReader } from './worship-reader.js';
+import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, fetchWorship, renderWorshipReader } from './worship-reader.js';
 'use strict';
 
 const $ = id => document.getElementById(id);
@@ -292,21 +292,26 @@ function serviceSection(serviceState) {
   const metadata = e('div', '', 'service-meta');
   [service.cycles?.weekly?.subject, service.cycles?.movable?.label, service.cycles?.movable?.tone ? ('глас ' + service.cycles.movable.tone) : ''].filter(Boolean).forEach(value => metadata.append(e('span', value)));
   card.append(metadata);
-  const assignments = [...(service.assignments || []), ...(service.properAssignments || [])].filter(item => item.insert === true || item.text);
-  if (assignments.length) {
+  const assignments = calendarAssignments(service);
+  function appendAssignments(items, title, reference = false) {
+    if (!items.length) return;
     const details = e('details', '', 'day-texts');
-    details.append(e('summary', 'Тропари и кондаки'));
+    details.dataset.assignmentKind = reference ? 'reference' : 'appointed';
+    details.append(e('summary', title));
+    if (reference) details.append(e('p', 'Справочные тексты; API не назначил их вставками в выбранный Час.', 'hint'));
     const list = e('div', '', 'service-list');
-    assignments.forEach(item => {
+    items.forEach(item => {
       const assignment = e('article', '', 'assignment');
       assignment.append(e('strong', item.title || item.slot));
       if (item.rubric) assignment.append(e('p', item.rubric, 'rubric'));
       if (item.text) assignment.append(serviceText(item));
+      else assignment.append(e('p', 'Текст назначенной вставки сейчас недоступен.', 'hint'));
       list.append(assignment);
     });
     details.append(list); card.append(details);
   }
-  if (service.assignmentStatus && service.assignmentStatus !== 'complete') card.append(e('p', 'Собственные праздничные тексты пока не переданы API; показан доступный проверенный цикл.', 'hint'));
+  appendAssignments(assignments.appointed, 'Назначенные тропари и кондаки');
+  appendAssignments(assignments.reference, 'Справочные тропари и кондаки', true);
   if (service.expansions?.length) {
     const expansion = e('div', '', 'expansion');
     service.expansions.forEach(item => {

@@ -49,9 +49,18 @@ try {
   assert.match(await page.locator('.worship-text').innerText(),/поми́луй/);
   await page.screenshot({path:resolve(data,'worship.png'),fullPage:true});
   await page.getByRole('button',{name:'← К календарному дню'}).click();
-  await page.locator('.day-texts summary').waitFor({timeout:30000});
+  await page.locator('.day-texts summary').first().waitFor({timeout:30000});
   assert.ok(providerRequests.some(url=>url.includes('text_policy=calendar-language-v1')));
   assert.ok(await page.locator('.service-text [data-text-language]').count()>0);
+  await page.goto(origin+'/web-calendar.html?view=day&date=2026-10-12&lang=ru');
+  await page.locator('[data-assignment-kind="reference"] summary').waitFor({timeout:30000});
+  await page.locator('[data-assignment-kind="reference"] summary').click();
+  await page.evaluate(()=>document.fonts.ready);
+  assert.equal(await page.locator('.intro').count(),0);
+  assert.match(await page.locator('[data-assignment-kind="reference"] [data-text-language="cu-civil"]').first().evaluate(el=>getComputedStyle(el).fontFamily),/Calendar Civil Text/);
+  assert.equal(await page.evaluate(()=>document.fonts.check('18px "Calendar Civil Text"')),true);
+  await page.locator('[data-assignment-kind="reference"]').scrollIntoViewIfNeeded();
+  await page.screenshot({path:resolve(data,'day-text-fonts.png')});
   assert.deepEqual(errors,[]);
   console.log('PASS real Bible Desktop month/day/icons, published full Third Hour, automatic text editions, no Kalendar calendar API requests');
 }finally{await browser?.close();server.kill();}

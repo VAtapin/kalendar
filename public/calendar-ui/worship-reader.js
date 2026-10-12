@@ -44,6 +44,22 @@ export function validateCalendarTexts(value) {
   return value;
 }
 
+export function calendarAssignments(value) {
+  const entries = new Map();
+  for (const item of [...(value.assignments || []), ...(value.properAssignments || [])]) {
+    if (!item.text && item.insert !== true) continue;
+    // Proper assignments are also included in assignments by Bible Desktop.
+    const identity = item.textId || item.id || item.familyId;
+    const key = identity ? JSON.stringify([identity, item.slot || '', item.workSlug || '']) : 'anonymous:' + entries.size;
+    const previous = entries.get(key);
+    if (!previous || item.insert === true) entries.set(key, item);
+  }
+  return {
+    appointed: [...entries.values()].filter(item => item.insert === true),
+    reference: [...entries.values()].filter(item => item.insert !== true),
+  };
+}
+
 function worshipParams(state, language) {
   const params = { date: state.date, language, calendarStyle: 'julian', sequence: state.sequence };
   // The published third/sixth Hour contract does not accept a temple context.
@@ -125,7 +141,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     content.replaceChildren();
     if (result.status !== 'ready') {
       const messages = {
-        pending: 'Текст этой службы для выбранного дня пока не опубликован. Он появится здесь, когда станет доступен в BibleDesktop.',
+        pending: 'BibleDesktop пока не смог составить эту службу для выбранного дня. Назначения переменных частей требуют уточнения.',
         unavailable: 'Эта служба пока недоступна. Её можно проверить позднее.',
         'not-appointed': 'Литургия в этот день не назначена.',
         error: 'Не удалось загрузить службу. Попробуйте ещё раз.',

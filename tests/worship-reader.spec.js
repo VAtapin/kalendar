@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { fetchWorship, lectionNumber, textLanguage, validateCalendarTexts } from '../public/calendar-ui/worship-reader.js';
+import { fetchWorship, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments } from '../public/calendar-ui/worship-reader.js';
+import fontkit from '@pdf-lib/fontkit';
+import { readFileSync } from 'node:fs';
 
 const state = { date: '2026-10-21', office: 'third-hour', sequence: 'standalone', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave' };
 const response = (status, data) => ({ status, json: async () => ({ data }) });
@@ -23,6 +25,23 @@ describe('calendar lection numbers', () => {
 });
 
 describe('automatic text editions', () => {
+  it('separates appointed slots from reference texts without duplicating proper assignments', () => {
+    const appointed = { textId: 'proper-1', workSlug: 'hymn', slot: 'troparion-of-day', text: 'appointed', insert: true };
+    const reference = { textId: 'proper-2', workSlug: 'hymn-other', text: 'reference', insert: false };
+    const result = calendarAssignments({ assignments: [appointed, reference], properAssignments: [appointed, reference] });
+    expect(result.appointed).toEqual([appointed]); expect(result.reference).toEqual([reference]);
+    const sameTitle = calendarAssignments({ assignments: [{ title: 'Память', text: 'Тропарь' }, { title: 'Память', text: 'Кондак' }] });
+    expect(sameTitle.reference).toHaveLength(2);
+  });
+  it('bundled reading fonts support traditional Slavonic and civil combining accents', () => {
+    const slavonic = fontkit.create(readFileSync('public/fonts/Ponomar-Regular.ttf'));
+    const civil = fontkit.create(readFileSync('public/fonts/DejaVuSerif.ttf'));
+    for (const character of 'Го́споди поми́луй') expect(civil.hasGlyphForCodePoint(character.codePointAt(0))).toBe(true);
+    for (const character of 'ѿꙋіѣѡ҃́') expect(slavonic.hasGlyphForCodePoint(character.codePointAt(0))).toBe(true);
+    const accented = civil.layout('о́');
+    expect(accented.positions.at(-1).xAdvance).toBe(0);
+    expect(accented.positions.at(-1).xOffset).toBeLessThan(0);
+  });
   it('uses the actual orthography rather than the interface language', () => {
     expect(textLanguage({ language: 'cu', orthography: 'civil-accented' })).toBe('cu-civil');
     expect(textLanguage({ language: 'cu', orthography: 'traditional' })).toBe('cu');
