@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-12",
+  "verified_at_utc": "2026-10-12T08:50:27.287Z",
+  "plugin": "georg-kloster-calendar-workshop",
+  "version": "1.3.78",
+  "locale": "de_DE",
+  "branch": "default",
+  "address": "du",
+  "actions": [
+    "Rechecked all 441 UI and 67 readme translations against German Style Guide and glossary.",
+    "Unified Kontakien, Perikopennummern and Textleser in three translations.",
+    "Imported verified Stable UI and Readme with Current status using newly granted PTE rights; approvals propagated to Development.",
+    "Discarded three false initial-lowercase warnings for German nouns Kalender, Kalender. and Ton and explicitly approved them."
+  ],
+  "verified_state": {
+    "stable": "441/441 approved",
+    "development": "441/441 approved",
+    "stable_readme": "67/67 approved",
+    "development_readme": "67/67 approved",
+    "untranslated": 0,
+    "waiting": 0,
+    "fuzzy": 0,
+    "changes_requested": 0,
+    "warnings": 0
+  },
+  "checks": [
+    "Local completeness/originals/contexts/technical-token preservation/informal-address/glossary/typography/MO checks passed.",
+    "All four downloaded Current PO catalogues exactly match prepared translations.",
+    "Live GlotPress counters verified in all four branches."
+  ],
+  "catalogue_sha256": {
+    "stable-1.3.78-de.po": "d43bf37930d6f607454e67826f501ee9dcac82287c4f98f9940ab573c4beb7ff",
+    "stable-readme-1.3.78-de.po": "a9fd2a5f307f01b329a9bcb174e8ac2195fc13ab1393ec75a23ba45605544fee"
+  },
+  "export_sha256": [
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-stable-de (1).po",
+      "sha256": "36dbafa2927f92247148acf62d16558559174b0772142212edef178cfe388fd4"
+    },
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-dev-de.po",
+      "sha256": "49e2e3937b61b5a8cccb3d613bcd32bcef3b9716b1bad9144de5a2193fb7a7e8"
+    },
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-stable-readme-de.po",
+      "sha256": "be5960840500d243a42191f782d78e37846fdfffe2a35f357375f9d7c1b70021"
+    },
+    {
+      "file": "wp-plugins-georg-kloster-calendar-workshop-dev-readme-de.po",
+      "sha256": "174829a3980282329d7be0d8a1aa334120858315f7f15b14de886292d4d51ce0"
+    }
+  ],
+  "language_pack": {
+    "api": "https://api.wordpress.org/translations/plugins/1.0/?slug=georg-kloster-calendar-workshop&version=1.3.78",
+    "http_status": 200,
+    "available_locales": [
+      "ru_RU"
+    ],
+    "status": "de_DE automatic generation pending; ZIP not yet available at verification."
+  },
+  "known_source_issues": [
+    "English Readme originals contain mojibake arrows/dashes and an outdated statement about akathists; originals unchanged."
+  ],
+  "runtime_changed": false,
+  "deployment_required": false,
+  "receipt_commit_message": "Approve reviewed German WordPress translations"
+}

@@ -47,6 +47,7 @@ assert.equal(ui.get('In a popup window'),'In einem Pop-up-Fenster');
 assert.equal(ui.get('Name or title'),'Name oder Titel');
 assert.equal(ui.get('Georg-Kloster Calendar Workshop'),'Georg-Kloster Calendar Workshop');
 assert.equal(ui.get('tone '),'Ton ');
+assert.equal(ui.get('Kontakia'),'Kontakien');
 console.log('PASS reviewed German terminology and fragment spacing');
 
 // Optional: compare PO exports downloaded from each branch after importing.
@@ -57,10 +58,10 @@ if(exportedPaths.length){
     const local=readPo(`${root}/${index<2?'stable-1.3.78-de.po':'stable-readme-1.3.78-de.po'}`).filter(e=>e.msgid);
     const proposed=new Map(local.map(e=>[key(e),e.msgstr]));
     const exported=readPo(path).filter(e=>e.msgid);
-    assert.equal(exported.length,index<2?441:66,'Waiting export coverage');
+    assert.ok(index<2?exported.length===441:[66,67].includes(exported.length),'Waiting or Current export coverage');
     assert.equal(new Set(exported.map(key)).size,exported.length,'Duplicate exported keys');
     for(const entry of exported)assert.equal(entry.msgstr,proposed.get(key(entry)),`Imported translation differs: ${entry.msgid}`);
-    if(index>=2)assert.deepEqual(local.filter(e=>!exported.some(row=>key(row)===key(e))).map(e=>[e.msgid,e.msgstr]),[['Georg-Kloster Calendar Workshop','Georg-Kloster Calendar Workshop']],'Only the separately approved plugin name may be absent');
+    if(index>=2 && exported.length===66)assert.deepEqual(local.filter(e=>!exported.some(row=>key(row)===key(e))).map(e=>[e.msgid,e.msgstr]),[['Georg-Kloster Calendar Workshop','Georg-Kloster Calendar Workshop']],'Only the separately approved plugin name may be absent');
     console.log(`PASS import export ${index+1}: ${exported.length} translations match the reviewed proposal`);
   }
 }

@@ -820,7 +820,7 @@ msgstr "Troparien"
 
 #: includes/plugin.php assets/editor.js assets/calendar.js
 msgid "Kontakia"
-msgstr "Kondakien"
+msgstr "Kontakien"
 
 #: includes/plugin.php assets/editor.js assets/calendar.js
 msgid "Prayers"

@@ -159,7 +159,7 @@ msgid "Support the reviewed German morning, evening and Communion rules through 
 msgstr "Die geprüften deutschen Morgen-, Abend- und Kommuniongebete über die vorhandenen APIs unterstützen."
 
 msgid "Display lection numbers only for unambiguous exact source-coordinate matches."
-msgstr "Lesungsnummern nur bei eindeutiger, exakter Übereinstimmung der Quellenkoordinaten anzeigen."
+msgstr "Perikopennummern nur bei eindeutiger, exakter Übereinstimmung der Quellenkoordinaten anzeigen."
 
 msgid "Preserve source variants and ambiguous candidates without guessing a number."
 msgstr "Quellenvarianten und mehrdeutige Kandidaten beibehalten, ohne eine Nummer zu erraten."
@@ -186,7 +186,7 @@ msgid "Shortcode generator with block settings and a live preview."
 msgstr "Shortcode-Generator mit Blockeinstellungen und Live-Vorschau."
 
 msgid "Full liturgical text reader with language selection and source attribution."
-msgstr "Leser für vollständige liturgische Texte mit Sprachauswahl und Quellenangabe."
+msgstr "Textleser für vollständige liturgische Texte mit Sprachauswahl und Quellenangabe."
 
 msgid "Church Slavonic text displayed using the Monomakh font."
 msgstr "Kirchenslawischer Text in der Schriftart Monomakh."
