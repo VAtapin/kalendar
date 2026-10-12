@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { chromium } from 'playwright';
+import { templateFor, assignmentsFor } from '../tests/fixtures/worship-parts.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: 'msedge' } : {});
 try {
@@ -29,20 +30,20 @@ try {
       ],
       properAssignments: [{ textId: 'reference-example', title: 'Справочный тропарь', insert: false, text: 'Не вставлять в последование', language: 'cu-civil' }],
     } });
-    if (url.pathname.startsWith('/api/v1/liturgical/services/')) {
+    if (url.pathname.startsWith('/api/v1/liturgical/templates/')) {
+      const office = url.pathname.split('/').at(-1);
+      return route.fulfill({ json: { data: templateFor(office) } });
+    }
+    if (url.pathname.startsWith('/api/v1/liturgical/assignments/')) {
       requests.push(url); assert.equal(url.origin, 'https://bible.example');
-      const office = url.pathname.split('/').at(-1), language = url.searchParams.get('language'), date = url.searchParams.get('date');
-      const context = { office, language, date, sequence: url.searchParams.get('sequence'), calendarStyle: 'julian', temple: url.searchParams.get('temple') };
+      const office = url.pathname.split('/').at(-1), date = url.searchParams.get('date');
+      const context = { ...Object.fromEntries(url.searchParams), office, date };
       if (delay && office === 'third-hour') await new Promise(resolve => setTimeout(resolve, 300));
       if (httpFailure) return route.fulfill({ status: httpFailure, json: { error: 'error' } });
-      if (language !== 'cu-civil') return route.fulfill({ status: 409, json: { data: { schemaVersion: 1, context, status: 'unsupported', issues: [{ code: 'unsupported-edition' }] } } });
-      if (!published) return route.fulfill({ status: 409, json: { data: { schemaVersion: 1, context, status: office === 'liturgy' ? 'not-appointed' : 'needs-review', blocks: [{ segments: [{ text: 'PRIVATE MUST NOT RENDER' }] }], fragments: { private: 'secret' } } } });
-      return route.fulfill({ json: { data: { schemaVersion: 1, context, status: 'complete', completeness: { text: true, appointment: true, review: true }, blocks: [
-        { kind: 'heading', role: 'rubric', segments: [{ text: `${office} ${date}`, style: 'rubric' }] },
-        { kind: 'paragraph', role: 'priest', segments: [{ text: 'Священник: ', style: 'rubric' }, { text: 'Благослове́н Бог наш. <script>unsafe</script>', style: 'text' }] },
-        { kind: 'paragraph', repeatIndex: 1, repeatCount: 2, segments: [{ text: 'Го́споди, поми́луй.', style: 'text' }] },
-        { kind: 'paragraph', repeatIndex: 2, repeatCount: 2, segments: [{ text: 'Го́споди, поми́луй.', style: 'text' }] },
-      ] } } });
+      const data = assignmentsFor(templateFor(office), context, published && office !== 'liturgy');
+      if (!published && office === 'liturgy') data.status = 'not-appointed';
+      data.fragments = { private: 'PRIVATE MUST NOT RENDER' };
+      return route.fulfill({ json: { data } });
     }
     return route.fulfill({ contentType: 'text/html', body: fs.readFileSync('public/web-calendar.html') });
   };
@@ -66,10 +67,14 @@ try {
   assert.equal(new URL(page.url()).searchParams.get('date'), '2026-10-21');
   assert.equal(new URL(page.url()).searchParams.get('view'), 'worship');
   assert.doesNotMatch(await page.locator('.worship-content').innerText(), /PRIVATE|secret/);
+  await page.locator('.worship-text[data-composition="partial"]').waitFor();
+  assert.match(await page.locator('.worship-text').innerText(), /Благослове́н Бог наш/);
+  assert.equal(await page.locator('.worship-missing').count(), 3);
   published = true;
   await page.getByRole('button', { name: 'Проверить доступность' }).click();
-  await page.locator('.worship-text').waitFor();
-  assert.equal(await page.locator('.worship-block').count(), 4);
+  await page.locator('.worship-text[data-composition="complete"]').waitFor();
+  assert.equal(await page.locator('.worship-block').count(), 7);
+  assert.equal(await page.locator('.worship-missing').count(), 0);
   assert.equal(await page.locator('.worship-text script').count(), 0);
   assert.match(await page.locator('.worship-text').innerText(), /<script>unsafe<\/script>/);
   assert.equal((await page.locator('.worship-text').innerText()).match(/Го́споди, поми́луй./g).length, 2);
@@ -77,43 +82,45 @@ try {
   assert.equal(await page.locator('.worship-toc a').getAttribute('href'), '#worship-part-0');
   await page.locator('[data-worship-control="temple"]').selectOption('nicholas');
   await page.locator('[data-worship-control="office"]').selectOption('first-hour');
-  await page.locator('.worship-text').waitFor();
+  await page.locator('.worship-text[data-composition="complete"]').waitFor();
   assert.match(await page.locator('.worship-text').innerText(), /first-hour/);
   assert.equal(requests.at(-1).searchParams.get('temple'), 'nicholas');
   assert.equal(requests.at(-1).searchParams.get('matinsDismissalDone'), '1');
-  const direct = page.url(); await page.reload(); await page.locator('.worship-text').waitFor();
+  const direct = page.url(); await page.reload(); await page.locator('.worship-text[data-composition="complete"]').waitFor();
   assert.equal(page.url(), direct);
   assert.equal(await page.locator('[data-worship-control="office"]').inputValue(), 'first-hour');
   assert.equal(await page.locator('[data-worship-control="temple"]').inputValue(), 'nicholas');
   await page.locator('[data-worship-control="office"]').selectOption('ninth-hour');
   await page.locator('[data-worship-control="sequence"]').selectOption('before-vespers');
   await page.locator('[data-worship-control="location"]').selectOption('narthex');
-  await page.locator('.worship-text').waitFor();
+  await page.locator('.worship-text[data-composition="complete"]').waitFor();
   assert.equal(requests.at(-1).searchParams.get('location'), 'narthex');
   assert.equal(requests.at(-1).searchParams.get('nextOffice'), 'vespers');
   await page.locator('[data-worship-control="office"]').selectOption('sixth-hour');
-  await page.locator('.worship-text').waitFor();
+  await page.locator('.worship-text[data-composition="complete"]').waitFor();
   assert.equal(requests.at(-1).searchParams.get('sequence'), 'after-third-hour');
   assert.equal(requests.at(-1).searchParams.has('temple'), false);
   delay = true;
   await page.locator('[data-worship-control="office"]').selectOption('third-hour');
   await page.locator('[data-worship-control="office"]').selectOption('sixth-hour');
-  await page.locator('.worship-text').waitFor(); await page.waitForTimeout(400);
+  await page.locator('.worship-text[data-composition="complete"]').waitFor(); await page.waitForTimeout(400);
   assert.match(await page.locator('.worship-text').innerText(), /sixth-hour/); delay = false;
   httpFailure = 429;
   const before = requests.length;
-  await page.reload(); await page.getByRole('button', { name: 'Проверить доступность' }).waitFor();
-  assert.match(await page.locator('.worship-content').innerText(), /Не удалось загрузить службу/);
+  await page.reload(); await page.locator('.worship-content[data-assignments-status="error"]').waitFor();
+  assert.match(await page.locator('.worship-content').innerText(), /Постоянный текст доступен/);
+  assert.match(await page.locator('.worship-text').innerText(), /Благослове́н Бог наш/);
   assert.equal(requests.length, before + 1); httpFailure = 0;
   published = false;
   await page.locator('[data-worship-control="office"]').selectOption('liturgy');
-  await page.getByText('Литургия в этот день не назначена.', { exact: true }).waitFor();
+  await page.getByText('Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.', { exact: true }).waitFor();
+  assert.equal(await page.locator('.worship-text[data-composition="source-outline"]').count(), 1);
   published = true;
   await page.goto('https://web.test/web-calendar?view=worship&date=2027-10-21&lang=de&office=third-hour&temple=george-victorious');
-  await page.locator('.worship-text').waitFor();
+  await page.locator('.worship-text[data-composition="complete"]').waitFor();
   assert.match(await page.locator('.worship-text').innerText(), /2027-10-21/);
   assert.equal(await page.locator('.worship-quick button').innerText(), 'Gottesdienst heute');
-  assert.equal(await page.locator('.edition-label').innerText(), 'Kirchenslawisch — moderne Schrift');
+  assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'), 'cu-civil');
   await page.locator('input[type="range"]').fill('28');
   await page.locator('input[type="range"]').dispatchEvent('input');
   assert.equal(await page.locator('.worship-text').evaluate(el => getComputedStyle(el).fontSize), '28px');

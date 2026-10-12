@@ -1,4 +1,5 @@
 // Public Bible Desktop contracts. Availability is always resolved by the server.
+import { sourceLanguage } from './worship-parts.js';
 export const OFFICES = {
   'first-hour': 'Первый час', 'third-hour': 'Третий час',
   'sixth-hour': 'Шестой час', 'ninth-hour': 'Девятый час', liturgy: 'Литургия',
@@ -30,8 +31,7 @@ export function lectionNumber(reading) {
 }
 
 export function textLanguage(item) {
-  if (item?.language === 'cu' && ['civil', 'civil-accented'].includes(item.orthography)) return 'cu-civil';
-  return Object.hasOwn(EDITIONS, item?.language) ? item.language : null;
+  return sourceLanguage(item);
 }
 
 export function validateCalendarTexts(value) {
@@ -139,7 +139,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   content.append(loading); page.append(summary, content);
   function render(result) {
     content.replaceChildren();
-    if (result.status !== 'ready') {
+    if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
         pending: 'BibleDesktop пока не смог составить эту службу для выбранного дня. Назначения переменных частей требуют уточнения.',
         unavailable: 'Эта служба пока недоступна. Её можно проверить позднее.',
@@ -154,31 +154,88 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
       return;
     }
-    content.append(create('p', EDITIONS[result.language], 'edition-label'));
+    if (result.status === 'parts') {
+      const notices = {
+        loading: 'Постоянный текст загружен. Уточняю переменные части дня…',
+        partial: 'Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.',
+        error: 'Постоянный текст доступен. Дневные назначения сейчас не получены; места вставок отмечены в тексте.',
+        'not-appointed': 'Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.',
+      };
+      if (result.outline) content.append(create('p', 'Книжная основа Литургии Иоанна Златоуста. Переменные части и условные варианты ещё не выбраны для этой даты; это не готовая служба дня.', 'reader-message'));
+      if (!result.complete) {
+        const notice = create('p', result.outline && result.assignmentsStatus !== 'not-appointed'
+          ? (result.assignmentsStatus === 'error' ? notices.error : 'Дневные вставки пока не определены.')
+          : notices[result.assignmentsStatus] || notices.partial, 'reader-message');
+        notice.setAttribute('role', 'status');
+        if (!result.outline || ['error', 'not-appointed'].includes(result.assignmentsStatus)) content.append(notice);
+        const retry = create('button', 'Проверить доступность', 'reader-button'); retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
+      }
+    } else content.append(create('p', EDITIONS[result.language], 'edition-label'));
     const toc = create('nav', '', 'worship-toc'); toc.setAttribute('aria-label', create('span', 'Оглавление').textContent);
-    const body = create('article', '', 'worship-text'); body.lang = result.language === 'cu-civil' ? 'cu' : result.language;
-    body.dataset.textLanguage = result.language;
-    result.data.blocks.forEach((block, index) => {
-      const heading = block.kind === 'heading', node = create(heading ? 'h3' : 'p', null, 'worship-block');
-      if (block.role === 'rubric' || block.kind === 'rubric') node.classList.add('rubric');
-      if (block.parallelWith) {
-        node.classList.add('parallel-prayer');
-        node.append(create('small', 'Молитва читается одновременно с песнопением', 'edition-label'));
+    const body = create('article', '', 'worship-text');
+    body.dataset.composition = result.status === 'ready' || result.complete ? 'complete' : result.outline ? 'source-outline' : 'partial';
+    content.dataset.assignmentsStatus = result.assignmentsStatus || '';
+    const entries = result.status === 'parts' ? result.entries : [{ language: result.language, blocks: result.data.blocks }];
+    const languages = [...new Set(entries.filter(entry => !entry.missing).map(entry => entry.language))];
+    if (result.status === 'parts') languages.forEach(language => content.append(create('p', EDITIONS[language], 'edition-label')));
+    let blockIndex = 0, appendix;
+    const slotNames = { 'troparion-of-day:leading': 'Дополнительный тропарь дня', 'troparion-of-day:last': 'Тропарь дня',
+      'kontakion-of-day': 'Кондак дня', 'troparia-kontakia': 'Тропари и кондаки после входа',
+      'antiphon-1': 'Первый антифон', 'antiphon-2': 'Второй антифон', 'apostle': 'Апостол', gospel: 'Евангелие',
+      'only-begotten': 'Единородный Сыне', 'antiphon-3-or-beatitudes': 'Третий антифон или Блаженны', entrance: 'Входное',
+      'trisagion-or-replacement': 'Трисвятое или его замена', prokeimenon: 'Прокимен', 'apostle-title': 'Заглавие Апостола',
+      alleluia: 'Аллилуиарий', 'evangelist-names': 'Имя евангелиста', 'gospel-title': 'Заглавие Евангелия',
+      'local-commemorations': 'Местные поминовения', 'optional-petitions': 'Условные прошения',
+      'cherubic-or-replacement': 'Херувимская или её замена', megalynarion: 'Достойно есть или задостойник',
+      communion: 'Причастен', 'blessed-name': 'Буди имя Господне', 'psalm-33': 'Псалом 33', dismissal: 'Отпуст',
+      'thanksgiving-appendix': 'Благодарственные молитвы' };
+    for (const entry of entries) {
+      if (entry.missing) {
+        const missing = create('aside', '', 'worship-missing');
+        missing.dataset.slotId = entry.slotId;
+        missing.append(create('strong', slotNames[entry.slotId] || 'Переменная часть службы'), create('p', 'Назначение этой части пока не определено.'));
+        if (result.outline) {
+          // Outline anchors identify source locations, not approved insertion operations.
+          let unresolved = content.querySelector('.outline-missing');
+          if (!unresolved) { unresolved = create('details', '', 'outline-missing'); unresolved.append(create('summary', 'Неопределённые части Литургии')); content.append(unresolved); }
+          unresolved.append(missing);
+        } else body.append(missing);
+        continue;
       }
-      if (Number.isInteger(block.tone) && block.tone >= 1 && block.tone <= 8) {
-        const tone = create('small', 'Глас', 'edition-label'); tone.append(document.createTextNode(' ' + block.tone)); node.append(tone);
+      const part = create('section', '', 'worship-part');
+      part.dataset.textLanguage = entry.language;
+      part.lang = entry.language === 'cu-civil' ? 'cu' : entry.language;
+      if (entry.nodeId) part.dataset.nodeId = entry.nodeId;
+      if (entry.kind === 'source-block') part.dataset.sourceClassification = entry.classification;
+      for (const block of entry.blocks) {
+        const index = blockIndex++;
+        const heading = block.kind === 'heading', node = create(heading ? 'h3' : 'p', null, 'worship-block');
+        if (block.role === 'rubric' || block.kind === 'rubric') node.classList.add('rubric');
+        if (block.parallelWith) {
+          node.classList.add('parallel-prayer');
+          node.append(create('small', 'Молитва читается одновременно с песнопением', 'edition-label'));
+        }
+        if (Number.isInteger(block.tone) && block.tone >= 1 && block.tone <= 8) {
+          const tone = create('small', 'Глас', 'edition-label'); tone.append(document.createTextNode(' ' + block.tone)); node.append(tone);
+        }
+        for (const segment of block.segments) {
+          const span = create('span', null, segment.style === 'rubric' ? 'rubric' : '');
+          span.textContent = segment.text; node.append(span);
+        }
+        if (heading) {
+          node.id = 'worship-part-' + index;
+          const link = create('a', null); link.textContent = node.textContent; link.href = '#' + node.id; toc.append(link);
+        }
+        part.append(node);
       }
-      for (const segment of block.segments) {
-        const span = create('span', null, segment.style === 'rubric' ? 'rubric' : '');
-        span.textContent = segment.text; node.append(span);
-      }
-      if (heading) {
-        node.id = 'worship-part-' + index;
-        const link = create('a', null); link.textContent = node.textContent; link.href = '#' + node.id; toc.append(link);
-      }
-      body.append(node);
-    });
-    if (toc.childElementCount) content.append(toc);
+      if (entry.section === 'post-service-appendix') {
+        if (!appendix) { appendix = create('details', '', 'worship-appendix'); appendix.append(create('summary', 'Приложение после службы')); body.append(appendix); }
+        appendix.append(part);
+      } else body.append(part);
+    }
+    if (toc.childElementCount) {
+      const navigation = create('details', '', 'worship-navigation'); navigation.append(create('summary', 'Оглавление'), toc); content.append(navigation);
+    }
     content.append(body);
   }
   return { page, summary, render };

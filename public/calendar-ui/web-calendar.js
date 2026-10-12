@@ -1,5 +1,6 @@
 import { UI_DE } from './web-calendar-i18n.js';
-import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, fetchWorship, renderWorshipReader } from './worship-reader.js';
+import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, renderWorshipReader } from './worship-reader.js';
+import { fetchWorshipParts } from './worship-parts.js';
 'use strict';
 
 const $ = id => document.getElementById(id);
@@ -672,6 +673,7 @@ async function showWorship() {
   applyTextLanguage(reader.summary);
   $('calendar-panel').classList.remove('cu', 'calendar-text');
   $('calendar-panel').replaceChildren(reader.page);
+  reader.page.scrollIntoView({ block: 'start' });
   setStatus('');
   const current = () => request === worshipSequence && state.view === 'worship';
   const summary = api('day', { date: selected.date, lang: selected.lang, profile: selected.profile }).then(value => {
@@ -686,7 +688,9 @@ async function showWorship() {
   }).catch(() => {
     if (current()) reader.summary.append(e('p', 'Календарные сведения сейчас недоступны.', 'hint'));
   });
-  const service = fetchWorship(globalThis.KalendarConfig.publicApiUrl, selected).then(result => {
+  const service = fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, result => {
+    if (current()) reader.render(result);
+  }).then(result => {
     if (current()) reader.render(result);
   }).catch(() => { if (current()) reader.render({ status: 'error' }); });
   await Promise.allSettled([summary, service]);

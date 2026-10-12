@@ -170,7 +170,11 @@ dialog::backdrop { background: #18291e88; }
 @font-face { font-family: "Calendar Civil Text"; src: url("/fonts/DejaVuSerif.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
 [data-text-language="cu"] { font-family: "Calendar Liturgical Slavonic", serif; font-size: 21px; line-height: 1.85; }
 [data-text-language="cu-civil"], [data-text-language="ru"] { font-family: "Calendar Civil Text", serif; font-size: 18px; line-height: 1.75; }
-.worship-text[data-text-language] { font-size: var(--reader-size, 22px); }
+.worship-text [data-text-language], .worship-text[data-text-language] { font-size: var(--reader-size, 22px); }
+.worship-missing { margin: 18px 0; padding: 12px 16px; border: 1px dashed var(--gold); border-radius: 8px; background: #f9f7ef; color: var(--muted); font: 15px/1.5 system-ui, sans-serif; }
+.worship-missing p { margin: 5px 0 0; }
+.outline-missing, .worship-navigation, .worship-appendix { margin: 18px 0; }
+.outline-missing summary, .worship-navigation summary, .worship-appendix summary { cursor: pointer; font: 650 16px/1.5 system-ui, sans-serif; }
 .edition-label { display: block; margin: 8px 0; color: var(--muted); font: 13px/1.5 system-ui, sans-serif; }
 .worship-quick { margin-bottom: 16px; }
 .reader-button { border: 1px solid var(--gold); border-radius: 8px; padding: 10px 16px; background: #f9f7ef; color: var(--ink); font: 15px/1.4 system-ui, sans-serif; cursor: pointer; }

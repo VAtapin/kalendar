@@ -43,8 +43,8 @@ try {
   assert.deepEqual(errors,[]);
   await page.screenshot({path:resolve(data,'calendar.png'),fullPage:true});
   await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=third-hour&lang=ru');
-  await page.locator('.worship-text').waitFor({timeout:30000});
-  assert.equal(await page.locator('.worship-text').getAttribute('data-text-language'),'cu-civil');
+  await page.locator('.worship-text[data-composition="complete"]').waitFor({timeout:30000});
+  assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu-civil');
   assert.ok(await page.locator('.worship-block').count()>50);
   assert.match(await page.locator('.worship-text').innerText(),/поми́луй/);
   await page.screenshot({path:resolve(data,'worship.png'),fullPage:true});
@@ -61,6 +61,20 @@ try {
   assert.equal(await page.evaluate(()=>document.fonts.check('18px "Calendar Civil Text"')),true);
   await page.locator('[data-assignment-kind="reference"]').scrollIntoViewIfNeeded();
   await page.screenshot({path:resolve(data,'day-text-fonts.png')});
+  for(const office of ['first-hour','sixth-hour','ninth-hour','liturgy']) {
+    await page.goto(origin+`/web-calendar.html?view=worship&date=2026-10-12&office=${office}&temple=george-victorious&lang=ru`);
+    await page.locator('.worship-content[data-assignments-status="partial"]').waitFor({timeout:30000});
+    assert.ok(await page.locator('.worship-block').count()>20,`Fixed text is visible for ${office}`);
+    if(office==='liturgy') {
+      assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'source-outline');
+      assert.equal(await page.locator('.worship-block').count(),585);
+      assert.match(await page.locator('.worship-content').innerText(),/Книжная основа Литургии Иоанна Златоуста/);
+    } else {
+      assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'partial');
+      assert.equal(await page.locator('.worship-missing').count(),3);
+    }
+    await page.screenshot({path:resolve(data,office+'-base.png')});
+  }
   assert.deepEqual(errors,[]);
-  console.log('PASS real Bible Desktop month/day/icons, published full Third Hour, automatic text editions, no Kalendar calendar API requests');
+  console.log('PASS real Bible Desktop complete composed Third Hour, fixed First/Sixth/Ninth Hours on12.10, all585 Liturgy paragraphs, unresolved slots, policy/fonts, calendar/icons');
 }finally{await browser?.close();server.kill();}
