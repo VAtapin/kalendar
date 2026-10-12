@@ -1,16 +1,18 @@
 import { UI_DE } from './web-calendar-i18n.js';
+import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, fetchWorship, renderWorshipReader } from './worship-reader.js';
 'use strict';
 
 const $ = id => document.getElementById(id);
 const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
-const VIEW_LABELS = { day: 'День', week: 'Неделя', month: 'Месяц', year: 'Год' };
+const VIEW_LABELS = { day: 'День', week: 'Неделя', month: 'Месяц', year: 'Год', worship: 'Богослужение дня' };
 function localIsoDate(now = new Date()) {
   const offset = now.getTimezoneOffset() * 60_000;
   return new Date(now.getTime() - offset).toISOString().slice(0, 10);
 }
 
-const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3 };
-let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0;
+const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
+  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22 };
+let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 
 for (let year = 1900; year <= 2200; year++) $('year').add(new Option(String(year), String(year)));
 for (let month = 0; month < 12; month++) $('month').add(new Option(MONTHS[month], String(month + 1).padStart(2, '0')));
@@ -26,7 +28,7 @@ function ui(value) {
 }
 
 const staticLabels = [];
-document.querySelectorAll('.back,.eyebrow,.site-title,.intro,.filters,#close').forEach(root => {
+document.querySelectorAll('.back,.eyebrow,.site-title,.intro,.filters,.worship-quick,#close').forEach(root => {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let node;
   while (node = walker.nextNode()) if (node.textContent.trim()) staticLabels.push([node, node.textContent]);
@@ -118,18 +120,27 @@ function syncControls() {
 function saveLocation() {
   const url = new URL(location.href);
   url.search = '';
-  Object.entries(state).forEach(([key, value]) => url.searchParams.set(key, value));
+  Object.entries(state).forEach(([key, value]) => {
+    if (state.view === 'worship' || ['view', 'date', 'lang', 'profile', 'eventLimit'].includes(key)) url.searchParams.set(key, value);
+  });
   history.replaceState(null, '', url);
 }
 
 function readLocation() {
   const params = new URLSearchParams(location.search);
   const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
-  if (['day', 'week', 'month', 'year'].includes(view)) state.view = view;
+  if (['day', 'week', 'month', 'year', 'worship'].includes(view)) state.view = view;
   if (/^\d{4}-\d{2}-\d{2}$/.test(date || '')) state.date = date;
   if (['ru', 'cu', 'de', 'uk', 'pl'].includes(lang)) state.lang = lang;
   if (['typikon-strict', 'parish'].includes(profile)) state.profile = profile;
   if (Number.isInteger(eventLimit) && eventLimit >= 1 && eventLimit <= 5) state.eventLimit = eventLimit;
+  if (Object.hasOwn(OFFICES, params.get('office'))) state.office = params.get('office');
+  if (Object.hasOwn(TEMPLES, params.get('temple'))) state.temple = params.get('temple');
+  state.sequence = Object.hasOwn(MODES[state.office], params.get('sequence')) ? params.get('sequence') : Object.keys(MODES[state.office])[0];
+  if (['none', 'vzbrannoi'].includes(params.get('afterHourHymn'))) state.afterHourHymn = params.get('afterHourHymn');
+  if (['nave', 'narthex'].includes(params.get('location'))) state.location = params.get('location');
+  const size = Number(params.get('textSize'));
+  if (Number.isInteger(size) && size >= 18 && size <= 32) state.textSize = size;
 }
 
 function weekdayNames() { return Array.from({ length: 7 }, (_, index) => titleDate('2024-01-' + String(index + 1).padStart(2, '0'), { weekday: 'short' }).replace('.', '')); }
@@ -251,6 +262,8 @@ function eventCard(event) {
   const card = e('article', '', 'event-card');
   const title = event.title || event.name || event.shortTitle || 'Память дня';
   card.append(e('h4', title));
+  const number = lectionNumber(event.reading);
+  if (number) card.firstElementChild.append(document.createTextNode(' · ' + ui('зачало') + ' ' + number));
   const annotation = [event.typikonMark?.label].filter(Boolean).join(' · ');
   if (annotation) card.append(e('small', annotation));
   if (event.description) card.append(e('p', event.description));
@@ -263,6 +276,10 @@ function serviceSection(serviceState) {
   const card = e('section', '', 'section-card');
   card.dataset.section = 'service';
   card.append(e('h3', 'Богослужение дня'));
+  const read = e('button', 'Читать службу целиком', 'reader-button');
+  read.type = 'button';
+  read.addEventListener('click', () => openWorship(serviceState.date || state.date));
+  card.append(read);
   if (serviceState.status === 'loading') {
     card.append(e('div', null, 'loading-block'), e('p', 'Загружаю богослужебные тексты…', 'hint'));
     return card;
@@ -277,28 +294,39 @@ function serviceSection(serviceState) {
   card.append(metadata);
   const assignments = [...(service.assignments || []), ...(service.properAssignments || [])].filter(item => item.insert === true || item.text);
   if (assignments.length) {
+    const details = e('details', '', 'day-texts');
+    details.append(e('summary', 'Тропари и кондаки'));
     const list = e('div', '', 'service-list');
     assignments.forEach(item => {
       const assignment = e('article', '', 'assignment');
       assignment.append(e('strong', item.title || item.slot));
       if (item.rubric) assignment.append(e('p', item.rubric, 'rubric'));
-      if (item.text) assignment.append(e('p', item.text));
+      if (item.text) assignment.append(serviceText(item));
       list.append(assignment);
     });
-    card.append(list);
+    details.append(list); card.append(details);
   }
   if (service.assignmentStatus && service.assignmentStatus !== 'complete') card.append(e('p', 'Собственные праздничные тексты пока не переданы API; показан доступный проверенный цикл.', 'hint'));
   if (service.expansions?.length) {
     const expansion = e('div', '', 'expansion');
     service.expansions.forEach(item => {
       const details = e('details');
-      details.open = true;
-      details.append(e('summary', item.title || item.id), e('p', item.text || ''));
+      details.append(e('summary', item.title || item.id));
+      if (item.text) details.append(serviceText(item));
       expansion.append(details);
     });
     card.append(expansion);
   }
   return card;
+}
+
+function serviceText(item) {
+  const node = e('div', '', 'service-text'), language = textLanguage(item);
+  const text = e('p', null); text.textContent = item.text;
+  text.dataset.textLanguage = language;
+  text.lang = language === 'cu-civil' ? 'cu' : language;
+  node.append(e('small', EDITIONS[language], 'edition-label'), text);
+  return node;
 }
 
 function safeMarkerUrl(source) {
@@ -611,26 +639,70 @@ function renderYear(value) {
   panel.append(grid);
 }
 
-// The service edition is independent of the calendar UI language. Preserve
-// the editions previously requested by Kalendar's removed service adapter.
-async function serviceFor(date) { return api('service', { date, lang: state.lang === 'cu' ? 'cu' : 'cu-civil', profile: state.profile, office: 'sixth-hour', expansion: 'full' }); }
+// The ecclesiastical edition priority is the same for every interface language.
+async function serviceFor(date) {
+  return validateCalendarTexts(await api('service', { date, text_policy: 'calendar-language-v1', calendar_lang: 'ru',
+    profile: state.profile, office: 'sixth-hour', expansion: 'full' }));
+}
+
+function openWorship(date) {
+  state.date = date; state.view = 'worship';
+  if ($('detail').open) $('detail').close();
+  $('filters').open = false;
+  void load();
+}
+
+async function showWorship() {
+  const request = ++worshipSequence;
+  const selected = { ...state };
+  const reader = renderWorshipReader({ state, create: e, formatDate: titleDate,
+    onCalendar: () => { state.view = 'day'; void load(); },
+    onRetry: () => void load(),
+    onChange: (field, value) => {
+      state[field] = value;
+      if (field === 'office') state.sequence = Object.keys(MODES[value])[0];
+      void load();
+    },
+  });
+  applyTextLanguage(reader.summary);
+  $('calendar-panel').classList.remove('cu', 'calendar-text');
+  $('calendar-panel').replaceChildren(reader.page);
+  setStatus('');
+  const current = () => request === worshipSequence && state.view === 'worship';
+  const summary = api('day', { date: selected.date, lang: selected.lang, profile: selected.profile }).then(value => {
+    if (!current()) return;
+    const day = value.day;
+    reader.summary.append(e('p', commemorationEvents(day).map(event => event.title).filter(Boolean).join(' · ')));
+    const readings = (day.events || []).filter(event => event.reading);
+    if (readings.length) {
+      const details = e('details'); details.append(e('summary', 'Чтения календаря'));
+      readings.forEach(event => details.append(eventCard(event))); reader.summary.append(details);
+    }
+  }).catch(() => {
+    if (current()) reader.summary.append(e('p', 'Календарные сведения сейчас недоступны.', 'hint'));
+  });
+  const service = fetchWorship(globalThis.KalendarConfig.publicApiUrl, selected).then(result => {
+    if (current()) reader.render(result);
+  }).catch(() => { if (current()) reader.render({ status: 'error' }); });
+  await Promise.allSettled([summary, service]);
+}
 
 async function showDay(date, dialog = false) {
   const request = ++daySequence;
   const target = dialog ? $('detail-content') : $('calendar-panel');
-  let serviceState = { status: 'loading' };
+  let serviceState = { status: 'loading', date };
   renderDayLoading(date, target);
   if (dialog && !$('detail').open) $('detail').showModal();
   setStatus('Загружаю полный состав дня…');
 
   const servicePromise = serviceFor(date)
     .then(value => {
-      serviceState = { status: 'ready', value };
+      serviceState = { status: 'ready', value, date };
       if (request === daySequence) updateDayService(serviceState, target);
       return value;
     })
     .catch(error => {
-      serviceState = { status: 'error', error };
+      serviceState = { status: 'error', error, date };
       if (request === daySequence) updateDayService(serviceState, target);
       return null;
     });
@@ -660,6 +732,7 @@ async function showDay(date, dialog = false) {
 async function load() {
   const request = ++loadSequence;
   ++daySequence;
+  ++worshipSequence;
   syncControls();
   saveLocation();
   $('submit').disabled = true;
@@ -667,6 +740,7 @@ async function load() {
   void loadCalendarFont().catch(() => undefined);
   try {
     const common = { lang: state.lang, profile: state.profile };
+    if (state.view === 'worship') { await showWorship(); return; }
     if (state.view === 'day') {
       await showDay(state.date);
       return;
@@ -725,6 +799,7 @@ $('year').addEventListener('change', () => { $('date').value = $('year').value +
 $('month').addEventListener('change', () => { $('date').value = $('year').value + '-' + $('month').value + '-01'; });
 document.querySelector('.view-tabs').addEventListener('click', event => { const view = event.target.dataset.view; if (view) { state.view = view; void load(); } });
 $('today').addEventListener('click', () => { state.date = localIsoDate(); void load(); });
+$('worship-today').addEventListener('click', () => openWorship(localIsoDate()));
 $('previous').addEventListener('click', () => shift(-1));
 $('next').addEventListener('click', () => shift(1));
 $('close-filters').addEventListener('click', () => { $('filters').open = false; });

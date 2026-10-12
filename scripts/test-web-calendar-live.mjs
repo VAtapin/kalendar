@@ -42,5 +42,16 @@ try {
   assert.deepEqual(localCalendarRequests,[]);
   assert.deepEqual(errors,[]);
   await page.screenshot({path:resolve(data,'calendar.png'),fullPage:true});
-  console.log('PASS real Bible Desktop browser month/day, Ukrainian calendar, verified icon gallery, no Kalendar calendar API requests');
+  await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=third-hour&lang=ru');
+  await page.locator('.worship-text').waitFor({timeout:30000});
+  assert.equal(await page.locator('.worship-text').getAttribute('data-text-language'),'cu-civil');
+  assert.ok(await page.locator('.worship-block').count()>50);
+  assert.match(await page.locator('.worship-text').innerText(),/поми́луй/);
+  await page.screenshot({path:resolve(data,'worship.png'),fullPage:true});
+  await page.getByRole('button',{name:'← К календарному дню'}).click();
+  await page.locator('.day-texts summary').waitFor({timeout:30000});
+  assert.ok(providerRequests.some(url=>url.includes('text_policy=calendar-language-v1')));
+  assert.ok(await page.locator('.service-text [data-text-language]').count()>0);
+  assert.deepEqual(errors,[]);
+  console.log('PASS real Bible Desktop month/day/icons, published full Third Hour, automatic text editions, no Kalendar calendar API requests');
 }finally{await browser?.close();server.kill();}

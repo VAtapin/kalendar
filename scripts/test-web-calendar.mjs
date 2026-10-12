@@ -15,9 +15,9 @@ try{
   if(url.pathname.match(/^\/api\/calendar\/icons\/\d+\/images\/\d+$/) && url.searchParams.get('preview')==='1') { thumbnailRequests.push(url); return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="48" height="60"><rect width="48" height="60" fill="gold"/></svg>'}); }
   if (url.pathname.startsWith('/assets/typikon/')) return route.fulfill({contentType:'image/svg+xml',body:fs.readFileSync('public'+url.pathname)});
   if(url.pathname==='/fonts/MonomakhUnicode.ttf')return route.fulfill({contentType:'font/ttf',body:fs.readFileSync('public/fonts/MonomakhUnicode.ttf')});
-  if(url.pathname.startsWith('/api/v1/calendar/')) { assert.equal(url.origin,'https://public-api.example'); assert.equal(route.request().method(),'GET'); if(url.pathname.endsWith('/month'))assert.equal(url.searchParams.get('month'),String(Number(url.searchParams.get('month')))); if(url.pathname.endsWith('/service'))assert.ok(['cu','cu-civil'].includes(url.searchParams.get('lang'))); calendarRequests.push(url); }
+  if(url.pathname.startsWith('/api/v1/calendar/')) { assert.equal(url.origin,'https://public-api.example'); assert.equal(route.request().method(),'GET'); if(url.pathname.endsWith('/month'))assert.equal(url.searchParams.get('month'),String(Number(url.searchParams.get('month')))); if(url.pathname.endsWith('/service')){assert.equal(url.searchParams.get('text_policy'),'calendar-language-v1');assert.equal(url.searchParams.get('calendar_lang'),'ru');assert.equal(url.searchParams.has('lang'),false);} calendarRequests.push(url); }
   if(url.pathname.endsWith('/service')){if(slowDetail)await new Promise(resolve=>setTimeout(resolve,250));return serviceAvailable
-   ? route.fulfill({json:{assignments:[{title:'Назначенный тропарь',text:'Текст тропаря',insert:true,rubric:'Слава:'}],properCoverage:{status:'partial'}}})
+   ? route.fulfill({json:{schemaVersion:2,textPolicy:'calendar-language-v1',calendarLanguage:'ru',assignments:[{title:'Назначенный тропарь',text:'Текст тропаря',language:'cu',orthography:'traditional',insert:true,rubric:'Слава:'}],properCoverage:{status:'partial'}}})
    : route.fulfill({status:503,json:{message:'Temporarily unavailable'}});}
   if(url.pathname.endsWith('/day')){if(slowDetail)await new Promise(resolve=>setTimeout(resolve,250));return route.fulfill({json:{day:makeDay(url.searchParams.get('date'))}});}
   if(url.pathname.endsWith('/month')||url.pathname.endsWith('/year')){
@@ -112,12 +112,15 @@ try{
  slowDetail=true;
  await page.locator('.week-day').first().click();
  await page.locator('dialog[open] .loading-block').first().waitFor();
+ await page.locator('dialog[open] .day-texts summary').click();
  await page.locator('dialog[open] .rubric').waitFor();
  slowDetail=false;
  assert.equal(await page.locator('#detail .rubric').innerText(),'Слава:');
+ assert.match(await page.locator('#detail [data-text-language="cu"]').evaluate(el=>getComputedStyle(el).fontFamily),/Calendar API Slavonic/);
  assert.doesNotMatch(await page.locator('#detail').innerText(),/Textzuordnung|Справочный текст|требуют уточнения/);
  await page.locator('#close').click();
  assert.deepEqual(errors,[]);
- await page.screenshot({path:'artifacts/web-calendar-verified.png'});
+ fs.mkdirSync('tmp/web-calendar',{recursive:true});
+ await page.screenshot({path:'tmp/web-calendar/verified.png'});
  console.log('PASS month/week/year layout, clamped month navigation, service failure isolation, day icons, close, font switching');
 }finally{await browser.close()}
