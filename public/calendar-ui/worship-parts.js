@@ -59,7 +59,7 @@ export async function composeParts(template, assignments, state) {
   const context = assignments.context;
   if (context?.date !== state.date || context.office !== state.office || context.calendarStyle !== 'julian'
     || (state.sequence !== 'default' && context.sequence !== state.sequence)
-    || (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office) && (context.temple ?? context.templeProfile?.id) !== state.temple)
+    || (['first-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'].includes(state.office) && (context.temple ?? context.templeProfile?.id) !== state.temple)
     || !['complete', 'partial', 'not-appointed'].includes(assignments.status)
     || !Array.isArray(assignments.operations) || !Array.isArray(assignments.missing)) throw new Error('Invalid dated assignments');
   const outline = template.status === 'source-outline';
@@ -179,7 +179,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   const params = { date: state.date, sequence: state.sequence, calendarStyle: 'julian', templateVersion: template.templateVersion, language };
   if (language === 'cu' && hour) params.profile = 'ordinary-clergy';
   if (language === 'cu' && state.office === 'liturgy') params.mode = 'fixed';
-  if (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office)) params.temple = state.temple;
+  if (['first-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'].includes(state.office)) params.temple = state.temple;
   if (state.office === 'first-hour') Object.assign(params, { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') Object.assign(params, { nextOffice: 'vespers', location: state.location });
   try {

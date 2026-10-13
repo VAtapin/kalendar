@@ -69,6 +69,13 @@ try {
     const template = (await (await responsePromise).json()).data;
     const assignmentsResponse = await assignmentsPromise;
     assert.ok([200,429].includes(assignmentsResponse.status()), 'Appointments succeed or explicitly throttle');
+    if (['matins','vespers'].includes(office)) {
+      assert.equal(new URL(assignmentsResponse.url()).searchParams.get('temple'),'george-victorious');
+      if (assignmentsResponse.status() === 200) {
+        const context = (await assignmentsResponse.json()).data.context;
+        assert.equal(context.temple ?? context.templeProfile?.id,'george-victorious');
+      }
+    }
     await page.locator(`.worship-content[data-assignments-status="${assignmentsResponse.status() === 429 ? 'error' : 'partial'}"]`).waitFor({timeout:30000});
     assert.equal(await page.locator('.worship-text').getAttribute('data-composition'), template.status === 'source-outline' ? 'source-outline' : 'partial');
     const expected = template.nodes.flatMap(node => node.blocks || []).map(block => block.segments.map(segment => segment.text).join(''));
