@@ -1,5 +1,6 @@
 // Public Bible Desktop contracts. Availability is always resolved by the server.
 import { sourceLanguage } from './worship-parts.js';
+import { compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
 export const OFFICES = {
   'first-hour': 'Первый час', 'third-hour': 'Третий час',
   'sixth-hour': 'Шестой час', 'ninth-hour': 'Девятый час', liturgy: 'Литургия',
@@ -205,7 +206,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       'cherubic-or-replacement': 'Херувимская или её замена', megalynarion: 'Достойно есть или задостойник',
       communion: 'Причастен', 'blessed-name': 'Буди имя Господне', 'psalm-33': 'Псалом 33', dismissal: 'Отпуст',
       'thanksgiving-appendix': 'Благодарственные молитвы' };
-    for (const entry of entries) {
+    for (const entry of repetitionEntries(entries)) {
       if (entry.missing) {
         const missing = create('aside', '', 'worship-missing');
         missing.dataset.slotId = entry.slotId;
@@ -236,7 +237,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       part.lang = entry.language === 'cu-civil' ? 'cu' : entry.language;
       if (entry.nodeId) part.dataset.nodeId = entry.nodeId;
       if (entry.kind === 'source-block') part.dataset.sourceClassification = entry.classification;
-      for (const block of entry.blocks) {
+      for (const { block, count } of compactRepetitions(entry.blocks)) {
         const index = blockIndex++;
         const heading = block.kind === 'heading', node = create(heading ? 'h3' : 'p', null, 'worship-block');
         if (block.role === 'rubric' || block.kind === 'rubric') node.classList.add('rubric');
@@ -250,6 +251,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         for (const segment of block.segments) {
           const span = create('span', null, segment.style === 'rubric' ? 'rubric' : '');
           span.textContent = segment.text; node.append(span);
+        }
+        if (count > 1) {
+          node.dataset.repeatCount = String(count);
+          const number = create('span', null, 'rubric repetition-number');
+          number.textContent = repetitionNumber(count, entry.language);
+          node.append(document.createTextNode(' '), number);
         }
         if (heading) {
           node.id = 'worship-part-' + index;

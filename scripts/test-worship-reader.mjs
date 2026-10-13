@@ -11,6 +11,10 @@ try {
   const editionTemplate = (office, language) => {
     const template = templateFor(['matins', 'vespers'].includes(office) ? 'liturgy' : office);
     if (['matins', 'vespers'].includes(office)) template.templateId = office + ':fixture';
+    const prayer = template.nodes[0].blocks[2];
+    template.nodes[0].blocks.splice(2, 2, ...Array.from({ length: 12 }, (_, index) => ({
+      ...structuredClone(prayer), occurrenceId: office + ':mercy:0:' + index, repeatIndex: index + 1, repeatCount: 12,
+    })));
     if (language === 'cu') {
       template.language = 'cu'; template.orthography = 'traditional';
       template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; node.orthography = 'traditional'; });
@@ -92,11 +96,12 @@ try {
   published = true;
   await page.getByRole('button', { name: 'Проверить доступность' }).click();
   await page.locator('.worship-text[data-composition="complete"]').waitFor();
-  assert.equal(await page.locator('.worship-block').count(), 7);
+  assert.equal(await page.locator('.worship-block').count(), 6);
   assert.equal(await page.locator('.worship-missing').count(), 0);
   assert.equal(await page.locator('.worship-text script').count(), 0);
   assert.match(await page.locator('.worship-text').innerText(), /<script>unsafe<\/script>/);
-  assert.equal((await page.locator('.worship-text').innerText()).match(/Го́споди, поми́луй./g).length, 2);
+  assert.equal((await page.locator('.worship-text').innerText()).match(/Го́споди, поми́луй./g).length, 1);
+  assert.equal(await page.locator('.repetition-number').innerText(), '12');
   assert.equal(await page.locator('.worship-toc a').count(), 1);
   assert.equal(await page.locator('.worship-toc a').getAttribute('href'), '#worship-part-0');
   await page.locator('[data-worship-control="temple"]').selectOption('nicholas');
@@ -156,6 +161,7 @@ try {
   await page.getByRole('button', { name: 'Проверить доступность' }).click();
   await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();
   assert.match(await page.locator('.worship-text').innerText(), /Бл҃гослове́нъ Бо́гъ/);
+  assert.equal(await page.locator('.repetition-number').innerText(), 'ві҃');
   await page.getByText('Постоянная основа Литургии: один священник и один диакон.', { exact: true }).waitFor();
   assert.equal(await page.locator('.worship-part[data-parallel-group="prayer"]').count(),1);
   assert.equal(await page.getByText('Читается тайно', { exact: true }).count(),1);

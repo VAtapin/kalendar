@@ -79,7 +79,8 @@ try {
     await page.locator(`.worship-content[data-assignments-status="${assignmentsResponse.status() === 429 ? 'error' : 'partial'}"]`).waitFor({timeout:30000});
     assert.equal(await page.locator('.worship-text').getAttribute('data-composition'), template.status === 'source-outline' ? 'source-outline' : 'partial');
     const expected = template.nodes.flatMap(node => node.blocks || []).map(block => block.segments.map(segment => segment.text).join(''));
-    const actual = await page.locator('.worship-block').evaluateAll(nodes => nodes.map(node => [...node.querySelectorAll('span')].map(span => span.textContent).join('')));
+    const actual = await page.locator('.worship-block').evaluateAll(nodes => nodes.flatMap(node =>
+      Array.from({ length: Number(node.dataset.repeatCount || 1) }, () => [...node.querySelectorAll('span:not(.repetition-number)')].map(span => span.textContent).join(''))));
     assert.deepEqual(actual, expected, `All original source paragraphs are preserved for ${office}`);
     assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu');
     assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
@@ -89,7 +90,11 @@ try {
   await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=third-hour&lang=ru&textLanguage=cu');
   await page.locator('.worship-text[data-composition="complete"]').waitFor({timeout:30000});
   assert.equal(await page.locator('.worship-missing').count(),0);
-  assert.ok(await page.locator('.worship-block').count()>100);
+  assert.ok(await page.locator('.worship-block').count()>30);
+  assert.ok(await page.locator('.worship-block[data-repeat-count="12"]').count());
+  assert.equal(await page.locator('.worship-block[data-repeat-count="12"] .repetition-number').first().innerText(),'ві҃');
+  await page.locator('.worship-block[data-repeat-count="12"]').first().scrollIntoViewIfNeeded();
+  await page.screenshot({path:resolve(data,'cu-repetitions.png')});
   assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu');
   assert.doesNotMatch(await page.locator('.worship-content').innerText(), /Показан полный исходный текст службы/);
   await page.screenshot({path:resolve(data,'cu-third-hour-complete.png'),fullPage:true});
@@ -102,7 +107,8 @@ try {
   for (const operation of liturgyAssignments.operations) {
     const part = page.locator('.worship-part').filter({ has: page.locator('.worship-block') });
     const actual = await part.evaluateAll((nodes,id) => nodes.filter(node => node.dataset.nodeId === id)
-      .flatMap(node => [...node.querySelectorAll('.worship-block')].map(block => [...block.querySelectorAll('span')].map(span => span.textContent).join(''))),operation.nodeId);
+      .flatMap(node => [...node.querySelectorAll('.worship-block')].flatMap(block => Array.from({ length: Number(block.dataset.repeatCount || 1) },
+        () => [...block.querySelectorAll('span:not(.repetition-number)')].map(span => span.textContent).join('')))),operation.nodeId);
     assert.deepEqual(actual,operation.blocks.map(block => block.segments.map(segment => segment.text).join('')));
   }
   assert.ok(await page.locator('.worship-part[data-parallel-group]').count());
