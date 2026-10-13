@@ -1,4 +1,9 @@
 export const UI_DE = {
+  'Утреня': 'Matutin',
+  'Вечерня': 'Vesper',
+  'В составе всенощного бдения': 'Im Rahmen der Nachtwache',
+  'Показан полный исходный текст службы. Дневные вставки и условные варианты ещё не выбраны; это не готовая служба дня.': 'Der vollständige Quelltext des Gottesdienstes wird angezeigt. Die Einfügungen und bedingten Varianten sind noch nicht für diesen Tag gewählt; dies ist kein fertig zusammengestellter Tagesgottesdienst.',
+  'Неопределённые части службы': 'Noch nicht bestimmte Teile des Gottesdienstes',
   'Язык текста': 'Textsprache',
   'Автоматически — сначала церковнославянский': 'Automatisch — zuerst Kirchenslawisch',
   'Выбранная редакция этой службы пока отсутствует в BibleDesktop.': 'Die gewählte Textfassung dieses Gottesdienstes ist in BibleDesktop noch nicht verfügbar.',

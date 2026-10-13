@@ -42,7 +42,7 @@ try {
   assert.deepEqual(localCalendarRequests,[]);
   assert.deepEqual(errors,[]);
   await page.screenshot({path:resolve(data,'calendar.png'),fullPage:true});
-  await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=third-hour&lang=ru');
+  await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=third-hour&lang=ru&textLanguage=cu-civil');
   await page.locator('.worship-text[data-composition="complete"]').waitFor({timeout:30000});
   assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu-civil');
   assert.ok(await page.locator('.worship-block').count()>50);
@@ -61,20 +61,23 @@ try {
   assert.equal(await page.evaluate(()=>document.fonts.check('18px "Calendar Civil Text"')),true);
   await page.locator('[data-assignment-kind="reference"]').scrollIntoViewIfNeeded();
   await page.screenshot({path:resolve(data,'day-text-fonts.png')});
-  for(const office of ['first-hour','sixth-hour','ninth-hour','liturgy']) {
+  const offices = process.env.WORSHIP_LIVE_OFFICES?.split(',') || ['first-hour','third-hour','sixth-hour','ninth-hour','liturgy','matins','vespers'];
+  for(const office of offices) {
+    const responsePromise = page.waitForResponse(response => response.url().includes('/liturgical/templates/'+office+'?language=cu'));
+    const assignmentsPromise = page.waitForResponse(response => response.url().includes('/liturgical/assignments/'+office+'?'));
     await page.goto(origin+`/web-calendar.html?view=worship&date=2026-10-12&office=${office}&temple=george-victorious&lang=ru`);
-    await page.locator('.worship-content[data-assignments-status="partial"]').waitFor({timeout:30000});
-    assert.ok(await page.locator('.worship-block').count()>20,`Fixed text is visible for ${office}`);
-    if(office==='liturgy') {
-      assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'source-outline');
-      assert.equal(await page.locator('.worship-block').count(),585);
-      assert.match(await page.locator('.worship-content').innerText(),/Книжная основа Литургии Иоанна Златоуста/);
-    } else {
-      assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'partial');
-      assert.equal(await page.locator('.worship-missing').count(),3);
-    }
+    const template = (await (await responsePromise).json()).data;
+    const assignmentsResponse = await assignmentsPromise;
+    assert.ok([200,429].includes(assignmentsResponse.status()), 'Appointments succeed or explicitly throttle');
+    await page.locator(`.worship-content[data-assignments-status="${assignmentsResponse.status() === 429 ? 'error' : 'partial'}"]`).waitFor({timeout:30000});
+    assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'source-outline');
+    const expected = template.nodes.flatMap(node => node.blocks || []).map(block => block.segments.map(segment => segment.text).join(''));
+    const actual = await page.locator('.worship-block').evaluateAll(nodes => nodes.map(node => [...node.querySelectorAll('span')].map(span => span.textContent).join('')));
+    assert.deepEqual(actual, expected, `All original source paragraphs are preserved for ${office}`);
+    assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu');
+    assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
     await page.screenshot({path:resolve(data,office+'-base.png')});
   }
   assert.deepEqual(errors,[]);
-  console.log('PASS real Bible Desktop complete composed Third Hour, fixed First/Sixth/Ninth Hours on12.10, all585 Liturgy paragraphs, unresolved slots, policy/fonts, calendar/icons');
+  console.log('PASS real Bible Desktop complete civil Third Hour; entire traditional sources: '+offices.join(',')+'; unresolved slots/throttling, policy/fonts, calendar/icons');
 }finally{await browser?.close();server.kill();}

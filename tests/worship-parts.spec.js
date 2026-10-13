@@ -5,6 +5,34 @@ import { composeParts, fetchWorshipParts, validateTemplate } from '../public/cal
 const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave', textLanguage: 'cu-civil' };
 const clone = value => structuredClone(value);
 describe('source-bound worship parts', () => {
+  it.each(['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'matins', 'vespers'])('accepts the published source outline for %s without choosing branches', async office => {
+    const template = templateFor('liturgy');
+    template.templateId = office + ':clergy-source-outline:cu'; template.profile = {};
+    template.language = 'cu'; template.orthography = 'traditional';
+    template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; node.orthography = 'traditional'; });
+    const selected = { ...state, office, textLanguage: 'cu', sequence: 'standalone' };
+    const result = await fetchWorshipParts('https://bible.example', selected, () => {}, async url => {
+      const assignments = assignmentsFor(template, selected, false); assignments.context.language = 'cu';
+      return { status: 200, json: async () => ({ data: url.pathname.includes('/templates/') ? template : assignments }) };
+    });
+    expect(result.outline).toBe(true); expect(result.assignmentsStatus).toBe('partial');
+    expect(result.entries.filter(node => !node.missing).flatMap(node => node.blocks)).toEqual(template.nodes.filter(node => node.kind !== 'slot').flatMap(node => node.blocks));
+  });
+  it('rejects a source outline belonging to a different service', () => {
+    expect(() => validateTemplate(templateFor('liturgy'), 'vespers')).toThrow();
+  });
+  it('preserves the existing John Chrysostom Liturgy template identity', () => {
+    const template = templateFor('liturgy'); template.templateId = 'liturgy-john-chrysostom:clergy-source-outline:cu';
+    expect(validateTemplate(template, 'liturgy')).toBe(template);
+  });
+  it('accepts the normalized temple profile ID but rejects a different dedication', async () => {
+    const selected = { ...state, office: 'first-hour', sequence: 'after-matins' }, template = templateFor('first-hour');
+    const assignments = assignmentsFor(template, selected, false);
+    delete assignments.context.temple; assignments.context.templeProfile = { id: selected.temple };
+    expect((await composeParts(template, assignments, selected)).assignmentsStatus).toBe('partial');
+    assignments.context.templeProfile.id = 'nicholas';
+    await expect(composeParts(template, assignments, selected)).rejects.toThrow();
+  });
   it.each(['sixth-hour', 'liturgy'])('prioritizes actual traditional text for %s automatically', async office => {
     const selected = { ...state, office, sequence: office === 'liturgy' ? 'default' : state.sequence, textLanguage: 'auto' };
     const template = templateFor(office);

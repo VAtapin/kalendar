@@ -9,7 +9,8 @@ try {
   const errors = [], requests = [];
   let published = false, httpFailure = 0, delay = false, traditional = false;
   const editionTemplate = (office, language) => {
-    const template = templateFor(office);
+    const template = templateFor(['matins', 'vespers'].includes(office) ? 'liturgy' : office);
+    if (['matins', 'vespers'].includes(office)) template.templateId = office + ':fixture';
     if (language === 'cu') {
       template.language = 'cu'; template.orthography = 'traditional';
       template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; node.orthography = 'traditional'; });
@@ -51,7 +52,7 @@ try {
       const context = { ...Object.fromEntries(url.searchParams), office, date };
       if (delay && office === 'third-hour') await new Promise(resolve => setTimeout(resolve, 300));
       if (httpFailure) return route.fulfill({ status: httpFailure, json: { error: 'error' } });
-      const data = assignmentsFor(editionTemplate(office, context.language), context, published && office !== 'liturgy');
+      const data = assignmentsFor(editionTemplate(office, context.language), context, published && !['liturgy', 'matins', 'vespers'].includes(office));
       data.context.language = context.language;
       if (!published && office === 'liturgy') data.status = 'not-appointed';
       data.fragments = { private: 'PRIVATE MUST NOT RENDER' };
@@ -127,6 +128,20 @@ try {
   await page.locator('[data-worship-control="office"]').selectOption('liturgy');
   await page.getByText('Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.', { exact: true }).waitFor();
   assert.equal(await page.locator('.worship-text[data-composition="source-outline"]').count(), 1);
+  for (const office of ['matins', 'vespers']) {
+    traditional = true;
+    await page.locator('[data-worship-control="office"]').selectOption(office);
+    await page.locator('.worship-text[data-composition="source-outline"]').waitFor();
+    assert.match(await page.locator('.worship-content').innerText(), /Показан полный исходный текст службы/);
+    assert.doesNotMatch(await page.locator('.worship-content').innerText(), /Книжная основа Литургии/);
+    await page.locator('[data-worship-control="sequence"]').selectOption('vigil');
+    await page.reload(); await page.locator('.worship-text[data-composition="source-outline"]').waitFor();
+    assert.equal(await page.locator('[data-worship-control="office"]').inputValue(), office);
+    assert.equal(await page.locator('[data-worship-control="sequence"]').inputValue(), 'vigil');
+  }
+  traditional = false;
+  await page.locator('[data-worship-control="office"]').selectOption('liturgy');
+  await page.locator('.worship-text[data-composition="source-outline"]').waitFor();
   await page.locator('[data-worship-control="textLanguage"]').selectOption('cu');
   await page.getByText('Выбранная редакция этой службы пока отсутствует в BibleDesktop.', { exact: true }).waitFor();
   assert.equal(await page.locator('.worship-text').count(), 0);

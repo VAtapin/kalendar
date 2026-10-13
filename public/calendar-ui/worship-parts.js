@@ -18,7 +18,10 @@ function validBlocks(blocks) {
 
 export function validateTemplate(template, office) {
   const outline = template?.artifactType === 'source-bound-template' && template.status === 'source-outline'
-    && template.cleanTemplate === false && template.compositionReady === false && office === 'liturgy';
+    && template.cleanTemplate === false && template.compositionReady === false
+    && ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'].includes(office)
+    && (template.templateId?.startsWith(office + ':')
+      || (office === 'liturgy' && template.templateId?.startsWith('liturgy-john-chrysostom:')));
   const fixed = template?.artifactType === 'fixed-template' && template.status === 'fixed-complete' && template.profile?.office === office;
   if (template?.schemaVersion !== 1 || (!outline && !fixed) || template.dateDependent !== false
     || template.appointedForDate !== false || !/^[a-f0-9]{64}$/.test(template.templateVersion || '')
@@ -51,7 +54,7 @@ export async function composeParts(template, assignments, state) {
   const context = assignments.context;
   if (context?.date !== state.date || context.office !== state.office || context.calendarStyle !== 'julian'
     || (state.sequence !== 'default' && context.sequence !== state.sequence)
-    || (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office) && context.temple !== state.temple)
+    || (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office) && (context.temple ?? context.templeProfile?.id) !== state.temple)
     || !['complete', 'partial', 'not-appointed'].includes(assignments.status)
     || !Array.isArray(assignments.operations) || !Array.isArray(assignments.missing)) throw new Error('Invalid dated assignments');
   const outline = template.status === 'source-outline';

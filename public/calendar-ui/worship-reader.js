@@ -3,6 +3,7 @@ import { sourceLanguage } from './worship-parts.js';
 export const OFFICES = {
   'first-hour': 'Первый час', 'third-hour': 'Третий час',
   'sixth-hour': 'Шестой час', 'ninth-hour': 'Девятый час', liturgy: 'Литургия',
+  matins: 'Утреня', vespers: 'Вечерня',
 };
 export const TEMPLES = {
   'george-victorious': 'Храм великомученика Георгия', nicholas: 'Храм святителя Николая',
@@ -15,6 +16,8 @@ export const MODES = {
   'sixth-hour': { 'after-third-hour': 'После третьего часа' },
   'ninth-hour': { standalone: 'Самостоятельно', 'before-vespers': 'Перед вечерней' },
   liturgy: { default: 'По назначению дня' },
+  matins: { standalone: 'Самостоятельно', vigil: 'В составе всенощного бдения' },
+  vespers: { standalone: 'Самостоятельно', vigil: 'В составе всенощного бдения' },
 };
 
 export function lectionNumber(reading) {
@@ -168,7 +171,9 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         error: 'Постоянный текст доступен. Дневные назначения сейчас не получены; места вставок отмечены в тексте.',
         'not-appointed': 'Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.',
       };
-      if (result.outline) content.append(create('p', 'Книжная основа Литургии Иоанна Златоуста. Переменные части и условные варианты ещё не выбраны для этой даты; это не готовая служба дня.', 'reader-message'));
+      if (result.outline) content.append(create('p', state.office === 'liturgy'
+        ? 'Книжная основа Литургии Иоанна Златоуста. Переменные части и условные варианты ещё не выбраны для этой даты; это не готовая служба дня.'
+        : 'Показан полный исходный текст службы. Дневные вставки и условные варианты ещё не выбраны; это не готовая служба дня.', 'reader-message'));
       if (!result.complete) {
         const notice = create('p', result.outline && result.assignmentsStatus !== 'not-appointed'
           ? (result.assignmentsStatus === 'error' ? notices.error : 'Дневные вставки пока не определены.')
@@ -204,7 +209,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         if (result.outline) {
           // Outline anchors identify source locations, not approved insertion operations.
           let unresolved = content.querySelector('.outline-missing');
-          if (!unresolved) { unresolved = create('details', '', 'outline-missing'); unresolved.append(create('summary', 'Неопределённые части Литургии')); content.append(unresolved); }
+          if (!unresolved) { unresolved = create('details', '', 'outline-missing'); unresolved.append(create('summary', state.office === 'liturgy' ? 'Неопределённые части Литургии' : 'Неопределённые части службы')); content.append(unresolved); }
           unresolved.append(missing);
         } else body.append(missing);
         continue;
