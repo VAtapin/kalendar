@@ -193,7 +193,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     const entries = result.status === 'parts' ? result.entries : [{ language: result.language, blocks: result.data.blocks }];
     const languages = [...new Set(entries.filter(entry => !entry.missing).map(entry => entry.language))];
     if (result.status === 'parts') languages.forEach(language => content.append(create('p', EDITIONS[language], 'edition-label')));
-    let blockIndex = 0, appendix, lastVoice;
+    let blockIndex = 0, appendix;
     const slotNames = { 'troparion-of-day:leading': 'Дополнительный тропарь дня', 'troparion-of-day:last': 'Тропарь дня',
       'day-leading': 'Дополнительный тропарь дня', 'day-last': 'Тропарь дня', 'day-kontakion': 'Кондак дня',
       'day-dismissal-prefix': 'Дневное начало отпуста',
@@ -221,16 +221,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
       const part = create('section', '', 'worship-part');
       if (result.template?.status === 'fixed-template') {
-        const voices = { priest: 'Священник', deacon: 'Диакон', choir: 'Хор', reader: 'Чтец' };
-        if (voices[entry.role] && entry.role !== lastVoice) part.append(create('small', voices[entry.role], 'edition-label'));
-        lastVoice = entry.role;
+        if (entry.role) part.dataset.role = entry.role;
         const parallelGroup = entry.parallelGroup || Object.entries(result.template.parallelGroups || {}).find(([, group]) =>
           Object.values(group.lanes || {}).some(ids => ids.includes(entry.nodeId)))?.[0];
         if (parallelGroup) {
           part.dataset.parallelGroup = parallelGroup;
-          part.append(create('small', 'Исполняется одновременно с другими текстами', 'edition-label'));
         }
-        if (entry.delivery === 'secret') part.append(create('small', 'Читается тайно', 'edition-label'));
         if (entry.delivery) part.dataset.delivery = entry.delivery;
       }
       part.dataset.textLanguage = entry.language;
@@ -243,7 +239,6 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         if (block.role === 'rubric' || block.kind === 'rubric') node.classList.add('rubric');
         if (block.parallelWith) {
           node.classList.add('parallel-prayer');
-          node.append(create('small', 'Молитва читается одновременно с песнопением', 'edition-label'));
         }
         if (Number.isInteger(block.tone) && block.tone >= 1 && block.tone <= 8) {
           const tone = create('small', 'Глас', 'edition-label'); tone.append(document.createTextNode(' ' + block.tone)); node.append(tone);

@@ -112,7 +112,8 @@ try {
     assert.deepEqual(actual,operation.blocks.map(block => block.segments.map(segment => segment.text).join('')));
   }
   assert.ok(await page.locator('.worship-part[data-parallel-group]').count());
-  assert.ok(await page.getByText('Читается тайно',{exact:true}).count());
+  assert.ok(await page.locator('.worship-part[data-delivery="secret"]').count());
+  assert.equal(await page.locator('.worship-part > .edition-label').count(),0);
   await page.locator('.worship-part[data-node-id="'+liturgyAssignments.operations[0].nodeId+'"]').first().scrollIntoViewIfNeeded();
   await page.screenshot({path:resolve(data,'cu-liturgy-insertions.png')});
   assert.deepEqual(errors,[]);
