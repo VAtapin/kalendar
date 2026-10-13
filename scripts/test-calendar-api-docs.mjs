@@ -5,7 +5,7 @@ import {mkdirSync,readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 const wordpressPluginUrl='https://wordpress.org/plugins/georg-kloster-calendar-workshop/';
 const russianWordpressPluginUrl='https://ru.wordpress.org/plugins/georg-kloster-calendar-workshop/';
-const translatorPluginDownload='/downloads/georg-kloster-slavonic-translator-1.0.5.zip';
+const translatorPluginUrl='https://ru.wordpress.org/plugins/georg-kloster-slavonic-translator/';
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin=`http://127.0.0.1:${port}`;
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port',String(port),'--strictPort'],{windowsHide:true,stdio:'ignore'});
@@ -16,7 +16,8 @@ try {
   const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[],requests=[];
   page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
   await page.route('**/api/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({items:[],pages:[]})}));
-  await page.goto(origin);await page.getByRole('link',{name:'API календаря',exact:true}).click();
+  await page.goto(origin);
+  try{await page.getByRole('link',{name:'API календаря',exact:true}).click();}catch(error){console.error('Home page errors:',errors);console.error((await page.locator('body').innerText()).slice(0,2000));throw error;}
   await page.getByRole('heading',{name:'API календаря',exact:true}).waitFor();
   await page.getByRole('heading',{name:'Подключение к Bible Desktop',exact:true}).waitFor();
   assert.ok(page.url().endsWith('/calendar-api'));
@@ -31,15 +32,11 @@ try {
   assert.equal(await page.locator('a[href^="/downloads/orthocal-"]').count(),0);
   assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.10.zip');
   assert.equal(await catalog.locator('tbody tr').nth(1).locator('.version').textContent(),'1.2.10');
-  assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginDownload);
+  assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginUrl);
   const translatorRow=catalog.locator('tbody tr').nth(2);
   assert.ok((await translatorRow.textContent()).includes('Georg-Kloster Slavonic Translator'));
-  assert.equal(await translatorRow.locator('.version').textContent(),'1.0.5');
-  const translatorZip=await fetch(origin+translatorPluginDownload);
-  assert.equal(translatorZip.status,200);
-  const translatorBytes=Buffer.from(await translatorZip.arrayBuffer());
-  assert.equal(translatorBytes.subarray(0,2).toString(),'PK');
-  assert.deepEqual(translatorBytes,readFileSync('artifacts/georg-kloster-slavonic-translator-1.0.5.zip'));
+  assert.equal(await translatorRow.locator('.version').textContent(),'WordPress.org');
+  assert.equal(await page.locator('a[href^="/downloads/georg-kloster-slavonic-translator-"]').count(),0);
   assert.equal(await page.locator('details[open]').count(),0);
   mkdirSync('tmp/plugin-catalog',{recursive:true});
   await catalog.screenshot({path:'tmp/plugin-catalog/desktop.png'});
@@ -63,11 +60,12 @@ try {
   const translatorSection=page.locator('#translator-plugin');
   await catalog.getByRole('link',{name:'Подробнее о переводчике',exact:true}).click();
   await translatorSection.getByRole('heading',{name:'Церковнославянский переводчик для WordPress'}).waitFor();
-  assert.equal(await translatorSection.locator('a.download').getAttribute('href'),translatorPluginDownload);
+  assert.equal(await translatorSection.locator('a.download').getAttribute('href'),translatorPluginUrl);
   assert.equal(await translatorSection.locator('a').filter({hasText:/Исходный код/i}).count(),0);
   assert.match(await translatorSection.textContent(),/Бесплатный режим работает сразу/);
   assert.match(await translatorSection.textContent(),/Georg-Kloster Slavonic Translator/);
   assert.match(await translatorSection.textContent(),/деактивируйте старую копию/);
+  assert.match(await translatorSection.textContent(),/Новые версии доступны через стандартные обновления WordPress/);
   assert.match(await page.locator('#connection').textContent(),/X-Calendar-Client: orthocal-wordpress/);
   const guide=await fetch(origin+'/downloads/calendar-api-guide.md');assert.equal(guide.status,200);const guideText=await guide.text();assert.ok(guideText.includes('bible-desktop.com/api/v1/calendar/'));assert.ok(guideText.includes(wordpressPluginUrl));assert.ok(!guideText.includes('/downloads/orthocal-'));
   assert.ok(!requests.some(url=>/\/assets\/(?:App-|pdf-exporter-)/.test(url)),'Editor must not load on home/docs');
@@ -82,14 +80,17 @@ try {
     await page.locator('header select').selectOption(language);
     await page.waitForFunction(url=>document.querySelector('#plugins a.download')?.getAttribute('href')===url,expectedUrl);
     await page.locator('#wordpress').evaluate(panel=>{panel.open=true;});
-    for(const link of [catalog.locator('a.download').nth(0),pluginLink]){
-      assert.equal(await link.getAttribute('href'),expectedUrl);
+    await translatorSection.evaluate(panel=>{panel.open=true;});
+    const expectedTranslatorUrl=expectedUrl.replace('georg-kloster-calendar-workshop','georg-kloster-slavonic-translator');
+    for(const [link,url] of [[catalog.locator('a.download').nth(0),expectedUrl],[pluginLink,expectedUrl],[catalog.locator('a.download').nth(2),expectedTranslatorUrl],[translatorSection.locator('a.download'),expectedTranslatorUrl]]){
+      assert.equal(await link.getAttribute('href'),url);
+      assert.equal(await link.getAttribute('download'),null);
       assert.equal(await link.getAttribute('target'),'_blank');
       assert.equal(await link.getAttribute('rel'),'noopener noreferrer');
       const originalUrl=page.url();
       const [popup]=await Promise.all([page.waitForEvent('popup'),link.click()]);
       await popup.waitForLoadState('domcontentloaded');
-      assert.equal(popup.url(),expectedUrl);
+      assert.equal(popup.url(),url);
       assert.equal(await popup.evaluate(()=>window.opener),null);
       assert.equal(page.url(),originalUrl);
       await popup.close();
