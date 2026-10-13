@@ -192,6 +192,8 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     if (result.status === 'parts') languages.forEach(language => content.append(create('p', EDITIONS[language], 'edition-label')));
     let blockIndex = 0, appendix;
     const slotNames = { 'troparion-of-day:leading': 'Дополнительный тропарь дня', 'troparion-of-day:last': 'Тропарь дня',
+      'day-leading': 'Дополнительный тропарь дня', 'day-last': 'Тропарь дня', 'day-kontakion': 'Кондак дня',
+      'day-dismissal-prefix': 'Дневное начало отпуста',
       'kontakion-of-day': 'Кондак дня', 'troparia-kontakia': 'Тропари и кондаки после входа',
       'antiphon-1': 'Первый антифон', 'antiphon-2': 'Второй антифон', 'apostle': 'Апостол', gospel: 'Евангелие',
       'only-begotten': 'Единородный Сыне', 'antiphon-3-or-beatitudes': 'Третий антифон или Блаженны', entrance: 'Входное',

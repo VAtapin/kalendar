@@ -5,6 +5,45 @@ import { composeParts, fetchWorshipParts, validateTemplate } from '../public/cal
 const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave', textLanguage: 'cu-civil' };
 const clone = value => structuredClone(value);
 describe('source-bound worship parts', () => {
+  it('accepts the published clean fixed CU profile without a dated appointment flag', () => {
+    const template = templateFor('third-hour');
+    delete template.appointedForDate; template.cleanTemplate = template.compositionReady = true;
+    expect(validateTemplate(template, 'third-hour')).toBe(template);
+    template.appointedForDate = true;
+    expect(() => validateTemplate(template, 'third-hour')).toThrow();
+  });
+  it('composes native CU operations with implicit metadata, pinned fill sources and slot removals', async () => {
+    const template = templateFor(state.office), assignments = assignmentsFor(template, state);
+    const source = { work: 'native-hymn', edition: 'native-cu', language: 'cu', hash: 'b'.repeat(64) };
+    assignments.sourceVersions = [source];
+    delete assignments.operations[0].reason;
+    for (const op of assignments.operations.filter(op => op.type === 'fill')) {
+      delete op.blockSources;
+      op.blocks.forEach(block => { block.provenance = { work: source.work, edition: source.edition, bodyHash: source.hash }; });
+    }
+    const bound = template.nodes[0].blocks.map(block => ({ ...block, occurrenceId: 'native-bound' }));
+    assignments.operations.push({ type: 'replace', nodeId: 'opening', blockMetadata: bound.map(({ kind, segments, ...meta }) => meta), fieldOrder: bound.map(Object.keys) });
+    assignments.composedBlocksHash = hash([...bound, ...assignments.operations[1].blocks, ...assignments.operations[2].blocks, ...template.nodes.at(-1).blocks]);
+    const result = await composeParts(template, assignments, state);
+    expect(result.complete).toBe(true); expect(result.entries.find(entry => entry.nodeId === 'last').language).toBe('cu');
+    assignments.operations[1].blocks[0].provenance.bodyHash = 'c'.repeat(64);
+    await expect(composeParts(template, assignments, state)).rejects.toThrow('Unidentified operation text');
+  });
+  it.each(['first-hour','third-hour','sixth-hour','ninth-hour'])('requests the published ordinary CU profile for %s with matching sequence context', async office => {
+    const selected = { ...state, office, textLanguage: 'cu', sequence: office === 'first-hour' ? 'after-matins' : office === 'ninth-hour' ? 'before-vespers' : office === 'third-hour' ? 'standalone' : state.sequence };
+    const template = templateFor(office), urls = [];
+    template.language = 'cu'; template.orthography = 'traditional';
+    template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; });
+    await fetchWorshipParts('https://bible.example', selected, () => {}, async url => {
+      urls.push(url); const assignments = assignmentsFor(template, selected, false); assignments.context.language = 'cu';
+      return { status: 200, json: async () => ({ data: url.pathname.includes('/templates/') ? template : assignments }) };
+    });
+    expect(urls.every(url => url.searchParams.get('profile') === 'ordinary-clergy')).toBe(true);
+    if (['first-hour','ninth-hour'].includes(office)) expect(urls[0].searchParams.get('sequence')).toBe(selected.sequence);
+    else expect(urls[0].searchParams.has('sequence')).toBe(false);
+    if (office === 'first-hour') expect(urls[0].searchParams.get('afterHourHymn')).toBe(selected.afterHourHymn);
+    if (office === 'ninth-hour') expect(urls[0].searchParams.get('location')).toBe(selected.location);
+  });
   it.each(['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'matins', 'vespers'])('accepts the published source outline for %s without choosing branches', async office => {
     const template = templateFor('liturgy');
     template.templateId = office + ':clergy-source-outline:cu'; template.profile = {};

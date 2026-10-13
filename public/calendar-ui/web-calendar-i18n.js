@@ -1,4 +1,5 @@
 export const UI_DE = {
+  'Дневное начало отпуста': 'Tagesabhängiger Beginn der Entlassung',
   'Утреня': 'Matutin',
   'Вечерня': 'Vesper',
   'В составе всенощного бдения': 'Im Rahmen der Nachtwache',

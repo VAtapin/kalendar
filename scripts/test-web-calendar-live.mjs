@@ -70,7 +70,7 @@ try {
     const assignmentsResponse = await assignmentsPromise;
     assert.ok([200,429].includes(assignmentsResponse.status()), 'Appointments succeed or explicitly throttle');
     await page.locator(`.worship-content[data-assignments-status="${assignmentsResponse.status() === 429 ? 'error' : 'partial'}"]`).waitFor({timeout:30000});
-    assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'source-outline');
+    assert.equal(await page.locator('.worship-text').getAttribute('data-composition'), template.status === 'source-outline' ? 'source-outline' : 'partial');
     const expected = template.nodes.flatMap(node => node.blocks || []).map(block => block.segments.map(segment => segment.text).join(''));
     const actual = await page.locator('.worship-block').evaluateAll(nodes => nodes.map(node => [...node.querySelectorAll('span')].map(span => span.textContent).join('')));
     assert.deepEqual(actual, expected, `All original source paragraphs are preserved for ${office}`);
@@ -78,6 +78,14 @@ try {
     assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
     await page.screenshot({path:resolve(data,office+'-base.png')});
   }
+  // A supported date must use CU daily fills, not merely show the book outline.
+  await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=third-hour&lang=ru&textLanguage=cu');
+  await page.locator('.worship-text[data-composition="complete"]').waitFor({timeout:30000});
+  assert.equal(await page.locator('.worship-missing').count(),0);
+  assert.ok(await page.locator('.worship-block').count()>100);
+  assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu');
+  assert.doesNotMatch(await page.locator('.worship-content').innerText(), /Показан полный исходный текст службы/);
+  await page.screenshot({path:resolve(data,'cu-third-hour-complete.png'),fullPage:true});
   assert.deepEqual(errors,[]);
   console.log('PASS real Bible Desktop complete civil Third Hour; entire traditional sources: '+offices.join(',')+'; unresolved slots/throttling, policy/fonts, calendar/icons');
 }finally{await browser?.close();server.kill();}

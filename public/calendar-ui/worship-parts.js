@@ -24,7 +24,9 @@ export function validateTemplate(template, office) {
       || (office === 'liturgy' && template.templateId?.startsWith('liturgy-john-chrysostom:')));
   const fixed = template?.artifactType === 'fixed-template' && template.status === 'fixed-complete' && template.profile?.office === office;
   if (template?.schemaVersion !== 1 || (!outline && !fixed) || template.dateDependent !== false
-    || template.appointedForDate !== false || !/^[a-f0-9]{64}$/.test(template.templateVersion || '')
+    || (template.appointedForDate !== false && !(fixed && template.cleanTemplate === true
+      && template.compositionReady === true && template.appointedForDate === undefined))
+    || !/^[a-f0-9]{64}$/.test(template.templateVersion || '')
     || typeof template.templateId !== 'string' || typeof template.ruleVersion !== 'string'
     || !Array.isArray(template.sourceVersions) || !template.sourceVersions.length
     || !Array.isArray(template.nodes) || !template.nodes.length) throw new Error('Invalid worship template');
@@ -60,13 +62,25 @@ export async function composeParts(template, assignments, state) {
   const outline = template.status === 'source-outline';
   if (outline && (assignments.status === 'complete' || assignments.operations.length)) throw new Error('Outline is not a composable rite');
   const nodes = new Map(template.nodes.map(node => [node.nodeId, node])), operations = new Map();
-  for (const operation of assignments.operations) {
+  for (const original of assignments.operations) {
+    const operation = { ...original };
+    if (operation.type === 'replace' && operation.blocks === undefined && Array.isArray(operation.blockMetadata)
+      && Array.isArray(operation.fieldOrder)) operation.metadataOnly = true;
+    if (operation.type === 'fill' && operation.blockSources === undefined && Array.isArray(operation.blocks)) {
+      operation.blockSources = operation.blocks.map(block => {
+        const provenance = block?.provenance;
+        const matches = (assignments.sourceVersions || []).filter(source => source.work === provenance?.work
+          && source.edition === provenance?.edition && source.hash === provenance?.bodyHash);
+        return matches.length === 1 ? matches[0] : null;
+      });
+    }
     const node = nodes.get(operation?.nodeId);
     if (!node || operations.has(node.nodeId) || (operation.slotId ?? null) !== (node.slotId ?? null)
       || !['fill', 'replace', 'remove'].includes(operation.type)) throw new Error('Invalid worship operation');
     if (operation.type === 'fill' && node.kind !== 'slot') throw new Error('Fill must target a slot');
     if (operation.type === 'replace' && node.kind !== 'fixed') throw new Error('Replace must target a fixed node');
-    if (operation.type === 'remove' && typeof operation.reason !== 'string') throw new Error('Removal reason missing');
+    if (operation.type === 'remove' && typeof operation.reason !== 'string'
+      && !(node.kind === 'slot' && assignments.status === 'complete')) throw new Error('Removal reason missing');
     if (operation.type !== 'remove' && operation.metadataOnly !== true) {
       if (!validBlocks(operation.blocks) || !Array.isArray(operation.blockSources)
         || operation.blockSources.length !== operation.blocks.length || operation.blockSources.some(source => !sourceLanguage(source))) {
@@ -122,8 +136,13 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   const requested = state.textLanguage || 'auto';
   if (!['auto', 'cu', 'cu-civil', 'ru'].includes(requested)) throw new Error('Invalid text language');
   let template, language;
+  const hour = ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour'].includes(state.office);
+  const hourContext = state.office === 'first-hour' ? { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn }
+    : state.office === 'ninth-hour' && state.sequence === 'before-vespers' ? { nextOffice: 'vespers', location: state.location } : {};
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {
-    const value = await request('templates', { language: candidate });
+    const profile = candidate === 'cu' && hour ? { profile: 'ordinary-clergy',
+      ...(['first-hour', 'ninth-hour'].includes(state.office) ? { sequence: state.sequence, ...hourContext } : {}) } : {};
+    const value = await request('templates', { language: candidate, ...profile });
     if (value === null) continue;
     template = validateTemplate(value, state.office);
     const sources = template.nodes.filter(node => node.kind !== 'slot');
@@ -136,6 +155,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
     complete: false, outline: template.status === 'source-outline', fallback };
   onBase(baseResult);
   const params = { date: state.date, sequence: state.sequence, calendarStyle: 'julian', templateVersion: template.templateVersion, language };
+  if (language === 'cu' && hour) params.profile = 'ordinary-clergy';
   if (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office)) params.temple = state.temple;
   if (state.office === 'first-hour') Object.assign(params, { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') Object.assign(params, { nextOffice: 'vespers', location: state.location });
