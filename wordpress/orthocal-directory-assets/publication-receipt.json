@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-13T16:02:49.288Z",
+  "run": "https://github.com/VAtapin/wp_orthodox_calendar/actions/runs/38427103535",
+  "commit": "edd32715191e66b7b95dd0d446d41c4464aeaf76",
+  "checks": [
+    {
+      "name": "icon-128x128.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "d4831ab1d4eb1f995c1e85e56c67c1eb62c5844286a083f8266ae30482777512",
+      "url": "https://plugins.svn.wordpress.org/georg-kloster-calendar-workshop/assets/icon-128x128.png"
+    },
+    {
+      "name": "icon-256x256.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "004189ed04aed4a01bf7c4dd6abe30eb060fa89785b93f1928973f066f101744",
+      "url": "https://plugins.svn.wordpress.org/georg-kloster-calendar-workshop/assets/icon-256x256.png"
+    },
+    {
+      "name": "banner-772x250.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "453c1ba4241540219472d57b8a9e48ae789db2b129edb3b705d1e24dce0c8d68",
+      "url": "https://plugins.svn.wordpress.org/georg-kloster-calendar-workshop/assets/banner-772x250.png"
+    },
+    {
+      "name": "banner-1544x500.png",
+      "status": 200,
+      "matches": true,
+      "sha256": "e7dd71d9d8552cd244f7c2f490330f56a6067de835857615edc948610ec38817",
+      "url": "https://plugins.svn.wordpress.org/georg-kloster-calendar-workshop/assets/banner-1544x500.png"
+    }
+  ],
+  "svnRevision": "3744401",
+  "directoryCache": "Card still showed previous icon and no banner on immediate browser verification; uploaded SVN files verified."
+}
