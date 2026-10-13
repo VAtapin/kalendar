@@ -15,6 +15,12 @@ try {
       template.language = 'cu'; template.orthography = 'traditional';
       template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; node.orthography = 'traditional'; });
       template.nodes[0].blocks[1].segments[1].text = 'Бл҃гослове́нъ Бо́гъ на́шъ.';
+      if (office === 'liturgy') {
+        Object.assign(template, { status: 'fixed-template', cleanTemplate: true, compositionReady: true,
+          wholeLiturgyAccepted: false, profile: { id: 'ordinary-one-priest-one-deacon', rite: 'john-chrysostom' } });
+        template.nodes[0].kind = 'fixed'; template.nodes[0].role = 'priest'; template.nodes[0].delivery = 'secret';
+        template.parallelGroups = { prayer: { lanes: { priest: ['opening'] } } };
+      }
     }
     return template;
   };
@@ -150,6 +156,10 @@ try {
   await page.getByRole('button', { name: 'Проверить доступность' }).click();
   await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();
   assert.match(await page.locator('.worship-text').innerText(), /Бл҃гослове́нъ Бо́гъ/);
+  await page.getByText('Постоянная основа Литургии: один священник и один диакон.', { exact: true }).waitFor();
+  assert.equal(await page.locator('.worship-part[data-parallel-group="prayer"]').count(),1);
+  assert.equal(await page.getByText('Читается тайно', { exact: true }).count(),1);
+  assert.equal(requests.at(-1).searchParams.get('mode'),'fixed');
   assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
   await page.reload();
   await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();

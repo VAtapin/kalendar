@@ -86,6 +86,22 @@ try {
   assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu');
   assert.doesNotMatch(await page.locator('.worship-content').innerText(), /Показан полный исходный текст службы/);
   await page.screenshot({path:resolve(data,'cu-third-hour-complete.png'),fullPage:true});
+  const liturgyAssignmentsPromise = page.waitForResponse(response => response.url().includes('/liturgical/assignments/liturgy?'));
+  await page.goto(origin+'/web-calendar.html?view=worship&date=2025-11-09&office=liturgy&lang=ru&textLanguage=cu');
+  const liturgyAssignments = (await (await liturgyAssignmentsPromise).json()).data;
+  await page.locator('.worship-content[data-assignments-status="partial"]').waitFor({timeout:30000});
+  assert.equal(await page.locator('.worship-text').getAttribute('data-composition'),'partial');
+  assert.ok(liturgyAssignments.operations.length, 'Liturgy has verified daily insertions');
+  for (const operation of liturgyAssignments.operations) {
+    const part = page.locator('.worship-part').filter({ has: page.locator('.worship-block') });
+    const actual = await part.evaluateAll((nodes,id) => nodes.filter(node => node.dataset.nodeId === id)
+      .flatMap(node => [...node.querySelectorAll('.worship-block')].map(block => [...block.querySelectorAll('span')].map(span => span.textContent).join(''))),operation.nodeId);
+    assert.deepEqual(actual,operation.blocks.map(block => block.segments.map(segment => segment.text).join('')));
+  }
+  assert.ok(await page.locator('.worship-part[data-parallel-group]').count());
+  assert.ok(await page.getByText('Читается тайно',{exact:true}).count());
+  await page.locator('.worship-part[data-node-id="'+liturgyAssignments.operations[0].nodeId+'"]').first().scrollIntoViewIfNeeded();
+  await page.screenshot({path:resolve(data,'cu-liturgy-insertions.png')});
   assert.deepEqual(errors,[]);
   console.log('PASS real Bible Desktop complete civil Third Hour; entire traditional sources: '+offices.join(',')+'; unresolved slots/throttling, policy/fonts, calendar/icons');
 }finally{await browser?.close();server.kill();}

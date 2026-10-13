@@ -5,6 +5,41 @@ import { composeParts, fetchWorshipParts, validateTemplate } from '../public/cal
 const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave', textLanguage: 'cu-civil' };
 const clone = value => structuredClone(value);
 describe('source-bound worship parts', () => {
+  function fixedLiturgy() {
+    const template = templateFor('liturgy');
+    Object.assign(template, { status: 'fixed-template', cleanTemplate: true, compositionReady: true, wholeLiturgyAccepted: false,
+      profile: { id: 'ordinary-one-priest-one-deacon', rite: 'john-chrysostom' } });
+    template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.kind = 'fixed'; });
+    const selected = { ...state, office: 'liturgy', sequence: 'default' }, assignments = assignmentsFor(template, selected, false);
+    const source = { work: 'entrance-hymn', edition: 'cu', language: 'cu', hash: 'b'.repeat(64) };
+    const blocks = [{ kind: 'text', segments: [{ text: 'Назначенный тропарь после входа' }], provenance: { work: source.work, edition: source.edition, bodyHash: source.hash } }];
+    const section = { schemaVersion: 1, templateId: 'entrance', templateVersion: 'c'.repeat(64), ruleVersion: 'entrance-v1', sourceVersions: [source], nodes: [template.nodes.find(node => node.nodeId === 'last')] };
+    template.sections = { entrance: section };
+    assignments.sourceVersions = [source];
+    assignments.operations = [{ type: 'fill', nodeId: 'last', slotId: 'troparion-of-day:last', sectionId: 'entrance', sectionTemplateVersion: section.templateVersion, blocks }];
+    assignments.verifiedSections = { entrance: { schemaVersion: 1, templateId: section.templateId, templateVersion: section.templateVersion,
+      ruleVersion: section.ruleVersion, status: 'complete', profileStatus: 'confirmed-for-fragment', acceptance: { status: 'approved' },
+      operationIndexes: [0], templateSourcesHash: hash(section.sourceVersions), composedBlocksHash: hash(blocks) } };
+    return { template, assignments, selected };
+  }
+  it('fills a verified Liturgy section while preserving its fixed body and marking the whole service partial', async () => {
+    const { template, assignments, selected } = fixedLiturgy();
+    expect(validateTemplate(template, 'liturgy')).toBe(template);
+    const result = await composeParts(template, assignments, selected);
+    expect(result.complete).toBe(false); expect(result.outline).toBe(false);
+    expect(result.entries.find(node => node.nodeId === 'last').blocks).toEqual(assignments.operations[0].blocks);
+    expect(result.entries[0].blocks).toEqual(template.nodes[0].blocks);
+  });
+  it.each(['version','sources','digest','acceptance','indexes','missing-section'])('rejects an inconsistent Liturgy section %s', async problem => {
+    const { template, assignments, selected } = fixedLiturgy(), section = assignments.verifiedSections.entrance;
+    if (problem === 'version') section.templateVersion = 'd'.repeat(64);
+    if (problem === 'sources') section.templateSourcesHash = 'd'.repeat(64);
+    if (problem === 'digest') section.composedBlocksHash = 'd'.repeat(64);
+    if (problem === 'acceptance') section.acceptance.status = 'pending';
+    if (problem === 'indexes') section.operationIndexes = [0,0];
+    if (problem === 'missing-section') delete assignments.operations[0].sectionId;
+    await expect(composeParts(template, assignments, selected)).rejects.toThrow();
+  });
   it('accepts the published clean fixed CU profile without a dated appointment flag', () => {
     const template = templateFor('third-hour');
     delete template.appointedForDate; template.cleanTemplate = template.compositionReady = true;

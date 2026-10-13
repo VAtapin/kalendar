@@ -1,4 +1,9 @@
 export const UI_DE = {
+  'Постоянная основа Литургии: один священник и один диакон.': 'Feste Grundlage der Liturgie: ein Priester und ein Diakon.',
+  'Читается тайно': 'Wird leise gelesen',
+  'Постоянный текст Литургии и подтверждённые дневные вставки показаны. Неопределённые части отмечены; полная служба этого дня ещё не подтверждена.': 'Der feste Text der Liturgie und die bestätigten Tageseinfügungen werden angezeigt. Noch unbestimmte Teile sind markiert; der vollständige Tagesgottesdienst ist noch nicht bestätigt.',
+  'Священник': 'Priester', 'Диакон': 'Diakon', 'Хор': 'Chor', 'Чтец': 'Leser',
+  'Исполняется одновременно с другими текстами': 'Wird gleichzeitig mit anderen Texten ausgeführt',
   'Дневное начало отпуста': 'Tagesabhängiger Beginn der Entlassung',
   'Утреня': 'Matutin',
   'Вечерня': 'Vesper',

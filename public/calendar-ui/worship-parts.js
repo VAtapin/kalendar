@@ -22,7 +22,10 @@ export function validateTemplate(template, office) {
     && ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'].includes(office)
     && (template.templateId?.startsWith(office + ':')
       || (office === 'liturgy' && template.templateId?.startsWith('liturgy-john-chrysostom:')));
-  const fixed = template?.artifactType === 'fixed-template' && template.status === 'fixed-complete' && template.profile?.office === office;
+  const fixed = (template?.artifactType === 'fixed-template' && template.status === 'fixed-complete' && template.profile?.office === office)
+    || (office === 'liturgy' && template?.artifactType === 'source-bound-template' && template.status === 'fixed-template'
+      && template.cleanTemplate === true && template.compositionReady === true && template.wholeLiturgyAccepted === false
+      && template.profile?.id === 'ordinary-one-priest-one-deacon' && template.profile?.rite === 'john-chrysostom');
   if (template?.schemaVersion !== 1 || (!outline && !fixed) || template.dateDependent !== false
     || (template.appointedForDate !== false && !(fixed && template.cleanTemplate === true
       && template.compositionReady === true && template.appointedForDate === undefined))
@@ -62,6 +65,23 @@ export async function composeParts(template, assignments, state) {
   const outline = template.status === 'source-outline';
   if (outline && (assignments.status === 'complete' || assignments.operations.length)) throw new Error('Outline is not a composable rite');
   const nodes = new Map(template.nodes.map(node => [node.nodeId, node])), operations = new Map();
+  if (template.status === 'fixed-template' && assignments.operations.some(op => !op.sectionId)) throw new Error('Unverified service section');
+  for (const id of new Set(assignments.operations.map(op => op.sectionId).filter(Boolean))) {
+    const section = template.sections?.[id], verified = assignments.verifiedSections?.[id];
+    if (!section || !verified || verified.status !== 'complete' || verified.acceptance?.status !== 'approved'
+      || verified.profileStatus !== 'confirmed-for-fragment' || !Array.isArray(verified.operationIndexes)
+      || !verified.operationIndexes.length) throw new Error('Unverified service section');
+    for (const key of ['schemaVersion', 'templateId', 'templateVersion', 'ruleVersion']) {
+      if (section[key] !== verified[key]) throw new Error('Incompatible section versions');
+    }
+    if (await partsHash(section.sourceVersions) !== verified.templateSourcesHash) throw new Error('Incompatible section sources');
+    const sectionOps = verified.operationIndexes.map(index => assignments.operations[index]);
+    if (new Set(verified.operationIndexes).size !== sectionOps.length || sectionOps.some(op => !op || op.sectionId !== id
+      || op.type !== 'fill' || op.sectionTemplateVersion !== section.templateVersion
+      || !section.nodes.some(node => node.nodeId === op.nodeId && node.slotId === op.slotId))
+      || assignments.operations.filter(op => op.sectionId === id).length !== sectionOps.length
+      || await partsHash(sectionOps.flatMap(op => op.blocks)) !== verified.composedBlocksHash) throw new Error('Section composition mismatch');
+  }
   for (const original of assignments.operations) {
     const operation = { ...original };
     if (operation.type === 'replace' && operation.blocks === undefined && Array.isArray(operation.blockMetadata)
@@ -71,7 +91,7 @@ export async function composeParts(template, assignments, state) {
         const provenance = block?.provenance;
         const matches = (assignments.sourceVersions || []).filter(source => source.work === provenance?.work
           && source.edition === provenance?.edition && source.hash === provenance?.bodyHash);
-        return matches.length === 1 ? matches[0] : null;
+        return matches.length && new Set(matches.map(sourceLanguage)).size === 1 ? matches[0] : null;
       });
     }
     const node = nodes.get(operation?.nodeId);
@@ -107,6 +127,7 @@ export async function composeParts(template, assignments, state) {
       return [{ ...node, language, blocks }];
     }
     return op.blocks.map((block, index) => ({ nodeId: node.nodeId, kind: 'fixed', section: node.section,
+      role: node.role, parallelGroup: node.parallelGroup, delivery: node.delivery,
       language: sourceLanguage(op.blockSources[index]), blocks: [block] }));
   });
   if (assignments.status === 'complete') {
@@ -142,7 +163,8 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {
     const profile = candidate === 'cu' && hour ? { profile: 'ordinary-clergy',
       ...(['first-hour', 'ninth-hour'].includes(state.office) ? { sequence: state.sequence, ...hourContext } : {}) } : {};
-    const value = await request('templates', { language: candidate, ...profile });
+    const value = await request('templates', { language: candidate, ...profile,
+      ...(candidate === 'cu' && state.office === 'liturgy' ? { mode: 'fixed' } : {}) });
     if (value === null) continue;
     template = validateTemplate(value, state.office);
     const sources = template.nodes.filter(node => node.kind !== 'slot');
@@ -156,6 +178,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   onBase(baseResult);
   const params = { date: state.date, sequence: state.sequence, calendarStyle: 'julian', templateVersion: template.templateVersion, language };
   if (language === 'cu' && hour) params.profile = 'ordinary-clergy';
+  if (language === 'cu' && state.office === 'liturgy') params.mode = 'fixed';
   if (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office)) params.temple = state.temple;
   if (state.office === 'first-hour') Object.assign(params, { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') Object.assign(params, { nextOffice: 'vespers', location: state.location });

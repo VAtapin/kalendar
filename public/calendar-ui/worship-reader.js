@@ -164,10 +164,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       return;
     }
     if (result.status === 'parts') {
+      if (result.template?.status === 'fixed-template') content.append(create('p', 'Постоянная основа Литургии: один священник и один диакон.', 'edition-label'));
       if (result.fallback) content.append(create('p', 'Церковнославянская редакция пока недоступна; показана следующая доступная редакция.', 'reader-message'));
       const notices = {
         loading: 'Постоянный текст загружен. Уточняю переменные части дня…',
-        partial: 'Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.',
+        partial: state.office === 'liturgy' ? 'Постоянный текст Литургии и подтверждённые дневные вставки показаны. Неопределённые части отмечены; полная служба этого дня ещё не подтверждена.'
+          : 'Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.',
         error: 'Постоянный текст доступен. Дневные назначения сейчас не получены; места вставок отмечены в тексте.',
         'not-appointed': 'Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.',
       };
@@ -190,7 +192,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     const entries = result.status === 'parts' ? result.entries : [{ language: result.language, blocks: result.data.blocks }];
     const languages = [...new Set(entries.filter(entry => !entry.missing).map(entry => entry.language))];
     if (result.status === 'parts') languages.forEach(language => content.append(create('p', EDITIONS[language], 'edition-label')));
-    let blockIndex = 0, appendix;
+    let blockIndex = 0, appendix, lastVoice;
     const slotNames = { 'troparion-of-day:leading': 'Дополнительный тропарь дня', 'troparion-of-day:last': 'Тропарь дня',
       'day-leading': 'Дополнительный тропарь дня', 'day-last': 'Тропарь дня', 'day-kontakion': 'Кондак дня',
       'day-dismissal-prefix': 'Дневное начало отпуста',
@@ -217,6 +219,19 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         continue;
       }
       const part = create('section', '', 'worship-part');
+      if (result.template?.status === 'fixed-template') {
+        const voices = { priest: 'Священник', deacon: 'Диакон', choir: 'Хор', reader: 'Чтец' };
+        if (voices[entry.role] && entry.role !== lastVoice) part.append(create('small', voices[entry.role], 'edition-label'));
+        lastVoice = entry.role;
+        const parallelGroup = entry.parallelGroup || Object.entries(result.template.parallelGroups || {}).find(([, group]) =>
+          Object.values(group.lanes || {}).some(ids => ids.includes(entry.nodeId)))?.[0];
+        if (parallelGroup) {
+          part.dataset.parallelGroup = parallelGroup;
+          part.append(create('small', 'Исполняется одновременно с другими текстами', 'edition-label'));
+        }
+        if (entry.delivery === 'secret') part.append(create('small', 'Читается тайно', 'edition-label'));
+        if (entry.delivery) part.dataset.delivery = entry.delivery;
+      }
       part.dataset.textLanguage = entry.language;
       part.lang = entry.language === 'cu-civil' ? 'cu' : entry.language;
       if (entry.nodeId) part.dataset.nodeId = entry.nodeId;
