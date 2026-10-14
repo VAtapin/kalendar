@@ -22,6 +22,7 @@ try {
       if (office === 'liturgy') {
         template.nodes[0].blocks[1].segments[0].text = 'Сщ҃е́нникъ глаго́летъ та́йно: ';
         template.nodes[0].blocks[1].parallelWith = 'choir';
+        template.nodes[0].blocks.push(...Array.from({ length: 20 }, (_, index) => ({ kind: 'text', segments: [{ text: 'Молитва ' + index }] })));
         Object.assign(template, { status: 'fixed-template', cleanTemplate: true, compositionReady: true,
           wholeLiturgyAccepted: false, profile: { id: 'ordinary-one-priest-one-deacon', rite: 'john-chrysostom' } });
         template.nodes[0].kind = 'fixed'; template.nodes[0].role = 'priest'; template.nodes[0].delivery = 'secret';
@@ -106,6 +107,8 @@ try {
   assert.equal(await page.locator('.repetition-number').innerText(), '12');
   assert.equal(await page.locator('.worship-toc a').count(), 1);
   assert.equal(await page.locator('.worship-toc a').getAttribute('href'), '#worship-part-0');
+  assert.equal(await page.locator('.worship-toc a').getAttribute('data-text-language'), 'cu-civil');
+  assert.match(await page.locator('.worship-toc a').evaluate(el => getComputedStyle(el).fontFamily), /Calendar Civil Text/);
   await page.locator('[data-worship-control="temple"]').selectOption('nicholas');
   await page.locator('[data-worship-control="office"]').selectOption('first-hour');
   await page.locator('.worship-text[data-composition="complete"]').waitFor();
@@ -172,6 +175,21 @@ try {
   assert.equal(await page.locator('.parallel-prayer').count(),1);
   assert.equal(requests.at(-1).searchParams.get('mode'),'fixed');
   assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
+  assert.equal(await page.locator('.worship-toc a').getAttribute('lang'), 'cu');
+  assert.match(await page.locator('.worship-toc a').evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
+  assert.equal(await page.locator('.worship-toc a').textContent(), await page.locator('.worship-text h3').textContent());
+  for (const width of [1280,390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('.worship-text p').last().scrollIntoViewIfNeeded();
+    await page.locator('.worship-to-toc').waitFor({ state: 'visible' });
+    assert.equal(await page.locator('.worship-to-toc').evaluate(el => getComputedStyle(el).position),'fixed');
+    await page.locator('.worship-to-toc').click();
+    await page.waitForFunction(() => document.querySelector('.worship-navigation summary').getBoundingClientRect().top >= 0);
+    assert.equal(await page.locator('.worship-navigation').getAttribute('open'),'');
+    await page.locator('.worship-to-toc').waitFor({ state: 'hidden' });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.reload();
   await page.locator('.worship-part[data-text-language="cu"]').first().waitFor();
   assert.equal(await page.locator('[data-worship-control="textLanguage"]').inputValue(), 'cu');
@@ -195,6 +213,7 @@ try {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.screenshot({ path: 'tmp/worship-reader/mobile.png', fullPage: true });
   await page.getByRole('button', { name: '← Zum Kalendertag' }).click();
+  assert.equal(await page.locator('.worship-to-toc').count(),0);
   await page.locator('.day-texts summary').first().waitFor();
   assert.equal(new URL(page.url()).searchParams.get('date'), '2027-10-21');
   assert.deepEqual(errors, []);

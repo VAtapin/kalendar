@@ -43,6 +43,7 @@ export const UI_DE = {
     "Размер текста": "Textgröße",
     "Загружаю службу…": "Gottesdienst wird geladen…",
     "Оглавление": "Inhalt",
+    "↑ К оглавлению": "↑ Zum Inhaltsverzeichnis",
     "Постоянный текст загружен. Уточняю переменные части дня…": "Der feste Text ist geladen. Die variablen Teile werden ermittelt…",
     "Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.": "Die feste Grundlage der gewöhnlichen Stunde wird angezeigt. Noch nicht bestimmte Einschübe sind im Text markiert; die vollständige Tagesordnung ist noch nicht bestätigt.",
     "Постоянный текст доступен. Дневные назначения сейчас не получены; места вставок отмечены в тексте.": "Der feste Text ist verfügbar. Die Zuordnungen des Tages konnten nicht geladen werden; die Einschubstellen sind im Text markiert.",

@@ -84,6 +84,8 @@ try {
     assert.deepEqual(actual, expected, `All original source paragraphs are preserved for ${office}`);
     assert.equal(await page.locator('.worship-part').first().getAttribute('data-text-language'),'cu');
     assert.match(await page.locator('.worship-part').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
+    assert.equal(await page.locator('.worship-toc a').first().getAttribute('data-text-language'),'cu');
+    assert.match(await page.locator('.worship-toc a').first().evaluate(el => getComputedStyle(el).fontFamily), /Calendar Liturgical Slavonic/);
     await page.screenshot({path:resolve(data,office+'-base.png')});
   }
   // A supported date must use CU daily fills, not merely show the book outline.

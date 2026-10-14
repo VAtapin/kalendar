@@ -14,6 +14,7 @@ function localIsoDate(now = new Date()) {
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
   office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
+let disposeWorshipReader = () => {};
 
 for (let year = 1900; year <= 2200; year++) $('year').add(new Option(String(year), String(year)));
 for (let month = 0; month < 12; month++) $('month').add(new Option(MONTHS[month], String(month + 1).padStart(2, '0')));
@@ -672,6 +673,7 @@ async function showWorship() {
     },
   });
   applyTextLanguage(reader.summary);
+  disposeWorshipReader = reader.dispose;
   $('calendar-panel').classList.remove('cu', 'calendar-text');
   $('calendar-panel').replaceChildren(reader.page);
   reader.page.scrollIntoView({ block: 'start' });
@@ -740,6 +742,8 @@ async function showDay(date, dialog = false) {
 }
 
 async function load() {
+  disposeWorshipReader();
+  disposeWorshipReader = () => {};
   const request = ++loadSequence;
   ++daySequence;
   ++worshipSequence;

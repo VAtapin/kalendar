@@ -191,6 +191,9 @@ dialog::backdrop { background: #18291e88; }
 .reader-message { padding: 20px; background: #f9f7ef; border-radius: 10px; }
 .worship-toc { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 15px 0 25px; border-bottom: 1px solid var(--line); }
 .worship-toc a { color: var(--green); }
+.worship-navigation { scroll-margin-top: 20px; }
+.worship-to-toc { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 20; box-shadow: 0 3px 12px #0002; }
+.worship-to-toc[hidden] { display: none; }
 .worship-text { font-size: var(--reader-size, 22px); padding: 10px 0 40px; overflow-wrap: anywhere; }
 .worship-block { white-space: pre-wrap; margin: 1em 0; }
 .worship-text h3 { font-size: 1.15em; margin-top: 1.5em; scroll-margin-top: 20px; }

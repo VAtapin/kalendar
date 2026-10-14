@@ -142,7 +142,9 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   const content = create('div', '', 'worship-content'); content.setAttribute('aria-live', 'polite');
   const loading = create('p', 'Загружаю службу…', 'hint'); loading.setAttribute('role', 'status');
   content.append(loading); page.append(summary, content);
+  let navigationObserver;
   function render(result) {
+    navigationObserver?.disconnect();
     content.replaceChildren();
     if (result.status === 'edition-unavailable') {
       content.append(create('p', 'Выбранная редакция этой службы пока отсутствует в BibleDesktop.', 'reader-message'));
@@ -256,6 +258,8 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         if (heading) {
           node.id = 'worship-part-' + index;
           const link = create('a', null); link.textContent = node.textContent; link.href = '#' + node.id; toc.append(link);
+          link.dataset.textLanguage = entry.language;
+          link.lang = part.lang;
         }
         part.append(node);
       }
@@ -265,9 +269,22 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       } else body.append(part);
     }
     if (toc.childElementCount) {
-      const navigation = create('details', '', 'worship-navigation'); navigation.append(create('summary', 'Оглавление'), toc); content.append(navigation);
+      const navigation = create('details', '', 'worship-navigation'), title = create('summary', 'Оглавление');
+      navigation.append(title, toc); content.append(navigation);
+      const up = create('button', '↑ К оглавлению', 'reader-button worship-to-toc');
+      up.type = 'button'; up.hidden = true;
+      up.addEventListener('click', () => {
+        navigation.open = true;
+        title.focus({ preventScroll: true });
+        navigation.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      });
+      content.append(up);
+      navigationObserver = new IntersectionObserver(([entry]) => {
+        up.hidden = entry.isIntersecting || entry.boundingClientRect.bottom >= 0;
+      });
+      navigationObserver.observe(title);
     }
     content.append(body);
   }
-  return { page, summary, render };
+  return { page, summary, render, dispose: () => navigationObserver?.disconnect() };
 }
