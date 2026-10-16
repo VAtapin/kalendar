@@ -1,5 +1,7 @@
 # Состояние проекта
 
+- На `/calendar-api` все три WordPress-плагина ведут в каталог WordPress.org: плагин записок Georg-Kloster Orthodox Donations заменил ссылку на локальный ZIP. Его ссылки в карточке и инструкции выбирают RU/DE/EN/UK домен по языку интерфейса; описание установки обновлено. Целевой браузерный тест ссылок, мобильной ширины и новой вкладки, TypeScript/production build и `git diff --check` прошли. Последний связанный commit: Link Orthodox Donations to WordPress.org (текущий commit). Production Kalendar ещё не обновлён.
+
 - Оглавление богослужебного читателя использует язык и шрифт каждого исходного заголовка (CU/Ponomar, civil/ru/DejaVu Serif). После прокрутки оглавления появляется закреплённая справа внизу кнопка «↑ К оглавлению», которая раскрывает его и возвращает фокус/прокрутку к заголовку. Поддержаны RU/DE, мобильные safe-area и reduced-motion; наблюдатель отключается при смене службы или страницы.
 - Проверки оглавления: browser desktop1280/mobile390 (шрифты CU/civil, возврат, раскрытие, скрытие кнопки, выход в календарь), отдельный реальный browser/API CU Литургии и полного Третьего часа, TypeScript/production build и diff-check PASS. Общий civil live-контроль имеет ограничение, указанное ниже; полный редакторский/WordPress набор не запускался. Последний связанный commit: Fix worship contents fonts and add return navigation (commit с этим статусом; предшествующийc219d4d9). ProductionKalendar не обновлён.
 

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
-import {mkdirSync,readFileSync} from 'node:fs';
+import {mkdirSync} from 'node:fs';
 import {chromium} from 'playwright';
 const wordpressPluginUrl='https://wordpress.org/plugins/georg-kloster-calendar-workshop/';
 const russianWordpressPluginUrl='https://ru.wordpress.org/plugins/georg-kloster-calendar-workshop/';
 const translatorPluginUrl='https://ru.wordpress.org/plugins/georg-kloster-slavonic-translator/';
+const prayerPluginUrl='https://ru.wordpress.org/plugins/georg-kloster-orthodox-donations/';
 const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
 const origin=`http://127.0.0.1:${port}`;
 const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port',String(port),'--strictPort'],{windowsHide:true,stdio:'ignore'});
@@ -17,7 +18,8 @@ try {
   page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
   await page.route('**/api/**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({items:[],pages:[]})}));
   await page.goto(origin);
-  try{await page.getByRole('link',{name:'API календаря',exact:true}).click();}catch(error){console.error('Home page errors:',errors);console.error((await page.locator('body').innerText()).slice(0,2000));throw error;}
+  assert.equal(await page.getByRole('link',{name:'API календаря',exact:true}).getAttribute('href'),'/calendar-api');
+  await page.goto(origin+'/calendar-api');
   await page.getByRole('heading',{name:'API календаря',exact:true}).waitFor();
   await page.getByRole('heading',{name:'Подключение к Bible Desktop',exact:true}).waitFor();
   assert.ok(page.url().endsWith('/calendar-api'));
@@ -30,8 +32,10 @@ try {
   assert.equal(await catalog.locator('a.download').nth(0).getAttribute('download'),null);
   assert.equal(await catalog.locator('tbody tr').nth(0).locator('.version').textContent(),'WordPress.org');
   assert.equal(await page.locator('a[href^="/downloads/orthocal-"]').count(),0);
-  assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),'/downloads/kloster-prayer-1.2.10.zip');
-  assert.equal(await catalog.locator('tbody tr').nth(1).locator('.version').textContent(),'1.2.10');
+  assert.equal(await catalog.locator('a.download').nth(1).getAttribute('href'),prayerPluginUrl);
+  assert.equal(await catalog.locator('a.download').nth(1).getAttribute('download'),null);
+  assert.ok((await catalog.locator('tbody tr').nth(1).textContent()).includes('Georg-Kloster Orthodox Donations'));
+  assert.equal(await catalog.locator('tbody tr').nth(1).locator('.version').textContent(),'WordPress.org');
   assert.equal(await catalog.locator('a.download').nth(2).getAttribute('href'),translatorPluginUrl);
   const translatorRow=catalog.locator('tbody tr').nth(2);
   assert.ok((await translatorRow.textContent()).includes('Georg-Kloster Slavonic Translator'));
@@ -50,13 +54,10 @@ try {
   const prayerSection=page.locator('#prayer-plugin');
   await catalog.getByRole('link',{name:'Подробнее о молитвенных записках',exact:true}).click();
   assert.equal(await prayerSection.getAttribute('open'),'');
-  assert.equal(await prayerSection.locator('a.download').getAttribute('href'),'/downloads/kloster-prayer-1.2.10.zip');
-  const prayerZip=await fetch(origin+'/downloads/kloster-prayer-1.2.10.zip');
-  assert.equal(prayerZip.status,200);
-  const prayerBytes=Buffer.from(await prayerZip.arrayBuffer());
-  assert.equal(prayerBytes.subarray(0,2).toString(),'PK');
-  assert.deepEqual(prayerBytes,readFileSync('artifacts/kloster-prayer-1.2.10.zip'));
+  assert.equal(await prayerSection.locator('a.download').getAttribute('href'),prayerPluginUrl);
+  assert.equal(await prayerSection.locator('a.download').getAttribute('download'),null);
   assert.match(await prayerSection.textContent(),/email получателя уведомлений/);
+  assert.match(await prayerSection.textContent(),/Новые версии доступны через стандартные обновления WordPress/);
   const translatorSection=page.locator('#translator-plugin');
   await catalog.getByRole('link',{name:'Подробнее о переводчике',exact:true}).click();
   await translatorSection.getByRole('heading',{name:'Церковнославянский переводчик для WordPress'}).waitFor();
@@ -80,9 +81,11 @@ try {
     await page.locator('header select').selectOption(language);
     await page.waitForFunction(url=>document.querySelector('#plugins a.download')?.getAttribute('href')===url,expectedUrl);
     await page.locator('#wordpress').evaluate(panel=>{panel.open=true;});
+    await prayerSection.evaluate(panel=>{panel.open=true;});
     await translatorSection.evaluate(panel=>{panel.open=true;});
+    const expectedPrayerUrl=expectedUrl.replace('georg-kloster-calendar-workshop','georg-kloster-orthodox-donations');
     const expectedTranslatorUrl=expectedUrl.replace('georg-kloster-calendar-workshop','georg-kloster-slavonic-translator');
-    for(const [link,url] of [[catalog.locator('a.download').nth(0),expectedUrl],[pluginLink,expectedUrl],[catalog.locator('a.download').nth(2),expectedTranslatorUrl],[translatorSection.locator('a.download'),expectedTranslatorUrl]]){
+    for(const [link,url] of [[catalog.locator('a.download').nth(0),expectedUrl],[pluginLink,expectedUrl],[catalog.locator('a.download').nth(1),expectedPrayerUrl],[prayerSection.locator('a.download'),expectedPrayerUrl],[catalog.locator('a.download').nth(2),expectedTranslatorUrl],[translatorSection.locator('a.download'),expectedTranslatorUrl]]){
       assert.equal(await link.getAttribute('href'),url);
       assert.equal(await link.getAttribute('download'),null);
       assert.equal(await link.getAttribute('target'),'_blank');
@@ -96,5 +99,5 @@ try {
       await popup.close();
     }
   }
-  assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, Bible Desktop connection, real ZIP and guide, mobile width, no editor download, localized WordPress links and new tabs in ru/de/en/uk');
+  assert.deepEqual(errors,[]);console.log('PASS home link, documentation route/reload, Bible Desktop connection and guide, mobile width, no editor download, localized WordPress links and new tabs in ru/de/en/uk');
 }finally{await browser?.close();server.kill();}
