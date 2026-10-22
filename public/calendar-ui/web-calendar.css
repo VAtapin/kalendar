@@ -65,17 +65,19 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 .day.day-great { background: #fff8df; box-shadow: inset 0 4px #c49a3a; }
 .day.day-medium { background: #fffdf0; box-shadow: inset 0 3px #d8bd70; }
 .day.day-sunday { background: #f5faf5; }
-.has-vestment { --vestment-color: #b88a2d; --vestment-stripe-color: #b88a2d; --vestment-pattern: repeating-linear-gradient(45deg, #fffdf0cc 0 1px, #241a0c88 1px 2px, transparent 2px 4px); }
-[data-vestment-color="gold"] { --vestment-color: #9a6d13; --vestment-stripe-color: #daa82f; }
-[data-vestment-color="white"] { --vestment-color: #777167; --vestment-stripe-color: #fbfaf5; --vestment-pattern: repeating-linear-gradient(45deg, #a09a8f 0 1px, #ffffff 1px 3px, transparent 3px 5px); }
-[data-vestment-color="blue"] { --vestment-color: #275f9b; --vestment-stripe-color: #3c82cf; }
-[data-vestment-color="red"] { --vestment-color: #98372f; --vestment-stripe-color: #c44b42; }
-[data-vestment-color="green"] { --vestment-color: #28623e; --vestment-stripe-color: #4a9460; }
-[data-vestment-color="violet"] { --vestment-color: #624083; --vestment-stripe-color: #8954bb; }
-[data-vestment-color="black"] { --vestment-color: #303332; --vestment-stripe-color: #303332; }
+.has-vestment { --vestment-color: #a47c00; --vestment-edge: #a47c00; --vestment-fill: #f6e39e; }
+[data-vestment-color="white"] { --vestment-color: #aeb8c3; --vestment-edge: #aeb8c3; --vestment-fill: #f3f5f7; }
+[data-vestment-color="red"] { --vestment-color: #a91e27; --vestment-edge: #a91e27; --vestment-fill: #f3c9cd; }
+[data-vestment-color="gold"] { --vestment-color: #a47c00; --vestment-edge: #a47c00; --vestment-fill: #f6e39e; }
+[data-vestment-color="green"] { --vestment-color: #087c35; --vestment-edge: #087c35; --vestment-fill: #bfe6ca; }
+[data-vestment-color="blue"] { --vestment-color: #087baa; --vestment-edge: #087baa; --vestment-fill: #bfe3f4; }
+[data-vestment-color="violet"] { --vestment-color: #7835a0; --vestment-edge: #7835a0; --vestment-fill: #dfc8ed; }
+[data-vestment-color="black"] { --vestment-color: #252a30; --vestment-edge: #252a30; --vestment-fill: #d7dade; }
 .day.has-vestment, .week-day.has-vestment, .hero.has-vestment { position: relative; border-left: 0; }
-.day.has-vestment::before, .week-day.has-vestment::before, .hero.has-vestment::before { content: ""; position: absolute; z-index: 1; top: 0; bottom: 0; left: 0; width: 8px; background-color: var(--vestment-stripe-color); background-image: var(--vestment-pattern); pointer-events: none; }
-.day.has-vestment[data-vestment-color="white"]::before, .week-day.has-vestment[data-vestment-color="white"]::before, .hero.has-vestment[data-vestment-color="white"]::before { box-sizing: border-box; border-right: 1px solid #8f8a80; border-left: 1px solid #8f8a80; }
+.day.has-vestment { padding-left: 18px; }
+.week-day.has-vestment { padding-left: 27px; }
+.hero.has-vestment { padding-left: 30px; }
+.day.has-vestment::before, .week-day.has-vestment::before, .hero.has-vestment::before { content: ""; position: absolute; z-index: 1; top: 0; bottom: 0; left: 0; width: 12px; box-sizing: border-box; border-inline: 2px solid var(--vestment-edge); background-color: var(--vestment-fill); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%236f7d8b' stroke-width='.8' stroke-linecap='round' stroke-linejoin='round' opacity='.8'%3E%3Cpath d='M12 22V2m0 6-3-3m3 6 4-4m-4 9-4-4m4 6 4-4M2 12h20m-8 0 3-3m-6 3-3-3m8 3 3 3m-8-3-3 3'/%3E%3C/g%3E%3C/svg%3E"); background-size: 12px 12px; pointer-events: none; }
 .day.is-today, .week-day.is-today, .mini-days button.is-today { position: relative; z-index: 1; outline: 2px solid #237455; outline-offset: -3px; }
 .day.is-today:hover, .day.is-today:focus-visible, .week-day.is-today:hover, .week-day.is-today:focus-visible, .mini-days button.is-today:hover, .mini-days button.is-today:focus-visible { outline-color: #0f5d3f; }
 .day.day-pascha .day-number, .day.day-great .day-number { color: #9c3027; font-weight: 700; }
@@ -150,11 +152,8 @@ main { max-width: 1420px; margin: auto; padding: 28px 24px 64px; }
 .mini-days button.day-medium { background: #fbf3d5; box-shadow: inset 0 -2px #d8bd70; }
 .mini-days button.day-sunday { background: #eef5ed; }
 .mini-days button.fast { box-shadow: inset 0 -2px #b96c62; }
-.mini-days button.has-vestment { box-shadow: inset 3px 0 var(--vestment-stripe-color); }
-.mini-days button.has-vestment.fast { box-shadow: inset 3px 0 var(--vestment-stripe-color), inset 0 -2px #b96c62; }
-.mini-days button[data-vestment-color="white"] { background-image: var(--vestment-pattern); background-position: left; background-repeat: no-repeat; background-size: 3px 100%; }
-.mini-days button.has-vestment[data-vestment-color="white"] { box-shadow: inset 1px 0 #8f8a80, inset 5px 0 #8f8a80; }
-.mini-days button.has-vestment.fast[data-vestment-color="white"] { box-shadow: inset 1px 0 #8f8a80, inset 5px 0 #8f8a80, inset 0 -2px #b96c62; }
+.mini-days button.has-vestment { background-image: linear-gradient(to right, var(--vestment-edge) 0 2px, transparent 2px 10px, var(--vestment-edge) 10px 12px, transparent 12px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%236f7d8b' stroke-width='.8' stroke-linecap='round' stroke-linejoin='round' opacity='.8'%3E%3Cpath d='M12 22V2m0 6-3-3m3 6 4-4m-4 9-4-4m4 6 4-4M2 12h20m-8 0 3-3m-6 3-3-3m8 3 3 3m-8-3-3 3'/%3E%3C/g%3E%3C/svg%3E"), linear-gradient(to right, var(--vestment-fill) 0 12px, transparent 12px); background-position: left top; background-repeat: no-repeat, repeat-y, no-repeat; background-size: 100% 100%, 12px 12px, 100% 100%; }
+.mini-days button.has-vestment.fast { box-shadow: inset 0 -2px #b96c62; }
 .empty { padding: 40px 8px; color: var(--muted); text-align: center; }
 
 dialog { width: min(85vw, 1180px); max-width: 85vw; max-height: 90vh; padding: 0; border: 0; border-radius: 16px; box-shadow: 0 22px 70px #18291e88; color: var(--ink); }
