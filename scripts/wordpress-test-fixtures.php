@@ -61,6 +61,8 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         if(($args['headers']['X-Calendar-Client']??'')!=='orthocal-wordpress')throw new Exception('Calendar request lacks public WordPress client identifier');
         if(isset($args['headers']['X-API-Key']))throw new Exception('Public WordPress test unexpectedly sent an API key');
         $year=json_decode(file_get_contents(WP_CONTENT_DIR.'/calendar-fixture.json'),true);
+        foreach($year['days'] as &$fixtureDay) if(!isset($fixtureDay['vestment'])) $fixtureDay['vestment']=['color'=>'white','label'=>'белый','status'=>'ambiguous','basisTitle'=>'Светлое Христово Воскресение. Пасха'];
+        unset($fixtureDay);
         $action=basename($path);
         if ($action==='day'||$action==='today') {
             $date=$q['date']??'2027-05-02'; $days=array_values(array_filter($year['days'],static fn($d)=>$d['date']===$date));
@@ -82,7 +84,7 @@ add_filter('pre_http_request', function($pre,$args,$url) {
         } else {
             $value=$year; if($action==='month') $value['days']=array_values(array_filter($year['days'],static fn($d)=>(int)substr($d['date'],5,2)===(int)$q['month']));
             if(($q['view']??'')==='summary') $value['days']=array_map(static function($day) {
-                $result=array_intersect_key($day,array_flip(['date','oldStyleDate','weekday','weekdayName','dayStyle','foodLabel','fastingColor','eventCount']));
+                $result=array_intersect_key($day,array_flip(['date','oldStyleDate','weekday','weekdayName','dayStyle','foodLabel','fastingColor','vestment','eventCount']));
                 $result['events']=array_map(static fn($e)=>array_intersect_key($e,array_flip(['id','title','typeCode','category','typikonMark'])),array_values(array_filter($day['events'],static fn($e)=>$e['category']==='commemoration')));
                 return $result;
             },$value['days']);

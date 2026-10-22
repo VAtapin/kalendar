@@ -71,6 +71,11 @@ if(!str_contains($html,'Светлое Христово')) throw new Exception('
 $bad=Orthocal_Plugin::day(['date'=>'2027-05-02','oldStyleDate'=>'2027-04-19','events'=>[['category'=>'commemoration','typeCode'=>7,'title'=>'<script>alert(1)</script>']]],Orthocal_Plugin::config(['mode'=>'day']));
 if(str_contains($bad,'<script>')||!str_contains($bad,'&lt;script&gt;')) throw new Exception('XSS escaping');
 if(str_contains($bad,'oc-memory-mark')||str_contains($bad,'✣')) throw new Exception('Ordinary commemoration received an invented Typikon sign');
+$vestmentDay=['date'=>'2027-05-02','oldStyleDate'=>'2027-04-19','events'=>[],'vestment'=>['color'=>'white','label'=>'белый','status'=>'ambiguous','basisTitle'=>'Светлое Христово Воскресение. Пасха']];
+$vestmentHtml=Orthocal_Plugin::day($vestmentDay,Orthocal_Plugin::config(['mode'=>'day']));
+if(!str_contains($vestmentHtml,'data-oc-vestment="white"')||!str_contains($vestmentHtml,'data-oc-vestment-status="ambiguous"')||!str_contains($vestmentHtml,'class="oc-vestment-basis">Светлое Христово')||str_contains($vestmentHtml,'Цвет облачения')||str_contains($vestmentHtml,'>белый<'))throw new Exception('Vestment recommendation was not rendered as an unlabeled horizontal ornament');
+$invalidVestment=Orthocal_Plugin::day(array_merge($vestmentDay,['vestment'=>['color'=>'amber','label'=>'янтарный']]),Orthocal_Plugin::config(['mode'=>'day']));
+if(str_contains($invalidVestment,'data-oc-vestment='))throw new Exception('Unsupported vestment color was rendered');
 $iconConfig=Orthocal_Plugin::config(['mode'=>'day','date'=>'2027-05-02','icon_limit'=>'all']);
 Orthocal_Media_Cache::clear();
 $iconDay=Orthocal_Plugin::data($iconConfig)['day'];
@@ -112,11 +117,13 @@ try {
   console.log('Browser: six blocks rendered');
   assert.ok(!(await page.content()).includes('local-test-secret'));
   const month=page.locator('.orthocal').filter({has:page.locator('h2',{hasText:'Календарь на месяц'})}).first();
+  assert.ok(await month.locator('[data-oc-vestment="white"]').count());
   await month.locator('[data-oc-date="2027-05-02"]').click();
   await month.locator('.oc-detail .oc-day').waitFor();
   console.log('Browser: day navigation works');
   assert.equal(await page.locator('.orthocal').count(),7);
   const day=month.locator('.oc-detail .orthocal');
+  assert.equal(await day.locator('.oc-vestment[data-oc-vestment="white"]').count(),1);
   assert.equal(await day.locator('.oc-hero-icon [data-oc-icon]').count(),1);
   assert.equal(await day.locator('.oc-icons figure').count(),2);
   await day.locator('.oc-hero-icon [data-oc-icon]').click();
