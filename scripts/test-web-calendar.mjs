@@ -7,7 +7,7 @@ try{
  let serviceAvailable=false, slowDetail=false;
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const NativeDate=Date,fixed=new NativeDate('2026-02-01T12:00:00Z');window.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[fixed.getTime()]));}static now(){return fixed.getTime();}};});
- const makeDay=date=>{const pascha=date.endsWith('-02-01'),title=pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай';return {date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:pascha?'поста нет':'пища с маслом',dayStyle:{rank:pascha?'pascha':'great-feast'},events:[{category:'commemoration',title,typeCode:pascha?0:2,typikonMark:{id:'great',label:'Великий праздник',svgSource:'/assets/typikon/great.svg'}},{category:'commemoration',title:'Святитель Спиридон',typeCode:6},{category:'commemoration',title:'Мученица Наталья',typeCode:6},{category:'commemoration',title:'Преподобный Сергий',typeCode:6}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',dates:[{label:'1 февраля'},{label:'9 мая (переходящая) - Собор новомучеников'}],images:[{url:'https://public-api.example/api/calendar/icons/1/images/2'},{url:'https://public-api.example/api/calendar/icons/1/images/3'}]},{id:2,title:'Мученица Наталья Козлова',description:'Описание второй иконы',dates:[{label:'1 февраля'}],images:[{url:'https://public-api.example/api/calendar/icons/2/images/4'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]};};
+ const makeDay=date=>{const pascha=date.endsWith('-02-01'),title=pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай';return {date,weekday:new Date(date+'T12:00:00Z').getUTCDay(),oldStyleDate:'2026-08-29',foodLabel:pascha?'поста нет':'пища с маслом',dayStyle:{rank:pascha?'pascha':'great-feast'},vestment:{color:pascha?'white':'green',label:pascha?'белый':'зелёный',status:pascha?'ambiguous':'resolved',basisTitle:pascha?'Светлое Христово Воскресение. Пасха':'Святитель Николай'},events:[{category:'commemoration',title,typeCode:pascha?0:2,typikonMark:{id:'great',label:'Великий праздник',svgSource:'/assets/typikon/great.svg'}},{category:'commemoration',title:'Святитель Спиридон',typeCode:6},{category:'commemoration',title:'Мученица Наталья',typeCode:6},{category:'commemoration',title:'Преподобный Сергий',typeCode:6}],icons:[{id:1,title:'Святитель Николай',description:'Описание иконы',dates:[{label:'1 февраля'},{label:'9 мая (переходящая) - Собор новомучеников'}],images:[{url:'https://public-api.example/api/calendar/icons/1/images/2'},{url:'https://public-api.example/api/calendar/icons/1/images/3'}]},{id:2,title:'Мученица Наталья Козлова',description:'Описание второй иконы',dates:[{label:'1 февраля'}],images:[{url:'https://public-api.example/api/calendar/icons/2/images/4'}]}],foodMarkers:[{source:'/assets/markers/ornamental/fast-no-fish.png'}]};};
  const handle=async route=>{
   const url=new URL(route.request().url());
   if(url.pathname==='/public-api-config.php')return route.fulfill({contentType:'text/javascript',body:'globalThis.KalendarConfig=Object.freeze({publicApiUrl:"https://public-api.example"});'});
@@ -34,6 +34,7 @@ try{
  await page.locator('.day').first().waitFor();
  assert.equal(await page.locator('#days .day').first().locator('.event').count(),3);
  assert.equal(await page.locator('#days .day').first().locator('.more').innerText(),'ещё 1');
+ assert.equal(await page.locator('#days .day').first().getAttribute('data-vestment-color'),'green');
  assert.equal(await page.locator('#status').innerText(),'');
  assert.equal(await page.locator('#status').isVisible(),false);
  assert.equal(await page.locator('#event-limit').inputValue(),'3');
@@ -50,12 +51,15 @@ try{
  assert.equal(await page.locator('#days .day.day-pascha').count(),1);
  assert.equal(await page.locator('#days .day.day-pascha.is-today').count(),1);
  assert.equal(await page.locator('#days .day.day-pascha.is-today').getAttribute('aria-current'),'date');
+ assert.equal(await page.locator('#days .day.day-pascha').getAttribute('data-vestment-color'),'white');
+ assert.equal(await page.locator('#days .day.day-pascha').getAttribute('data-vestment-status'),'ambiguous');
  assert.equal(await page.locator('#days .day-pascha .food').count(),0);
  await page.locator('.day').first().click();
  await page.locator('dialog[open] .event-card').first().waitFor();
  assert.ok(await page.locator('#detail').evaluate(el=>el.getBoundingClientRect().width>=1000));
  assert.match(await page.locator('#detail').innerText(),/Богослужебные тексты сейчас недоступны/);
  assert.match(await page.locator('#detail').innerText(),/29 августа 2026/);
+ assert.match(await page.locator('#detail').innerText(),/ЦВЕТ ОБЛАЧЕНИЯ[\s\S]*белый/);
  assert.doesNotMatch(await page.locator('#detail').innerText(),/\[object Object\]|event-card|section-card/);
  const headings=await page.locator('#detail .section-card h3').allTextContents();
  assert.ok(headings.indexOf('Иконы дня')<headings.indexOf('Святые и праздники'));
@@ -96,8 +100,8 @@ try{
  assert.match(await page.locator('#icon-modal-title').evaluate(el=>getComputedStyle(el).fontFamily),/Calendar API Slavonic/);
  await page.locator('#icon-close').click();
  await page.locator('#close').click();assert.equal(await page.locator('dialog[open]').count(),0);
- await page.locator('[data-view="year"]').click();await page.locator('.mini-month').first().waitFor();assert.equal(await page.locator('.mini-month').count(),12);
- await page.locator('[data-view="week"]').click();await page.locator('.week-day').first().waitFor();assert.equal(await page.locator('.week-day').count(),7);
+ await page.locator('[data-view="year"]').click();await page.locator('.mini-month').first().waitFor();assert.equal(await page.locator('.mini-month').count(),12);assert.equal(await page.locator('.mini-days button[data-vestment-color="white"]').count()>0,true);
+ await page.locator('[data-view="week"]').click();await page.locator('.week-day').first().waitFor();assert.equal(await page.locator('.week-day').count(),7);assert.equal(await page.locator('.week-day').first().evaluate(el=>getComputedStyle(el.parentElement).gridTemplateColumns.trim().split(/\s+/).length),1);assert.match(await page.locator('.week-day').first().innerText(),/Цвет облачения: зелёный/);
  await page.locator('#lang').selectOption('cu');await page.locator('#submit').click();await page.waitForFunction(()=>document.querySelector('#calendar-panel').classList.contains('cu'));
  await page.locator('#lang').selectOption('ru');await page.locator('#submit').click();await page.waitForFunction(()=>!document.querySelector('#calendar-panel').classList.contains('cu'));
  await page.locator('#lang').selectOption('de');await page.locator('#submit').click();await page.waitForFunction(()=>document.querySelector('#status').textContent==='');

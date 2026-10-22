@@ -6,6 +6,7 @@ import { fetchWorshipParts } from './worship-parts.js';
 const $ = id => document.getElementById(id);
 const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
 const VIEW_LABELS = { day: 'День', week: 'Неделя', month: 'Месяц', year: 'Год', worship: 'Богослужение дня' };
+const VESTMENT_COLORS = new Set(['gold', 'white', 'blue', 'red', 'green', 'violet', 'black']);
 function localIsoDate(now = new Date()) {
   const offset = now.getTimezoneOffset() * 60_000;
   return new Date(now.getTime() - offset).toISOString().slice(0, 10);
@@ -159,6 +160,32 @@ function dayEmphasis(day) {
   return 'ordinary';
 }
 
+// Bible Desktop resolves the recommendation. The client only accepts its
+// documented codes and never derives a colour from feast titles or ranks.
+function vestmentInfo(day) {
+  const vestment = day?.vestment;
+  if (!vestment || typeof vestment !== 'object' || !VESTMENT_COLORS.has(vestment.color)) return null;
+  return {
+    color: vestment.color,
+    label: typeof vestment.label === 'string' && vestment.label.trim() ? vestment.label.trim() : vestment.color,
+    status: typeof vestment.status === 'string' ? vestment.status : '',
+    basisTitle: typeof vestment.basisTitle === 'string' ? vestment.basisTitle.trim() : '',
+  };
+}
+
+function applyVestment(node, day) {
+  const vestment = vestmentInfo(day);
+  if (!vestment) return null;
+  node.classList.add('has-vestment');
+  node.dataset.vestmentColor = vestment.color;
+  if (vestment.status) node.dataset.vestmentStatus = vestment.status;
+  return vestment;
+}
+
+function vestmentDescription(vestment) {
+  return vestment ? [ui('Цвет облачения') + ': ' + vestment.label, vestment.basisTitle].filter(Boolean).join(' · ') : '';
+}
+
 function primaryTypikonMark(day) {
   return commemorationEvents(day)
     .filter(event => event.typikonMark?.svgSource)
@@ -208,12 +235,13 @@ function dayButton(day) {
   button.dataset.date = day.date;
   const food = e('div', '', 'food');
   const hasFast = Boolean(day.foodLabel && day.foodLabel !== 'поста нет');
+  const vestment = applyVestment(button, day);
   if (hasFast) {
     food.classList.add('has-fast');
     if (day.fastingColor) food.style.setProperty('--fast-color', day.fastingColor);
     food.textContent = ui(day.foodLabel);
-    button.title = [titleDate(day.date), day.foodLabel, ...commemorationEvents(day).map(event => event.title)].join(' · ');
-  } else button.title = [titleDate(day.date), ...commemorationEvents(day).map(event => event.title)].join(' · ');
+    button.title = [titleDate(day.date), day.foodLabel, vestmentDescription(vestment), ...commemorationEvents(day).map(event => event.title)].filter(Boolean).join(' · ');
+  } else button.title = [titleDate(day.date), vestmentDescription(vestment), ...commemorationEvents(day).map(event => event.title)].filter(Boolean).join(' · ');
   const events = commemorationEvents(day);
   const numberLine = e('div', '', 'day-number-line');
   numberLine.append(e('span', String(Number(day.date.slice(-2))), 'day-number'));
@@ -236,7 +264,7 @@ function dayButton(day) {
   displayedEvents.forEach(event => button.append(e('span', dayDisplayTitle(event), 'event ' + (event.typeCode <= 2 ? 'main' : ''))));
   const remaining = events.length - displayedEvents.length;
   if (remaining > 0) button.append(e('div', 'ещё ' + remaining, 'more'));
-  button.setAttribute('aria-label', [titleDate(day.date), day.foodLabel, ...events.map(event => event.title)].filter(Boolean).join('. '));
+  button.setAttribute('aria-label', [titleDate(day.date), day.foodLabel, vestmentDescription(vestment), ...events.map(event => event.title)].filter(Boolean).join('. '));
   return button;
 }
 
@@ -347,6 +375,7 @@ function safeMarkerUrl(source) {
 
 function fastingHero(day) {
   const hero = e('section', '', 'hero');
+  const vestment = applyVestment(hero, day);
   const summary = e('div', '', 'fasting-summary');
   const isFast = Boolean(day.foodLabel && day.foodLabel !== 'поста нет');
   if (isFast) {
@@ -365,7 +394,7 @@ function fastingHero(day) {
   text.append(e('h3', day.foodLabel || 'Календарный день'), e('p', day.fasting?.reason || day.fasting?.description || ''));
   summary.append(text);
   hero.append(summary);
-  if (day.fastingColor) hero.style.borderLeftColor = day.fastingColor;
+  if (!vestment && day.fastingColor) hero.style.borderLeftColor = day.fastingColor;
   return hero;
 }
 
@@ -541,6 +570,8 @@ function renderDayValue(value, serviceState, target) {
   page.append(fastingHero(day));
   const facts = e('div', '', 'facts');
   facts.append(fact('Стиль дня', day.dayStyle?.label || ({ pascha: 'Пасха', 'great-feast': 'Великий праздник', 'medium-feast': 'Праздничный день', 'monastery-feast': 'Престольный праздник', sunday: 'Воскресенье', ordinary: 'Будний день' }[day.dayStyle?.rank]) || '—'), fact('Пост', day.foodLabel || '—'), fact('Событий', String((day.events || []).length)));
+  const vestment = vestmentInfo(day);
+  if (vestment) facts.append(fact('Цвет облачения', vestment.label));
   page.append(facts);
   if (icons.length) page.append(iconSection(icons));
   const events = e('section', '', 'section-card');
@@ -601,12 +632,15 @@ function renderWeek(days) {
     button.type = 'button';
     button.dataset.date = day.date;
     decorateDayButton(button, day);
+    const vestment = applyVestment(button, day);
     button.append(e('h3', titleDate(day.date, { weekday: 'short', day: 'numeric' })), e('p', (displayOldStyleDate(day.oldStyleDate) || '') + ' ' + ui('ст. ст.'), 'hint'));
+    if (vestment) button.append(e('p', vestmentDescription(vestment), 'vestment-label'));
     if (day.foodLabel && day.foodLabel !== 'поста нет') button.append(e('p', day.foodLabel));
     const events = commemorationEvents(day);
     const primary = events.find(event => event.typeCode <= 2) || events[0];
-    if (primary) button.append(e('p', dayDisplayTitle(primary), 'event'));
-    if (events.length > (primary ? 1 : 0)) button.append(e('p', 'ещё ' + (events.length - 1), 'more'));
+    const displayed = primary ? [primary, ...events.filter(event => event !== primary)].slice(0, state.eventLimit) : [];
+    displayed.forEach(event => button.append(e('p', dayDisplayTitle(event), 'event')));
+    if (events.length > displayed.length) button.append(e('p', 'ещё ' + (events.length - displayed.length), 'more'));
     grid.append(button);
   });
   grid.addEventListener('click', event => {
@@ -634,7 +668,8 @@ function renderYear(value) {
       if (commemorationEvents(day).length) button.classList.add('has-event');
       if (day.foodLabel && day.foodLabel !== 'поста нет') button.classList.add('fast');
       decorateDayButton(button, day);
-      button.title = [titleDate(day.date), ...commemorationEvents(day).map(event => event.title)].join(' · ');
+      const vestment = applyVestment(button, day);
+      button.title = [titleDate(day.date), vestmentDescription(vestment), ...commemorationEvents(day).map(event => event.title)].filter(Boolean).join(' · ');
       mini.append(button);
     });
     card.append(mini);

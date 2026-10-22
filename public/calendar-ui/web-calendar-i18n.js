@@ -124,6 +124,7 @@ export const UI_DE = {
     "Выберите дату, чтобы открыть её полный состав.": "Wählen Sie ein Datum, um die Tagesansicht zu öffnen.",
     "Стиль дня": "Festordnung",
     "Пост": "Fasten",
+    "Цвет облачения": "Liturgische Gewandfarbe",
     "Событий": "Einträge",
     "Святые и праздники": "Heilige und Feste",
     "Чтения": "Lesungen",
