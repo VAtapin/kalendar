@@ -24,12 +24,12 @@ for (const line of readme.split(/\r?\n/)) {
 
 const catalogues = new Map(locales.map(locale => [
   locale,
-  readPo(`${root}/stable-readme-1.3.79-${locale}.po`).filter(entry => entry.msgid),
+  readPo(`${root}/stable-readme-1.3.80-${locale}.po`).filter(entry => entry.msgid),
 ]));
 const sourceKeys = catalogues.get('ru').map(key).sort();
-assert.equal(sourceKeys.length, 69, 'Readme catalogue coverage');
+assert.equal(sourceKeys.length, 72, 'Readme catalogue coverage');
 for (const [locale, entries] of catalogues) {
-  assert.equal(entries.length, 69, `${locale}: readme catalogue coverage`);
+  assert.equal(entries.length, 72, `${locale}: readme catalogue coverage`);
   assert.deepEqual(entries.map(key).sort(), sourceKeys, `${locale}: originals and contexts`);
   for (const entry of entries) {
     assert.ok(entry.msgstr.trim(), `${locale}: empty translation`);
@@ -39,13 +39,16 @@ for (const [locale, entries] of catalogues) {
       assert.deepEqual(find(entry.msgstr, pattern, type), find(entry.msgid, pattern, type), `${locale}: ${type}`);
     }
   }
-  assert.equal(compileMo(readPo(`${root}/stable-readme-1.3.79-${locale}.po`)).readUInt32LE(0), 0x950412de, `${locale}: MO compilation`);
+  assert.equal(compileMo(readPo(`${root}/stable-readme-1.3.80-${locale}.po`)).readUInt32LE(0), 0x950412de, `${locale}: MO compilation`);
 }
 
 for (const msgid of [
   'Show the API-recommended vestment colour as a patterned ornament in day, month and year views.',
   'Place the day’s source commemoration above the horizontal vestment ornament without repeating the colour name.',
+  'Use the first daily icon from <code>day.icons</code> in API order.',
+  'Refine month and year cells with a compact patterned vestment header.',
+  'Fix UTF-8 installation arrows and display shortcode examples as code.',
 ]) {
-  for (const [locale, entries] of catalogues) assert.ok(entries.some(entry => entry.msgid === msgid && entry.msgstr), `${locale}: 1.3.79 changelog`);
+  for (const [locale, entries] of catalogues) assert.ok(entries.some(entry => entry.msgid === msgid && entry.msgstr), `${locale}: 1.3.80 changelog`);
 }
-console.log('PASS reviewed RU/DE/UK/PL Readme 1.3.79 proposals: UTF-8, code shortcodes, source parity, technical tokens, changelog and MO compilation');
+console.log('PASS reviewed RU/DE/UK/PL Readme 1.3.80 proposals: UTF-8, code shortcodes, source parity, technical tokens, changelog and MO compilation');

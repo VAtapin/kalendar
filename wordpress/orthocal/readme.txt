@@ -4,7 +4,7 @@ Tags: calendar, orthodox, bible
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.79
+Stable tag: 1.3.80
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ The files assets/admin.js, assets/calendar.js, assets/editor.js, assets/admin.cs
 Edit these source files directly. No npm build is required for plugin installation or development. To check JavaScript syntax, run node --check assets/admin.js, node --check assets/calendar.js and node --check assets/editor.js. PHP files can be checked with php -l. Optional formatting: npx prettier@3.6.2 --write assets/*.js assets/*.css. The repository includes scripts/build-language-files.mjs for rebuilding MO catalogues with Node.js. The release packaging procedure is documented in the public repository README.md.
 
 == Installation ==
-1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.79.zip.
+1. WordPress → Plugins → Add New → Upload Plugin: orthocal-1.3.80.zip.
 2. Activate the plugin.
 3. The calendar works immediately. Open Georg-Kloster Calendar Workshop → Connection to change the Bible Desktop API address.
 4. Add blocks from the Widgets category or shortcodes to a page.
@@ -98,6 +98,11 @@ Settings, Gutenberg blocks, day cards and the reader support Russian, German, Uk
 7. Mobile day card with responsive navigation and actual icons.
 
 == Changelog ==
+
+= 1.3.80 =
+* Use the first daily icon from <code>day.icons</code> in API order.
+* Refine month and year cells with a compact patterned vestment header.
+* Fix UTF-8 installation arrows and display shortcode examples as code.
 
 = 1.3.79 =
 * Show the API-recommended vestment colour as a patterned ornament in day, month and year views.

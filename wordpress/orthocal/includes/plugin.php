@@ -4,7 +4,7 @@ require_once __DIR__.'/library.php';
 require_once __DIR__.'/lectionary.php';
 
 final class Orthocal_Plugin {
-    const VERSION = '1.3.79';
+    const VERSION = '1.3.80';
     const LEGACY_IMAGE_HEIGHTS = ['small'=>28,'medium'=>44,'large'=>72];
     const TITLES = ['today'=>'Today', 'upcoming'=>'Upcoming feasts', 'month'=>'Monthly calendar', 'year'=>'Yearly calendar', 'day'=>'Calendar day', 'readings'=>'Daily readings', 'calendar'=>'Orthodox calendar','fasting'=>'Fasting and meals','saints'=>'Saints commemorations','feasts'=>'Feasts','memorial'=>'Memorial days','pascha'=>'Pascha','fasts'=>'Yearly fasts','date'=>'New and old style date','texts'=>'Liturgical texts','troparia'=>'Troparia','kontakia'=>'Kontakia','prayers'=>'Prayers','magnifications'=>'Magnifications','horologion'=>'Horologion','akathists'=>'Akathists','canons'=>'Canons'];
     const TEXT_MODES=['texts','troparia','kontakia','prayers','magnifications','akathists','canons'];

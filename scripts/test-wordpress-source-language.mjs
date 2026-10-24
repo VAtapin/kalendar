@@ -5,7 +5,7 @@ import {readPo} from './wordpress-po.mjs';
 const originals=readPo(process.argv[2]||'wordpress/orthocal/languages/georg-kloster-calendar-workshop.pot').filter(e=>e.msgid);
 const key=e=>(e.msgctxt||'')+'\u0004'+e.msgid;
 const expected=originals.map(key).sort();
-assert.equal(originals.length,441);
+assert.equal(originals.length,442);
 assert.equal(originals.some(e=>/[А-Яа-яЁёІіЇїЄє]/.test(e.msgid)),false,'Source strings must use US English');
 for(const locale of ['ru_RU','de_DE','uk','pl_PL']) {
   const entries=readPo('wordpress/orthocal/languages/georg-kloster-calendar-workshop-'+locale+'.po').filter(e=>e.msgid);
@@ -14,4 +14,4 @@ for(const locale of ['ru_RU','de_DE','uk','pl_PL']) {
 }
 assert.ok(originals.some(e=>e.msgid==='January'&&e.msgctxt==='date month'));
 assert.ok(originals.some(e=>e.msgid==='January'&&e.msgctxt==='month name'));
-console.log('PASS US English originals, 441/441 translations in four locales and separate month contexts');
+console.log('PASS US English originals, 442/442 translations in four locales and separate month contexts');
