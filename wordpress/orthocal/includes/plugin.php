@@ -440,7 +440,7 @@ final class Orthocal_Plugin {
         if ($a['oldstyle']==='1') $html .= '<p class="oc-muted">'.esc_html($day['oldStyleDate']).(' '.self::ui('old style date',$a['lang']).'</p>');
         $meta=[];if(!empty($day['weekdayName']))$meta[]=mb_strtolower((string)$day['weekdayName']);if(!empty($day['weekAfterPentecost']))$meta[]=(int)$day['weekAfterPentecost'].(self::ui('week after Pentecost',$a['lang']));if(!empty($day['tone']))$meta[]=(self::ui('tone ',$a['lang'])).(int)$day['tone'];if($meta)$html.='<p class="oc-day-meta">'.esc_html(implode(' · ',$meta)).'</p>';
         $vestment=self::vestment_info($day);
-        if($vestment) $html.=($vestment['basisTitle']!==''?'<p class="oc-vestment-basis">'.esc_html($vestment['basisTitle']).'</p>':'').'<div class="oc-vestment"'.self::vestment_attributes($vestment).' aria-hidden="true"></div>';
+        if($vestment) $html.=($vestment['basisTitle']!==''?'<p class="oc-vestment-basis">'.esc_html($vestment['basisTitle']).'</p>':'').'<div class="oc-vestment-ornament"'.self::vestment_attributes($vestment).' aria-hidden="true"></div>';
         if(in_array($a['mode'],['today','day'],true)) {
             $date=new DateTimeImmutable($day['date']);$html.=$a['show_nav']==='1'?('<nav class="oc-day-nav" aria-label="'.self::ui('Day selection',$a['lang']).'">'):'';
             if($a['show_nav']==='1') foreach([-1=>(self::ui('← Yesterday',$a['lang'])),1=>(self::ui('Tomorrow →',$a['lang']))] as $step=>$label){$target=$date->modify(($step<0?'-1':'+1').' day')->format('Y-m-d');if(self::date_valid($target))$html.='<button type="button" data-oc-day="'.$target.'">'.($a['date']===wp_date('Y-m-d')?$label:($step<0?(self::ui('← Previous day',$a['lang'])):(self::ui('Next day →',$a['lang'])))).'</button>';}

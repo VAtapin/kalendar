@@ -118,12 +118,15 @@ try {
   assert.ok(!(await page.content()).includes('local-test-secret'));
   const month=page.locator('.orthocal').filter({has:page.locator('h2',{hasText:'Календарь на месяц'})}).first();
   assert.ok(await month.locator('[data-oc-vestment="white"]').count());
+  const whiteVestmentCell=month.locator('.oc-cell[data-oc-vestment="white"]').first();
+  assert.equal(await whiteVestmentCell.evaluate((cell)=>getComputedStyle(cell).backgroundImage),'none');
+  assert.equal(await whiteVestmentCell.evaluate((cell)=>getComputedStyle(cell,'::before').width),'12px');
   await month.locator('[data-oc-date="2027-05-02"]').click();
   await month.locator('.oc-detail .oc-day').waitFor();
   console.log('Browser: day navigation works');
   assert.equal(await page.locator('.orthocal').count(),7);
   const day=month.locator('.oc-detail .orthocal');
-  assert.equal(await day.locator('.oc-vestment[data-oc-vestment="white"]').count(),1);
+  assert.equal(await day.locator('.oc-vestment-ornament[data-oc-vestment="white"]').count(),1);
   assert.equal(await day.locator('.oc-hero-icon [data-oc-icon]').count(),1);
   assert.equal(await day.locator('.oc-icons figure').count(),2);
   await day.locator('.oc-hero-icon [data-oc-icon]').click();
