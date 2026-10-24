@@ -120,7 +120,8 @@ try {
   assert.ok(await month.locator('[data-oc-vestment="white"]').count());
   const whiteVestmentCell=month.locator('.oc-cell[data-oc-vestment="white"]').first();
   assert.equal(await whiteVestmentCell.evaluate((cell)=>getComputedStyle(cell).backgroundImage),'none');
-  assert.equal(await whiteVestmentCell.evaluate((cell)=>getComputedStyle(cell,'::before').width),'12px');
+  assert.equal(await whiteVestmentCell.evaluate((cell)=>getComputedStyle(cell,'::before').height),'12px');
+  assert.equal(await whiteVestmentCell.evaluate((cell)=>getComputedStyle(cell,'::before').right),'0px');
   await month.locator('[data-oc-date="2027-05-02"]').click();
   await month.locator('.oc-detail .oc-day').waitFor();
   console.log('Browser: day navigation works');
