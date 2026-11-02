@@ -1,5 +1,7 @@
 import { partsHash } from './worship-hash.js';
 import { validWorshipDate } from './worship-context.js';
+import { normalizeLocalClergyContext } from './worship-local-context.js';
+import { applyAdditionalLocalValues } from './worship-local-values.js';
 
 export const LITURGY_RITES = {
   'john-chrysostom': 'Литургия Иоанна Златоуста',
@@ -96,7 +98,7 @@ export async function validateAdditionalAssignments(assignments, template, state
     || await partsHash(assignments.missing) !== await partsHash(template.requiredAssignments)
     || await partsHash(assignments.requiredContracts) !== await partsHash(template.requiredContracts)) throw new Error('Invalid additional Liturgy assignments');
 }
-export async function fetchAdditionalLiturgy(state, onBase, request, signal) {
+export async function fetchAdditionalLiturgy(state, onBase, request, signal, localContext, probeLocalContext = false) {
   if (state.rite === 'presanctified' && !state.midLentBranch) return { status: 'context-required' };
   if (!['auto', 'cu'].includes(state.textLanguage || 'auto')) return { status: 'edition-unavailable' };
   if (!validWorshipDate(state.date)) throw new Error('Invalid worship date');
@@ -106,10 +108,27 @@ export async function fetchAdditionalLiturgy(state, onBase, request, signal) {
       : { ...node, language: 'cu' }) };
   signal?.throwIfAborted(); onBase(base);
   try {
+    if (localContext) {
+      const normalized = normalizeLocalClergyContext(state, localContext);
+      const assignments = await request('assignments', {}, { ...params, date: state.date, templateVersion: template.templateVersion,
+        temple: normalized.templeProfileId, localContext: normalized });
+      await validateAdditionalAssignments({ ...assignments, operations: [], missing: template.requiredAssignments,
+        composedBlocksHash: template.fixedBlocksHash }, template, state);
+      const values = await applyAdditionalLocalValues(assignments, template, state, normalized);
+      signal?.throwIfAborted();
+      return { ...base, ...values, assignmentsStatus: 'partial', localContextAvailable: true };
+    }
     const assignments = await request('assignments', { ...params, date: state.date, templateVersion: template.templateVersion });
     await validateAdditionalAssignments(assignments, template, state);
     signal?.throwIfAborted();
-    return { ...base, assignmentsStatus: 'partial' };
+    let localContextAvailable = false;
+    if (probeLocalContext) {
+      try {
+        localContextAvailable = await request('assignments', {}, { ...params, date: state.date, templateVersion: template.templateVersion,
+          temple: state.temple, localContext: null }, true);
+      } catch { signal?.throwIfAborted(); }
+    }
+    return { ...base, assignmentsStatus: 'partial', localContextAvailable };
   } catch {
     signal?.throwIfAborted(); return { ...base, assignmentsStatus: 'error' };
   }

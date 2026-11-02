@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 
 import { create, descendants } from './fixtures/worship-dom.mjs';
 import { additionalLiturgy } from './fixtures/additional-liturgy.mjs';
+import { localLiturgy } from './fixtures/local-liturgy.mjs';
 import { fetchWorshipParts } from '../public/calendar-ui/worship-parts.js';
 
 const state = { office: 'third-hour', date: '2026-11-02', temple: 'nicholas', sequence: 'standalone', textLanguage: 'cu', textSize: 22 };
@@ -18,11 +19,11 @@ describe('printing the displayed worship body', () => {
     expect(css).toContain('body:has(.worship-page) main > :not(.shell)');
     expect(css).toContain('.worship-controls, .worship-navigation');
   });
-  function setup(isCurrent = () => true, selected = state) {
+  function setup(isCurrent = () => true, selected = state, callbacks = {}) {
     let fontsReady;
     vi.stubGlobal('document', { fonts: { ready: new Promise(resolve => { fontsReady = resolve; }) } });
     const print = vi.fn(), reader = renderWorshipReader({ state: { ...selected }, create, formatDate: date => date,
-      onChange() {}, onCalendar() {}, onRetry() {}, isCurrent, print });
+      onChange() {}, onCalendar() {}, onRetry() {}, isCurrent, print, ...callbacks });
     const button = descendants(reader.page).find(node => node.className.includes('worship-print'));
     return { reader, button, print, fontsReady };
   }
@@ -104,5 +105,30 @@ describe('printing the displayed worship body', () => {
     reader.render(result);
     const texts = descendants(reader.page).map(node => node.textContent);
     expect(texts).toContain('Unselected variant words'); expect(texts).not.toContain('Wrong translated source');
+  });
+  it('prints applied literal names with user attribution while keeping the private form out of print', async () => {
+    const f = await localLiturgy();
+    const result = await fetchWorshipParts('https://bible.example', f.state, () => {}, async (url, options) => ({ status: 200,
+      json: async () => ({ data: options.method === 'POST' ? f.assignments : f.template }) }), undefined, { localContext: f.input });
+    const ui = setup(() => true, f.state, { onLocalSubmit: vi.fn() });
+    ui.reader.render(result);
+    const before = descendants(ui.reader.page), body = before.find(node => node.tag === 'article');
+    expect(before.some(node => node.className === 'worship-local-context')).toBe(true);
+    expect(before.filter(node => node.dataset.origin === 'user-provided')).toHaveLength(4);
+    expect(before.map(node => node.textContent)).toContain('Местные имена введены пользователем. Они не подтверждают назначение всей службы.');
+    const pending = ui.button.events.click(); ui.fontsReady(); await pending;
+    expect(ui.print).toHaveBeenCalledOnce(); expect(descendants(ui.reader.page)).toContain(body);
+    const css = readFileSync(new URL('../public/calendar-ui/web-calendar.css', import.meta.url), 'utf8');
+    expect(css.slice(css.indexOf('@media print'))).toContain('.worship-local-context');
+    ui.reader.dispose();
+  });
+  it('keeps the local form hidden until the runtime POST guard succeeds', () => {
+    const f = additionalLiturgy(), ui = setup(() => true, f.state, { onLocalSubmit: vi.fn() });
+    const base = { status: 'parts', additionalFixed: true, template: f.template, entries: [], assignmentsStatus: 'partial', complete: false };
+    ui.reader.render(base);
+    expect(descendants(ui.reader.page).some(node => node.className === 'worship-local-context')).toBe(false);
+    ui.reader.render({ ...base, localContextAvailable: true });
+    expect(descendants(ui.reader.page).filter(node => node.dataset.localField)).toHaveLength(4);
+    ui.reader.dispose();
   });
 });

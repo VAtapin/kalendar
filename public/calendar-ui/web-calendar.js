@@ -704,10 +704,19 @@ async function showWorship() {
   const selected = { ...state };
   worshipController = new AbortController();
   const signal = worshipController.signal;
+  let basisResult, localApplied = false;
+  const clearLocal = () => { if (localApplied) { localApplied = false; if (basisResult) reader.render(basisResult); } };
   const reader = renderWorshipReader({ state: selected, create: e, formatDate: titleDate,
     isCurrent: () => request === worshipSequence && state.view === 'worship',
     onCalendar: () => { state.view = 'day'; void load(); },
     onRetry: () => void load(),
+    onLocalDirty: clearLocal, onLocalClear: clearLocal,
+    onLocalSubmit: async (localContext, pending) => {
+      const result = await fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, () => {}, fetch,
+        AbortSignal.any([signal, pending.signal]), { localContext });
+      if (!result.localValuesApplied) throw new Error('Local values unavailable');
+      if (current() && pending.isCurrent()) { localApplied = true; reader.render(result); }
+    },
     onChange: (field, value) => {
       state[field] = value;
       if (field === 'rite' && isAdditionalLiturgy(state)) state.textLanguage = 'cu';
@@ -736,9 +745,11 @@ async function showWorship() {
     if (current()) reader.summary.append(e('p', 'Календарные сведения сейчас недоступны.', 'hint'));
   });
   const service = fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, result => {
-    if (current()) reader.render(result);
-  }, fetch, signal).then(result => {
-    if (current()) reader.render(result);
+    basisResult = result;
+    if (current() && !localApplied) reader.render(result);
+  }, fetch, signal, { probeLocalContext: true }).then(result => {
+    basisResult = result;
+    if (current() && !localApplied) reader.render(result);
   }).catch(() => { if (current()) reader.render({ status: 'error' }); });
   await Promise.allSettled([summary, service]);
 }

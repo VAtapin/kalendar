@@ -136,14 +136,23 @@ export async function composeParts(template, assignments, state) {
     complete: assignments.status === 'complete', outline, profileStatus: assignments.profileStatus };
 }
 
-export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher = fetch, signal) {
+export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher = fetch, signal, options = {}) {
   state = { ...state };
   const requestSignal = worshipRequestSignal(signal);
-  const request = async (path, params = {}) => {
+  const request = async (path, params = {}, body, validationProbe = false) => {
     requestSignal.throwIfAborted();
     const url = new URL('/api/v1/liturgical/' + path + '/' + state.office, base);
     for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
-    const response = await fetcher(url, { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' }, signal: requestSignal });
+    const response = await fetcher(url, { credentials: 'omit', cache: 'no-store',
+      headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      ...(body ? { method: 'POST', body: JSON.stringify(body) } : {}),
+      signal: validationProbe ? AbortSignal.any([requestSignal, AbortSignal.timeout(3_000)]) : requestSignal });
+    if (validationProbe) {
+      if (response.status !== 422) return false;
+      const cache = response.headers?.get('cache-control') || '', value = await response.json();
+      return cache.includes('no-store') && cache.includes('private') && !value.data && value.errors
+        && Object.keys(value.errors).length === 1 && Array.isArray(value.errors.localContext) && value.errors.localContext.length > 0;
+    }
     if (response.status === 422 && path === 'templates') {
       const value = await response.json();
       // The published API validates the supported edition through errors.language.
@@ -156,7 +165,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   };
   const requested = state.textLanguage || 'auto';
   if (!['auto', 'cu', 'cu-civil', 'ru'].includes(requested)) throw new Error('Invalid text language');
-  if (isAdditionalLiturgy(state)) return fetchAdditionalLiturgy(state, onBase, request, signal);
+  if (isAdditionalLiturgy(state)) return fetchAdditionalLiturgy(state, onBase, request, signal, options.localContext, options.probeLocalContext);
   let template, language;
   const hour = ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour'].includes(state.office);
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {

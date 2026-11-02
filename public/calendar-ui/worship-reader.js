@@ -1,5 +1,6 @@
 import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipRequestSignal } from './worship-context.js';
 import { LITURGY_RITES, MID_LENT_BRANCHES, isAdditionalLiturgy } from './worship-additional-liturgy.js';
+import { createLocalContextForm } from './worship-local-context.js';
 // Public Bible Desktop contracts. Availability is always resolved by the server.
 import { sourceLanguage } from './worship-parts.js';
 import { compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
@@ -122,7 +123,7 @@ export async function fetchWorship(base, state, fetcher = fetch, signal) {
   return { status: 'pending' };
 }
 
-export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry, isCurrent = () => true, print = () => globalThis.print() }) {
+export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry, onLocalSubmit, onLocalDirty, onLocalClear, isCurrent = () => true, print = () => globalThis.print() }) {
   const page = create('section', '', 'worship-page');
   const head = create('div', '', 'content-head');
   const additional = isAdditionalLiturgy(state);
@@ -167,6 +168,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   size.addEventListener('input', () => { state.textSize = Number(size.value); onChange('textSize', state.textSize); page.style.setProperty('--reader-size', size.value + 'px'); });
   sizeLabel.append(size); controls.append(sizeLabel); page.append(controls);
   page.style.setProperty('--reader-size', state.textSize + 'px');
+  const localHost = create('div'); localHost.hidden = true; page.append(localHost);
   const summary = create('div', '', 'worship-day-summary');
   const content = create('div', '', 'worship-content'); content.setAttribute('aria-live', 'polite');
   const loading = create('p', 'Загружаю службу…', 'hint'); loading.setAttribute('role', 'status');
@@ -189,12 +191,16 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
   });
   controls.append(printButton);
-  let navigationObserver;
+  let navigationObserver, localForm;
   function render(result) {
     ++renderVersion;
     printButton.disabled = !['ready', 'parts'].includes(result.status) || result.assignmentsStatus === 'loading';
     navigationObserver?.disconnect();
     content.replaceChildren();
+    if (result.additionalFixed && result.localContextAvailable && onLocalSubmit && !localForm) {
+      localForm = createLocalContextForm({ state, temples: TEMPLES, create, onSubmit: onLocalSubmit, onDirty: onLocalDirty, onClear: onLocalClear });
+      localHost.append(localForm.page); localHost.hidden = false;
+    }
     if (result.status === 'edition-unavailable') {
       content.append(create('p', 'Выбранная редакция этой службы пока отсутствует в BibleDesktop.', 'reader-message'));
       const retry = create('button', 'Проверить доступность', 'reader-button'); retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
@@ -226,6 +232,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       coverage.append(count);
     }
     content.append(coverage);
+    if (result.localValuesApplied) {
+      const notice = create('p', '', 'reader-message');
+      notice.append(create('span', 'Местные имена введены пользователем. Они не подтверждают назначение всей службы.'),
+        create('span', ' '), create('span', TEMPLES[result.localTempleId]));
+      content.append(notice);
+    }
     if (result.status === 'parts') {
       if (result.additionalFixed) content.append(create('p', 'Показаны постоянные слова выбранного чина. Дата сохранена как дата запроса, но назначения службы, местные данные и условные варианты не подтверждены.', 'reader-message'));
       if (result.template?.status === 'fixed-template') content.append(create('p', 'Постоянная основа Литургии: один священник и один диакон.', 'edition-label'));
@@ -293,6 +305,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         if (entry.delivery) part.dataset.delivery = entry.delivery;
       }
       part.dataset.textLanguage = entry.language;
+      if (entry.userProvided) part.dataset.origin = 'user-provided';
       part.lang = entry.language === 'cu-civil' ? 'cu' : entry.language;
       if (entry.nodeId) part.dataset.nodeId = entry.nodeId;
       if (entry.kind === 'source-block') part.dataset.sourceClassification = entry.classification;
@@ -374,5 +387,5 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       content.append(variants);
     }
   }
-  return { page, summary, render, dispose: () => { disposed = true; printButton.disabled = true; navigationObserver?.disconnect(); } };
+  return { page, summary, render, dispose: () => { disposed = true; printButton.disabled = true; localForm?.dispose(); navigationObserver?.disconnect(); } };
 }
