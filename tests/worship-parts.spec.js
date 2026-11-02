@@ -99,7 +99,7 @@ describe('source-bound worship parts', () => {
     const template = templateFor('liturgy'); template.templateId = 'liturgy-john-chrysostom:clergy-source-outline:cu';
     expect(validateTemplate(template, 'liturgy')).toBe(template);
   });
-  it.each(['first-hour', 'matins', 'vespers'])('accepts the normalized temple profile ID for %s but rejects a different dedication', async office => {
+  it.each(['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'])('accepts the normalized temple profile ID for %s but rejects a different dedication', async office => {
     const selected = { ...state, office, sequence: office === 'first-hour' ? 'after-matins' : 'standalone' }, template = templateFor(office);
     const assignments = assignmentsFor(template, selected, false);
     delete assignments.context.temple; assignments.context.templeProfile = { id: selected.temple };

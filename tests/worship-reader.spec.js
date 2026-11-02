@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 
 const state = { date: '2026-10-21', office: 'third-hour', sequence: 'standalone', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave' };
 const response = (status, data) => ({ status, json: async () => ({ data }) });
-const data = (language = 'cu-civil', extra = {}) => ({ schemaVersion: 1, context: { date: state.date, office: state.office, sequence: state.sequence, calendarStyle: 'julian', language }, ...extra });
+const data = (language = 'cu-civil', extra = {}) => ({ schemaVersion: 1, context: { date: state.date, office: state.office, sequence: state.sequence, calendarStyle: 'julian', temple: state.temple, language }, ...extra });
 const complete = (language = 'cu-civil') => data(language, { status: 'complete', completeness: { text: true, appointment: true, review: true }, blocks: [{ kind: 'paragraph', segments: [{ text: 'Го́споди, поми́луй.', style: 'text' }] }] });
 
 describe('calendar lection numbers', () => {
@@ -54,6 +54,26 @@ describe('automatic text editions', () => {
 });
 
 describe('public worship availability', () => {
+  it.each(['third-hour', 'sixth-hour'])('preserves the selected temple for %s with a normalized CU profile', async office => {
+    const selected = { ...state, office, sequence: office === 'third-hour' ? 'standalone' : 'after-third-hour' };
+    const reply = complete('cu');
+    reply.context = { ...reply.context, office, sequence: selected.sequence, templeProfile: { id: selected.temple } };
+    delete reply.context.temple;
+    expect((await fetchWorship('https://bible.example', selected, async url => {
+      expect(url.searchParams.get('temple')).toBe(selected.temple);
+      return response(200, reply);
+    })).status).toBe('ready');
+    reply.context.templeProfile.id = 'nicholas';
+    await expect(fetchWorship('https://bible.example', selected, async () => response(200, reply))).rejects.toThrow('Invalid worship context');
+  });
+  it('honors an explicit edition rather than substituting another language', async () => {
+    const languages = [];
+    const result = await fetchWorship('https://bible.example', { ...state, textLanguage: 'cu-civil' }, async url => {
+      languages.push(url.searchParams.get('language'));
+      return response(409, data('cu-civil', { status: 'unsupported', issues: [{ code: 'unsupported-edition' }] }));
+    });
+    expect(result.status).toBe('pending'); expect(languages).toEqual(['cu-civil']);
+  });
   it('prefers traditional Slavonic and does not require a prepared client-side date', async () => {
     const urls = [];
     const result = await fetchWorship('https://bible.example', state, async url => { urls.push(url); return response(200, complete('cu')); });
@@ -61,7 +81,7 @@ describe('public worship availability', () => {
     expect(result.language).toBe('cu');
     expect(urls).toHaveLength(1);
     expect(urls[0].searchParams.get('date')).toBe(state.date);
-    expect(urls[0].searchParams.has('temple')).toBe(false);
+    expect(urls[0].searchParams.get('temple')).toBe(state.temple);
   });
   it('falls back only for explicit edition absence', async () => {
     const languages = [];

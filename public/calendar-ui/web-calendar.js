@@ -1,3 +1,4 @@
+import { validWorshipDate } from './worship-context.js';
 import { UI_DE } from './web-calendar-i18n.js';
 import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, renderWorshipReader } from './worship-reader.js';
 import { fetchWorshipParts } from './worship-parts.js';
@@ -16,6 +17,7 @@ const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typik
   office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 let disposeWorshipReader = () => {};
+let worshipController;
 
 for (let year = 1900; year <= 2200; year++) $('year').add(new Option(String(year), String(year)));
 for (let month = 0; month < 12; month++) $('month').add(new Option(MONTHS[month], String(month + 1).padStart(2, '0')));
@@ -78,8 +80,8 @@ function queryPath(path, params = {}) {
   return url;
 }
 
-async function api(path, params) {
-  const response = await fetch(queryPath(path, params), { credentials: 'omit', headers: { Accept: 'application/json' } });
+async function api(path, params, signal) {
+  const response = await fetch(queryPath(path, params), { credentials: 'omit', headers: { Accept: 'application/json' }, signal });
   const value = await response.json();
   if (!response.ok) throw new Error(value.message || value.error || 'Ошибка API');
   return value;
@@ -133,7 +135,7 @@ function readLocation() {
   const params = new URLSearchParams(location.search);
   const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
   if (['day', 'week', 'month', 'year', 'worship'].includes(view)) state.view = view;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date || '')) state.date = date;
+  if (validWorshipDate(date)) state.date = date;
   if (['ru', 'cu', 'de', 'uk', 'pl'].includes(lang)) state.lang = lang;
   if (['typikon-strict', 'parish'].includes(profile)) state.profile = profile;
   if (Number.isInteger(eventLimit) && eventLimit >= 1 && eventLimit <= 5) state.eventLimit = eventLimit;
@@ -698,11 +700,15 @@ function openWorship(date) {
 async function showWorship() {
   const request = ++worshipSequence;
   const selected = { ...state };
-  const reader = renderWorshipReader({ state, create: e, formatDate: titleDate,
+  worshipController = new AbortController();
+  const signal = worshipController.signal;
+  const reader = renderWorshipReader({ state: selected, create: e, formatDate: titleDate,
+    isCurrent: () => request === worshipSequence && state.view === 'worship',
     onCalendar: () => { state.view = 'day'; void load(); },
     onRetry: () => void load(),
     onChange: (field, value) => {
       state[field] = value;
+      if (field === 'textSize') { saveLocation(); return; }
       if (field === 'office') state.sequence = Object.keys(MODES[value])[0];
       void load();
     },
@@ -714,7 +720,7 @@ async function showWorship() {
   reader.page.scrollIntoView({ block: 'start' });
   setStatus('');
   const current = () => request === worshipSequence && state.view === 'worship';
-  const summary = api('day', { date: selected.date, lang: selected.lang, profile: selected.profile }).then(value => {
+  const summary = api('day', { date: selected.date, lang: selected.lang, profile: selected.profile }, signal).then(value => {
     if (!current()) return;
     const day = value.day;
     reader.summary.append(e('p', commemorationEvents(day).map(event => event.title).filter(Boolean).join(' · ')));
@@ -728,7 +734,7 @@ async function showWorship() {
   });
   const service = fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, result => {
     if (current()) reader.render(result);
-  }).then(result => {
+  }, fetch, signal).then(result => {
     if (current()) reader.render(result);
   }).catch(() => { if (current()) reader.render({ status: 'error' }); });
   await Promise.allSettled([summary, service]);
@@ -777,6 +783,8 @@ async function showDay(date, dialog = false) {
 }
 
 async function load() {
+  worshipController?.abort();
+  worshipController = undefined;
   disposeWorshipReader();
   disposeWorshipReader = () => {};
   const request = ++loadSequence;

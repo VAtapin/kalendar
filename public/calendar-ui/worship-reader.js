@@ -1,3 +1,4 @@
+import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipRequestSignal } from './worship-context.js';
 // Public Bible Desktop contracts. Availability is always resolved by the server.
 import { sourceLanguage } from './worship-parts.js';
 import { compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
@@ -64,32 +65,19 @@ export function calendarAssignments(value) {
   };
 }
 
-function worshipParams(state, language) {
-  const params = { date: state.date, language, calendarStyle: 'julian', sequence: state.sequence };
-  // The published third/sixth Hour contract does not accept a temple context.
-  if (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office)) params.temple = state.temple;
-  if (state.office === 'first-hour') {
-    params.matinsDismissalDone = '1';
-    params.afterHourHymn = state.afterHourHymn;
-  }
-  if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') {
-    params.nextOffice = 'vespers';
-    params.location = state.location;
-  }
-  return params;
-}
-
-export async function fetchWorship(base, state, fetcher = fetch) {
-  for (const language of ['cu', 'cu-civil', 'ru']) {
+export async function fetchWorship(base, state, fetcher = fetch, signal) {
+  state = { ...state };
+  if (state.textLanguage && !['auto', 'cu', 'cu-civil', 'ru'].includes(state.textLanguage)) throw new Error('Invalid text language');
+  const requestSignal = worshipRequestSignal(signal);
+  for (const language of (state.textLanguage && state.textLanguage !== 'auto' ? [state.textLanguage] : ['cu', 'cu-civil', 'ru'])) {
+    requestSignal.throwIfAborted();
     const url = new URL('/api/v1/liturgical/services/' + state.office, base);
-    for (const [key, value] of Object.entries(worshipParams(state, language))) url.searchParams.set(key, value);
-    const response = await fetcher(url, { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' } });
+    for (const [key, value] of Object.entries(datedWorshipParams(state, language))) url.searchParams.set(key, value);
+    const response = await fetcher(url, { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' }, signal: requestSignal });
     if (response.status === 404) return { status: 'unavailable' };
     if (response.status !== 200 && response.status !== 409) throw new Error('Worship request failed: ' + response.status);
     const value = await response.json(), data = value?.data;
-    if (data?.schemaVersion !== 1 || data.context?.date !== state.date || data.context?.office !== state.office
-      || data.context?.language !== language || data.context?.calendarStyle !== 'julian'
-      || (['first-hour', 'ninth-hour', 'liturgy'].includes(state.office) && data.context?.temple !== state.temple)) throw new Error('Invalid worship context');
+    if (data?.schemaVersion !== 1 || !matchesWorshipContext(data.context, state) || data.context?.language !== language) throw new Error('Invalid worship context');
     if (response.status === 409) {
       if (data.status === 'not-appointed') return { status: 'not-appointed' };
       // Fall back only when this edition is explicitly unsupported, never on
@@ -97,7 +85,7 @@ export async function fetchWorship(base, state, fetcher = fetch) {
       const absenceCodes = ['unsupported-edition', 'unsupported-offline-edition-or-calendar'];
       const editionMissing = Array.isArray(data.issues) && data.issues.some(issue => absenceCodes.includes(issue?.code))
         && data.issues.every(issue => [...absenceCodes, 'editorial-review-required'].includes(issue?.code));
-      if (editionMissing && language !== 'ru') continue;
+      if (editionMissing && (!state.textLanguage || state.textLanguage === 'auto') && language !== 'ru') continue;
       return { status: 'pending' };
     }
     if (data.status !== 'complete' || !['text', 'appointment', 'review'].every(key => data.completeness?.[key] === true)
@@ -110,14 +98,25 @@ export async function fetchWorship(base, state, fetcher = fetch) {
   return { status: 'pending' };
 }
 
-export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry }) {
+export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry, isCurrent = () => true, print = () => globalThis.print() }) {
   const page = create('section', '', 'worship-page');
   const head = create('div', '', 'content-head');
-  head.append(create('h2', 'Богослужение дня'), create('p', formatDate(state.date), 'hint'));
+  head.append(create('h2', OFFICES[state.office]), create('p', formatDate(state.date), 'hint'));
+  const contextLabel = create('p', '', 'worship-context');
+  contextLabel.append(create('span', TEMPLES[state.temple]), create('span', ' · '), create('span', MODES[state.office][state.sequence]));
+  head.append(contextLabel);
   const back = create('button', '← К календарному дню', 'reader-button');
   back.type = 'button'; back.addEventListener('click', onCalendar);
   page.append(back, head);
   const controls = create('div', '', 'worship-controls');
+  const dateLabel = create('label', 'Дата', 'control'), date = create('input');
+  date.type = 'date'; date.min = '1900-01-01'; date.max = '2200-12-31'; date.value = state.date;
+  date.dataset.worshipControl = 'date';
+  date.addEventListener('change', () => {
+    if (validWorshipDate(date.value)) onChange('date', date.value);
+    else date.value = state.date;
+  });
+  dateLabel.append(date); controls.append(dateLabel);
   function select(label, field, options) {
     const wrapper = create('label', label, 'control'), input = create('select');
     input.dataset.worshipControl = field;
@@ -135,15 +134,35 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') select('Место чтения', 'location', { nave: 'В храме', narthex: 'В притворе' });
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input');
   size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize);
-  size.addEventListener('input', () => { state.textSize = Number(size.value); page.style.setProperty('--reader-size', size.value + 'px'); });
+  size.addEventListener('input', () => { state.textSize = Number(size.value); onChange('textSize', state.textSize); page.style.setProperty('--reader-size', size.value + 'px'); });
   sizeLabel.append(size); controls.append(sizeLabel); page.append(controls);
   page.style.setProperty('--reader-size', state.textSize + 'px');
   const summary = create('div', '', 'worship-day-summary');
   const content = create('div', '', 'worship-content'); content.setAttribute('aria-live', 'polite');
   const loading = create('p', 'Загружаю службу…', 'hint'); loading.setAttribute('role', 'status');
   content.append(loading); page.append(summary, content);
+  const printButton = create('button', 'Печать службы', 'reader-button worship-print');
+  printButton.type = 'button'; printButton.disabled = true;
+  let disposed = false, renderVersion = 0;
+  printButton.addEventListener('click', async () => {
+    const version = renderVersion;
+    printButton.disabled = true;
+    const details = [...content.querySelectorAll('details')].filter(node => !node.classList.contains('worship-navigation'));
+    const opened = details.map(node => node.open);
+    try {
+      details.forEach(node => { node.open = true; });
+      await document.fonts.ready;
+      if (!disposed && isCurrent() && version === renderVersion) print();
+    } finally {
+      details.forEach((node, index) => { node.open = opened[index]; });
+      if (!disposed && version === renderVersion) printButton.disabled = false;
+    }
+  });
+  controls.append(printButton);
   let navigationObserver;
   function render(result) {
+    ++renderVersion;
+    printButton.disabled = !['ready', 'parts'].includes(result.status) || result.assignmentsStatus === 'loading';
     navigationObserver?.disconnect();
     content.replaceChildren();
     if (result.status === 'edition-unavailable') {
@@ -286,5 +305,5 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     content.append(body);
   }
-  return { page, summary, render, dispose: () => navigationObserver?.disconnect() };
+  return { page, summary, render, dispose: () => { disposed = true; printButton.disabled = true; navigationObserver?.disconnect(); } };
 }

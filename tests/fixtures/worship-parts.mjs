@@ -20,7 +20,9 @@ export function templateFor(office) {
     ] };
 }
 export function assignmentsFor(template, state, complete = true) {
-  const context = { ...state, language: 'cu-civil', calendarStyle: 'julian' };
+  const context = { ...state, language: 'cu-civil', calendarStyle: 'julian',
+    ...(state.office === 'first-hour' ? { matinsDismissalDone: true } : {}),
+    ...(state.office === 'ninth-hour' && state.sequence === 'before-vespers' ? { nextOffice: 'vespers' } : {}) };
   const removeOptional = (state.office === 'first-hour' && state.afterHourHymn === 'none')
     || (state.office === 'ninth-hour' && state.sequence === 'before-vespers' && state.location === 'nave');
   const troparion = block('Тропарь ' + state.date), kontakion = block('Кондак ' + state.date);

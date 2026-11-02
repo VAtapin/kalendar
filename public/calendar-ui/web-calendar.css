@@ -243,3 +243,19 @@ dialog::backdrop { background: #18291e88; }
   .icon-nav { width: 32px; height: 32px; font-size: 20px; }
   .fasting-summary { align-items: flex-start; }
 }
+@page worship {
+  size: A4;
+  margin: 16mm;
+}
+@media print {
+  body:has(.worship-page) { background: white; }
+  body:has(.worship-page) main { max-width: none; padding: 0; }
+  body:has(.worship-page) main > :not(.shell),
+  body:has(.worship-page) #status,
+  .worship-page button, .worship-controls, .worship-navigation, .reader-back-to-contents { display: none !important; }
+  body:has(.worship-page) .content { border: 0; box-shadow: none; padding: 0; }
+  .worship-page { page: worship; max-width: none; --reader-size: 12pt !important; }
+  .worship-text { overflow: visible; }
+  .worship-block { orphans: 3; widows: 3; }
+  .worship-text h3 { break-after: avoid; }
+}

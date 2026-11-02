@@ -1,3 +1,4 @@
+import { datedWorshipParams, hourContext, matchesWorshipContext, worshipRequestSignal } from './worship-context.js';
 // Connect the published source-bound templates and explicit daily operations.
 // Calendar rules and the choice of prayers remain entirely in Bible Desktop.
 export function sourceLanguage(item) {
@@ -57,9 +58,7 @@ export async function composeParts(template, assignments, state) {
   }
   if (await partsHash(template.sourceVersions) !== assignments.templateSourcesHash) throw new Error('Incompatible worship sources');
   const context = assignments.context;
-  if (context?.date !== state.date || context.office !== state.office || context.calendarStyle !== 'julian'
-    || (state.sequence !== 'default' && context.sequence !== state.sequence)
-    || (['first-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'].includes(state.office) && (context.temple ?? context.templeProfile?.id) !== state.temple)
+  if (!matchesWorshipContext(context, state)
     || !['complete', 'partial', 'not-appointed'].includes(assignments.status)
     || !Array.isArray(assignments.operations) || !Array.isArray(assignments.missing)) throw new Error('Invalid dated assignments');
   const outline = template.status === 'source-outline';
@@ -139,11 +138,14 @@ export async function composeParts(template, assignments, state) {
     complete: assignments.status === 'complete', outline, profileStatus: assignments.profileStatus };
 }
 
-export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher = fetch) {
+export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher = fetch, signal) {
+  state = { ...state };
+  const requestSignal = worshipRequestSignal(signal);
   const request = async (path, params = {}) => {
+    requestSignal.throwIfAborted();
     const url = new URL('/api/v1/liturgical/' + path + '/' + state.office, base);
     for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
-    const response = await fetcher(url, { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(20_000) });
+    const response = await fetcher(url, { credentials: 'omit', cache: 'no-store', headers: { Accept: 'application/json' }, signal: requestSignal });
     if (response.status === 422 && path === 'templates') {
       const value = await response.json();
       // The published API validates the supported edition through errors.language.
@@ -158,11 +160,9 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   if (!['auto', 'cu', 'cu-civil', 'ru'].includes(requested)) throw new Error('Invalid text language');
   let template, language;
   const hour = ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour'].includes(state.office);
-  const hourContext = state.office === 'first-hour' ? { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn }
-    : state.office === 'ninth-hour' && state.sequence === 'before-vespers' ? { nextOffice: 'vespers', location: state.location } : {};
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {
     const profile = candidate === 'cu' && hour ? { profile: 'ordinary-clergy',
-      ...(['first-hour', 'ninth-hour'].includes(state.office) ? { sequence: state.sequence, ...hourContext } : {}) } : {};
+      ...(['first-hour', 'ninth-hour'].includes(state.office) ? { sequence: state.sequence, ...hourContext(state) } : {}) } : {};
     const value = await request('templates', { language: candidate, ...profile,
       ...(candidate === 'cu' && state.office === 'liturgy' ? { mode: 'fixed' } : {}) });
     if (value === null) continue;
@@ -175,18 +175,17 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   const fallback = requested === 'auto' && language !== 'cu';
   const baseResult = { status: 'parts', template, entries: baseEntries(template), assignmentsStatus: 'loading',
     complete: false, outline: template.status === 'source-outline', fallback };
+  requestSignal.throwIfAborted();
   onBase(baseResult);
-  const params = { date: state.date, sequence: state.sequence, calendarStyle: 'julian', templateVersion: template.templateVersion, language };
+  const params = { ...datedWorshipParams(state, language), templateVersion: template.templateVersion };
   if (language === 'cu' && hour) params.profile = 'ordinary-clergy';
   if (language === 'cu' && state.office === 'liturgy') params.mode = 'fixed';
-  if (['first-hour', 'ninth-hour', 'liturgy', 'matins', 'vespers'].includes(state.office)) params.temple = state.temple;
-  if (state.office === 'first-hour') Object.assign(params, { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn });
-  if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') Object.assign(params, { nextOffice: 'vespers', location: state.location });
   try {
     const assignments = await request('assignments', params);
     if (assignments?.context?.language !== language) throw new Error('Wrong assignment edition');
     return { ...await composeParts(template, assignments, state), fallback };
   } catch {
+    signal?.throwIfAborted();
     return { ...baseResult, assignmentsStatus: 'error' };
   }
 }
