@@ -65,3 +65,9 @@ node scripts/test-additional-liturgy-api.mjs
 читателя и HTTP 422 неподдержанного храма. Для изолированных реальных ответов
 Laravel API поддержан `--responses <capture.json>`; синтетические fixtures не
 являются подтверждением доступности production API.
+
+Для набора отдельных verbatim API-ответов backend поддержан
+`--manifest <manifest.json>`. Проверяются HTTP-статусы, длины и SHA-256 всех
+файлов; дата берётся из фактического requestedContext каждого ответа. Проверка
+manifest подтверждает положительные ответы; отрицательные запросы проверяются
+при публичном запуске или через сохранённый rejectedTemple в --responses.
