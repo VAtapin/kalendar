@@ -1,4 +1,5 @@
 import { validWorshipDate } from './worship-context.js';
+import { isAdditionalLiturgy, readLiturgySelection } from './worship-additional-liturgy.js';
 import { UI_DE } from './web-calendar-i18n.js';
 import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, renderWorshipReader } from './worship-reader.js';
 import { fetchWorshipParts } from './worship-parts.js';
@@ -14,7 +15,7 @@ function localIsoDate(now = new Date()) {
 }
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
-  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto' };
+  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 let disposeWorshipReader = () => {};
 let worshipController;
@@ -133,6 +134,7 @@ function saveLocation() {
 
 function readLocation() {
   const params = new URLSearchParams(location.search);
+  readLiturgySelection(params, state);
   const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
   if (['day', 'week', 'month', 'year', 'worship'].includes(view)) state.view = view;
   if (validWorshipDate(date)) state.date = date;
@@ -708,6 +710,7 @@ async function showWorship() {
     onRetry: () => void load(),
     onChange: (field, value) => {
       state[field] = value;
+      if (field === 'rite' && isAdditionalLiturgy(state)) state.textLanguage = 'cu';
       if (field === 'textSize') { saveLocation(); return; }
       if (field === 'office') state.sequence = Object.keys(MODES[value])[0];
       void load();

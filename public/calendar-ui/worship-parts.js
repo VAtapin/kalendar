@@ -1,3 +1,5 @@
+import { partsHash } from './worship-hash.js';
+import { isAdditionalLiturgy, fetchAdditionalLiturgy } from './worship-additional-liturgy.js';
 import { datedWorshipParams, hourContext, matchesWorshipContext, worshipRequestSignal } from './worship-context.js';
 // Connect the published source-bound templates and explicit daily operations.
 // Calendar rules and the choice of prayers remain entirely in Bible Desktop.
@@ -6,11 +8,7 @@ export function sourceLanguage(item) {
   return ['cu', 'cu-civil', 'ru'].includes(item?.language) ? item.language : null;
 }
 
-export async function partsHash(value) {
-  const json = JSON.stringify(value).replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(json));
-  return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
-}
+export { partsHash } from './worship-hash.js';
 
 function validBlocks(blocks) {
   return Array.isArray(blocks) && blocks.length > 0 && blocks.every(block => Array.isArray(block?.segments)
@@ -158,6 +156,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   };
   const requested = state.textLanguage || 'auto';
   if (!['auto', 'cu', 'cu-civil', 'ru'].includes(requested)) throw new Error('Invalid text language');
+  if (isAdditionalLiturgy(state)) return fetchAdditionalLiturgy(state, onBase, request, signal);
   let template, language;
   const hour = ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour'].includes(state.office);
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {

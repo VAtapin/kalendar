@@ -1,4 +1,5 @@
 import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipRequestSignal } from './worship-context.js';
+import { LITURGY_RITES, MID_LENT_BRANCHES, isAdditionalLiturgy } from './worship-additional-liturgy.js';
 // Public Bible Desktop contracts. Availability is always resolved by the server.
 import { sourceLanguage } from './worship-parts.js';
 import { compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
@@ -66,6 +67,7 @@ export function calendarAssignments(value) {
 }
 
 function coverageLabel(result) {
+  if (result.additionalFixed) return 'Постоянная основа — назначения дня не подтверждены';
   if (result.outline) return 'Книжный текст — служба дня не составлена';
   if (result.status === 'ready' || result.complete) return 'Полная служба дня';
   return {
@@ -75,7 +77,11 @@ function coverageLabel(result) {
   }[result.assignmentsStatus] || 'Служба дня составлена не полностью';
 }
 
-function missingExplanation(reason) {
+function missingExplanation(reason, contract) {
+  const category = contract?.completionClassification?.category || contract?.category || '';
+  if (category.includes('local')) return 'Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.';
+  if (category.includes('day') || category.includes('dated')) return 'Назначение этой части на выбранную дату пока не подтверждено.';
+  if (contract) return 'Требуется подтверждение порядка или условий исполнения. Автоматическая вставка не выполнена.';
   if (reason === 'traditional-cu-verified-local-context-required') return 'Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.';
   if (['dated-appointment-not-verified', 'traditional-cu-appointment-not-independently-verified',
     'traditional-cu-office-appointment-not-verified'].includes(reason)) return 'Назначение этой части на выбранную дату пока не подтверждено.';
@@ -84,6 +90,7 @@ function missingExplanation(reason) {
 
 export async function fetchWorship(base, state, fetcher = fetch, signal) {
   state = { ...state };
+  if (isAdditionalLiturgy(state)) throw new Error('Additional Liturgy has no full-service endpoint');
   if (state.textLanguage && !['auto', 'cu', 'cu-civil', 'ru'].includes(state.textLanguage)) throw new Error('Invalid text language');
   const requestSignal = worshipRequestSignal(signal);
   for (const language of (state.textLanguage && state.textLanguage !== 'auto' ? [state.textLanguage] : ['cu', 'cu-civil', 'ru'])) {
@@ -118,9 +125,11 @@ export async function fetchWorship(base, state, fetcher = fetch, signal) {
 export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry, isCurrent = () => true, print = () => globalThis.print() }) {
   const page = create('section', '', 'worship-page');
   const head = create('div', '', 'content-head');
-  head.append(create('h2', OFFICES[state.office]), create('p', formatDate(state.date), 'hint'));
+  const additional = isAdditionalLiturgy(state);
+  head.append(create('h2', state.office === 'liturgy' ? LITURGY_RITES[state.rite || 'john-chrysostom'] : OFFICES[state.office]), create('p', formatDate(state.date), 'hint'));
   const contextLabel = create('p', '', 'worship-context');
-  contextLabel.append(create('span', TEMPLES[state.temple]), create('span', ' · '), create('span', MODES[state.office][state.sequence]));
+  if (additional) contextLabel.append(create('span', state.rite === 'presanctified' ? MID_LENT_BRANCHES[state.midLentBranch] || 'Ветвь не выбрана' : 'Постоянная основа'));
+  else contextLabel.append(create('span', TEMPLES[state.temple]), create('span', ' · '), create('span', MODES[state.office][state.sequence]));
   head.append(contextLabel);
   const back = create('button', '← К календарному дню', 'reader-button');
   back.type = 'button'; back.addEventListener('click', onCalendar);
@@ -144,9 +153,13 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     wrapper.append(input); controls.append(wrapper);
   }
   select('Служба', 'office', OFFICES);
-  select('Язык текста', 'textLanguage', { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
-  select('Храм', 'temple', TEMPLES);
-  select('Порядок службы', 'sequence', MODES[state.office]);
+  if (state.office === 'liturgy') select('Чин Литургии', 'rite', LITURGY_RITES);
+  if (additional && state.rite === 'presanctified') select('Ветвь постоянного текста', 'midLentBranch', { '': 'Выберите ветвь', ...MID_LENT_BRANCHES });
+  select('Язык текста', 'textLanguage', additional ? { auto: 'Автоматически — сначала церковнославянский', cu: EDITIONS.cu } : { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
+  if (!additional) {
+    select('Храм', 'temple', TEMPLES);
+    select('Порядок службы', 'sequence', MODES[state.office]);
+  }
   if (state.office === 'first-hour') select('После первого часа', 'afterHourHymn', { vzbrannoi: 'Взбранной Воеводе', none: 'Без заключительного песнопения' });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') select('Место чтения', 'location', { nave: 'В храме', narthex: 'В притворе' });
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input');
@@ -164,7 +177,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   printButton.addEventListener('click', async () => {
     const version = renderVersion;
     printButton.disabled = true;
-    const details = [...content.querySelectorAll('details')].filter(node => !node.classList.contains('worship-navigation'));
+    const details = [...content.querySelectorAll('details')].filter(node => !node.classList.contains('worship-navigation') && !node.classList.contains('worship-conditional'));
     const opened = details.map(node => node.open);
     try {
       details.forEach(node => { node.open = true; });
@@ -189,6 +202,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
+        'context-required': 'Выберите ветвь постоянного текста Преждеосвященной Литургии. Дата сама по себе не определяет этот выбор.',
         pending: 'BibleDesktop пока не смог составить эту службу для выбранного дня. Назначения переменных частей требуют уточнения.',
         unavailable: 'Эта служба пока недоступна. Её можно проверить позднее.',
         'not-appointed': 'Литургия в этот день не назначена.',
@@ -196,7 +210,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       };
       const message = create('p', messages[result.status] || messages.error, 'reader-message');
       message.setAttribute('role', 'status'); content.append(message);
-      if (result.status !== 'not-appointed') {
+      if (!['not-appointed', 'context-required'].includes(result.status)) {
         const retry = create('button', 'Проверить доступность', 'reader-button');
         retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
       }
@@ -213,11 +227,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     content.append(coverage);
     if (result.status === 'parts') {
+      if (result.additionalFixed) content.append(create('p', 'Показаны постоянные слова выбранного чина. Дата сохранена как дата запроса, но назначения службы, местные данные и условные варианты не подтверждены.', 'reader-message'));
       if (result.template?.status === 'fixed-template') content.append(create('p', 'Постоянная основа Литургии: один священник и один диакон.', 'edition-label'));
       if (result.fallback) content.append(create('p', 'Церковнославянская редакция пока недоступна; показана следующая доступная редакция.', 'reader-message'));
       const notices = {
         loading: 'Постоянный текст загружен. Уточняю переменные части дня…',
-        partial: state.office === 'liturgy' ? 'Постоянный текст Литургии и подтверждённые дневные вставки показаны. Неопределённые части отмечены; полная служба этого дня ещё не подтверждена.'
+        partial: result.additionalFixed ? 'Обязательные вставки отмечены в тексте. Полная служба выбранной даты не составлена.' : state.office === 'liturgy' ? 'Постоянный текст Литургии и подтверждённые дневные вставки показаны. Неопределённые части отмечены; полная служба этого дня ещё не подтверждена.'
           : 'Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.',
         error: 'Постоянный текст доступен. Дневные назначения сейчас не получены; места вставок отмечены в тексте.',
         'not-appointed': 'Литургия в этот день не назначена. Ниже приведён книжный текст для чтения.',
@@ -258,7 +273,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       if (entry.missing) {
         const missing = create('aside', '', 'worship-missing');
         missing.dataset.slotId = entry.slotId;
-        missing.append(create('strong', slotNames[entry.slotId] || 'Переменная часть службы'), create('p', missingExplanation(entry.reason)));
+        missing.append(create('strong', slotNames[entry.slotId] || 'Переменная часть службы'), create('p', missingExplanation(entry.reason, entry.contract)));
         if (result.outline) {
           // Outline anchors identify source locations, not approved insertion operations.
           let unresolved = content.querySelector('.outline-missing');
@@ -331,6 +346,33 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       navigationObserver.observe(title);
     }
     content.append(body);
+    if (result.additionalFixed && Object.keys(result.template.conditionalTemplates).length) {
+      const variants = create('details', '', 'worship-conditional');
+      variants.append(create('summary', 'Условные варианты — не включены в службу'),
+        create('p', 'Ни один вариант не выбран. Условия исполнения и число повторений требуют подтверждения; эти тексты не являются продолжением составленной службы.', 'reader-message'));
+      Object.values(result.template.conditionalTemplates).forEach((variant, index) => {
+        const section = create('section', '', 'worship-text');
+        section.dataset.textLanguage = 'cu'; section.lang = 'cu';
+        const title = create('h3'); title.append(create('span', 'Условный вариант'), create('span', ' ' + (index + 1))); variants.append(title);
+        for (const node of variant.template.nodes) {
+          if (node.kind === 'slot') {
+            section.append(create('p', 'Обязательная вставка этого варианта не назначена.', 'worship-missing'));
+            continue;
+          }
+          for (const block of node.blocks) {
+            const line = create(block.kind === 'heading' ? 'h3' : 'p', '', 'worship-block');
+            if (block.kind === 'rubric' || block.role === 'rubric') line.classList.add('rubric');
+            for (const segment of block.segments) {
+              const span = create('span', null, segment.style === 'rubric' ? 'rubric' : '');
+              span.textContent = segment.text; line.append(span);
+            }
+            section.append(line);
+          }
+        }
+        variants.append(section);
+      });
+      content.append(variants);
+    }
   }
   return { page, summary, render, dispose: () => { disposed = true; printButton.disabled = true; navigationObserver?.disconnect(); } };
 }

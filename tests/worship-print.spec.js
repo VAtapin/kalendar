@@ -3,6 +3,8 @@ import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
 import { readFileSync } from 'node:fs';
 
 import { create, descendants } from './fixtures/worship-dom.mjs';
+import { additionalLiturgy } from './fixtures/additional-liturgy.mjs';
+import { fetchWorshipParts } from '../public/calendar-ui/worship-parts.js';
 
 const state = { office: 'third-hour', date: '2026-11-02', temple: 'nicholas', sequence: 'standalone', textLanguage: 'cu', textSize: 22 };
 const ready = { status: 'ready', language: 'cu', data: { blocks: [{ kind: 'text', segments: [{ text: 'Exact API body' }] }] } };
@@ -16,10 +18,10 @@ describe('printing the displayed worship body', () => {
     expect(css).toContain('body:has(.worship-page) main > :not(.shell)');
     expect(css).toContain('.worship-controls, .worship-navigation');
   });
-  function setup(isCurrent = () => true) {
+  function setup(isCurrent = () => true, selected = state) {
     let fontsReady;
     vi.stubGlobal('document', { fonts: { ready: new Promise(resolve => { fontsReady = resolve; }) } });
-    const print = vi.fn(), reader = renderWorshipReader({ state: { ...state }, create, formatDate: date => date,
+    const print = vi.fn(), reader = renderWorshipReader({ state: { ...selected }, create, formatDate: date => date,
       onChange() {}, onCalendar() {}, onRetry() {}, isCurrent, print });
     const button = descendants(reader.page).find(node => node.className.includes('worship-print'));
     return { reader, button, print, fontsReady };
@@ -74,5 +76,33 @@ describe('printing the displayed worship body', () => {
     expect(onChange).toHaveBeenCalledWith('date', '2027-01-01');
     onChange.mockClear(); date.value = '2026-02-29'; date.events.change();
     expect(onChange).not.toHaveBeenCalled(); expect(date.value).toBe(state.date);
+  });
+  it('prints an additional Liturgy basis with its rite and gaps while leaving unselected variants closed', async () => {
+    const fixture = additionalLiturgy('presanctified', 'from-mid-lent-wednesday');
+    const result = await fetchWorshipParts('https://bible.example', fixture.state, () => {}, async url => ({ status: 200,
+      json: async () => ({ data: url.pathname.includes('/templates/') ? fixture.template : fixture.assignments }) }));
+    const { reader, button, print, fontsReady } = setup(() => true, fixture.state);
+    reader.render(result);
+    const nodes = descendants(reader.page), variants = nodes.find(node => node.className === 'worship-conditional');
+    variants.open = false;
+    const pending = button.events.click(); fontsReady(); await pending;
+    expect(print).toHaveBeenCalledOnce(); expect(variants.open).toBe(false);
+    expect(nodes.map(node => node.textContent)).toEqual(expect.arrayContaining([
+      'Литургия Преждеосвященных Даров', 'Начиная со средопостной среды',
+      'Постоянная основа — назначения дня не подтверждены', 'Fixed source words',
+    ]));
+    expect(nodes.filter(node => node.className === 'worship-missing')).toHaveLength(2);
+    expect(nodes.some(node => node.dataset.worshipControl === 'temple')).toBe(false);
+    expect(nodes.some(node => node.dataset.worshipControl === 'midLentBranch')).toBe(true);
+  });
+  it('does not translate conditional source words through the UI dictionary', async () => {
+    const fixture = additionalLiturgy();
+    const result = await fetchWorshipParts('https://bible.example', fixture.state, () => {}, async url => ({ status: 200,
+      json: async () => ({ data: url.pathname.includes('/templates/') ? fixture.template : fixture.assignments }) }));
+    const translatedCreate = (tag, text, className) => create(tag, text === 'Unselected variant words' ? 'Wrong translated source' : text, className);
+    const reader = renderWorshipReader({ state: fixture.state, create: translatedCreate, formatDate: date => date, onRetry() {} });
+    reader.render(result);
+    const texts = descendants(reader.page).map(node => node.textContent);
+    expect(texts).toContain('Unselected variant words'); expect(texts).not.toContain('Wrong translated source');
   });
 });
