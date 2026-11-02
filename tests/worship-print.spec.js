@@ -2,18 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
 import { readFileSync } from 'node:fs';
 
-// A minimal DOM adapter exercises reader events without opening a browser.
-function create(tag, text = '', className = '') {
-  const node = { tag, textContent: text || '', className, children: [], dataset: {}, events: {},
-    style: { setProperty() {} }, classList: { add() {}, contains() { return false; } },
-    querySelectorAll(tagName) { return descendants(this).filter(node => node !== this && node.tag === tagName); },
-    append(...children) { this.children.push(...children); },
-    replaceChildren(...children) { this.children = children; },
-    setAttribute() {}, addEventListener(name, handler) { this.events[name] = handler; },
-    get childElementCount() { return this.children.length; } };
-  return node;
-}
-function descendants(node) { return [node, ...node.children.flatMap(descendants)]; }
+import { create, descendants } from './fixtures/worship-dom.mjs';
+
 const state = { office: 'third-hour', date: '2026-11-02', temple: 'nicholas', sequence: 'standalone', textLanguage: 'cu', textSize: 22 };
 const ready = { status: 'ready', language: 'cu', data: { blocks: [{ kind: 'text', segments: [{ text: 'Exact API body' }] }] } };
 afterEach(() => vi.unstubAllGlobals());

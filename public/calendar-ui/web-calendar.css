@@ -205,6 +205,8 @@ dialog::backdrop { background: #18291e88; }
 .worship-day-summary { margin: 20px 0; }
 .worship-day-summary > p { color: var(--muted); }
 .reader-message { padding: 20px; background: #f9f7ef; border-radius: 10px; }
+.worship-coverage { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--gold); font: 16px/1.5 system-ui, sans-serif; }
+.worship-coverage p { margin: 4px 0 0; }
 .worship-toc { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 15px 0 25px; border-bottom: 1px solid var(--line); }
 .worship-toc a { color: var(--green); }
 .worship-navigation { scroll-margin-top: 20px; }

@@ -65,6 +65,23 @@ export function calendarAssignments(value) {
   };
 }
 
+function coverageLabel(result) {
+  if (result.outline) return 'Книжный текст — служба дня не составлена';
+  if (result.status === 'ready' || result.complete) return 'Полная служба дня';
+  return {
+    loading: 'Уточняются назначения дня',
+    error: 'Назначения дня недоступны',
+    'not-appointed': 'Служба в этот день не назначена',
+  }[result.assignmentsStatus] || 'Служба дня составлена не полностью';
+}
+
+function missingExplanation(reason) {
+  if (reason === 'traditional-cu-verified-local-context-required') return 'Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.';
+  if (['dated-appointment-not-verified', 'traditional-cu-appointment-not-independently-verified',
+    'traditional-cu-office-appointment-not-verified'].includes(reason)) return 'Назначение этой части на выбранную дату пока не подтверждено.';
+  return 'Назначение этой части пока не определено.';
+}
+
 export async function fetchWorship(base, state, fetcher = fetch, signal) {
   state = { ...state };
   if (state.textLanguage && !['auto', 'cu', 'cu-civil', 'ru'].includes(state.textLanguage)) throw new Error('Invalid text language');
@@ -185,6 +202,16 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
       return;
     }
+    const coverage = create('aside', '', 'worship-coverage');
+    coverage.setAttribute('role', 'status');
+    coverage.append(create('strong', coverageLabel(result)));
+    const unresolved = result.entries?.filter(entry => entry.missing).length || 0;
+    if (unresolved) {
+      const count = create('p');
+      count.append(create('span', 'Неопределённых частей:'), create('span', ' ' + unresolved));
+      coverage.append(count);
+    }
+    content.append(coverage);
     if (result.status === 'parts') {
       if (result.template?.status === 'fixed-template') content.append(create('p', 'Постоянная основа Литургии: один священник и один диакон.', 'edition-label'));
       if (result.fallback) content.append(create('p', 'Церковнославянская редакция пока недоступна; показана следующая доступная редакция.', 'reader-message'));
@@ -231,7 +258,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       if (entry.missing) {
         const missing = create('aside', '', 'worship-missing');
         missing.dataset.slotId = entry.slotId;
-        missing.append(create('strong', slotNames[entry.slotId] || 'Переменная часть службы'), create('p', 'Назначение этой части пока не определено.'));
+        missing.append(create('strong', slotNames[entry.slotId] || 'Переменная часть службы'), create('p', missingExplanation(entry.reason)));
         if (result.outline) {
           // Outline anchors identify source locations, not approved insertion operations.
           let unresolved = content.querySelector('.outline-missing');

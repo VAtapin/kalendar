@@ -1,4 +1,13 @@
 export const UI_DE = {
+  'Книжный текст — служба дня не составлена': 'Buchtext – der Tagesgottesdienst ist noch nicht zusammengestellt',
+  'Полная служба дня': 'Vollständiger Tagesgottesdienst',
+  'Уточняются назначения дня': 'Die Tageszuordnungen werden geprüft',
+  'Назначения дня недоступны': 'Die Tageszuordnungen sind nicht verfügbar',
+  'Служба в этот день не назначена': 'Für diesen Tag ist kein Gottesdienst angesetzt',
+  'Служба дня составлена не полностью': 'Der Tagesgottesdienst ist noch unvollständig',
+  'Неопределённых частей:': 'Noch unbestimmte Teile:',
+  'Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.': 'Für diesen Teil sind bestätigte örtliche Angaben erforderlich. Sie werden nicht automatisch eingesetzt.',
+  'Назначение этой части на выбранную дату пока не подтверждено.': 'Die Zuordnung dieses Teils zum gewählten Datum ist noch nicht bestätigt.',
   'Печать службы': 'Gottesdienst drucken',
   'Постоянная основа Литургии: один священник и один диакон.': 'Feste Grundlage der Liturgie: ein Priester und ein Diakon.',
   'Читается тайно': 'Wird leise gelesen',
