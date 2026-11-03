@@ -3,7 +3,7 @@
   "checkedDate": "2026-11-04",
   "scope": "Local main-installed normal backend HTTP envelopes; no production/browser/network POST",
   "backendBase": "b7564c29",
-  "midnightBackendCommit": "pending Root report; production App stable during checks",
+  "midnightBackendCommit": "31bcd713d4b636ba9005c1f0bfa73419525be4ca",
   "implementationCommit": "0f220b0ef46e2c8153cd5f28b2c5bb619c305d8a",
   "requestStatusAndJsonBodyParityWithIsolatedStage": true,
   "cases": [
@@ -181,5 +181,8 @@
     "actual clergy identities or local parish/vigil schedule",
     "all annual dates in Kalendar replay",
     "new headings/TOC inferred from text"
-  ]
+  ],
+  "backendPush": "main -> origin/main",
+  "backendConfirmation": "Root confirmed commit/push of26 scoped files; App/source freeze and24 pinned byte hashes unchanged; Linux fixture-path case fix normal1/101 PASS",
+  "captionCommit": "8244b35d866c72fc64ca683b66fe3939b163db8f"
 }
