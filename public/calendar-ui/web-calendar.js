@@ -1,3 +1,4 @@
+import { MIDNIGHT_URL_KEYS, readMidnightSelection } from './worship-midnight-context.js';
 import { validWorshipDate } from './worship-context.js';
 import { isAdditionalLiturgy, readLiturgySelection } from './worship-additional-liturgy.js';
 import { UI_DE } from './web-calendar-i18n.js';
@@ -18,6 +19,7 @@ function localIsoDate(now = new Date()) {
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
   office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '',
+  midnightProfile: 'reader', midnightLocation: 'church', midnightBishopTitle: 'bishop',
   book: '', edition: '', bookGroup: 'minea', bookMonth: '', bookDay: '', bookTone: '', bookWeekday: '', bookPart: '' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 let disposeWorshipReader = () => {};
@@ -130,7 +132,7 @@ function saveLocation(push = false) {
   const url = new URL(location.href);
   url.search = '';
   const calendarKeys = ['view', 'date', 'lang', 'profile', 'eventLimit'];
-  const worshipKeys = [...calendarKeys, 'office', 'temple', 'sequence', 'afterHourHymn', 'location', 'textSize', 'textLanguage', 'rite', 'midLentBranch'];
+  const worshipKeys = [...calendarKeys, 'office', 'temple', 'sequence', 'afterHourHymn', 'location', 'textSize', 'textLanguage', 'rite', 'midLentBranch', ...MIDNIGHT_URL_KEYS];
   const keys = state.view === 'books' ? BOOK_URL_KEYS : state.view === 'worship' ? worshipKeys : calendarKeys;
   Object.entries(state).forEach(([key, value]) => {
     if (keys.includes(key)) url.searchParams.set(key, value);
@@ -143,6 +145,7 @@ function readLocation() {
   const params = new URLSearchParams(location.search);
   readBookLocation(params, state);
   readLiturgySelection(params, state);
+  readMidnightSelection(params, state);
   const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
   if (['day', 'week', 'month', 'year', 'worship', 'books'].includes(view)) state.view = view;
   if (validWorshipDate(date)) state.date = date;
@@ -721,7 +724,7 @@ async function showWorship() {
     onLocalDirty: clearLocal, onLocalClear: clearLocal,
     onLocalSubmit: async (localContext, pending) => {
       const result = await fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, () => {}, fetch,
-        AbortSignal.any([signal, pending.signal]), { localContext });
+        AbortSignal.any([signal, pending.signal]), { localContext, printedVariantConfirmed: pending.printedVariantConfirmed });
       if (!result.localValuesApplied) throw new Error('Local values unavailable');
       if (current() && pending.isCurrent()) { localApplied = true; reader.render(result); }
     },
@@ -729,7 +732,7 @@ async function showWorship() {
       state[field] = value;
       if (field === 'rite' && isAdditionalLiturgy(state)) state.textLanguage = 'cu';
       if (field === 'textSize') { saveLocation(); return; }
-      if (field === 'office') state.sequence = Object.keys(MODES[value])[0];
+      if (field === 'office') { state.sequence = Object.keys(MODES[value])[0]; if (value === 'midnight-office') state.textLanguage = 'cu'; }
       void load();
     },
   });

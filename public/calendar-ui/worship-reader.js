@@ -1,12 +1,15 @@
+import { fetchMidnightFull } from './worship-midnight-context.js';
 import { createReaderPdfControls } from './reader-pdf-controls.js';
 import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipRequestSignal } from './worship-context.js';
 import { LITURGY_RITES, MID_LENT_BRANCHES, isAdditionalLiturgy } from './worship-additional-liturgy.js';
 import { createLocalContextForm } from './worship-local-context.js';
+import { midnightPresentationEntries } from './worship-midnight-presentation.js';
+import { MIDNIGHT_PROFILES, MIDNIGHT_LOCATIONS, MIDNIGHT_BISHOP_TITLES } from './worship-midnight-context.js';
 // Public Bible Desktop contracts. Availability is always resolved by the server.
 import { sourceLanguage } from './worship-parts.js';
 import { compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
 export const OFFICES = {
-  'first-hour': 'Первый час', 'third-hour': 'Третий час',
+  'midnight-office': 'Полунощница', 'first-hour': 'Первый час', 'third-hour': 'Третий час',
   'sixth-hour': 'Шестой час', 'ninth-hour': 'Девятый час', liturgy: 'Литургия',
   matins: 'Утреня', vespers: 'Вечерня',
 };
@@ -16,6 +19,7 @@ export const TEMPLES = {
 };
 export const EDITIONS = { cu: 'Церковнославянский', 'cu-civil': 'Церковнославянский — гражданская запись', ru: 'Русский' };
 export const MODES = {
+  'midnight-office': { standalone: 'Самостоятельно' },
   'first-hour': { 'after-matins': 'После утрени (отпуст совершён)' },
   'third-hour': { standalone: 'Самостоятельно' },
   'sixth-hour': { 'after-third-hour': 'После третьего часа' },
@@ -69,6 +73,7 @@ export function calendarAssignments(value) {
 }
 
 function coverageLabel(result) {
+  if (result.midnightPrepared) return 'Полная Полунощница — выбранный печатный чин';
   if (result.additionalFixed) return 'Постоянная основа — назначения дня не подтверждены';
   if (result.outline) return 'Книжный текст — служба дня не составлена';
   if (result.status === 'ready' || result.complete) return 'Полная служба дня';
@@ -96,6 +101,7 @@ function missingExplanation(reason, contract) {
 
 export async function fetchWorship(base, state, fetcher = fetch, signal) {
   state = { ...state };
+  if (state.office === 'midnight-office') return fetchMidnightFull(base, state, fetcher, signal);
   if (isAdditionalLiturgy(state)) throw new Error('Additional Liturgy has no full-service endpoint');
   if (state.textLanguage && !['auto', 'cu', 'cu-civil', 'ru'].includes(state.textLanguage)) throw new Error('Invalid text language');
   const requestSignal = worshipRequestSignal(signal);
@@ -136,6 +142,11 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   const contextLabel = create('p', '', 'worship-context');
   if (additional) contextLabel.append(create('span', state.rite === 'presanctified' ? MID_LENT_BRANCHES[state.midLentBranch] || 'Ветвь не выбрана' : 'Постоянная основа'));
   else contextLabel.append(create('span', TEMPLES[state.temple]), create('span', ' · '), create('span', MODES[state.office][state.sequence]));
+  if (state.office === 'midnight-office') {
+    contextLabel.append(create('span', ' · '), create('span', MIDNIGHT_PROFILES[state.midnightProfile || 'reader']),
+      create('span', ' · '), create('span', MIDNIGHT_LOCATIONS[state.midnightLocation || 'church']));
+    if (state.midnightProfile === 'clergy') contextLabel.append(create('span', ' · '), create('span', MIDNIGHT_BISHOP_TITLES[state.midnightBishopTitle] || 'Титул не выбран'));
+  }
   head.append(contextLabel);
   const back = create('button', '← К календарному дню', 'reader-button');
   back.type = 'button'; back.addEventListener('click', onCalendar);
@@ -161,13 +172,18 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   select('Служба', 'office', OFFICES);
   if (state.office === 'liturgy') select('Чин Литургии', 'rite', LITURGY_RITES);
   if (additional && state.rite === 'presanctified') select('Ветвь постоянного текста', 'midLentBranch', { '': 'Выберите ветвь', ...MID_LENT_BRANCHES });
-  select('Язык текста', 'textLanguage', additional ? { auto: 'Автоматически — сначала церковнославянский', cu: EDITIONS.cu } : { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
+  select('Язык текста', 'textLanguage', (additional || state.office === 'midnight-office') ? { auto: 'Автоматически — сначала церковнославянский', cu: EDITIONS.cu } : { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
   if (!additional) {
     select('Храм', 'temple', TEMPLES);
     select('Порядок службы', 'sequence', MODES[state.office]);
   }
   if (state.office === 'first-hour') select('После первого часа', 'afterHourHymn', { vzbrannoi: 'Взбранной Воеводе', none: 'Без заключительного песнопения' });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') select('Место чтения', 'location', { nave: 'В храме', narthex: 'В притворе' });
+  if (state.office === 'midnight-office') {
+    select('Место чтения', 'midnightLocation', MIDNIGHT_LOCATIONS);
+    select('Участие в службе', 'midnightProfile', MIDNIGHT_PROFILES);
+    if (state.midnightProfile === 'clergy') select('Титул правящего архиерея', 'midnightBishopTitle', MIDNIGHT_BISHOP_TITLES);
+  }
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input');
   size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize);
   size.addEventListener('input', () => { state.textSize = Number(size.value); onChange('textSize', state.textSize); page.style.setProperty('--reader-size', size.value + 'px'); });
@@ -204,7 +220,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     pdfReady = !printButton.disabled;
     navigationObserver?.disconnect();
     content.replaceChildren();
-    if (result.additionalFixed && result.localContextAvailable && onLocalSubmit && !localForm) {
+    if ((result.additionalFixed || result.midnightClergy) && result.localContextAvailable && onLocalSubmit && !localForm) {
       localForm = createLocalContextForm({ state, temples: TEMPLES, create, onSubmit: onLocalSubmit, onDirty: onLocalDirty, onClear: onLocalClear });
       localHost.append(localForm.page); localHost.hidden = false;
     }
@@ -259,6 +275,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
     }
     content.append(coverage);
+    if (result.midnightPrepared) content.append(create('p', 'Рассчитан обычный самостоятельный чин. Местное всенощное бдение и особые указания не подтверждены.', 'reader-message'));
     if (result.localValuesApplied) {
       const notice = create('p', '', 'reader-message');
       notice.append(create('span', 'Местные имена введены пользователем. Они не подтверждают назначение всей службы.'),
@@ -292,7 +309,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     const body = create('article', '', 'worship-text');
     body.dataset.composition = result.status === 'ready' || result.complete ? 'complete' : result.outline ? 'source-outline' : 'partial';
     content.dataset.assignmentsStatus = result.assignmentsStatus || '';
-    const entries = result.status === 'parts' ? result.entries : [{ language: result.language, blocks: result.data.blocks }];
+    const entries = result.status === 'parts' ? (result.midnightClergy ? midnightPresentationEntries(result) : result.entries) : [{ language: result.language, blocks: result.data.blocks }];
     const languages = [...new Set(entries.filter(entry => !entry.missing).map(entry => entry.language))];
     if (result.status === 'parts') languages.forEach(language => content.append(create('p', EDITIONS[language], 'edition-label')));
     let blockIndex = 0, appendix;
@@ -309,6 +326,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       communion: 'Причастен', 'blessed-name': 'Буди имя Господне', 'psalm-33': 'Псалом 33', dismissal: 'Отпуст',
       'thanksgiving-appendix': 'Благодарственные молитвы' };
     Object.assign(slotNames, {
+      'local.patriarch-dative': 'Поминовение патриарха', 'local.bishop-dative': 'Поминовение правящего архиерея', 'local.superior-dative': 'Поминовение настоятеля',
       'hierarchy-opening-petition': 'Поминовение священноначалия', 'hierarchy-supplication-petition': 'Поминовение священноначалия',
       'hierarchy-anaphora-commemoration': 'Поминовение священноначалия', 'hierarchy-many-years': 'Многолетие священноначалию',
       'locality-petition': 'Местоположение храма', 'parish-or-monastery-founders': 'Приход или монастырь: основатели',
@@ -347,6 +365,13 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       if (entry.nodeId) part.dataset.nodeId = entry.nodeId;
       if (entry.kind === 'source-block') part.dataset.sourceClassification = entry.classification;
       for (const { block, count } of compactRepetitions(entry.blocks)) {
+        if (result.midnightClergy && block.occurrenceId === result.performance?.startBeforeOccurrenceId) {
+          const rubric = create('p', null, 'worship-block'); rubric.dataset.midnightPerformance = 'while-petitions';
+          for (const segment of result.performance.rubric.segments) {
+            const span = create('span', null, segment.style === 'rubric' ? 'rubric' : ''); span.textContent = segment.text; rubric.append(span);
+          }
+          part.append(rubric);
+        }
         const index = blockIndex++;
         const heading = block.kind === 'heading', node = create(heading ? 'h3' : 'p', null, 'worship-block');
         if (block.role === 'rubric' || block.kind === 'rubric') node.classList.add('rubric');

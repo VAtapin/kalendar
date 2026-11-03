@@ -1,3 +1,4 @@
+import { fetchMidnightParts } from './worship-midnight.js';
 import { validateTropariaWrapper } from './worship-troparia-section.js';
 import { sourceComponentReceipt } from './worship-section-receipt.js';
 import { partsHash } from './worship-hash.js';
@@ -145,6 +146,7 @@ export async function composeParts(template, assignments, state) {
 
 export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher = fetch, signal, options = {}) {
   state = { ...state };
+  if (state.office === 'midnight-office') return fetchMidnightParts(base, state, onBase, fetcher, signal, options);
   const requestSignal = worshipRequestSignal(signal);
   const request = async (path, params = {}, body, validationProbe = false) => {
     requestSignal.throwIfAborted();
