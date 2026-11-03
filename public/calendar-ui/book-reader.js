@@ -107,6 +107,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
       + (section.part > 1 ? ' · ' + create('span', 'Часть').textContent + ' ' + section.part : '');
   }
   function scopeLabel(section) {
+    if (!section.tone) return create('span', 'Раздел книги').textContent;
     const scope = section.tone === 'preface' ? 'Предисловие' : section.tone === 'appendices' ? 'Приложения' : 'Глас';
     return create('span', scope).textContent + (/^[1-8]$/.test(section.tone) ? ' ' + section.tone : '')
       + (section.weekday !== '0' ? ' · ' + create('span', BOOK_WEEKDAYS[section.weekday]).textContent : '');
@@ -119,7 +120,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   function renderSectionToc(scopes) {
     sectionToc.replaceChildren(create('summary', 'Оглавление книги'));
     for (const scope of scopes) {
-      const group = create('details'), heading = create('summary', scope === 'preface' ? 'Предисловие' : scope === 'appendices' ? 'Приложения' : create('span', 'Глас').textContent + ' ' + scope); group.append(heading);
+      const group = create('details'), heading = create('summary', !scope ? 'Разделы книги' : scope === 'preface' ? 'Предисловие' : scope === 'appendices' ? 'Приложения' : create('span', 'Глас').textContent + ' ' + scope); group.append(heading);
       group.open = scope === state.bookTone;
       for (const section of sections.filter(section => section.tone === scope)) {
         const link = dataNode('a', sectionLabel(section)); link.dataset.bookSection = section.id; link.dataset.textLanguage = 'cu'; link.lang = 'cu';
@@ -138,7 +139,8 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
     activeSection = selectBookSection(sections, state);
     activeRange = activeSection ? { start: activeSection.start, end: activeSection.end } : { start: 0, end: value.blocks.length };
     if (activeSection) save({ bookPart: activeSection.id, bookTone: activeSection.tone, bookWeekday: activeSection.weekday });
-    toneLabel.hidden = weekdayLabel.hidden = partLabel.hidden = navigation.hidden = sectionToc.hidden = !sections.length;
+    partLabel.hidden = navigation.hidden = sectionToc.hidden = !sections.length;
+    toneLabel.hidden = weekdayLabel.hidden = !sections.length || book.slug !== 'octoechos-ponomar-whole';
     if (sections.length) {
       const scopes = [...new Set(sections.map(section => section.tone))];
       setOptions(tone, Object.fromEntries(scopes.map(key => [key, key === 'preface' ? 'Предисловие' : key === 'appendices' ? 'Приложения' : create('span', 'Глас').textContent + ' ' + key])), state.bookTone);

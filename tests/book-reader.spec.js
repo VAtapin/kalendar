@@ -11,6 +11,32 @@ function reader(f = libraryFixture(), options = {}) {
   return { instance, state, nodes: () => descendants(instance.page) };
 }
 describe('book mode reader and document snapshot', () => {
+  it('opens only a bounded Menaion part and keeps navigation, deep links, print and PDF on that range', async () => {
+    const f = libraryFixture(undefined, 241), downloads = vi.fn(async () => ({})), print = vi.fn(), changes = [];
+    const ui = reader(f, { print, pdfLoad: async () => ({ downloadWorshipPdf: downloads }), onStateChange: (values, options) => changes.push({ values, options }) });
+    await ui.instance.start();
+    const first = ui.instance.getDocument();
+    expect(first.sourceMetadata.selection.range).toEqual({ start: 0, end: 80 });
+    expect(ui.nodes().filter(node => node.className === 'worship-block')).toHaveLength(80);
+    for (const control of ['bookTone', 'bookWeekday']) expect(ui.nodes().find(node => node.tag === 'label' && node.children.some(child => child.dataset.bookControl === control)).hidden).toBe(true);
+    expect(ui.nodes().some(node => node.dataset.bookSection === 's80' && node.href.includes('bookPart=s80'))).toBe(true);
+    await ui.nodes().find(node => node.textContent === 'Следующий раздел →').events.click();
+    const second = ui.instance.getDocument();
+    expect(second.sourceMetadata.selection.range).toEqual({ start: 80, end: 160 });
+    expect(second.blocks.map(block => block.runs.map(run => run.text).join(''))).toEqual(f.data.blocks.slice(80, 160).map(block => block.text));
+    expect(changes.some(change => change.options?.history && change.values.bookPart === 's80')).toBe(true);
+    await ui.nodes().find(node => node.textContent === 'Скачать PDF').events.click();
+    expect(downloads.mock.calls[0][0]).toEqual(second);
+    vi.stubGlobal('document', { fonts: { ready: Promise.resolve() } });
+    await ui.nodes().find(node => node.textContent === 'Печать открытого текста').events.click();
+    expect(print).toHaveBeenCalledOnce();
+    expect(ui.nodes().filter(node => node.className === 'worship-block')).toHaveLength(80);
+    const reloaded = reader(f, { state: { bookPart: 's80' } }); await reloaded.instance.start();
+    expect(reloaded.instance.getDocument()).toEqual(second);
+    await ui.nodes().find(node => node.textContent === '← Предыдущий раздел').events.click();
+    expect(ui.instance.getDocument()).toEqual(first);
+    ui.instance.dispose(); reloaded.instance.dispose();
+  });
   it('defaults to a small day section and persists next/previous selections for deep links and Back', async () => {
     const changes=[], f=octoechosFixture(), ui=reader(f,{ onStateChange: (values,options)=>changes.push({values,options}) }); await ui.instance.start();
     const first=ui.instance.getDocument(); expect(first.blocks.length).toBeLessThan(6);expect(first.sourceMetadata.selection.tone).toBe('1');

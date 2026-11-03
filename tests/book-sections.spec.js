@@ -1,9 +1,34 @@
 import { describe, expect, it } from 'vitest';
 import { sourceBookIndex, readBookLocation, BOOK_URL_KEYS } from '../public/calendar-ui/book-library.js';
 import { sourceBookSections, selectBookSection, BOOK_SECTION_BLOCK_LIMIT, BOOK_SECTION_TEXT_LIMIT } from '../public/calendar-ui/book-sections.js';
-import { octoechosFixture } from './fixtures/book-library.mjs';
+import { libraryFixture, octoechosFixture } from './fixtures/book-library.mjs';
 
 describe('bounded source-book sections', () => {
+  it('bounds a long Menaion chapter without inventing tones or changing any source block', () => {
+    const book = libraryFixture(undefined, 241).data;
+    const sections = sourceBookSections(book, sourceBookIndex(book));
+    expect(sections.length).toBeGreaterThan(1);
+    expect(sections.every(section => section.end - section.start <= BOOK_SECTION_BLOCK_LIMIT && section.tone === '' && section.weekday === '0')).toBe(true);
+    expect(JSON.stringify(sections.flatMap(section => book.blocks.slice(section.start, section.end)))).toBe(JSON.stringify(book.blocks));
+    expect(selectBookSection(sections, {})).toBe(sections[0]);
+    expect(selectBookSection(sections, { bookPart: sections[1].id })).toBe(sections[1]);
+  });
+  it('bounds Menaion text volume, preserves indivisible blocks and recognises legacy source locators', () => {
+    const long = libraryFixture(undefined, 12).data;
+    long.blocks.forEach(block => { block.segments = [{ text: 'Сло́во '.repeat(400) }]; });
+    const bounded = sourceBookSections(long, sourceBookIndex(long));
+    expect(bounded.length).toBeGreaterThan(1);
+    expect(bounded.every(section => long.blocks.slice(section.start, section.end).reduce((sum, block) => sum + block.segments[0].text.length, 0) <= BOOK_SECTION_TEXT_LIMIT)).toBe(true);
+    expect(bounded.flatMap(section => long.blocks.slice(section.start, section.end))).toEqual(long.blocks);
+    const book = libraryFixture('legacy-minea', 3).data;
+    book.source_url = 'https://azbyka.ru/otechnik/Pravoslavnoe_Bogosluzhenie/mineja-na-tserkovnoslavjanskom-jazyke-mart/25';
+    book.blocks.forEach(block => { block.segments = [{ text: 'Сло́во '.repeat(3200) }]; });
+    const sections = sourceBookSections(book, sourceBookIndex(book));
+    expect(sections.map(section => section.end - section.start)).toEqual([1, 1, 1]);
+    expect(sections.flatMap(section => book.blocks.slice(section.start, section.end))).toEqual(book.blocks);
+    expect(sourceBookSections(libraryFixture().data, { tones: [], headings: [] })).toEqual([]);
+    expect(sourceBookSections(libraryFixture('other-book', 241).data, { tones: [], headings: [] })).toEqual([]);
+  });
   it('partitions all eight tones, preface and appendices exactly once in printed order', () => {
     const book = octoechosFixture().data, original = JSON.stringify(book.blocks), sections = sourceBookSections(book, sourceBookIndex(book));
     expect(sections.flatMap(s => book.blocks.slice(s.start, s.end))).toEqual(book.blocks);

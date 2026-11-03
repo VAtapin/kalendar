@@ -5,6 +5,8 @@ export const UI_DE = {
   '← Предыдущий раздел': '← Vorheriger Abschnitt',
   'Следующий раздел →': 'Nächster Abschnitt →',
   'Оглавление книги': 'Inhaltsverzeichnis des Buches',
+  'Раздел книги': 'Buchabschnitt',
+  'Разделы книги': 'Buchabschnitte',
   'Предисловие': 'Vorwort',
   'Приложения': 'Anhänge',
   'Начало раздела': 'Abschnittsanfang',
