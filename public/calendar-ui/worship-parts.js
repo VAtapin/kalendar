@@ -1,3 +1,4 @@
+import { sourceComponentReceipt } from './worship-section-receipt.js';
 import { partsHash } from './worship-hash.js';
 import { isAdditionalLiturgy, fetchAdditionalLiturgy } from './worship-additional-liturgy.js';
 import { datedWorshipParams, hourContext, matchesWorshipContext, worshipRequestSignal } from './worship-context.js';
@@ -65,8 +66,8 @@ export async function composeParts(template, assignments, state) {
   if (template.status === 'fixed-template' && assignments.operations.some(op => !op.sectionId)) throw new Error('Unverified service section');
   for (const id of new Set(assignments.operations.map(op => op.sectionId).filter(Boolean))) {
     const section = template.sections?.[id], verified = assignments.verifiedSections?.[id];
-    if (!section || !verified || verified.status !== 'complete' || verified.acceptance?.status !== 'approved'
-      || verified.profileStatus !== 'confirmed-for-fragment' || !Array.isArray(verified.operationIndexes)
+    if (!section || !verified || verified.status !== 'complete' || (!(verified.acceptance?.status === 'approved' && verified.profileStatus === 'confirmed-for-fragment')
+        && !await sourceComponentReceipt(id, section, verified, state)) || !Array.isArray(verified.operationIndexes)
       || !verified.operationIndexes.length) throw new Error('Unverified service section');
     for (const key of ['schemaVersion', 'templateId', 'templateVersion', 'ruleVersion']) {
       if (section[key] !== verified[key]) throw new Error('Incompatible section versions');

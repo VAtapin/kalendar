@@ -1,4 +1,5 @@
 export const UI_DE = {
+  'Остальные условные варианты не выбраны. Они не включены в основной текст службы.': 'Die übrigen bedingten Varianten sind nicht ausgewählt. Sie sind nicht im Haupttext des Gottesdienstes enthalten.',
   'День недели в книге': 'Wochentag im Buch',
   'Служба / раздел': 'Gottesdienst / Abschnitt',
   '← Предыдущий раздел': '← Vorheriger Abschnitt',

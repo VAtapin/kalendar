@@ -362,11 +362,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       navigationObserver.observe(title);
     }
     content.append(body);
-    if (result.additionalFixed && Object.keys(result.template.conditionalTemplates).length) {
+    const conditionalVariants = result.additionalFixed ? Object.entries(result.template.conditionalTemplates).filter(([id]) => !result.selectedConditionalIds?.includes(id)).map(([, variant]) => variant) : [];
+    if (conditionalVariants.length) {
       const variants = create('details', '', 'worship-conditional');
       variants.append(create('summary', 'Условные варианты — не включены в службу'),
-        create('p', 'Ни один вариант не выбран. Условия исполнения и число повторений требуют подтверждения; эти тексты не являются продолжением составленной службы.', 'reader-message'));
-      Object.values(result.template.conditionalTemplates).forEach((variant, index) => {
+        create('p', result.selectedConditionalIds?.length ? 'Остальные условные варианты не выбраны. Они не включены в основной текст службы.' : 'Ни один вариант не выбран. Условия исполнения и число повторений требуют подтверждения; эти тексты не являются продолжением составленной службы.', 'reader-message'));
+      conditionalVariants.forEach((variant, index) => {
         const section = create('section', '', 'worship-text');
         section.dataset.textLanguage = 'cu'; section.lang = 'cu';
         const title = create('h3'); title.append(create('span', 'Условный вариант'), create('span', ' ' + (index + 1))); variants.append(title);

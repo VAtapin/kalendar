@@ -45,6 +45,7 @@ describe('separate user-supplied Liturgy values', () => {
   });
   it.each(['ready', 'old-route', 'cacheable-error', 'wrong-rite', 'transport-error'])('guards form activation for %s without sending names', async condition => {
     const f = await localLiturgy(), baseline = { ...f.assignments, operations: [], missing: f.template.requiredAssignments, composedBlocksHash: f.template.fixedBlocksHash };
+    delete baseline.userSections; delete baseline.localValues;
     const result = await fetchWorshipParts('https://bible.example', f.state, () => {}, async (url, options) => {
       if (options.method === 'POST') {
         const body = JSON.parse(options.body);

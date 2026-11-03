@@ -1,3 +1,4 @@
+import { basilDaySelection, BASIL_DAY_SECTION } from './worship-basil-day.js';
 import { partsHash } from './worship-hash.js';
 import { validWorshipDate } from './worship-context.js';
 import { normalizeLocalClergyContext } from './worship-local-context.js';
@@ -98,6 +99,35 @@ export async function validateAdditionalAssignments(assignments, template, state
     || await partsHash(assignments.missing) !== await partsHash(template.requiredAssignments)
     || await partsHash(assignments.requiredContracts) !== await partsHash(template.requiredContracts)) throw new Error('Invalid additional Liturgy assignments');
 }
+/** Validate independent source and user lanes, then check the complete available extract. */
+export async function composeAdditionalAssignments(assignments, template, state, localContext) {
+  if (!Array.isArray(assignments?.operations)) throw new Error('Missing additional operations');
+  await validateAdditionalAssignments({ ...assignments, operations: [], missing: template.requiredAssignments,
+    composedBlocksHash: template.fixedBlocksHash }, template, state);
+  const day = await basilDaySelection(assignments, template, state);
+  const userSection = 'additional-clergy-user-values';
+  if (assignments.operations.some(op => ![BASIL_DAY_SECTION, userSection].includes(op.sectionId))) throw new Error('Unknown additional operation');
+  const userOperations = assignments.operations.filter(op => op.sectionId === userSection);
+  let values = {}, entries = template.nodes.map(node => node.kind === 'slot'
+    ? { ...node, missing: true, contract: template.requiredContracts[node.slotId] } : { ...node, language: 'cu' });
+  if (localContext) {
+    const indexes = assignments.operations.flatMap((op,index) => op.sectionId === userSection ? [index] : []);
+    const receipt = assignments.userSections?.[userSection];
+    if (!receipt || await partsHash(indexes) !== await partsHash(receipt.operationIndexes)) throw new Error('Wrong user operation indexes');
+    const fills = new Map(userOperations.map(op => [op.nodeId,op]));
+    const missing = template.requiredAssignments.filter(slot => !userOperations.some(op => op.slotId === slot));
+    const blocks = template.nodes.flatMap(node => fills.get(node.nodeId)?.blocks || node.blocks || []);
+    const userAssignments = { ...assignments, operations: userOperations, missing, composedBlocksHash: await partsHash(blocks),
+      userSections: { ...assignments.userSections, [userSection]: { ...receipt, operationIndexes: userOperations.map((_,index) => index) } } };
+    values = await applyAdditionalLocalValues(userAssignments, template, state, localContext); entries = values.entries;
+  } else if (userOperations.length || assignments.userSections || assignments.localValues) throw new Error('Unrequested user values');
+  if (day) entries = entries.map(node => node.nodeId === day.nodeId
+    ? { ...node, kind: 'fixed', missing: false, blocks: day.blocks, language: 'cu', role: 'choir', section: BASIL_DAY_SECTION, parallelGroup: 'trisagion' } : node);
+  const missing = entries.filter(node => node.missing).map(node => node.slotId);
+  if (await partsHash(missing) !== await partsHash(assignments.missing)
+    || await partsHash(entries.flatMap(node => node.blocks || [])) !== assignments.composedBlocksHash) throw new Error('Additional extract digest mismatch');
+  return { ...values, entries, dayValuesApplied: !!day, selectedConditionalIds: day ? [day.conditionalId] : [] };
+}
 export async function fetchAdditionalLiturgy(state, onBase, request, signal, localContext, probeLocalContext = false) {
   if (state.rite === 'presanctified' && !state.midLentBranch) return { status: 'context-required' };
   if (!['auto', 'cu'].includes(state.textLanguage || 'auto')) return { status: 'edition-unavailable' };
@@ -112,14 +142,13 @@ export async function fetchAdditionalLiturgy(state, onBase, request, signal, loc
       const normalized = normalizeLocalClergyContext(state, localContext);
       const assignments = await request('assignments', {}, { ...params, date: state.date, templateVersion: template.templateVersion,
         temple: normalized.templeProfileId, localContext: normalized });
-      await validateAdditionalAssignments({ ...assignments, operations: [], missing: template.requiredAssignments,
-        composedBlocksHash: template.fixedBlocksHash }, template, state);
-      const values = await applyAdditionalLocalValues(assignments, template, state, normalized);
+      const values = await composeAdditionalAssignments(assignments, template, state, normalized);
       signal?.throwIfAborted();
       return { ...base, ...values, assignmentsStatus: 'partial', localContextAvailable: true };
     }
-    const assignments = await request('assignments', { ...params, date: state.date, templateVersion: template.templateVersion });
-    await validateAdditionalAssignments(assignments, template, state);
+    const assignments = await request('assignments', { ...params, date: state.date, templateVersion: template.templateVersion,
+      ...(template.dayComponent && state.temple ? { temple: state.temple } : {}) });
+    const values = await composeAdditionalAssignments(assignments, template, state);
     signal?.throwIfAborted();
     let localContextAvailable = false;
     if (probeLocalContext) {
@@ -128,7 +157,7 @@ export async function fetchAdditionalLiturgy(state, onBase, request, signal, loc
           temple: state.temple, localContext: null }, true);
       } catch { signal?.throwIfAborted(); }
     }
-    return { ...base, assignmentsStatus: 'partial', localContextAvailable };
+    return { ...base, ...values, assignmentsStatus: 'partial', localContextAvailable };
   } catch {
     signal?.throwIfAborted(); return { ...base, assignmentsStatus: 'error' };
   }
