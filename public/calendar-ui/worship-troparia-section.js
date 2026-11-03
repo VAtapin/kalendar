@@ -1,7 +1,8 @@
+import { tropariaProtocol } from './worship-troparia-protocol.js';
 import { partsHash, textHash } from './worship-hash.js';
 import { matchesWorshipContext } from './worship-context.js';
 export const TROPARIA_SECTION = 'general-ordinary-entrance-troparia-kontakia';
-const TARGET = 'liturgy:cu:slot:troparia-kontakia', RULE = 'ordinary-single-saint-temple-after-entrance-v1';
+const TARGET = 'liturgy:cu:slot:troparia-kontakia';
 const SCOPE = 'one-choir-troparia-kontakia-section-only';
 const digest = value => /^[a-f0-9]{64}$/.test(value || '');
 const same = async(a,b) => await partsHash(a) === await partsHash(b);
@@ -42,25 +43,25 @@ export async function validateTropariaWrapper(template, assignments) {
 
 /** Accept only the returned order and its source identities; never derive hymns from dates. */
 export async function tropariaReceipt(section, receipt, state, assignments) {
-  const selection = receipt?.selection;
+  const selection = receipt?.selection, parts = await tropariaProtocol(section,receipt,state);
+  if (!parts) return false;
   if (state.office !== 'liturgy' || (state.rite && state.rite !== 'john-chrysostom') || !['default','standalone'].includes(state.sequence)
-    || section?.templateId !== 'liturgy:cu:' + TROPARIA_SECTION || section.ruleVersion !== RULE || section.scope !== SCOPE
+    || section?.templateId !== 'liturgy:cu:' + TROPARIA_SECTION || section.scope !== SCOPE
     || section.language !== 'cu' || section.compositionReady !== true || !digest(section.templateVersion)
     || !Array.isArray(section.sourceVersions) || !section.sourceVersions.length || section.sourceVersions.some(source => !validSource(source))
     || receipt?.acceptance !== undefined || receipt.profileStatus !== undefined || receipt.status !== 'complete' || receipt.scope !== SCOPE
-    || receipt.issues?.length !== 0 || receipt.missing?.length !== 0 || receipt.sourceReviewVersion !== section.templateVersion
+    || receipt.issues?.length !== 0 || receipt.missing?.length !== 0
     || !matchesWorshipContext(receipt.context,state) || receipt.context.language !== 'cu' || receipt.context.tradition !== 'russian-julian'
-    || selection?.status !== 'selected' || selection.issues?.length !== 0 || selection.sourceReviewHash !== section.templateVersion
-    || !digest(selection.sourceProofHash) || !digest(selection.hoursSourceCatalogueHash)
+    || selection?.status !== 'selected' || selection.issues?.length !== 0
     || selection.orderResolver !== 'App\\Services\\Liturgical\\WorshipEntranceOrder' || ![1,2,3,5].includes(selection.weekday)
     || selection.templeProfile?.id !== state.temple || selection.saintAbsenceInferred !== false
     || ['wholeLiturgyAccepted','wholeDatedServiceAccepted','dateAppointmentApproved'].some(key => section[key] !== false || receipt[key] !== false || selection[key] !== false)
     || ['publicAdmissionGranted','antiphonsAccepted'].some(key => receipt[key] !== false || selection[key] !== false)
     || !Array.isArray(receipt.sourceVersions) || !receipt.sourceVersions.length || receipt.sourceVersions.some(source => !validSource(source))
-    || !Array.isArray(assignments?.sourceVersions) || !Array.isArray(selection.order) || selection.order.length !== 10 || new Set(selection.order).size !== 10) return false;
+    || !Array.isArray(assignments?.sourceVersions) || !Array.isArray(selection.order) || selection.order.length !== parts || new Set(selection.order).size !== parts) return false;
   const operations = assignments.operations.filter(op => op.sectionId === TROPARIA_SECTION), operation = operations[0];
   if (operations.length !== 1 || operation.type !== 'fill' || operation.nodeId !== TARGET || operation.slotId !== 'troparia-kontakia'
-    || operation.blocks?.length !== 10 || !await same(operation.blocks.map(block => block.slot),selection.order)
+    || operation.blocks?.length !== parts || !await same(operation.blocks.map(block => block.slot),selection.order)
     || operation.userInputHash !== undefined || operation.blockSources?.some(source => source.origin === 'user-provided')) return false;
   const ids = new Set();
   for (const block of operation.blocks) {

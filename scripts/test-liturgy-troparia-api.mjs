@@ -5,16 +5,17 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { PDFDocument, decodePDFRawStream } from 'pdf-lib';
 import { composeParts, fetchWorshipParts, partsHash } from '../public/calendar-ui/worship-parts.js';
+import { tropariaProtocol } from '../public/calendar-ui/worship-troparia-protocol.js';
 import { TROPARIA_SECTION } from '../public/calendar-ui/worship-troparia-section.js';
 import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
 import { repetitionEntries, compactRepetitions, repetitionNumber } from '../public/calendar-ui/worship-repeats.js';
 import { captureWorshipPdf, exportWorshipPdf } from '../src/export/worship-pdf-browser';
 import { create, installReaderPdfDocument } from '../tests/fixtures/reader-pdf-dom.mjs';
 const path=process.argv[2];if(!path)throw new Error('Pass the real T/K HTTP manifest or installed capture directory');
-const captures=new Map(), info=await stat(path), installed=info.isDirectory();
+const captures=new Map(), info=await stat(path), directory=info.isDirectory(), overlay=process.argv.includes('--overlay'), dormitionMode=process.argv.includes('--dormition'), installed=directory&&!overlay;
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let cases;
-if(installed){
+if(directory){
   const files=(await readdir(path)).filter(file=>file.endsWith('.json')&&!/-request|-http|manifest/.test(file));
   cases=files.map(file=>({case:file.replace('.json',''),body:join(path,file),request:join(path,file.replace('.json','-request.json')),http:join(path,file.replace('.json','-http.json'))}));
 }else{
@@ -26,15 +27,33 @@ for(const row of cases){
   if(row.sha256)assert.equal(sha(body),row.sha256);
   assert.equal(http.responseSha256,sha(body));assert.equal(http.status,200);
   assert.ok(http.cacheControl.includes('private')&&http.cacheControl.includes('no-store'));
-  if(installed){assert.equal(http.productionInstalled,true);assert.equal(http.productionServerAccessed,false);}
+  if(directory){assert.equal(http.productionInstalled,!overlay);assert.equal(http.productionServerAccessed,false);}
   captures.set(row.case,{response:JSON.parse(body),http,request});
 }
 console.info(`${captures.size} actual HTTP responses + request/HTTP sidecars: SHA256/private/no-store PASS; installed App=${installed}`);
-const template=captures.get('template').response;
+const parentAt=process.argv.indexOf('--parent');
+if(parentAt>=0){
+  const parent=process.argv[parentAt+1];assert.ok(parent);
+  for(const[name,capture]of captures){
+    const prior=JSON.parse(await readFile(join(parent,name+'.json'))).data,current=capture.response.data;
+    if(current.status==='fixed-template'){
+      for(const key of ['nodes','sourceVersions','parallelGroups','baseTemplateVersion','tropariaBaseTemplateVersion'])assert.deepEqual(current[key],prior[key]);
+    }else{
+      assert.deepEqual(current.missing,prior.missing);assert.deepEqual(current.sourceVersions,prior.sourceVersions);
+      assert.equal(current.operations.length,prior.operations.length);
+      current.operations.forEach((operation,index)=>{const before={...prior.operations[index]},after={...operation};if(operation.sectionId===TROPARIA_SECTION){delete before.sectionTemplateVersion;delete after.sectionTemplateVersion;}assert.deepEqual(after,before);});
+      for(const[id,receipt]of Object.entries(current.verifiedSections)){if(id===TROPARIA_SECTION){assert.deepEqual(receipt.selection,prior.verifiedSections[id].selection);assert.equal(receipt.sourceReviewVersion,prior.verifiedSections[id].sourceReviewVersion);}else assert.deepEqual(receipt,prior.verifiedSections[id]);}
+    }
+  }
+  console.info('PASS real v1/v2 parent parity: source nodes/groups/words/styles/order/repeats/sources/legacy unchanged; only declared protocol versions differ.');
+}
+
+const templates=[...captures.values()].filter(capture=>capture.response.data?.status==='fixed-template'&&capture.response.data?.sections?.[TROPARIA_SECTION]);assert.equal(templates.length,1);
+const template=templates[0].response;
 const fonts={civil:await readFile('public/fonts/DejaVuSerif.ttf'),cu:await readFile('public/fonts/Ponomar-Regular.ttf'),fallback:await readFile('public/fonts/DejaVuSans.ttf')};
-installReaderPdfDocument();let selected=0,legacy=0,held=0,negative=0;
+installReaderPdfDocument();let selected=0,dormitionSelected=0,legacy=0,held=0,negative=0;
 for(const[name,capture]of captures){
-  if(name==='template')continue;
+  if(capture.response===template)continue;
   const assignments=capture.response.data,state={...assignments.context,rite:'john-chrysostom',sequence:'default',textLanguage:'cu',textSize:22};
   assert.equal(capture.request.method,'GET');assert.equal(capture.request.query.date,state.date);assert.equal(capture.request.query.temple,state.temple);
   if(capture.request.query.templateVersion!==undefined)assert.equal(capture.request.query.templateVersion,template.data.templateVersion);
@@ -52,7 +71,8 @@ for(const[name,capture]of captures){
   assert.deepEqual(result.entries.flatMap(entry=>entry.blocks||[]),raw);
   const operation=assignments.operations.find(op=>op.sectionId===TROPARIA_SECTION);
   if(operation){
-    selected++;assert.equal(operation.blocks.length,10);assert.equal(result.entries.filter(entry=>entry.nodeId===operation.nodeId).length,10);
+    selected++;const isDormition=assignments.verifiedSections[TROPARIA_SECTION].selection.templeProfile.kind==='theotokos',parts=isDormition?9:10;
+    if(isDormition)dormitionSelected++;assert.equal(operation.blocks.length,parts);assert.equal(result.entries.filter(entry=>entry.nodeId===operation.nodeId).length,parts);
     assert.ok(result.entries.filter(entry=>entry.nodeId===operation.nodeId).every(entry=>entry.role==='choir'&&entry.parallelGroup==='entrance-prayer'));
     const mutations={
       'stale outer':(_,a)=>{a.templateVersion=a.tropariaBaseTemplateVersion;},
@@ -71,6 +91,26 @@ for(const[name,capture]of captures){
       'double legacy':(_,a)=>{a.preservedLegacySections={[TROPARIA_SECTION]:'weekday-antiphons-and-entrance'};},
       'parallel group':(t)=>{t.sections[TROPARIA_SECTION].nodes[0].parallelGroup='other';},
     };
+    if(isDormition){
+      const receipt=a=>a.verifiedSections[TROPARIA_SECTION], op=a=>a.operations.find(op=>op.sectionId===TROPARIA_SECTION);
+      Object.assign(mutations,{
+        'saint protocol for Dormition':(t,a)=>{t.sections[TROPARIA_SECTION].ruleVersion=receipt(a).ruleVersion='ordinary-single-saint-temple-after-entrance-v1';},
+        'missing independent admission':(_,a)=>{delete receipt(a).selection.templeAdmission;},
+        'unreviewed capability':(_,a)=>{receipt(a).selection.templeAdmission.sourceCapabilityReviewed=false;},
+        'old saint admission':(_,a)=>{receipt(a).selection.oldSaintOnlyAdmissionUsed=true;},
+        'temple kind cast':async(t,a)=>{const r=receipt(a);r.selection.templeProfile.kind=r.context.templeProfile.kind='saint';r.sourceReviewVersion=r.selection.sourceReviewHash='034879275ba8b1f85fae85d3281bc033c4295d1f998e2bb5a8eeba58268849d8';r.selection.sourceProofHash=r.selection.hoursSourceCatalogueHash='b'.repeat(64);delete r.selection.templeAdmission;assert.equal(await tropariaProtocol(t.sections[TROPARIA_SECTION],r,state),0);},
+        'custom dedication':(_,a)=>{receipt(a).selection.templeProfile.id='custom';},
+        'native role proof':(_,a)=>{receipt(a).selection.templeAdmission.nativeRoleProofHash='0'.repeat(64);},
+        'order proof':(_,a)=>{receipt(a).selection.templeAdmission.orderProofHash='0'.repeat(64);},
+        'wrong native role block':(_,a)=>{receipt(a).selection.references['temple-kontakion'].block=17;},
+        'generic Theotokos K':(_,a)=>{receipt(a).selection.order[8]='theotokos-kontakion';op(a).blocks[8].slot='theotokos-kontakion';},
+        'resealed K before Now':async(_,a)=>{const r=receipt(a),b=op(a).blocks;[r.selection.order[7],r.selection.order[8]]=[r.selection.order[8],r.selection.order[7]];[b[7],b[8]]=[b[8],b[7]];r.composedBlocksHash=await partsHash(b);},
+        'tenth part':(_,a)=>{op(a).blocks.push(structuredClone(op(a).blocks[8]));},
+        'litya repetitions':(_,a)=>{op(a).blocks[0].repeatCount=3;},
+        'resealed unknown capability':async(t,a)=>{const section=t.sections[TROPARIA_SECTION];section.templeSourceCapabilities['memory-day-0009'].nativeRoleObjectHash='0'.repeat(64);section.templateVersion=await partsHash({baseSourceReview:'034879275ba8b1f85fae85d3281bc033c4295d1f998e2bb5a8eeba58268849d8',templeSourceCapabilities:section.templeSourceCapabilities});receipt(a).templateVersion=op(a).sectionTemplateVersion=section.templateVersion;t.templateVersion=a.templateVersion=await partsHash({dayTemplateVersion:t.tropariaBaseTemplateVersion,tropariaSectionVersion:section.templateVersion});},
+        'unknown protocol':(t,a)=>{t.sections[TROPARIA_SECTION].ruleVersion=receipt(a).ruleVersion='ordinary-sourced-temple-after-entrance-v999';},
+      });
+    }
     for(const[label,mutate]of Object.entries(mutations)){const t=structuredClone(template.data),a=structuredClone(assignments);await mutate(t,a);await assert.rejects(composeParts(t,a,state),undefined,label);negative++;}
   }else if(assignments.preservedLegacySections?.[TROPARIA_SECTION])legacy++;else{held++;assert.ok(result.entries.some(entry=>entry.slotId==='troparia-kontakia'&&entry.missing));}
   let snapshot,printedBody,printCount=0;const reader=renderWorshipReader({state,create,formatDate:date=>date,onChange(){},onCalendar(){},onRetry(){},print:()=>{printedBody=reader.page.querySelector('.worship-text');printCount++;},pdfLoad:async()=>({captureWorshipPdf,downloadWorshipPdf:async value=>{snapshot=value;}})});
@@ -91,5 +131,5 @@ for(const[name,capture]of captures){
   assert.equal(sha(normalize(logical.join(''))),sha(normalize(snapshot.blocks.map(b=>b.runs.map(r=>r.text).join('')).join(''))));
   console.info(`${name}: ${raw.length} source blocks; reader/PDF parity PASS; ${missing} missing; ${pdf.pageCount} A4 pages`);reader.dispose();
 }
-assert.ok(selected>=4);assert.equal(legacy,1);assert.equal(held,1);assert.equal(negative,selected*15);
-console.info(`PASS ${selected} selected + legacy + held, and ${negative} real-response negative mutations. No production acceptance inferred.`);
+assert.ok(selected>=4);if(dormitionMode)assert.ok(dormitionSelected>=4);else{assert.equal(legacy,1);assert.equal(held,1);}assert.equal(negative,selected*15+dormitionSelected*15);
+console.info(`PASS ${selected} selected (${dormitionSelected} Dormition) + ${legacy} legacy + ${held} held, and ${negative} real-response negative mutations. No production acceptance inferred.`);
