@@ -2,7 +2,7 @@
 export const BOOK_GROUPS = { minea: 'Минеи', octoechos: 'Октоих', other: 'Другие книги и тексты', all: 'Все книги и тексты' };
 export const BOOK_MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 export const BOOK_WEEKDAYS = { '1': 'Понедельник', '2': 'Вторник', '3': 'Среда', '4': 'Четверг', '5': 'Пятница', '6': 'Суббота', '7': 'Воскресенье' };
-export const BOOK_URL_KEYS = ['view', 'lang', 'book', 'edition', 'bookGroup', 'bookMonth', 'bookDay', 'bookTone', 'bookWeekday', 'textSize'];
+export const BOOK_URL_KEYS = ['view', 'lang', 'book', 'edition', 'bookGroup', 'bookMonth', 'bookDay', 'bookTone', 'bookWeekday', 'bookPart', 'textSize'];
 const token = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,199}$/;
 const sourceMonths = ['janvar', 'fevral', 'mart', 'aprel', 'maj', 'iyun', 'iyul', 'avgust', 'sentjabr', 'oktjabr', 'nojabr', 'dekabr'];
 export function bookSearchText(value) {
@@ -101,8 +101,11 @@ export function bookBlockRange(book, index, tone = '') {
 export function readBookLocation(params, state) {
   state.book = token.test(params.get('book') || '') ? params.get('book') : '';
   state.edition = token.test(params.get('edition') || '') ? params.get('edition') : '';
+  state.bookPart = /^s\d{1,6}$/.test(params.get('bookPart') || '') ? params.get('bookPart') : '';
   state.bookGroup = Object.hasOwn(BOOK_GROUPS, params.get('bookGroup')) ? params.get('bookGroup') : 'minea';
   for (const [key, max] of [['bookMonth', 12], ['bookDay', 31], ['bookTone', 8], ['bookWeekday', 7]]) {
     const value = params.get(key); state[key] = /^[1-9]\d?$/.test(value || '') && Number(value) <= max ? value : '';
   }
+  if (['preface', 'appendices'].includes(params.get('bookTone'))) state.bookTone = params.get('bookTone');
+  if (params.get('bookWeekday') === '0') state.bookWeekday = '0';
 }

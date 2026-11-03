@@ -1,5 +1,6 @@
+import { sourceBookSections, selectBookSection } from './book-sections.js';
 import { createReaderPdfControls } from './reader-pdf-controls.js';
-import { BOOK_GROUPS, BOOK_MONTHS, BOOK_WEEKDAYS, bookSearchText, fetchBookCatalogue, fetchBookText, filterBooks, sourceBookIndex, bookBlockRange } from './book-library.js';
+import { BOOK_GROUPS, BOOK_MONTHS, BOOK_WEEKDAYS, fetchBookCatalogue, fetchBookText, filterBooks, sourceBookIndex } from './book-library.js';
 
 const nextFrame = () => new Promise(resolve => globalThis.requestAnimationFrame ? requestAnimationFrame(resolve) : setTimeout(resolve, 0));
 export function createBookReader({ base, state, create, onStateChange, onCalendar, fetcher = fetch, print = () => globalThis.print(), pdfLoad, yieldFrame = nextFrame }) {
@@ -22,22 +23,30 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   const controls = create('div', '', 'worship-controls book-controls'); page.append(controls);
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input'); size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize || 22); sizeLabel.append(size); controls.append(sizeLabel);
   const toneLabel = create('label', 'Глас Октоиха', 'control'), tone = create('select'); tone.dataset.bookControl = 'bookTone'; toneLabel.append(tone); controls.append(toneLabel);
-  const weekdayLabel = create('label', 'Переход к дню недели', 'control'), weekday = create('select'); weekday.dataset.bookControl = 'bookWeekday'; weekdayLabel.append(weekday); controls.append(weekdayLabel);
+  const weekdayLabel = create('label', 'День недели в книге', 'control'), weekday = create('select'); weekday.dataset.bookControl = 'bookWeekday'; weekdayLabel.append(weekday); controls.append(weekdayLabel);
+  const partLabel = create('label', 'Служба / раздел', 'control'), part = create('select'); part.dataset.bookControl = 'bookPart'; part.dataset.textLanguage = 'cu'; part.lang = 'cu'; partLabel.classList.add('book-part-control'); partLabel.append(part); controls.append(partLabel);
   const printButton = create('button', 'Печать открытого текста', 'reader-button'); printButton.type = 'button'; printButton.disabled = true; controls.append(printButton);
+  const navigation = create('nav', '', 'book-section-navigation'); navigation.hidden = true;
+  const previous = create('button', '← Предыдущий раздел', 'reader-button'), following = create('button', 'Следующий раздел →', 'reader-button'), showContents = create('button', 'Оглавление книги', 'reader-button');
+  for (const button of [previous, following, showContents]) button.type = 'button';
+  const positionLabel = create('span', '', 'hint'); navigation.append(previous, showContents, positionLabel, following); page.append(navigation);
+  const sectionToc = create('details', '', 'book-section-toc worship-navigation'); sectionToc.hidden = true; page.append(sectionToc);
+  function openContents() { sectionToc.open = true; sectionToc.scrollIntoView?.({ block: 'start' }); }
+  showContents.addEventListener('click', openContents);
   const content = create('div', '', 'book-content'); content.setAttribute('aria-live', 'polite'); page.append(content);
   let entries = [], book, index, entry, controller, disposed = false, generation = 0, complete = false, visibleLimit = 60, wantedIndex;
-  let activeRange, blockNodes = new Map(), navigationObserver;
+  let sections = [], activeSection, activeRange, blockNodes = new Map(), navigationObserver;
   const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => complete && !disposed, selection: () => generation + ':' + (state.bookWeekday || ''), getSnapshot: () => getDocument() });
   function dataNode(tag, value, className = '') { const node = create(tag, null, className); node.textContent = value; return node; }
-  function save(values) { Object.assign(state, values); onStateChange(values); }
+  function save(values, history = false) { Object.assign(state, values); onStateChange(values, { history }); }
   function clearBook() {
     ++generation; controller?.abort(); navigationObserver?.disconnect(); book = null; index = null; entry = null; activeRange = null; wantedIndex = undefined; complete = false; printButton.disabled = true; content.replaceChildren(); pdf.refresh();
-    toneLabel.hidden = true; weekdayLabel.hidden = true; blockNodes.clear();
+    sections = []; activeSection = null; toneLabel.hidden = true; weekdayLabel.hidden = true; partLabel.hidden = true; navigation.hidden = true; sectionToc.hidden = true; sectionToc.replaceChildren(); blockNodes.clear();
   }
-  function changeFilter(values) { clearBook(); save({ ...values, book: '', edition: '', bookTone: '', bookWeekday: '' }); visibleLimit = 60; updateFilters(); renderList(); }
-  function setOptions(input, values, selected) {
+  function changeFilter(values) { clearBook(); save({ ...values, book: '', edition: '', bookTone: '', bookWeekday: '', bookPart: '' }, true); visibleLimit = 60; updateFilters(); renderList(); }
+  function setOptions(input, values, selected, source = false) {
     input.replaceChildren();
-    for (const [value, text] of Object.entries(values)) { const option = create('option', text); option.value = value; input.append(option); }
+    for (const [value, text] of Object.entries(values)) { const option = source ? dataNode('option', text) : create('option', text); option.value = value; input.append(option); }
     input.value = selected;
   }
   function updateFilters() {
@@ -55,7 +64,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
       if (item.locator) button.append(create('span', BOOK_MONTHS[item.locator.month - 1], 'edition-label'), dataNode('span', ' · ' + item.locator.day));
       const heading = dataNode('span', item.title); heading.dataset.textLanguage = 'cu'; heading.lang = 'cu'; button.append(heading);
       button.append(dataNode('small', item.edition.title || item.edition.code, 'edition-label'));
-      button.addEventListener('click', () => { save({ book: item.slug, edition: item.edition.code, bookTone: '', bookWeekday: '' }); void openBook(item); }); list.append(button);
+      button.addEventListener('click', () => { save({ book: item.slug, edition: item.edition.code, bookTone: '', bookWeekday: '', bookPart: '' }, true); void openBook(item); }); list.append(button);
     }
     if (!found.length) list.append(create('p', 'В опубликованном каталоге нет подходящей редакции.', 'reader-message'));
     if (found.length > visibleLimit) { const more = create('button', 'Показать ещё', 'reader-button'); more.type = 'button'; more.addEventListener('click', () => { visibleLimit += 60; renderList(); }); list.append(more); }
@@ -63,16 +72,20 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   search.addEventListener('input', () => { visibleLimit = 60; renderList(); });
   size.addEventListener('input', () => { page.style.setProperty('--reader-size', size.value + 'px'); save({ textSize: Number(size.value) }); });
   page.style.setProperty('--reader-size', size.value + 'px');
-  tone.addEventListener('change', () => { save({ bookTone: tone.value, bookWeekday: '' }); void renderBook(); });
-  weekday.addEventListener('change', () => { save({ bookWeekday: weekday.value }); pdf.refresh(); jumpToDay(); });
+  tone.addEventListener('change', () => { save({ bookTone: tone.value, bookWeekday: '', bookPart: '' }, true); return renderBook(); });
+  weekday.addEventListener('change', () => { save({ bookWeekday: weekday.value, bookPart: '' }, true); return renderBook(); });
+  part.addEventListener('change', () => chooseSection(part.value));
+  function chooseSection(id) {
+    const selected = sections.find(section => section.id === id); if (!selected || disposed) return;
+    save({ bookPart: selected.id, bookTone: selected.tone, bookWeekday: selected.weekday }, true);
+    sectionToc.open = false; navigation.scrollIntoView?.({ block: 'start' }); return renderBook();
+  }
+  previous.addEventListener('click', () => chooseSection(sections[sections.indexOf(activeSection) - 1]?.id));
+  following.addEventListener('click', () => chooseSection(sections[sections.indexOf(activeSection) + 1]?.id));
   function jump(position) {
     const node = blockNodes.get(position);
     if (node) { node.scrollIntoView?.({ block: 'start' }); node.focus?.({ preventScroll: true }); wantedIndex = undefined; }
     else wantedIndex = position;
-  }
-  function jumpToDay() {
-    const target = index?.headings.find(heading => heading.index >= activeRange.start && heading.index < activeRange.end && heading.weekday === Number(state.bookWeekday));
-    if (target) jump(target.index);
   }
   async function openBook(selected) {
     clearBook(); entry = selected; catalogue.open = false;
@@ -84,46 +97,81 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
     try {
       const value = await fetchBookText(base, selected, fetcher, controller.signal);
       if (disposed || request !== generation) return;
-      book = value; index = sourceBookIndex(book); await renderBook();
+      book = value; index = sourceBookIndex(book); sections = sourceBookSections(book, index); await renderBook();
     } catch {
       if (!disposed && request === generation) { content.replaceChildren(create('p', 'Эта редакция сейчас недоступна. Другая редакция или язык не подставлены.', 'reader-message')); complete = false; printButton.disabled = true; }
+    }
+  }
+  function sectionLabel(section) {
+    return (section.start === section.serviceStart ? section.serviceTitle : section.serviceTitle + (section.title ? ' · ' + section.title : ''))
+      + (section.part > 1 ? ' · ' + create('span', 'Часть').textContent + ' ' + section.part : '');
+  }
+  function scopeLabel(section) {
+    const scope = section.tone === 'preface' ? 'Предисловие' : section.tone === 'appendices' ? 'Приложения' : 'Глас';
+    return create('span', scope).textContent + (/^[1-8]$/.test(section.tone) ? ' ' + section.tone : '')
+      + (section.weekday !== '0' ? ' · ' + create('span', BOOK_WEEKDAYS[section.weekday]).textContent : '');
+  }
+  function documentHeadings() {
+    const headings = index.headings.filter(item => item.index >= activeRange.start && item.index < activeRange.end);
+    if (activeSection?.title && !headings.some(heading => heading.index === activeSection.start)) headings.unshift({ index: activeSection.start, text: activeSection.title });
+    return headings;
+  }
+  function renderSectionToc(scopes) {
+    sectionToc.replaceChildren(create('summary', 'Оглавление книги'));
+    for (const scope of scopes) {
+      const group = create('details'), heading = create('summary', scope === 'preface' ? 'Предисловие' : scope === 'appendices' ? 'Приложения' : create('span', 'Глас').textContent + ' ' + scope); group.append(heading);
+      group.open = scope === state.bookTone;
+      for (const section of sections.filter(section => section.tone === scope)) {
+        const link = dataNode('a', sectionLabel(section)); link.dataset.bookSection = section.id; link.dataset.textLanguage = 'cu'; link.lang = 'cu';
+        const params = new URLSearchParams({ view: 'books', book: book.slug, edition: book.edition, bookPart: section.id });
+        if (state.lang) params.set('lang', state.lang);
+        link.href = '?' + params; if (section.id === state.bookPart) link.setAttribute('aria-current', 'page');
+        link.addEventListener('click', event => { event.preventDefault(); chooseSection(section.id); }); group.append(link);
+      }
+      sectionToc.append(group);
     }
   }
   async function renderBook() {
     if (!book || disposed) return;
     const request = ++generation, value = book;
     complete = false; printButton.disabled = true; pdf.refresh(); navigationObserver?.disconnect(); content.replaceChildren(); blockNodes = new Map();
-    activeRange = bookBlockRange(value, index, state.bookTone);
-    const selectedTone = index.tones.find(item => item.tone === Number(state.bookTone));
-    if (state.bookTone && !selectedTone) save({ bookTone: '', bookWeekday: '' });
-    toneLabel.hidden = !index.tones.length;
-    setOptions(tone, { '': 'Весь источник', ...Object.fromEntries(index.tones.map(item => [String(item.tone), String(item.tone)])) }, state.bookTone || '');
-    weekdayLabel.hidden = !selectedTone;
-    const weekdays = [...new Set(index.headings.filter(item => item.index >= activeRange.start && item.index < activeRange.end && item.weekday).map(item => item.weekday))];
-    if (state.bookWeekday && (!selectedTone || !weekdays.includes(Number(state.bookWeekday)))) save({ bookWeekday: '' });
-    setOptions(weekday, { '': 'К началу раздела', ...Object.fromEntries(weekdays.map(day => [String(day), BOOK_WEEKDAYS[day]])) }, state.bookWeekday || '');
+    activeSection = selectBookSection(sections, state);
+    activeRange = activeSection ? { start: activeSection.start, end: activeSection.end } : { start: 0, end: value.blocks.length };
+    if (activeSection) save({ bookPart: activeSection.id, bookTone: activeSection.tone, bookWeekday: activeSection.weekday });
+    toneLabel.hidden = weekdayLabel.hidden = partLabel.hidden = navigation.hidden = sectionToc.hidden = !sections.length;
+    if (sections.length) {
+      const scopes = [...new Set(sections.map(section => section.tone))];
+      setOptions(tone, Object.fromEntries(scopes.map(key => [key, key === 'preface' ? 'Предисловие' : key === 'appendices' ? 'Приложения' : create('span', 'Глас').textContent + ' ' + key])), state.bookTone);
+      const weekdays = [...new Set(sections.filter(section => section.tone === state.bookTone).map(section => section.weekday))];
+      setOptions(weekday, Object.fromEntries(weekdays.map(key => [key, key === '0' ? 'Начало раздела' : BOOK_WEEKDAYS[key]])), state.bookWeekday);
+      setOptions(part, Object.fromEntries(sections.filter(section => section.tone === state.bookTone && section.weekday === state.bookWeekday).map(section => [section.id, sectionLabel(section)])), state.bookPart, true);
+      const position = sections.indexOf(activeSection); previous.disabled = position === 0; following.disabled = position === sections.length - 1;
+      positionLabel.textContent = `${position + 1} / ${sections.length}`;
+      renderSectionToc(scopes);
+    }
     const sourceTitle = dataNode('h2', value.title); sourceTitle.dataset.textLanguage = 'cu'; sourceTitle.lang = 'cu'; content.append(sourceTitle);
     content.append(create('p', value.artifactType === 'source-book'
       ? 'В тексте сохранены исходные рубрики и отсылки.'
       : 'Объём опубликованного текста определяется выбранной редакцией.', 'hint'));
-    if (selectedTone) { const label = dataNode('p', selectedTone.text, 'book-section-title'); label.dataset.textLanguage = 'cu'; label.lang = 'cu'; content.append(label); }
-    if (selectedTone) content.append(create('p', 'Открыт отдельный глас; предисловие и другие гласы не включены.', 'hint'));
+    if (activeSection) { const label = dataNode('p', sectionLabel(activeSection), 'book-section-title'); label.dataset.textLanguage = 'cu'; label.lang = 'cu'; content.append(label); }
+    if (activeSection) content.append(dataNode('p', scopeLabel(activeSection), 'book-scope'));
+    if (activeSection) content.append(create('p', 'Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.', 'hint'));
     content.append(dataNode('p', value.edition_title, 'edition-label'));
     try {
       const source = new URL(value.source_url);
       if (['https:', 'http:'].includes(source.protocol)) { const link = create('a', 'Источник'); link.href = source.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; content.append(link); }
     } catch { /* Never turn an invalid source URL into an executable link. */ }
     const toc = create('details', '', 'worship-navigation'); toc.append(create('summary', 'Оглавление'));
-    const headings = index.headings.filter(item => item.index >= activeRange.start && item.index < activeRange.end);
+    const headings = documentHeadings();
     for (const heading of headings) {
       const link = dataNode('a', heading.text); link.href = '#book-block-' + heading.index; link.dataset.textLanguage = 'cu'; link.lang = 'cu';
       link.addEventListener('click', event => { event.preventDefault(); jump(heading.index); }); toc.append(link);
     }
-    if (headings.length) {
-      content.append(toc);
+    if (headings.length || sections.length) {
+      if (!sections.length) content.append(toc);
       const up = create('button', '↑ К оглавлению', 'reader-button worship-to-toc'); up.type = 'button';
-      up.addEventListener('click', () => { toc.open = true; toc.scrollIntoView?.({ block: 'start' }); }); content.append(up);
-      if (globalThis.IntersectionObserver) {
+      up.addEventListener('click', () => { if (sections.length) openContents(); else { toc.open = true; toc.scrollIntoView?.({ block: 'start' }); } }); content.append(up);
+      if (!sections.length && globalThis.IntersectionObserver) {
         navigationObserver = new IntersectionObserver(([entry]) => { up.hidden = entry.isIntersecting || entry.boundingClientRect.bottom >= 0; });
         navigationObserver.observe(toc);
       }
@@ -143,7 +191,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
       await yieldFrame();
     }
     if (disposed || request !== generation) return;
-    complete = true; printButton.disabled = false; pdf.refresh(); jumpToDay();
+    complete = true; printButton.disabled = false; pdf.refresh();
   }
   printButton.addEventListener('click', async () => {
     if (!complete || disposed) return;
@@ -170,11 +218,12 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   function getDocument() {
       if (!complete || !book || !entry || disposed) return null;
       const translate = text => create('span', text).textContent;
-      const headings = index.headings.filter(item => item.index >= activeRange.start && item.index < activeRange.end);
+      const headings = documentHeadings();
       const ids = new Set(headings.map(item => item.index));
       const navigation = headings.map(item => ({ blockIndex: item.index - activeRange.start, title: item.text, language: 'cu' }));
       const firstDays = new Set();
       const contents = headings.filter(item => {
+        if (activeSection) return true;
         if (!index.tones.length) return true;
         const tone = index.tones.find(tone => item.index >= tone.index && item.index < tone.end);
         if (tone?.index === item.index) return true;
@@ -182,16 +231,16 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
         if (tone && item.weekday && !firstDays.has(key)) { firstDays.add(key); return true; }
         return false;
       }).map(item => ({ blockIndex: item.index - activeRange.start, title: item.text, language: 'cu' }));
-      return structuredClone({ kind: 'book', title: book.title, titleLanguage: 'cu', subtitle: index.tones.find(tone => tone.tone === Number(state.bookTone))?.text,
+      return structuredClone({ kind: 'book', title: book.title, titleLanguage: 'cu', subtitle: activeSection ? sectionLabel(activeSection) : undefined,
         status: translate(book.artifactType === 'source-book' ? 'Книжный источник' : 'Опубликованный текст'), complete: false, warnings: [],
-        information: [book.edition_title, ...(state.bookTone ? [translate('Открыт отдельный глас; предисловие и другие гласы не включены.')] : [])],
+        information: [book.edition_title, ...(activeSection ? [scopeLabel(activeSection), translate('Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.')] : [])],
         sources: [book.source_url, book.credit].filter(Boolean),
         blocks: book.blocks.slice(activeRange.start, activeRange.end).map((block, offset) => ({ kind: ids.has(offset + activeRange.start) ? 'heading' : 'paragraph',
           language: 'cu', origin: 'source', runs: block.segments.map(segment => ({ text: segment.text, rubric: segment.style === 'rubric' || block.kind === 'rubric', language: 'cu' })) })),
         navigation, contents,
         sourceMetadata: { slug: book.slug, edition: book.edition, language: 'cu', orthography: 'traditional', sourceUrl: book.source_url,
           contentHash: book.content_hash, sourceScope: book.sourceScope || 'published-text', bookCompleteness: book.bookCompleteness || null, appointedForDate: false,
-          selection: { kind: 'book', tone: state.bookTone || null, weekdayJump: state.bookWeekday || null, range: activeRange } },
+          selection: { kind: 'book', tone: state.bookTone || null, weekday: activeSection?.weekday || null, part: activeSection?.id || null, serviceStart: activeSection?.serviceStart ?? null, range: activeRange } },
         labels: { contents: translate('Оглавление'), sources: translate('Источники'), incomplete: translate('Книжный текст'), page: translate('Страница') } });
     }
 }

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fetchBookCatalogue, sourceBookIndex } from '../public/calendar-ui/book-library.js';
+import { sourceBookSections, BOOK_SECTION_BLOCK_LIMIT, BOOK_SECTION_TEXT_LIMIT } from '../public/calendar-ui/book-sections.js';
 import { createBookReader } from '../public/calendar-ui/book-reader.js';
 import { create, descendants } from '../tests/fixtures/worship-dom.mjs';
 
@@ -23,12 +24,26 @@ for (const entry of [entries.find(entry => entry.group === 'minea'), entries.fin
   const reader = createBookReader({ base, state, create, onStateChange() {}, onCalendar() {}, fetcher, yieldFrame: async () => {} });
   await reader.start(); const snapshot = reader.getDocument();
   assert.ok(snapshot); assert.equal(snapshot.kind, 'book'); assert.deepEqual(snapshot.warnings, []);
-  assert.equal(snapshot.sourceMetadata.edition, entry.edition.code); assert.equal(snapshot.blocks.length, source.blocks.length);
-  for (let i = 0; i < source.blocks.length; ++i) assert.equal(snapshot.blocks[i].runs.map(run => run.text).join(''), source.blocks[i].segments.map(segment => segment.text).join(''));
+  assert.equal(snapshot.sourceMetadata.edition, entry.edition.code); const range = snapshot.sourceMetadata.selection.range;
+  assert.equal(snapshot.blocks.length, range.end - range.start);
+  for (let i = range.start; i < range.end; ++i) assert.equal(snapshot.blocks[i - range.start].runs.map(run => run.text).join(''), source.blocks[i].segments.map(segment => segment.text).join(''));
   assert.equal(descendants(reader.page).filter(node => node.className === 'worship-missing').length, 0);
   if (entry.group === 'octoechos') {
     const index = sourceBookIndex(source); assert.deepEqual(index.tones.map(item => item.tone), [1, 2, 3, 4, 5, 6, 7, 8]);
     assert.ok(index.tones[7].end < source.blocks.length, 'Separate appendices must remain outside the eighth-tone selection');
+    const sections = sourceBookSections(source, index);
+    assert.deepEqual(sections.flatMap(section => source.blocks.slice(section.start, section.end)), source.blocks);
+    assert.equal(Buffer.compare(Buffer.from(JSON.stringify(sections.flatMap(section => source.blocks.slice(section.start, section.end)))), Buffer.from(JSON.stringify(source.blocks))), 0);
+    assert.ok(sections.every(section => section.end - section.start <= BOOK_SECTION_BLOCK_LIMIT));
+    assert.ok(sections.every(section => section.end - section.start === 1 || source.blocks.slice(section.start, section.end).reduce((sum, block) => sum + block.segments.map(segment => segment.text).join('').length, 0) <= BOOK_SECTION_TEXT_LIMIT));
+    assert.deepEqual([...new Set(sections.map(section => section.tone).filter(tone => /^[1-8]$/.test(tone)))], ['1','2','3','4','5','6','7','8']);
+    assert.ok(sections.some(section => section.tone === 'preface')); assert.ok(sections.some(section => section.tone === 'appendices'));
+    for (const section of sections) {
+      const input = descendants(reader.page).find(node => node.dataset.bookControl === 'bookPart'); input.value = section.id; await input.events.change();
+      const part = reader.getDocument(); assert.ok(part); assert.deepEqual(part.sourceMetadata.selection.range, { start: section.start, end: section.end });
+      assert.equal(part.blocks.map(block => block.runs.map(run => run.text).join('')).join(''), source.blocks.slice(section.start, section.end).map(block => block.segments.map(segment => segment.text).join('')).join(''));
+    }
+    console.log(`${sections.length} bounded sections: complete partition byte parity + every reader snapshot PASS`);
     const witnessAt = process.argv.indexOf('--witness');
     if (witnessAt >= 0) {
       const witness = JSON.parse(await readFile(process.argv[witnessAt + 1], 'utf8'));
@@ -37,6 +52,6 @@ for (const entry of [entries.find(entry => entry.group === 'minea'), entries.fin
       console.log('Read-only Octoechos heading witness: PASS');
     }
   }
-  console.log(`${entry.slug}/${entry.edition.code}: ${source.blocks.length} native CU blocks preserved; book mode PASS`);
+  console.log(`${entry.slug}/${entry.edition.code}: ${source.blocks.length} native CU source blocks preserved across sections; book mode PASS`);
   reader.dispose();
 }

@@ -1,4 +1,15 @@
 export const UI_DE = {
+  'День недели в книге': 'Wochentag im Buch',
+  'Служба / раздел': 'Gottesdienst / Abschnitt',
+  '← Предыдущий раздел': '← Vorheriger Abschnitt',
+  'Следующий раздел →': 'Nächster Abschnitt →',
+  'Оглавление книги': 'Inhaltsverzeichnis des Buches',
+  'Предисловие': 'Vorwort',
+  'Приложения': 'Anhänge',
+  'Начало раздела': 'Abschnittsanfang',
+  'Часть': 'Teil',
+  'Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.': 'Nur der ausgewählte Buchabschnitt ist geöffnet. Druck und PDF enthalten denselben Umfang.',
+
   'Месяц и день — по печатной Минее (старый стиль), а не гражданская дата службы. Память можно найти по названию.': 'Monat und Tag folgen dem gedruckten Menäon (alter Stil), nicht dem bürgerlichen Datum des Gottesdienstes. Nach dem Namen kann gesucht werden.',
   'Скачать PDF': 'PDF herunterladen',
   'Комментарий к PDF (не часть богослужебного текста)': 'Kommentar zum PDF (kein Teil des liturgischen Textes)',

@@ -11,6 +11,33 @@ function reader(f = libraryFixture(), options = {}) {
   return { instance, state, nodes: () => descendants(instance.page) };
 }
 describe('book mode reader and document snapshot', () => {
+  it('defaults to a small day section and persists next/previous selections for deep links and Back', async () => {
+    const changes=[], f=octoechosFixture(), ui=reader(f,{ onStateChange: (values,options)=>changes.push({values,options}) }); await ui.instance.start();
+    const first=ui.instance.getDocument(); expect(first.blocks.length).toBeLessThan(6);expect(first.sourceMetadata.selection.tone).toBe('1');
+    const next=ui.nodes().find(n=>n.textContent==='Следующий раздел →'); await next.events.click();
+    const second=ui.instance.getDocument();expect(second.sourceMetadata.selection.part).not.toBe(first.sourceMetadata.selection.part);
+    expect(changes.some(change=>change.options?.history===true && change.values.bookPart===second.sourceMetadata.selection.part)).toBe(true);
+    await ui.nodes().find(n=>n.textContent==='← Предыдущий раздел').events.click();expect(ui.instance.getDocument()).toEqual(first);
+    const reloaded=reader(f,{state:{bookPart:second.sourceMetadata.selection.part}});await reloaded.instance.start();expect(reloaded.instance.getDocument()).toEqual(second);
+    expect(ui.nodes().some(n=>n.dataset.bookSection===first.sourceMetadata.selection.part)).toBe(true);
+    const tone=ui.nodes().find(n=>n.dataset.bookControl==='bookTone');tone.value='8';await tone.events.change();
+    const weekday=ui.nodes().find(n=>n.dataset.bookControl==='bookWeekday');weekday.value='1';await weekday.events.change();
+    expect(ui.instance.getDocument().sourceMetadata.selection).toMatchObject({tone:'8',weekday:'1'});
+    ui.instance.dispose();reloaded.instance.dispose();
+  });
+  it('discards an older section render and exports only the completed current section to PDF and print', async () => {
+    const releases=[], print=vi.fn(), downloads=vi.fn(async()=>({}));
+    const ui=reader(octoechosFixture(),{yieldFrame:()=>new Promise(resolve=>releases.push(resolve)),print,pdfLoad:async()=>({downloadWorshipPdf:downloads})});
+    const starting=ui.instance.start();await new Promise(resolve=>setTimeout(resolve,0));expect(ui.instance.getDocument()).toBeNull();
+    const tone=ui.nodes().find(n=>n.dataset.bookControl==='bookTone');tone.value='8';const changed=tone.events.change();
+    expect(ui.nodes().find(n=>n.textContent==='Скачать PDF').disabled).toBe(true);
+    releases[0]();await starting;expect(ui.instance.getDocument()).toBeNull();releases[1]();await changed;
+    const snapshot=ui.instance.getDocument();expect(snapshot.sourceMetadata.selection.tone).toBe('8');
+    await ui.nodes().find(n=>n.textContent==='Скачать PDF').events.click();expect(downloads.mock.calls[0][0]).toEqual(snapshot);
+    vi.stubGlobal('document',{fonts:{ready:Promise.resolve()}});await ui.nodes().find(n=>n.textContent==='Печать открытого текста').events.click();expect(print).toHaveBeenCalledOnce();
+    ui.instance.dispose();
+  });
+
   it('preserves native text, rubrics and source edition without daily-service warnings or slots', async () => {
     const f = libraryFixture(), ui = reader(f); await ui.instance.start();
     const snapshot = ui.instance.getDocument();
@@ -37,11 +64,11 @@ describe('book mode reader and document snapshot', () => {
     expect(ui.nodes().find(node => node.textContent === 'Печать открытого текста').disabled).toBe(true);
     ui.instance.dispose(); release(); await pending; expect(ui.instance.getDocument()).toBeNull();
   });
-  it('captures the selected tone, excludes separate appendices and treats weekday as navigation only', async () => {
+  it('captures only a selected day section, excluding other services and appendices', async () => {
     const f = octoechosFixture(), ui = reader(f, { state: { bookTone: '8', bookWeekday: '1' } }); await ui.instance.start();
     const snapshot = ui.instance.getDocument();
-    expect(snapshot.sourceMetadata.selection.tone).toBe('8'); expect(snapshot.sourceMetadata.selection.weekdayJump).toBe('1');
-    expect(snapshot.blocks).toHaveLength(6); expect(snapshot.information).toContain('Открыт отдельный глас; предисловие и другие гласы не включены.');
+    expect(snapshot.sourceMetadata.selection.tone).toBe('8'); expect(snapshot.sourceMetadata.selection.weekday).toBe('1');
+    expect(snapshot.blocks).toHaveLength(3); expect(snapshot.information).toContain('Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.');
     expect(snapshot.warnings).toEqual([]); ui.instance.dispose();
   });
   it('waits for fonts and cancels a pending print when a different book filter is chosen', async () => {

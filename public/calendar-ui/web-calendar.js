@@ -18,7 +18,7 @@ function localIsoDate(now = new Date()) {
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
   office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '',
-  book: '', edition: '', bookGroup: 'minea', bookMonth: '', bookDay: '', bookTone: '', bookWeekday: '' };
+  book: '', edition: '', bookGroup: 'minea', bookMonth: '', bookDay: '', bookTone: '', bookWeekday: '', bookPart: '' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 let disposeWorshipReader = () => {};
 let worshipController;
@@ -126,7 +126,7 @@ function syncControls() {
   updateFilterSummary();
 }
 
-function saveLocation() {
+function saveLocation(push = false) {
   const url = new URL(location.href);
   url.search = '';
   const calendarKeys = ['view', 'date', 'lang', 'profile', 'eventLimit'];
@@ -135,7 +135,8 @@ function saveLocation() {
   Object.entries(state).forEach(([key, value]) => {
     if (keys.includes(key)) url.searchParams.set(key, value);
   });
-  history.replaceState(null, '', url);
+  if (push && url.href !== location.href) history.pushState(null, '', url);
+  else history.replaceState(null, '', url);
 }
 
 function readLocation() {
@@ -820,7 +821,7 @@ async function load() {
     if (state.view === 'books') {
       const selected = { ...state };
       const reader = createBookReader({ base: globalThis.KalendarConfig.publicApiUrl, state: selected, create: e,
-        onStateChange: values => { Object.assign(state, values); saveLocation(); },
+        onStateChange: (values, options) => { Object.assign(state, values); saveLocation(options?.history === true); },
         onCalendar: () => { state.view = 'day'; void load(); } });
       disposeWorshipReader = reader.dispose;
       $('calendar-panel').classList.remove('cu', 'calendar-text');
@@ -920,6 +921,8 @@ document.addEventListener('keydown', event => {
     if (event.key === 'ArrowRight') { event.preventDefault(); shiftIconImage(1); }
   }
 });
+
+globalThis.addEventListener('popstate', () => { readLocation(); void load(); });
 
 readLocation();
 syncControls();
