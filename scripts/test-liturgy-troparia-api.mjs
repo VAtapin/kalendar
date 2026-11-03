@@ -1,7 +1,7 @@
 // Replay only real HTTP captures supplied by the backend owner; no browser/network/corpus copy.
 import assert from 'node:assert/strict';
 import { readFile, readdir, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { PDFDocument, decodePDFRawStream } from 'pdf-lib';
 import { composeParts, fetchWorshipParts, partsHash } from '../public/calendar-ui/worship-parts.js';
@@ -12,13 +12,29 @@ import { repetitionEntries, compactRepetitions, repetitionNumber } from '../publ
 import { captureWorshipPdf, exportWorshipPdf } from '../src/export/worship-pdf-browser';
 import { create, installReaderPdfDocument } from '../tests/fixtures/reader-pdf-dom.mjs';
 const path=process.argv[2];if(!path)throw new Error('Pass the real T/K HTTP manifest or installed capture directory');
-const type6Mode=process.argv.includes('--type6');
-const captures=new Map(), info=await stat(path), directory=info.isDirectory(), overlay=process.argv.includes('--overlay'), dormitionMode=process.argv.includes('--dormition'), installed=directory&&!overlay;
+const type6Mode=process.argv.includes('--type6'), v4Mode=process.argv.includes('--v4');
+const captures=new Map(), info=await stat(path), directory=info.isDirectory(), overlay=process.argv.includes('--overlay'), dormitionMode=process.argv.includes('--dormition'), installed=(directory||v4Mode)&&!overlay;
 const sha=value=>createHash('sha256').update(value).digest('hex');
 let cases;
 if(directory){
   const files=(await readdir(path)).filter(file=>file.endsWith('.json')&&!/-request|-http|manifest|ANNOTATION/.test(file));
   cases=files.map(file=>({case:file.replace('.json',''),body:join(path,file),request:join(path,file.replace('.json','-request.json')),http:join(path,file.replace('.json','-http.json'))}));
+}else if(v4Mode){
+  const manifest=JSON.parse(await readFile(path)),root=dirname(path);
+  assert.equal(manifest.kind,'joined-current-bounded-MDA-actual-HTTP-fixtures');assert.equal(manifest.tripleCount,18);
+  assert.equal(manifest.boundedMdaObject,'de8a0000867964fc7a89eb3162c5d4ea9bef2ccebedf38ee7dc124f23281ac8d');
+  assert.equal(manifest.directory,'installed-api-mda-bounded');assert.equal(manifest.triples.length,18);
+  const receipt=JSON.parse(await readFile(join(root,manifest.captureReceipt)));
+  assert.equal(receipt.kind,'three-targeted-current-v4-branches-actual-App-HTTP-capture');
+  assert.equal(receipt.result,'PASS');assert.equal(receipt.rawResponseJsonPatched,false);assert.equal(receipt.productionServerAccessed,false);
+  assert.equal(receipt.boundedMdaObject,manifest.boundedMdaObject);assert.equal(receipt.shared29ManifestUnchanged,true);
+  cases=manifest.triples.map(row=>{
+    for(const field of ['body','request','http'])assert.match(row[field],/^[a-z0-9-]+\.json$/);
+    return{case:row.case,body:join(root,manifest.directory,row.body),request:join(root,manifest.directory,row.request),http:join(root,manifest.directory,row.http),sha256:row.responseSha256};
+  });
+  for(const row of cases){const data=JSON.parse(await readFile(row.body)).data;assert.equal(data.templateVersion,manifest.templateVersion);}
+  for(const item of receipt.cases){const row=cases.find(row=>row.case===item.case);assert.ok(row);assert.equal(row.sha256,item.responseSha256);}
+  console.info('Current de8a manifest + targeted branch receipt verified; no old957 captures included.');
 }else{
   const bytes=await readFile(path),manifest=JSON.parse(bytes);cases=manifest.cases;
   console.info('Actual manifest SHA256: '+sha(bytes));
@@ -33,7 +49,7 @@ for(const row of cases){
     assert.ok(value.data?.unresolvedParts?.length);assert.ok(value.error);
   }else assert.equal(http.status,200);
   assert.ok(http.cacheControl.includes('private')&&http.cacheControl.includes('no-store'));
-  if(directory){assert.equal(http.productionInstalled,!overlay);assert.equal(http.productionServerAccessed,false);}
+  if(directory||v4Mode){assert.equal(http.productionInstalled,!overlay);assert.equal(http.productionServerAccessed,false);}
   captures.set(row.case,{response:JSON.parse(body),http,request});
 }
 console.info(`${captures.size} actual HTTP responses + request/HTTP sidecars: SHA256/private/no-store PASS; installed App=${installed}`);
@@ -70,10 +86,10 @@ if(parentAt>=0){
 }
 
 const templates=[...captures.values()].filter(capture=>capture.response.data?.status==='fixed-template'&&capture.response.data?.sections?.[TROPARIA_SECTION]);
-assert.equal(templates.length,type6Mode?2:1);for(const value of templates)assert.deepEqual(value.response,templates[0].response);
+assert.equal(templates.length,type6Mode||v4Mode?2:1);for(const value of templates)assert.deepEqual(value.response,templates[0].response);
 const template=templates[0].response;
 const fonts={civil:await readFile('public/fonts/DejaVuSerif.ttf'),cu:await readFile('public/fonts/Ponomar-Regular.ttf'),fallback:await readFile('public/fonts/DejaVuSans.ttf')};
-installReaderPdfDocument();let selected=0,dormitionSelected=0,legacy=0,held=0,negative=0,actualSixSelected=0;
+installReaderPdfDocument();let selected=0,dormitionSelected=0,legacy=0,held=0,negative=0,actualSixSelected=0,dormitionSix=0;
 for(const[name,capture]of captures){
   if(capture.response.data?.status==='fixed-template'||capture.http.status===409)continue;
   const assignments=capture.response.data,state={...assignments.context,rite:'john-chrysostom',sequence:'default',textLanguage:'cu',textSize:22};
@@ -113,7 +129,7 @@ for(const[name,capture]of captures){
       'double legacy':(_,a)=>{a.preservedLegacySections={[TROPARIA_SECTION]:'weekday-antiphons-and-entrance'};},
       'parallel group':(t)=>{t.sections[TROPARIA_SECTION].nodes[0].parallelGroup='other';},
     };
-    if(assignments.verifiedSections[TROPARIA_SECTION].selection.actualPrincipalTypeCode===6){
+    if(assignments.verifiedSections[TROPARIA_SECTION].selection.actualPrincipalTypeCode===6&&!isDormition){
       actualSixSelected++;
       const rec=a=>a.verifiedSections[TROPARIA_SECTION];
       Object.assign(mutations,{
@@ -152,6 +168,21 @@ for(const[name,capture]of captures){
         'resealed unknown capability':async(t,a)=>{const section=t.sections[TROPARIA_SECTION];section.templeSourceCapabilities['memory-day-0009'].nativeRoleObjectHash='0'.repeat(64);section.templateVersion=await partsHash({baseSourceReview:'034879275ba8b1f85fae85d3281bc033c4295d1f998e2bb5a8eeba58268849d8',templeSourceCapabilities:section.templeSourceCapabilities});receipt(a).templateVersion=op(a).sectionTemplateVersion=section.templateVersion;t.templateVersion=a.templateVersion=await partsHash({dayTemplateVersion:t.tropariaBaseTemplateVersion,tropariaSectionVersion:section.templateVersion});},
         'unknown protocol':(t,a)=>{t.sections[TROPARIA_SECTION].ruleVersion=receipt(a).ruleVersion='ordinary-sourced-temple-after-entrance-v999';},
       });
+      if(assignments.verifiedSections[TROPARIA_SECTION].selection.actualPrincipalTypeCode===6){
+        dormitionSix++;
+        Object.assign(mutations,{
+          'Dorm6 join':(_,a)=>{receipt(a).selection.joinedSourceCapability='0'.repeat(64);},
+          'Dorm6 missing join':(_,a)=>{delete receipt(a).selection.joinedSourceCapability;},
+          'Dorm6 source version':(_,a)=>{receipt(a).sourceReviewVersion='5980fa93158d9824db71b9223594bbe07094d1dcd243e28dc1b0ce13302ee7bf';},
+          'Dorm6 actual rank':(_,a)=>{receipt(a).selection.actualPrincipalTypeCode=7;},
+          'Dorm6 remapping':(_,a)=>{receipt(a).selection.type6RemappedTo7=true;},
+          'Dorm6 nested rank':(_,a)=>{receipt(a).selection.reviewedOrderCapability.actualPrincipalTypeCode=7;},
+          'Dorm6 nested remapping':(_,a)=>{receipt(a).selection.reviewedOrderCapability.type6RemappedTo7=true;},
+          'Dorm6 authority':(_,a)=>{receipt(a).selection.reviewedOrderCapability.objectHash='0'.repeat(64);},
+          'Dorm6 missing template join':(t)=>{delete t.sections[TROPARIA_SECTION].dormitionSixSticheraJoin;},
+          'Dorm6 obsolete resealed957':async(t,a)=>{const s=t.sections[TROPARIA_SECTION];s.templateVersion=await partsHash({dormitionSixSticheraJoin:s.dormitionSixSticheraJoin,dormitionSixSticheraSupplement:'95710388b3759ec67ea9eae45993f2ed8071eabe60d742643f09faa528d4604f',baseSourceReview:'034879275ba8b1f85fae85d3281bc033c4295d1f998e2bb5a8eeba58268849d8',templeSourceCapabilities:s.templeSourceCapabilities,sixSticheraOrderCapability:s.sixSticheraOrderCapability});receipt(a).templateVersion=op(a).sectionTemplateVersion=s.templateVersion;t.templateVersion=a.templateVersion=await partsHash({dayTemplateVersion:t.tropariaBaseTemplateVersion,tropariaSectionVersion:s.templateVersion});},
+        });
+      }
     }
     for(const[label,mutate]of Object.entries(mutations)){const t=structuredClone(template.data),a=structuredClone(assignments);await mutate(t,a);await assert.rejects(composeParts(t,a,state),undefined,label);negative++;}
   }else if(assignments.preservedLegacySections?.[TROPARIA_SECTION])legacy++;else{held++;assert.ok(result.entries.some(entry=>entry.slotId==='troparia-kontakia'&&entry.missing));}
@@ -173,5 +204,5 @@ for(const[name,capture]of captures){
   assert.equal(sha(normalize(logical.join(''))),sha(normalize(snapshot.blocks.map(b=>b.runs.map(r=>r.text).join('')).join(''))));
   console.info(`${name}: ${raw.length} source blocks; reader/PDF parity PASS; ${missing} missing; ${pdf.pageCount} A4 pages`);reader.dispose();
 }
-assert.ok(selected>=4);if(type6Mode){assert.ok(selected>=20);assert.equal(actualSixSelected,16);assert.equal(dormitionSelected,4);}else if(dormitionMode)assert.ok(dormitionSelected>=4);else{assert.equal(legacy,1);assert.equal(held,1);}assert.equal(negative,selected*15+dormitionSelected*15+actualSixSelected*14);
+assert.ok(selected>=4);if(v4Mode){assert.equal(selected,16);assert.equal(dormitionSelected,13);assert.equal(dormitionSix,8);assert.equal(actualSixSelected,2);}else if(type6Mode){assert.ok(selected>=20);assert.equal(actualSixSelected,16);assert.equal(dormitionSelected,4);}else if(dormitionMode)assert.ok(dormitionSelected>=4);else{assert.equal(legacy,1);assert.equal(held,1);}assert.equal(negative,selected*15+dormitionSelected*15+actualSixSelected*14+dormitionSix*10);
 console.info(`PASS ${selected} selected (${dormitionSelected} Dormition) + ${legacy} legacy + ${held} held, and ${negative} real-response negative mutations. No production acceptance inferred.`);

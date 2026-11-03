@@ -45,7 +45,7 @@ export async function validateTropariaWrapper(template, assignments) {
 export async function tropariaReceipt(section, receipt, state, assignments) {
   const selection = receipt?.selection, parts = await tropariaProtocol(section,receipt,state);
   if (!parts) return false;
-  const actualSix = section.ruleVersion === 'ordinary-sourced-temple-after-entrance-v3' && selection.actualPrincipalTypeCode === 6;
+  const actualSix = ['ordinary-sourced-temple-after-entrance-v3','ordinary-sourced-temple-after-entrance-v4'].includes(section.ruleVersion) && selection.actualPrincipalTypeCode === 6;
   if (state.office !== 'liturgy' || (state.rite && state.rite !== 'john-chrysostom') || !['default','standalone'].includes(state.sequence)
     || section?.templateId !== 'liturgy:cu:' + TROPARIA_SECTION || section.scope !== SCOPE
     || section.language !== 'cu' || section.compositionReady !== true || !digest(section.templateVersion)

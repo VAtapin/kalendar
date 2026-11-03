@@ -137,3 +137,33 @@ blocks. Все26 reader/print/реальных PDF Unicode body parity PASS;644 
 `DORMITION_REQUEST_PATH_ANNOTATION.json`, проверяет annotated SHA и неизменность
 body/HTTP-sidecar SHA. Эти пути не описываются как captured request paths.
 Браузер/production не используются; тела ответов и корпус в Git не добавляются.
+
+## Dormition actual6 / protocol v4
+
+В v4 добавлена точная совместная capability `dormitionSixSticheraJoin=1b34682c…`.
+Derived section version включает ключи в порядке:
+`dormitionSixSticheraJoin`, `dormitionSixSticheraSupplement` (pinned de8a0000…),
+`baseSourceReview` (прежний034879…), `templeSourceCapabilities`,
+`sixSticheraOrderCapability`. Supplement не добавляется в UI/response как новое
+поле: это внутренний pin формулы. Версия секции0562e21d…, outer cb75cc71… .
+Отозванный957 не принимается, включая полностью пересчитанный старый wrapper.
+
+Dormition actual6 требует sourceReviewVersion/joinedSourceCapability1b,
+actual6 и remapped=false на двух уровнях, точные reviewed join/resolver/order.
+Дальше применяются прежние native Dormition recipes/ownership/range/text/kind
+guards:9 частей, собственный K после now, без generic Theotokos K или saint-cast.
+G/N6 продолжают bacdf, старый saint7 —0348, старый Dormition —5980.
+v1/v2/v3 сохраняются; receipt-поля не вырезаются, query-контракт не меняется.
+
+```powershell
+node --import tsx scripts/test-liturgy-troparia-api.mjs D:/Projekte/BibleDesktop/storage/app/worship-research/canonical-dormition-six-port/CURRENT_HTTP_MANIFEST.json --v4
+```
+
+Harness читает только текущие18 triples из manifest и3-branch capture receipt,
+проверяет реальные body SHA/HTTP/private/no-store/версии и отсутствие JSON patch
+по owner receipt. Старые40 exports с957 не участвуют в положительном replay.
+16 actual reader/print/PDF Unicode parity и543 отрицательных мутации PASS:
+8 Dorm6 —763 блока/31 missing; G6/N6 —764/31; старые Dorm —764/30,
+старый G7 —765/30. В manifest есть дублирующий old-Dorm alias;13 Dormition
+replay — число captured cases, не13 новых дат. Все составы остаются partial.
+Крест, отсутствие видимых источников и local-form UX не меняются.
