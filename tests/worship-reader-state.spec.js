@@ -14,6 +14,22 @@ function render(result) {
     coverage: nodes.find(node => node.className === 'worship-coverage') };
 }
 describe('service completeness in the reader', () => {
+  it('labels the prepared Midnight scope positively and keeps user names distinct without a new incomplete warning', () => {
+    const selected = { ...state, office: 'midnight-office', sequence: 'standalone', midnightProfile: 'reader', midnightLocation: 'church' };
+    const reader = renderWorshipReader({ state: selected, create, formatDate: date => date });
+    // UI models only; actual full/private HTTP acceptance is tested by test-midnight-api.mjs.
+    reader.render({ ...base, complete: true, assignmentsStatus: 'complete', midnightPrepared: true });
+    let text = descendants(reader.page).map(node => node.textContent).join(' ');
+    expect(text).toContain('Полная Полунощница — выбранный печатный чин');
+    expect(text).toContain('Обычный самостоятельный чин без местного бдения.');
+    expect(text).not.toContain('Местное всенощное бдение и особые указания не подтверждены.');
+    reader.render({ ...base, midnightClergy: true, localValuesApplied: true });
+    text = descendants(reader.page).map(node => node.textContent).join(' ');
+    expect(text).toContain('Имена: из вашего ввода.');
+    expect(text).not.toContain('Они не подтверждают назначение всей службы.');
+    expect(UI_DE['Обычный самостоятельный чин без местного бдения.']).toBeTruthy();
+    expect(UI_DE['Имена: из вашего ввода.']).toBeTruthy(); reader.dispose();
+  });
   it('groups remaining requirements, navigates to their actual placeholders and ignores stale controls', () => {
     const entries = [
       { missing: true, slotId: 'locality-petition', reason: 'traditional-cu-verified-local-context-required', contract: {} },

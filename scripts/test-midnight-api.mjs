@@ -59,7 +59,8 @@ try{
     }
     reader.render(result);assert.equal(reader.page.querySelector('.worship-coverage').children[0].textContent,'Полная Полунощница — выбранный печатный чин');
     assert.equal(reader.page.querySelectorAll('.worship-missing').length,0);assert.equal(postCount,0);
-    assert.ok(reader.page.textContent.includes('Местное всенощное бдение и особые указания не подтверждены.'));
+    assert.ok(reader.page.textContent.includes('Обычный самостоятельный чин без местного бдения.'));
+    if(result.midnightClergy){assert.ok(reader.page.textContent.includes('Имена: из вашего ввода.'));assert.ok(!reader.page.textContent.includes('Они не подтверждают назначение всей службы.'));}
     for(const s of result.sourceVersions)for(const k of ['work','edition'])assert.ok(!reader.page.textContent.includes(s[k]));
     await reader.page.querySelectorAll('button').find(b=>b.textContent==='Печать службы').events.click();assert.equal(printed,1);
     await reader.page.querySelectorAll('button').find(b=>b.textContent==='Скачать PDF').events.click();assert.ok(snapshot);assert.equal(snapshot.complete,true);assert.deepEqual(snapshot.sources,[]);

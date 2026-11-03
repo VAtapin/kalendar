@@ -275,10 +275,10 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
     }
     content.append(coverage);
-    if (result.midnightPrepared) content.append(create('p', 'Рассчитан обычный самостоятельный чин. Местное всенощное бдение и особые указания не подтверждены.', 'reader-message'));
+    if (result.midnightPrepared) content.append(create('p', 'Обычный самостоятельный чин без местного бдения.', 'reader-message'));
     if (result.localValuesApplied) {
       const notice = create('p', '', 'reader-message');
-      notice.append(create('span', 'Местные имена введены пользователем. Они не подтверждают назначение всей службы.'),
+      notice.append(create('span', result.midnightClergy ? 'Имена: из вашего ввода.' : 'Местные имена введены пользователем. Они не подтверждают назначение всей службы.'),
         create('span', ' '), create('span', TEMPLES[result.localTempleId]));
       content.append(notice);
     }

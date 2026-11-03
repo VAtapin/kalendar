@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "checkedDate": "2026-11-04",
+  "scope": "Local main-installed normal backend HTTP envelopes; no production/browser/network POST",
+  "backendBase": "b7564c29",
+  "midnightBackendCommit": "pending Root report; production App stable during checks",
+  "implementationCommit": "0f220b0ef46e2c8153cd5f28b2c5bb619c305d8a",
+  "requestStatusAndJsonBodyParityWithIsolatedStage": true,
+  "cases": [
+    {
+      "file": "01-2026-11-09-george-victorious-services-GET.json",
+      "envelopeSha256": "058f290b5962afad8187cb8317c9d1d1743d129b5eaae5a4f6e517af16dcf3f2",
+      "bodySha256": "5d171595141f78e0039011a2a447aabb734a3c33e621b431b51626d897c94ea6",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "02-2026-11-09-george-victorious-templates-GET.json",
+      "envelopeSha256": "85a0364070e5ac43210b86780cdb9f66a1dd6f542df75bea07251c349db892c0",
+      "bodySha256": "71cdea919b1a2e85ec27a5a0ee129bb5c4f9b957bd19a0b47fe2d9e4a24e4579",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "03-2026-11-09-george-victorious-assignments-GET.json",
+      "envelopeSha256": "05f5d9b8bb41e36112665636707dd718e73d31877633bd1a3558d48836d5b2aa",
+      "bodySha256": "541b757ed577e827900279be99b8d64f526f0d43e977a4f1485e79c9d266d67c",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "04-2026-11-07-george-victorious-services-GET.json",
+      "envelopeSha256": "e1b29dbf040848e83666ef50a0401e69fd7f23d2123c46200bed67a7520b103a",
+      "bodySha256": "de0f0b896c256b1879ff15c7d715e909195061c9e60ca9e010943fbcd1fadb66",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "05-2026-11-07-george-victorious-templates-GET.json",
+      "envelopeSha256": "25b9c3b3d3abbebaa3fa89963a652660cc85b2609dd59d3dc371e2695d1b88c3",
+      "bodySha256": "91fec3c2596d819cb1c98c923bc4475f712e9469c16b2e4d3582fbb9df426bf0",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "06-2026-11-07-george-victorious-assignments-GET.json",
+      "envelopeSha256": "eb4b69ab10a12763aa3bdf9315f67f968a40ff18818ecdc7038f5512fca0dd0a",
+      "bodySha256": "efa4a0d921c2ddf0579c3866602daa32da6824a017d22357064f923b09e2d7ed",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "07-2026-11-15-george-victorious-services-GET.json",
+      "envelopeSha256": "77da7947eed8c5eb35f74d568afc134559d3bd7db0fdb3d0def1b825126c84a0",
+      "bodySha256": "d6c25e16ba103c2d149835a44a88753c066c9140c7268c7b4404a732172db161",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "08-2026-11-15-george-victorious-templates-GET.json",
+      "envelopeSha256": "5b2534d0338820e20b19730eadb3d1b6140d156e07bc71483d4c383319a347dd",
+      "bodySha256": "212252de9783179f7b67363757b33fa7bb45acdab4bf3c0c3145f86a41232b2a",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "09-2026-11-15-george-victorious-assignments-GET.json",
+      "envelopeSha256": "7684c9e6c3e3101f028655dba6a62e5ef57a397dfa53ba49aac2d7c0b8bedaae",
+      "bodySha256": "27b2151ab2cb446d7c4c018605eb260542cf14fadadd744040a4dcb274908221",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "10-2026-11-09-dormition-services-GET.json",
+      "envelopeSha256": "d346d708ae9cb1c05c0655457f350f947935c8e63966577a6080cdeb3259c43b",
+      "bodySha256": "dceba412f6fc34f2308b844ab7a5f17cfec39b19af1a7d7e33f5b2d539104feb",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "11-2026-11-09-dormition-templates-GET.json",
+      "envelopeSha256": "368368eb6d699c178ae4557966a8e7d2ea98e2a1c9898d07d35d561625d8dfc4",
+      "bodySha256": "71cdea919b1a2e85ec27a5a0ee129bb5c4f9b957bd19a0b47fe2d9e4a24e4579",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "12-2026-11-09-dormition-assignments-GET.json",
+      "envelopeSha256": "d15c5f39ef0fbca2109145548398e910cafee9886639e02d2a654036910fa278",
+      "bodySha256": "6402f455b7b93b21e6c8a390e9dad56302b55b41f3e873884fa0e71f2adfdd0e",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "13-2026-11-09-george-victorious-templates-GET.json",
+      "envelopeSha256": "17af3b7fc1c78af5dd25ad8d04eac0572911cd175eccb5b5acf5992610bdc4f7",
+      "bodySha256": "b994d91557b876b320ea33e17f3935fe424f71520a220c3ce95354cadf731d01",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "14-2026-11-09-george-victorious-services-GET.json",
+      "envelopeSha256": "6330675a4a266a3ec9bc4a0fea804df81c600262cdbf16699937a9f39fc0099b",
+      "bodySha256": "b537c733b9f7d0aa234e9aedab30c7d0483bfba21b3cc416fe195ae107e941d5",
+      "status": 409,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "15-2026-11-09-george-victorious-assignments-POST.json",
+      "envelopeSha256": "871449a864cb2dbd69ac1626214998533a6ba223dc5c9b86c45d6c6fd91fd611",
+      "bodySha256": "eb6dc66a0649f3b59cac0289484e70fe80d9dcb6c5378a35801863c7662f9dd5",
+      "status": 200,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "16-2026-11-09-george-victorious-assignments-GET.json",
+      "envelopeSha256": "737da8b84bca0ef751b72256640022a74955e76a0f10811afd073dfe8e66611c",
+      "bodySha256": "6d044fa621a4e2125af528a94e5437777dba1ecbf8373a60e570dd1d153dc0fa",
+      "status": 422,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "17-2026-11-09-george-victorious-services-GET.json",
+      "envelopeSha256": "2a7e11511bcc42bd46c29b37d26bd27a404ea0205ee08a27ccfb07e402453744",
+      "bodySha256": "6d044fa621a4e2125af528a94e5437777dba1ecbf8373a60e570dd1d153dc0fa",
+      "status": 422,
+      "requestAndBodyEqualToStage": true
+    },
+    {
+      "file": "18-2026-11-09-george-victorious-assignments-POST.json",
+      "envelopeSha256": "4a3672dce9c5ee15112d0b5f3efaff46f4c1e2fd93a976f7600e77591841412f",
+      "bodySha256": "046842df84004a1ee88ba6eae39e1e7bf11adf034d038a9b1044dfd3e2dcbba4",
+      "status": 409,
+      "requestAndBodyEqualToStage": true
+    }
+  ],
+  "replay": {
+    "fullReaderModularCases": 4,
+    "privateClergyCase": 1,
+    "fullPdfPages": 67,
+    "partialPdfPages": 15,
+    "remainingPartialNames": 3,
+    "negativeMutations": 147,
+    "actualNegativeHttp": 3
+  },
+  "checks": {
+    "previousPortVitest": 279,
+    "copyAndPrintVitest": 27,
+    "productionBuildAndTypecheck": "PASS",
+    "builtPdfAssets": "PASS",
+    "nativeWordsAndFlagsUnchanged": true
+  },
+  "finalVisualPair": {
+    "pdf": {
+      "path": "tmp/pdfs/midnight-main-clergy-review.pdf",
+      "sha256": "d2e9b68b0cef8f48925164874a7f85b51d4e044c57b93395d6b1358c2d3e2e47",
+      "pages": 14
+    },
+    "first": {
+      "path": "tmp/pdfs/midnight-main-clergy-first.png",
+      "sha256": "b3823483d4dbe36be6db71005ea114b3d631ebab4593c9d801dc2c54fb48855c",
+      "page": 1
+    },
+    "last": {
+      "path": "tmp/pdfs/midnight-main-clergy-last.png",
+      "sha256": "0ac48178967c0b56f7379c5e35b312ef1b4e9df91b0c65845e4a07b5a70db367",
+      "page": 14
+    },
+    "sameFinalPdf": true,
+    "visualReview": "PASS: compact positive scope/name captions, Orthodox vector cross, readable CU, no source IDs/bibliography; original dynamic rubric preserved"
+  },
+  "hoursGeneralVariantPdf": {
+    "path": "tmp/pdfs/hours4fc-general-main-review.pdf",
+    "sha256": "09d7e982beebc4f43bba2a5def29973ea39e95fcc9bb33d606a2ec027d4c0426",
+    "pages": 5,
+    "selectedService": "actual full response selects general main service with Octoechos; modular body parity PASS",
+    "selectedVariantCaptionImplemented": false
+  },
+  "notClaimed": [
+    "production deployment or production HTTP acceptance",
+    "actual clergy identities or local parish/vigil schedule",
+    "all annual dates in Kalendar replay",
+    "new headings/TOC inferred from text"
+  ]
+}

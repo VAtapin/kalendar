@@ -1,7 +1,8 @@
 export const UI_DE = {
     "Полунощница": "Mitternachtsgottesdienst",
     "Полная Полунощница — выбранный печатный чин": "Vollständiger Mitternachtsgottesdienst – gewählte gedruckte Ordnung",
-    "Рассчитан обычный самостоятельный чин. Местное всенощное бдение и особые указания не подтверждены.": "Die gewöhnliche eigenständige Ordnung wurde berechnet. Eine örtliche Vigil oder besondere Anordnungen sind nicht bestätigt.",
+    "Обычный самостоятельный чин без местного бдения.": "Gewöhnliche eigenständige Ordnung ohne örtliche Vigil.",
+    "Имена: из вашего ввода.": "Namen: aus Ihrer Eingabe.",
     "Участие в службе": "Teilnahme am Gottesdienst",
     "Чтение без священника": "Lesung ohne Priester",
     "Со священником": "Mit Priester",
