@@ -135,7 +135,11 @@ export async function composeParts(template, assignments, state) {
       || assignments.completeness?.appointment !== true || assignments.completeness?.composition !== true
       || await partsHash(entries.flatMap(entry => entry.blocks)) !== assignments.composedBlocksHash) throw new Error('Composition mismatch');
   }
-  return { status: 'parts', template, entries, assignmentsStatus: assignments.status,
+  const sources = [...template.sourceVersions, ...[...operations.values()]
+    .filter(operation => operation.type !== 'remove' && operation.metadataOnly !== true)
+    .flatMap(operation => operation.blockSources || [])];
+  const sourceVersions = [...new Map(sources.map(source => [JSON.stringify(source), source])).values()];
+  return { status: 'parts', template, entries, sourceVersions, assignmentsStatus: assignments.status,
     complete: assignments.status === 'complete', outline, profileStatus: assignments.profileStatus };
 }
 

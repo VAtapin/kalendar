@@ -61,8 +61,24 @@ describe('source-bound worship parts', () => {
     assignments.composedBlocksHash = hash([...bound, ...assignments.operations[1].blocks, ...assignments.operations[2].blocks, ...template.nodes.at(-1).blocks]);
     const result = await composeParts(template, assignments, state);
     expect(result.complete).toBe(true); expect(result.entries.find(entry => entry.nodeId === 'last').language).toBe('cu');
+    expect(result.sourceVersions).toEqual([...template.sourceVersions, source]);
     assignments.operations[1].blocks[0].provenance.bodyHash = 'c'.repeat(64);
     await expect(composeParts(template, assignments, state)).rejects.toThrow('Unidentified operation text');
+  });
+  it('keeps only sources used by composed operations alongside the template bibliography', async () => {
+    const template = templateFor(state.office), assignments = assignmentsFor(template, state);
+    const source = { work: 'appointed-source', edition: 'native-cu', language: 'cu', hash: 'b'.repeat(64) };
+    const unused = { ...source, work: 'unused-source' };
+    assignments.sourceVersions = [source, unused];
+    assignments.operations.filter(operation => operation.type === 'fill').forEach(operation => { operation.blockSources = [source]; });
+    assignments.operations[0].blockSources = [unused];
+    const result = await composeParts(template, assignments, state);
+    expect(result.sourceVersions).toEqual([...template.sourceVersions, source]);
+    expect(result.entries.flatMap(entry => entry.blocks || [])).toEqual([
+      ...template.nodes[0].blocks, ...assignments.operations[1].blocks, ...assignments.operations[2].blocks, ...template.nodes.at(-1).blocks,
+    ]);
+    const held = await composeParts(template, assignmentsFor(template, state, false), state);
+    expect(held.sourceVersions).toEqual(template.sourceVersions);
   });
   it.each(['first-hour','third-hour','sixth-hour','ninth-hour'])('requests the published ordinary CU profile for %s with matching sequence context', async office => {
     const selected = { ...state, office, textLanguage: 'cu', sequence: office === 'first-hour' ? 'after-matins' : office === 'ninth-hour' ? 'before-vespers' : office === 'third-hour' ? 'standalone' : state.sequence };

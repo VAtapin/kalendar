@@ -4,6 +4,8 @@ import { create, descendants } from './fixtures/worship-dom.mjs';
 import { createBookReader } from '../public/calendar-ui/book-reader.js';
 import { libraryFixture } from './fixtures/book-library.mjs';
 import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
+import { composeParts } from '../public/calendar-ui/worship-parts.js';
+import { templateFor, assignmentsFor } from './fixtures/worship-parts.mjs';
 
 function setup(overrides = {}) {
   const host = create('div'); let token = 1, allowed = true;
@@ -82,5 +84,20 @@ describe('reader PDF controls', () => {
     expect(captureWorshipPdf.mock.calls[0][0].tag).toBe('article'); const [snapshot] = downloadWorshipPdf.mock.calls[0];
     expect(snapshot.kind).toBe('dated-service'); expect(snapshot.complete).toBe(false); expect(snapshot.warnings).not.toEqual([]);
     expect(snapshot.sourceMetadata.selection.date).toBe('2026-11-03'); reader.dispose();
+  });
+  it('includes the composed hymn edition in the dated PDF bibliography', async () => {
+    const state = { office: 'third-hour', sequence: 'standalone', temple: 'nicholas', date: '2026-11-03' };
+    const template = templateFor(state.office), assignments = assignmentsFor(template, state);
+    const source = { work: 'appointed-source', edition: 'cu-civil', language: 'cu-civil', sourceUrl: 'https://source.example/appointed' };
+    assignments.operations.filter(operation => operation.type === 'fill').forEach(operation => { operation.blockSources = [source]; });
+    const captureWorshipPdf = (_, metadata) => metadata, downloadWorshipPdf = vi.fn(async () => ({}));
+    vi.stubGlobal('IntersectionObserver', class { observe() {} disconnect() {} });
+    const reader = renderWorshipReader({ state, create, formatDate: value => value, onChange() {}, onCalendar() {}, onRetry() {},
+      pdfLoad: async () => ({ captureWorshipPdf, downloadWorshipPdf }) });
+    try {
+      reader.render(await composeParts(template, assignments, state));
+      await descendants(reader.page).find(node => node.textContent === 'Скачать PDF').events.click();
+      expect(downloadWorshipPdf.mock.calls[0][0].sources).toEqual(['fixture-fixed-source', 'appointed-source · cu-civil · https://source.example/appointed']);
+    } finally { reader.dispose(); vi.unstubAllGlobals(); }
   });
 });
