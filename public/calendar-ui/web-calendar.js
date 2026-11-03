@@ -3,11 +3,13 @@ import { isAdditionalLiturgy, readLiturgySelection } from './worship-additional-
 import { UI_DE } from './web-calendar-i18n.js';
 import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, renderWorshipReader } from './worship-reader.js';
 import { fetchWorshipParts } from './worship-parts.js';
+import { BOOK_URL_KEYS, readBookLocation } from './book-library.js';
+import { createBookReader } from './book-reader.js';
 'use strict';
 
 const $ = id => document.getElementById(id);
 const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
-const VIEW_LABELS = { day: 'День', week: 'Неделя', month: 'Месяц', year: 'Год', worship: 'Богослужение дня' };
+const VIEW_LABELS = { day: 'День', week: 'Неделя', month: 'Месяц', year: 'Год', worship: 'Богослужение дня', books: 'Книги' };
 const VESTMENT_COLORS = new Set(['gold', 'white', 'blue', 'red', 'green', 'violet', 'black']);
 function localIsoDate(now = new Date()) {
   const offset = now.getTimezoneOffset() * 60_000;
@@ -15,7 +17,8 @@ function localIsoDate(now = new Date()) {
 }
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
-  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '' };
+  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '',
+  book: '', edition: '', bookGroup: 'minea', bookMonth: '', bookDay: '', bookTone: '', bookWeekday: '' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 let disposeWorshipReader = () => {};
 let worshipController;
@@ -126,17 +129,21 @@ function syncControls() {
 function saveLocation() {
   const url = new URL(location.href);
   url.search = '';
+  const calendarKeys = ['view', 'date', 'lang', 'profile', 'eventLimit'];
+  const worshipKeys = [...calendarKeys, 'office', 'temple', 'sequence', 'afterHourHymn', 'location', 'textSize', 'textLanguage', 'rite', 'midLentBranch'];
+  const keys = state.view === 'books' ? BOOK_URL_KEYS : state.view === 'worship' ? worshipKeys : calendarKeys;
   Object.entries(state).forEach(([key, value]) => {
-    if (state.view === 'worship' || ['view', 'date', 'lang', 'profile', 'eventLimit'].includes(key)) url.searchParams.set(key, value);
+    if (keys.includes(key)) url.searchParams.set(key, value);
   });
   history.replaceState(null, '', url);
 }
 
 function readLocation() {
   const params = new URLSearchParams(location.search);
+  readBookLocation(params, state);
   readLiturgySelection(params, state);
   const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
-  if (['day', 'week', 'month', 'year', 'worship'].includes(view)) state.view = view;
+  if (['day', 'week', 'month', 'year', 'worship', 'books'].includes(view)) state.view = view;
   if (validWorshipDate(date)) state.date = date;
   if (['ru', 'cu', 'de', 'uk', 'pl'].includes(lang)) state.lang = lang;
   if (['typikon-strict', 'parish'].includes(profile)) state.profile = profile;
@@ -804,12 +811,23 @@ async function load() {
   const request = ++loadSequence;
   ++daySequence;
   ++worshipSequence;
+  document.body.classList.toggle('books-view', state.view === 'books');
   syncControls();
   saveLocation();
   $('submit').disabled = true;
   setStatus('Загружаю календарь…');
-  void loadCalendarFont().catch(() => undefined);
   try {
+    if (state.view === 'books') {
+      const selected = { ...state };
+      const reader = createBookReader({ base: globalThis.KalendarConfig.publicApiUrl, state: selected, create: e,
+        onStateChange: values => { Object.assign(state, values); saveLocation(); },
+        onCalendar: () => { state.view = 'day'; void load(); } });
+      disposeWorshipReader = reader.dispose;
+      $('calendar-panel').classList.remove('cu', 'calendar-text');
+      $('calendar-panel').replaceChildren(reader.page); setStatus('Загружаю каталог книг…');
+      await reader.start(); if (request === loadSequence) setStatus(''); return;
+    }
+    void loadCalendarFont().catch(() => undefined);
     const common = { lang: state.lang, profile: state.profile };
     if (state.view === 'worship') { await showWorship(); return; }
     if (state.view === 'day') {
@@ -871,6 +889,7 @@ $('month').addEventListener('change', () => { $('date').value = $('year').value 
 document.querySelector('.view-tabs').addEventListener('click', event => { const view = event.target.dataset.view; if (view) { state.view = view; void load(); } });
 $('today').addEventListener('click', () => { state.date = localIsoDate(); void load(); });
 $('worship-today').addEventListener('click', () => openWorship(localIsoDate()));
+$('open-books').addEventListener('click', () => { state.view = 'books'; void load(); });
 $('previous').addEventListener('click', () => shift(-1));
 $('next').addEventListener('click', () => shift(1));
 $('close-filters').addEventListener('click', () => { $('filters').open = false; });

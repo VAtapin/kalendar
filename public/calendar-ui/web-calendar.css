@@ -210,6 +210,15 @@ dialog::backdrop { background: #18291e88; }
 .worship-local-context { margin: 18px 0; }
 .worship-local-context form { display: grid; gap: 12px; max-width: 720px; }
 .worship-local-context input[type="text"], .worship-local-context select { display: block; width: 100%; padding: 8px; }
+.books-view #filters { display: none; }
+.book-catalog { margin: 18px 0; }
+.book-catalog > summary { cursor: pointer; font-weight: 650; padding: 10px 0; }
+.book-list { display: grid; gap: 10px; margin: 12px 0; }
+.book-card { display: block; text-align: left; padding: 12px 16px; background: white; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; color: var(--ink); }
+.book-card:hover, .book-card:focus-visible { border-color: var(--gold); background: #f9f7ef; }
+.book-content .worship-navigation { max-height: 60vh; overflow: auto; padding: 10px 0; }
+.book-content .worship-navigation a { display: block; margin: 8px 0; color: var(--green); }
+.book-text .worship-block { scroll-margin-top: 20px; }
 .worship-toc { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 15px 0 25px; border-bottom: 1px solid var(--line); }
 .worship-toc a { color: var(--green); }
 .worship-navigation { scroll-margin-top: 20px; }
@@ -257,7 +266,7 @@ dialog::backdrop { background: #18291e88; }
   body:has(.worship-page) main { max-width: none; padding: 0; }
   body:has(.worship-page) main > :not(.shell),
   body:has(.worship-page) #status,
-  .worship-page button, .worship-controls, .worship-navigation, .worship-local-context, .reader-back-to-contents { display: none !important; }
+  .worship-page button, .worship-controls, .worship-navigation, .worship-local-context, .book-catalog, .reader-back-to-contents { display: none !important; }
   body:has(.worship-page) .content { border: 0; box-shadow: none; padding: 0; }
   .worship-page { page: worship; max-width: none; --reader-size: 12pt !important; }
   .worship-text { overflow: visible; }
