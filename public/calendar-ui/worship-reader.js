@@ -79,14 +79,18 @@ function coverageLabel(result) {
   }[result.assignmentsStatus] || 'Служба дня составлена не полностью';
 }
 
-function missingExplanation(reason, contract) {
-  if (['evangelist', 'appointed-saint'].includes(contract?.contractKind)) return 'Назначение этой части на выбранную дату пока не подтверждено.';
+function missingKind(reason, contract) {
   const category = contract?.completionClassification?.category || contract?.category || '';
-  if (category.includes('day') || category.includes('dated')) return 'Назначение этой части на выбранную дату пока не подтверждено.';
-  if (category.includes('local') || reason === 'traditional-cu-verified-local-context-required') return 'Эту часть задают местные данные храма: точные формы имён или выбор условий службы.';
+  if (['evangelist', 'appointed-saint'].includes(contract?.contractKind) || category.includes('day') || category.includes('dated')
+    || ['dated-appointment-not-verified', 'traditional-cu-appointment-not-independently-verified', 'traditional-cu-office-appointment-not-verified'].includes(reason)) return 'day';
+  if (category.includes('local') || reason === 'traditional-cu-verified-local-context-required') return 'local';
+  return 'other';
+}
+function missingExplanation(reason, contract) {
+  const kind = missingKind(reason, contract);
+  if (kind === 'day') return 'Назначение этой части на выбранную дату пока не подтверждено.';
+  if (kind === 'local') return 'Эту часть задают местные данные храма: точные формы имён или выбор условий службы.';
   if (contract) return 'Требуется подтверждение порядка или условий исполнения. Автоматическая вставка не выполнена.';
-  if (['dated-appointment-not-verified', 'traditional-cu-appointment-not-independently-verified',
-    'traditional-cu-office-appointment-not-verified'].includes(reason)) return 'Назначение этой части на выбранную дату пока не подтверждено.';
   return 'Назначение этой части пока не определено.';
 }
 
@@ -228,11 +232,31 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     const coverage = create('aside', '', 'worship-coverage');
     coverage.setAttribute('role', 'status');
     coverage.append(create('strong', coverageLabel(result)));
+    const missingTargets = new Map(), missingSummary = [], currentRender = renderVersion;
     const unresolved = result.entries?.filter(entry => entry.missing).length || 0;
     if (unresolved) {
       const count = create('p');
       count.append(create('span', 'Неопределённых частей:'), create('span', ' ' + unresolved));
       coverage.append(count);
+      if (result.assignmentsStatus === 'partial') {
+        const groups = { local: ['Данные вашего храма:', localForm ? 'Ввести местные имена' : 'Показать местные части'], day: ['Назначения дня:', 'Показать дневные части'], other: ['Другие условия службы:', 'Показать остальные части'] };
+        for (const [kind, [label, action]] of Object.entries(groups)) {
+          const count = result.entries.filter(entry => entry.missing && missingKind(entry.reason, entry.contract) === kind).length;
+          if (!count) continue;
+          missingSummary.push(create('span', label).textContent + ' ' + count);
+          const line = create('p'); line.append(create('span', label), create('span', ' ' + count));
+          const button = create('button', action, 'reader-button'); button.type = 'button'; button.dataset.missingGroup = kind;
+          button.addEventListener('click', () => {
+            if (disposed || currentRender !== renderVersion || !isCurrent()) return;
+            const target = kind === 'local' && localForm ? localForm.page : missingTargets.get(kind);
+            if (!target) return;
+            if (target === localForm?.page) target.open = true;
+            for (let parent = target.parentElement; parent; parent = parent.parentElement) if (parent.tagName === 'DETAILS') parent.open = true;
+            target.tabIndex = -1; target.scrollIntoView?.({ block: 'start' }); target.focus?.({ preventScroll: true });
+          });
+          line.append(button); coverage.append(line);
+        }
+      }
     }
     content.append(coverage);
     if (result.localValuesApplied) {
@@ -294,6 +318,9 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     for (const entry of repetitionEntries(entries)) {
       if (entry.missing) {
         const missing = create('aside', '', 'worship-missing');
+        missing.tabIndex = -1;
+        const kind = missingKind(entry.reason, entry.contract);
+        if (!missingTargets.has(kind)) missingTargets.set(kind, missing);
         missing.dataset.slotId = entry.slotId;
         missing.append(create('strong', nameLabels[entry.contract?.contractKind] || slotNames[entry.slotId] || 'Переменная часть службы'), create('p', missingExplanation(entry.reason, entry.contract)));
         if (result.outline) {
@@ -400,7 +427,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     snapshotProvider = module => module.captureWorshipPdf(body, {
       kind: 'dated-service', title: head.children[0].textContent, subtitle: formatDate(state.date),
       status: create('span', coverageLabel(result)).textContent, complete: result.status === 'ready' || result.complete === true,
-      information: [contextLabel.textContent, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
+      information: [contextLabel.textContent, ...missingSummary, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
       warnings: result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],
       sources: [],
       sourceMetadata: { selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence }, status: result.assignmentsStatus },

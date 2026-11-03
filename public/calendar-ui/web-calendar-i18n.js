@@ -1,4 +1,11 @@
 export const UI_DE = {
+  'Данные вашего храма:': 'Angaben Ihrer Kirche:',
+  'Назначения дня:': 'Tagesabhängige Teile:',
+  'Другие условия службы:': 'Weitere Gottesdienstbedingungen:',
+  'Ввести местные имена': 'Örtliche Namen eingeben',
+  'Показать местные части': 'Örtliche Teile anzeigen',
+  'Показать дневные части': 'Tagesabhängige Teile anzeigen',
+  'Показать остальные части': 'Weitere Teile anzeigen',
   'Здесь задаются имена служащих священника и диакона. После применения текст службы обновится. Остальные местные и дневные части останутся отмечены отдельно.': 'Hier geben Sie die Namen des zelebrierenden Priesters und Diakons ein. Nach dem Anwenden wird der Gottesdiensttext aktualisiert. Andere örtliche und tagesabhängige Teile bleiben gesondert gekennzeichnet.',
   'Проверьте формы перед применением': 'Prüfen Sie die Formen vor dem Anwenden',
   'Пустые поля не будут заполнены автоматически. Текст с этими формами появится после применения.': 'Leere Felder werden nicht automatisch ausgefüllt. Der Text mit diesen Formen erscheint nach dem Anwenden.',

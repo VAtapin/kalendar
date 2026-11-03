@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
 import { create, descendants } from './fixtures/worship-dom.mjs';
@@ -14,6 +14,36 @@ function render(result) {
     coverage: nodes.find(node => node.className === 'worship-coverage') };
 }
 describe('service completeness in the reader', () => {
+  it('groups remaining requirements, navigates to their actual placeholders and ignores stale controls', () => {
+    const entries = [
+      { missing: true, slotId: 'locality-petition', reason: 'traditional-cu-verified-local-context-required', contract: {} },
+      { missing: true, slotId: 'gospel', reason: 'traditional-cu-appointment-not-independently-verified', contract: [] },
+      { missing: true, slotId: 'hidden-id', contract: { contractKind: 'evangelist' }, reason: 'traditional-cu-verified-local-context-required' },
+      { missing: true, slotId: 'unknown', reason: 'opaque-private-code' },
+    ];
+    const { reader, nodes, texts, coverage } = render({ ...base, entries });
+    for (const [label, count] of [['Данные вашего храма:', ' 1'], ['Назначения дня:', ' 2'], ['Другие условия службы:', ' 1']]) {
+      const row = coverage.children.find(node => node.children.some(child => child.textContent === label));
+      expect(row.children.map(node => node.textContent)).toContain(count); expect(UI_DE[label]).toBeTruthy();
+    }
+    const target = nodes.find(node => node.className === 'worship-missing' && node.dataset.slotId === 'gospel');
+    target.scrollIntoView = vi.fn(); target.focus = vi.fn();
+    const button = nodes.find(node => node.dataset.missingGroup === 'day'); button.events.click();
+    expect(target.scrollIntoView).toHaveBeenCalledOnce(); expect(target.focus).toHaveBeenCalledOnce();
+    expect(nodes.filter(node => node.className === 'worship-missing')).toHaveLength(4);
+    expect(texts).toContain('Назначение этой части на выбранную дату пока не подтверждено.');
+    reader.render({ ...base, complete: true, assignmentsStatus: 'complete' }); button.events.click();
+    expect(target.scrollIntoView).toHaveBeenCalledOnce();
+    expect(descendants(reader.page).some(node => node.dataset.missingGroup)).toBe(false); reader.dispose();
+  });
+  it('links the local group to the existing available form without submitting names', () => {
+    const onLocalSubmit = vi.fn(), reader = renderWorshipReader({ state: { ...state, rite: 'basil-great' }, create, formatDate: date => date, onLocalSubmit });
+    reader.render({ ...base, template: { conditionalTemplates: {} }, additionalFixed: true, localContextAvailable: true, entries: [{ missing: true, slotId: 'local', contract: { category: 'local-source-variant-or-name' } }] });
+    const nodes = descendants(reader.page), form = nodes.find(node => node.className === 'worship-local-context');
+    form.open = false; form.scrollIntoView = vi.fn();
+    nodes.find(node => node.dataset.missingGroup === 'local').events.click();
+    expect(form.open).toBe(true); expect(form.scrollIntoView).toHaveBeenCalledOnce(); expect(onLocalSubmit).not.toHaveBeenCalled(); reader.dispose();
+  });
   it.each([
     [{ ...base, complete: true, assignmentsStatus: 'complete' }, 'Полная служба дня'],
     [base, 'Служба дня составлена не полностью'],

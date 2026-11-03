@@ -79,10 +79,13 @@ describe('reader PDF controls', () => {
     const captureWorshipPdf = vi.fn((body, metadata) => ({ ...metadata, blocks: [{ runs: [{ text: 'Captured' }] }] })), downloadWorshipPdf = vi.fn(async () => ({}));
     const reader = renderWorshipReader({ state: { office: 'third-hour', sequence: 'standalone', temple: 'nicholas', date: '2026-11-03' }, create, formatDate: value => value,
       onChange() {}, onCalendar() {}, onRetry() {}, pdfLoad: async () => ({ captureWorshipPdf, downloadWorshipPdf }) });
-    reader.render({ status: 'parts', assignmentsStatus: 'partial', entries: [{ language: 'cu', blocks: [{ kind: 'text', segments: [{ text: 'Exact displayed text' }] }] }] });
+    reader.render({ status: 'parts', assignmentsStatus: 'partial', entries: [{ language: 'cu', blocks: [{ kind: 'text', segments: [{ text: 'Exact displayed text' }] }] },
+      { missing: true, slotId: 'locality-petition', reason: 'traditional-cu-verified-local-context-required' },
+      { missing: true, slotId: 'gospel', reason: 'dated-appointment-not-verified' }] });
     await descendants(reader.page).find(n => n.textContent === 'Скачать PDF').events.click();
     expect(captureWorshipPdf.mock.calls[0][0].tag).toBe('article'); const [snapshot] = downloadWorshipPdf.mock.calls[0];
     expect(snapshot.kind).toBe('dated-service'); expect(snapshot.complete).toBe(false); expect(snapshot.warnings).not.toEqual([]);
+    expect(snapshot.information).toEqual(expect.arrayContaining(['Данные вашего храма: 1', 'Назначения дня: 1']));
     expect(snapshot.sourceMetadata.selection.date).toBe('2026-11-03'); reader.dispose();
   });
   it('keeps composed hymn provenance internal and omits the PDF bibliography', async () => {
