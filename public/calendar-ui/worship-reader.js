@@ -80,11 +80,11 @@ function coverageLabel(result) {
 }
 
 function missingExplanation(reason, contract) {
+  if (['evangelist', 'appointed-saint'].includes(contract?.contractKind)) return 'Назначение этой части на выбранную дату пока не подтверждено.';
   const category = contract?.completionClassification?.category || contract?.category || '';
-  if (category.includes('local')) return 'Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.';
   if (category.includes('day') || category.includes('dated')) return 'Назначение этой части на выбранную дату пока не подтверждено.';
+  if (category.includes('local') || reason === 'traditional-cu-verified-local-context-required') return 'Эту часть задают местные данные храма: точные формы имён или выбор условий службы.';
   if (contract) return 'Требуется подтверждение порядка или условий исполнения. Автоматическая вставка не выполнена.';
-  if (reason === 'traditional-cu-verified-local-context-required') return 'Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.';
   if (['dated-appointment-not-verified', 'traditional-cu-appointment-not-independently-verified',
     'traditional-cu-office-appointment-not-verified'].includes(reason)) return 'Назначение этой части на выбранную дату пока не подтверждено.';
   return 'Назначение этой части пока не определено.';
@@ -284,11 +284,18 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       'cherubic-or-replacement': 'Херувимская или её замена', megalynarion: 'Достойно есть или задостойник',
       communion: 'Причастен', 'blessed-name': 'Буди имя Господне', 'psalm-33': 'Псалом 33', dismissal: 'Отпуст',
       'thanksgiving-appendix': 'Благодарственные молитвы' };
+    Object.assign(slotNames, {
+      'hierarchy-opening-petition': 'Поминовение священноначалия', 'hierarchy-supplication-petition': 'Поминовение священноначалия',
+      'hierarchy-anaphora-commemoration': 'Поминовение священноначалия', 'hierarchy-many-years': 'Многолетие священноначалию',
+      'locality-petition': 'Местоположение храма', 'parish-or-monastery-founders': 'Приход или монастырь: основатели',
+      'parish-or-monastery-brethren': 'Приход или монастырь: община', 'optional-censing-troparia': 'Песнопения при каждении',
+    });
+    const nameLabels = { evangelist: 'Имя евангелиста', 'appointed-saint': 'Имя святого дня', priest: 'Имя священника', deacon: 'Имя диакона', communicant: 'Имя причащающегося', hierarchy: 'Поминовение священноначалия' };
     for (const entry of repetitionEntries(entries)) {
       if (entry.missing) {
         const missing = create('aside', '', 'worship-missing');
         missing.dataset.slotId = entry.slotId;
-        missing.append(create('strong', slotNames[entry.slotId] || 'Переменная часть службы'), create('p', missingExplanation(entry.reason, entry.contract)));
+        missing.append(create('strong', nameLabels[entry.contract?.contractKind] || slotNames[entry.slotId] || 'Переменная часть службы'), create('p', missingExplanation(entry.reason, entry.contract)));
         if (result.outline) {
           // Outline anchors identify source locations, not approved insertion operations.
           let unresolved = content.querySelector('.outline-missing');

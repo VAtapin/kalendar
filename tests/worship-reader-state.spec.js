@@ -36,9 +36,22 @@ describe('service completeness in the reader', () => {
     const { coverage, texts } = render({ ...base, entries });
     expect(descendants(coverage).map(node => node.textContent)).toContain(' 3');
     expect(texts).toContain('Назначение этой части на выбранную дату пока не подтверждено.');
-    expect(texts).toContain('Для этой части требуются подтверждённые местные данные. Они не подставлены автоматически.');
+    expect(texts).toContain('Эту часть задают местные данные храма: точные формы имён или выбор условий службы.');
     expect(texts).toContain('Назначение этой части пока не определено.');
     expect(texts.join(' ')).not.toContain('<private-unrecognized-error>');
+  });
+  it('labels temple setup clearly but keeps evangelist and appointed saint names as dated requirements', () => {
+    const entries = [
+      { missing: true, slotId: 'locality-petition', reason: 'traditional-cu-verified-local-context-required', contract: { wholeWordsMustBeSourceBound: true } },
+      { missing: true, slotId: 'parish-or-monastery-brethren', reason: 'traditional-cu-verified-local-context-required' },
+      { missing: true, slotId: 'private-id-a', reason: 'traditional-cu-verified-local-context-required', contract: { contractKind: 'evangelist' } },
+      { missing: true, slotId: 'private-id-b', reason: 'traditional-cu-verified-local-context-required', contract: { contractKind: 'appointed-saint' } },
+    ];
+    const { texts, coverage } = render({ ...base, entries });
+    expect(texts).toEqual(expect.arrayContaining(['Местоположение храма', 'Приход или монастырь: община', 'Имя евангелиста', 'Имя святого дня']));
+    expect(texts.filter(text => text === 'Назначение этой части на выбранную дату пока не подтверждено.')).toHaveLength(2);
+    expect(descendants(coverage).map(node => node.textContent)).toContain(' 4');
+    expect(texts.join(' ')).not.toMatch(/private-id|Полная служба дня/);
   });
   it('does not describe missing appointments as empty source text', () => {
     const block = { kind: 'text', segments: [{ text: 'Unmodified source words' }] };

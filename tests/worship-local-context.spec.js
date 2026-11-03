@@ -48,6 +48,20 @@ describe('transient local clergy form preparation', () => {
     expect(ui.consent.checked).toBe(false);
     expect(JSON.stringify(state)).not.toContain('Тест');
   });
+  it('opens the setup and previews exact user forms without confirmation or automatic application', async () => {
+    const ui = form(); expect(ui.widget.page.open).toBe(true);
+    const preview = () => descendants(ui.widget.page).find(node => node.className === 'local-form-preview');
+    expect(preview().hidden).toBe(true);
+    ui.name.value = 'Те́стовый'; ui.name.events.input();
+    expect(descendants(preview()).some(node => node.textContent === 'Те́стовый' && node.dataset.textLanguage === 'cu')).toBe(true);
+    expect(ui.onSubmit).not.toHaveBeenCalled(); expect(ui.submit.disabled).toBe(true);
+    ui.consent.checked = true; ui.consent.events.change(); await ui.form.events.submit({ preventDefault() {} });
+    expect(descendants(ui.widget.page).some(node => node.textContent === 'Введённые формы применены. Проверьте текст службы ниже.')).toBe(true);
+    ui.nodes.find(node => node.textContent === 'Удалить введённые формы').events.click();
+    expect(preview().hidden).toBe(true);
+    expect(descendants(ui.widget.page).map(node => node.textContent).join(' ')).not.toContain('Те́стовый');
+    ui.widget.dispose();
+  });
   it('erases names when cleared or disposed and suppresses stale errors', async () => {
     let reject;
     const ui = form(() => new Promise((resolve, fail) => { reject = fail; }));

@@ -55,9 +55,12 @@ export function buildLocalClergyContext(state, values, templeProfileId, confirme
 
 export function createLocalContextForm({ state, temples, create, onSubmit, onClear = () => {}, onDirty = () => {} }) {
   const page = create('details', '', 'worship-local-context');
+  page.open = true;
   page.append(create('summary', 'Местные имена священнослужителей'),
     create('p', 'Введите только готовые церковнославянские формы. Имена не склоняются автоматически. Пустые формы останутся незаполненными.', 'hint'),
     create('p', 'Введённые формы действуют только в текущем читателе и не включаются в ссылку.', 'hint'));
+  page.append(create('p', 'Здесь задаются имена служащих священника и диакона. После применения текст службы обновится. Остальные местные и дневные части останутся отмечены отдельно.', 'hint'));
+  page.append(create('p', 'Формы отправляются на сервер только после применения для подготовки текста. Форма не сохраняет их в ссылке или настройках.', 'hint'));
   const form = create('form'); form.noValidate = true;
   const templeLabel = create('label', 'Храм', 'control'), temple = create('select');
   for (const [id, title] of Object.entries(temples)) {
@@ -65,7 +68,7 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
   }
   temple.value = Object.hasOwn(temples, state.temple) ? state.temple : Object.keys(temples)[0];
   templeLabel.append(temple); form.append(templeLabel);
-  const inputs = new Map();
+  const inputs = new Map(), labels = new Map();
   for (const field of localClergyFields(state)) {
     const label = field.person === 'celebrant'
       ? field.grammaticalCase === 'nominative' ? 'Священник — именительный падеж (кто?)' : 'Священник — дательный падеж (кому?)'
@@ -75,7 +78,11 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
     input.lang = 'cu'; input.dataset.textLanguage = 'cu';
     input.autocomplete = 'off'; input.spellcheck = false;
     input.dataset.localField = field.key; wrapper.append(input); form.append(wrapper); inputs.set(field.key, input);
+    labels.set(field.key, label);
   }
+  const preview = create('div', '', 'local-form-preview'); preview.setAttribute('aria-live', 'polite'); preview.hidden = true;
+  form.append(preview);
+  const applied = create('p', '', 'hint'); applied.setAttribute('role', 'status'); applied.hidden = true; form.append(applied);
   const consentLabel = create('label', '', 'control'), consent = create('input');
   consent.type = 'checkbox'; consent.checked = false;
   consentLabel.append(consent, create('span', 'Подтверждаю точность введённых буквальных форм. Это мои данные, а не подтверждение назначения всей службы.'));
@@ -90,13 +97,21 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
     const filled = [...inputs.values()].filter(input => input.value !== '');
     const invalid = filled.some(input => !validLocalLiteral(input.value));
     for (const input of inputs.values()) input.setAttribute('aria-invalid', String(input.value !== '' && !validLocalLiteral(input.value)));
+    preview.replaceChildren(create('strong', 'Проверьте формы перед применением'));
+    for (const [key, input] of inputs) {
+      if (!input.value) continue;
+      const line = create('p'); line.append(create('span', labels.get(key)), create('span', ': '));
+      const literal = create('span'); literal.textContent = input.value; literal.lang = 'cu'; literal.dataset.textLanguage = 'cu'; line.append(literal); preview.append(line);
+    }
+    preview.append(create('p', 'Пустые поля не будут заполнены автоматически. Текст с этими формами появится после применения.', 'hint'));
+    preview.hidden = disposed || !filled.length;
     if (invalid && !disposed) {
       error.textContent = create('span', 'Проверьте буквальные формы: кириллица, не более 160 символов, без начальных и конечных пробелов.').textContent;
       error.hidden = false;
     }
     submit.disabled = disposed || pending || !consent.checked || !filled.length || invalid;
   }
-  function dirty() { ++version; controller?.abort(); consent.checked = false; error.hidden = true; update(); onDirty(); }
+  function dirty() { ++version; controller?.abort(); consent.checked = false; error.hidden = true; applied.hidden = true; applied.textContent = ''; update(); onDirty(); }
   for (const input of inputs.values()) input.addEventListener('input', dirty);
   temple.addEventListener('change', dirty); consent.addEventListener('change', update);
   form.addEventListener('submit', async event => {
@@ -107,11 +122,12 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
       controller = new AbortController();
       pending = true; update();
       await onSubmit(context, { signal: controller.signal, isCurrent: () => !disposed && request === version });
+      if (!disposed && request === version && !controller.signal.aborted) { applied.textContent = create('span', 'Введённые формы применены. Проверьте текст службы ниже.').textContent; applied.hidden = false; }
     } catch {
       if (!disposed && request === version) { error.textContent = create('span', 'Не удалось применить местные формы. Проверьте ввод и попробуйте ещё раз.').textContent; error.hidden = false; }
     } finally { pending = false; update(); }
   });
-  function erase() { ++version; controller?.abort(); for (const input of inputs.values()) input.value = ''; consent.checked = false; error.hidden = true; update(); }
+  function erase() { ++version; controller?.abort(); for (const input of inputs.values()) input.value = ''; consent.checked = false; error.hidden = true; applied.hidden = true; applied.textContent = ''; update(); }
   clear.addEventListener('click', () => { erase(); onDirty(); onClear(); });
   return { page, dispose() { disposed = true; erase(); } };
 }
