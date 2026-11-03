@@ -1,7 +1,8 @@
+import { createReaderPdfControls } from './reader-pdf-controls.js';
 import { BOOK_GROUPS, BOOK_MONTHS, BOOK_WEEKDAYS, bookSearchText, fetchBookCatalogue, fetchBookText, filterBooks, sourceBookIndex, bookBlockRange } from './book-library.js';
 
 const nextFrame = () => new Promise(resolve => globalThis.requestAnimationFrame ? requestAnimationFrame(resolve) : setTimeout(resolve, 0));
-export function createBookReader({ base, state, create, onStateChange, onCalendar, fetcher = fetch, print = () => globalThis.print(), yieldFrame = nextFrame }) {
+export function createBookReader({ base, state, create, onStateChange, onCalendar, fetcher = fetch, print = () => globalThis.print(), pdfLoad, yieldFrame = nextFrame }) {
   const page = create('section', '', 'worship-page book-page');
   const title = create('h2', 'Книги'), back = create('button', '← К календарю', 'reader-button'); back.type = 'button'; back.addEventListener('click', onCalendar);
   page.append(back, title, create('p', 'Библиотека опубликованных церковнославянских источников.', 'hint'));
@@ -17,7 +18,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   const day = select('День в Минее', 'bookDay', { '': 'Все опубликованные главы' }, value => changeFilter({ bookDay: value }));
   const searchLabel = create('label', 'Поиск по названиям книг', 'control'), search = create('input'); search.type = 'search'; searchLabel.append(search); filters.append(searchLabel);
   group.disabled = true; month.disabled = true; day.disabled = true; search.disabled = true;
-  const listStatus = create('p', 'Загружаю каталог книг…', 'hint'), list = create('div', '', 'book-list'); catalogue.append(listStatus, list); page.append(catalogue);
+  const listStatus = create('p', 'Загружаю каталог книг…', 'hint'), list = create('div', '', 'book-list'); catalogue.append(create('p', 'Месяц и день — по печатной Минее (старый стиль), а не гражданская дата службы. Память можно найти по названию.', 'hint'), listStatus, list); page.append(catalogue);
   const controls = create('div', '', 'worship-controls book-controls'); page.append(controls);
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input'); size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize || 22); sizeLabel.append(size); controls.append(sizeLabel);
   const toneLabel = create('label', 'Глас Октоиха', 'control'), tone = create('select'); tone.dataset.bookControl = 'bookTone'; toneLabel.append(tone); controls.append(toneLabel);
@@ -26,10 +27,11 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   const content = create('div', '', 'book-content'); content.setAttribute('aria-live', 'polite'); page.append(content);
   let entries = [], book, index, entry, controller, disposed = false, generation = 0, complete = false, visibleLimit = 60, wantedIndex;
   let activeRange, blockNodes = new Map(), navigationObserver;
+  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => complete && !disposed, selection: () => generation + ':' + (state.bookWeekday || ''), getSnapshot: () => getDocument() });
   function dataNode(tag, value, className = '') { const node = create(tag, null, className); node.textContent = value; return node; }
   function save(values) { Object.assign(state, values); onStateChange(values); }
   function clearBook() {
-    ++generation; controller?.abort(); navigationObserver?.disconnect(); book = null; index = null; entry = null; activeRange = null; wantedIndex = undefined; complete = false; printButton.disabled = true; content.replaceChildren();
+    ++generation; controller?.abort(); navigationObserver?.disconnect(); book = null; index = null; entry = null; activeRange = null; wantedIndex = undefined; complete = false; printButton.disabled = true; content.replaceChildren(); pdf.refresh();
     toneLabel.hidden = true; weekdayLabel.hidden = true; blockNodes.clear();
   }
   function changeFilter(values) { clearBook(); save({ ...values, book: '', edition: '', bookTone: '', bookWeekday: '' }); visibleLimit = 60; updateFilters(); renderList(); }
@@ -62,7 +64,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   size.addEventListener('input', () => { page.style.setProperty('--reader-size', size.value + 'px'); save({ textSize: Number(size.value) }); });
   page.style.setProperty('--reader-size', size.value + 'px');
   tone.addEventListener('change', () => { save({ bookTone: tone.value, bookWeekday: '' }); void renderBook(); });
-  weekday.addEventListener('change', () => { save({ bookWeekday: weekday.value }); jumpToDay(); });
+  weekday.addEventListener('change', () => { save({ bookWeekday: weekday.value }); pdf.refresh(); jumpToDay(); });
   function jump(position) {
     const node = blockNodes.get(position);
     if (node) { node.scrollIntoView?.({ block: 'start' }); node.focus?.({ preventScroll: true }); wantedIndex = undefined; }
@@ -90,7 +92,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   async function renderBook() {
     if (!book || disposed) return;
     const request = ++generation, value = book;
-    complete = false; printButton.disabled = true; navigationObserver?.disconnect(); content.replaceChildren(); blockNodes = new Map();
+    complete = false; printButton.disabled = true; pdf.refresh(); navigationObserver?.disconnect(); content.replaceChildren(); blockNodes = new Map();
     activeRange = bookBlockRange(value, index, state.bookTone);
     const selectedTone = index.tones.find(item => item.tone === Number(state.bookTone));
     if (state.bookTone && !selectedTone) save({ bookTone: '', bookWeekday: '' });
@@ -141,7 +143,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
       await yieldFrame();
     }
     if (disposed || request !== generation) return;
-    complete = true; printButton.disabled = false; jumpToDay();
+    complete = true; printButton.disabled = false; pdf.refresh(); jumpToDay();
   }
   printButton.addEventListener('click', async () => {
     if (!complete || disposed) return;
@@ -163,8 +165,9 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
       }
     } catch { if (!disposed && request === generation) listStatus.textContent = create('span', 'Каталог книг сейчас недоступен. Попробуйте открыть раздел заново.').textContent; }
   }
-  return { page, start, dispose() { disposed = true; ++generation; controller?.abort(); navigationObserver?.disconnect(); book = null; entry = null; blockNodes.clear(); },
-    getDocument() {
+  return { page, start, dispose() { disposed = true; pdf.dispose(); ++generation; controller?.abort(); navigationObserver?.disconnect(); book = null; entry = null; blockNodes.clear(); },
+    getDocument };
+  function getDocument() {
       if (!complete || !book || !entry || disposed) return null;
       const translate = text => create('span', text).textContent;
       const headings = index.headings.filter(item => item.index >= activeRange.start && item.index < activeRange.end);
@@ -179,7 +182,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
         if (tone && item.weekday && !firstDays.has(key)) { firstDays.add(key); return true; }
         return false;
       }).map(item => ({ blockIndex: item.index - activeRange.start, title: item.text, language: 'cu' }));
-      return structuredClone({ kind: 'book', title: book.title, subtitle: index.tones.find(tone => tone.tone === Number(state.bookTone))?.text,
+      return structuredClone({ kind: 'book', title: book.title, titleLanguage: 'cu', subtitle: index.tones.find(tone => tone.tone === Number(state.bookTone))?.text,
         status: translate(book.artifactType === 'source-book' ? 'Книжный источник' : 'Опубликованный текст'), complete: false, warnings: [],
         information: [book.edition_title, ...(state.bookTone ? [translate('Открыт отдельный глас; предисловие и другие гласы не включены.')] : [])],
         sources: [book.source_url, book.credit].filter(Boolean),
@@ -190,5 +193,5 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
           contentHash: book.content_hash, sourceScope: book.sourceScope || 'published-text', bookCompleteness: book.bookCompleteness || null, appointedForDate: false,
           selection: { kind: 'book', tone: state.bookTone || null, weekdayJump: state.bookWeekday || null, range: activeRange } },
         labels: { contents: translate('Оглавление'), sources: translate('Источники'), incomplete: translate('Книжный текст'), page: translate('Страница') } });
-    } };
+    }
 }

@@ -266,10 +266,13 @@ dialog::backdrop { background: #18291e88; }
   body:has(.worship-page) main { max-width: none; padding: 0; }
   body:has(.worship-page) main > :not(.shell),
   body:has(.worship-page) #status,
-  .worship-page button, .worship-controls, .worship-navigation, .worship-local-context, .book-catalog, .reader-back-to-contents { display: none !important; }
+  .reader-pdf-controls, .worship-page button, .worship-controls, .worship-navigation, .worship-local-context, .book-catalog, .reader-back-to-contents { display: none !important; }
   body:has(.worship-page) .content { border: 0; box-shadow: none; padding: 0; }
   .worship-page { page: worship; max-width: none; --reader-size: 12pt !important; }
   .worship-text { overflow: visible; }
   .worship-block { orphans: 3; widows: 3; }
   .worship-text h3 { break-after: avoid; }
 }
+
+.reader-pdf-controls { grid-column: 1 / -1; padding: 16px 20px; border: 1px solid var(--line); border-radius: 10px; margin: 16px 0; }
+.reader-pdf-controls textarea { display: block; width: 100%; box-sizing: border-box; margin: 6px 0 12px; font: inherit; }

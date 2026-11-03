@@ -1,3 +1,4 @@
+import { createReaderPdfControls } from './reader-pdf-controls.js';
 import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipRequestSignal } from './worship-context.js';
 import { LITURGY_RITES, MID_LENT_BRANCHES, isAdditionalLiturgy } from './worship-additional-liturgy.js';
 import { createLocalContextForm } from './worship-local-context.js';
@@ -123,7 +124,7 @@ export async function fetchWorship(base, state, fetcher = fetch, signal) {
   return { status: 'pending' };
 }
 
-export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry, onLocalSubmit, onLocalDirty, onLocalClear, isCurrent = () => true, print = () => globalThis.print() }) {
+export function renderWorshipReader({ state, create, formatDate, onChange, onCalendar, onRetry, onLocalSubmit, onLocalDirty, onLocalClear, isCurrent = () => true, pdfLoad, print = () => globalThis.print() }) {
   const page = create('section', '', 'worship-page');
   const head = create('div', '', 'content-head');
   const additional = isAdditionalLiturgy(state);
@@ -191,10 +192,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
   });
   controls.append(printButton);
-  let navigationObserver, localForm;
+  let navigationObserver, localForm, snapshotProvider, pdfReady = false;
+  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage]), getSnapshot: module => snapshotProvider?.(module) });
   function render(result) {
-    ++renderVersion;
+    ++renderVersion; snapshotProvider = null; pdf.refresh();
     printButton.disabled = !['ready', 'parts'].includes(result.status) || result.assignmentsStatus === 'loading';
+    pdfReady = !printButton.disabled;
     navigationObserver?.disconnect();
     content.replaceChildren();
     if (result.additionalFixed && result.localContextAvailable && onLocalSubmit && !localForm) {
@@ -386,6 +389,16 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       });
       content.append(variants);
     }
+    snapshotProvider = module => module.captureWorshipPdf(body, {
+      kind: 'dated-service', title: head.children[0].textContent, subtitle: formatDate(state.date),
+      status: create('span', coverageLabel(result)).textContent, complete: result.status === 'ready' || result.complete === true,
+      information: [contextLabel.textContent, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
+      warnings: result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],
+      sources: [...new Set((result.sourceVersions || result.template?.sourceVersions || []).map(item => [item.work, item.edition, item.source?.url || item.sourceUrl || item.source_url].filter(Boolean).join(' · ')).filter(Boolean))],
+      sourceMetadata: { selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence }, status: result.assignmentsStatus },
+      labels: { contents: create('span', 'Оглавление').textContent, sources: create('span', 'Источники').textContent, incomplete: create('span', 'Полная служба выбранной даты не составлена.').textContent, page: create('span', 'Страница').textContent }
+    });
+    pdf.refresh();
   }
-  return { page, summary, render, dispose: () => { disposed = true; printButton.disabled = true; localForm?.dispose(); navigationObserver?.disconnect(); } };
+  return { page, summary, render, dispose: () => { disposed = true; pdf.dispose(); printButton.disabled = true; localForm?.dispose(); navigationObserver?.disconnect(); } };
 }

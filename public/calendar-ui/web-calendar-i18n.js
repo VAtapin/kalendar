@@ -1,4 +1,15 @@
 export const UI_DE = {
+  'Месяц и день — по печатной Минее (старый стиль), а не гражданская дата службы. Память можно найти по названию.': 'Monat und Tag folgen dem gedruckten Menäon (alter Stil), nicht dem bürgerlichen Datum des Gottesdienstes. Nach dem Namen kann gesucht werden.',
+  'Скачать PDF': 'PDF herunterladen',
+  'Комментарий к PDF (не часть богослужебного текста)': 'Kommentar zum PDF (kein Teil des liturgischen Textes)',
+  'Отменить подготовку PDF': 'PDF-Erstellung abbrechen',
+  'Подготовка PDF отменена.': 'PDF-Erstellung abgebrochen.',
+  'Готовлю PDF… Большая книга может занять около минуты.': 'PDF wird erstellt… Ein großes Buch kann etwa eine Minute dauern.',
+  'Комментарий пользователя:': 'Kommentar des Nutzers:',
+  'Обработано блоков:': 'Verarbeitete Textblöcke:',
+  'PDF готов к скачиванию.': 'PDF zum Herunterladen bereit.',
+  'Не удалось подготовить PDF. Попробуйте ещё раз.': 'PDF konnte nicht erstellt werden. Bitte erneut versuchen.',
+
   'Книги': 'Bücher',
   '← К календарю': '← Zum Kalender',
   'Библиотека опубликованных церковнославянских источников.': 'Bibliothek veröffentlichter kirchenslawischer Quellen.',

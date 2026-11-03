@@ -58,13 +58,30 @@ navigation/contents и sourceMetadata с точной редакцией и вы
 не получает предупреждений о неполноте службы дня. complete в общем формате
 является полем полноты дневной службы и для kind=book не означает неполную книгу.
 Ограничение выбранного гласа отмечено обычным information, не красным daily warning.
-Кнопка скачивания PDF подключается отдельным изменением.
+«Скачать PDF» создаёт настоящий A4 PDF с встроенными DejaVu/Ponomar,
+рубриками, небольшим орнаментом, оглавлением, закладками и источниками.
+Экспортируется только открытый источник/глас и точная редакция. Необязательный
+комментарий явно подписан как пользовательский, остаётся в памяти и не меняет
+книжный текст. Для большого Октоиха подготовка может занять около минуты;
+показаны обработанные блоки и отмена. Смена выбора, комментария или читателя
+отменяет текущий экспорт. До полной отрисовки кнопка отключена.
+
+Модуль PDF загружается лениво по `/calendar-ui/worship-pdf-manifest.json`.
+`build-production.ts` собирает его в staging до публикации; manifest указывает
+на content-addressed `/assets/worship-pdf-<hash>.js`. Старые versioned assets
+сохраняются штатным publishBuild. Зависимости не добавлены. Нативная печать
+осталась отдельной кнопкой. В читателе служб PDF захватывает только основной
+article, предупреждения и обязательные пробелы; условные варианты отдельно
+не присоединяются. Только `kind=dated-service` имеет предупреждение о неполном
+дневном составе. Книжный PDF не получает дату/храм/дневные placeholders.
 
 ## Проверки
 
 ```bash
-npm test -- tests/book-library.spec.js tests/book-reader.spec.js
+npm test -- tests/book-library.spec.js tests/book-reader.spec.js tests/reader-pdf-controls.spec.js tests/worship-pdf.spec.ts tests/worship-pdf-browser.spec.ts
 node scripts/test-book-library.mjs
+# После npm run build:
+node scripts/test-worship-pdf-build.mjs
 ```
 
 Вторая команда только читает public API и проверяет Node-представление книги:
