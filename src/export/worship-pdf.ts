@@ -82,10 +82,10 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
   check();
   const pdf = await PDFDocument.create();
   pdf.registerFontkit(fontkit);
-  pdf.setTitle(snapshot.title);
+  const bookTitle = snapshot.kind === 'book' ? /^(.+?)\s+(\([^()]+\))$/u.exec(snapshot.title) : null;
+  pdf.setTitle(bookTitle?.[1] ?? snapshot.title);
   pdf.setCreator('Kalendar');
-  if (snapshot.sourceMetadata) pdf.setSubject(JSON.stringify(snapshot.sourceMetadata));
-  // No invented author: source provenance belongs in the reader's supplied metadata.
+  // Source provenance stays in application validation, not the exported document.
   const fonts = {
     civil: await embedShapingFont(pdf, data.civil),
     cu: await embedShapingFont(pdf, data.cu),
@@ -173,16 +173,13 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     }
     y -= 5;
   }
-  // Small vector flourish; no raster logo and no separate title page.
-  page!.drawLine({ start: { x: MARGIN, y: y - 6 }, end: { x: MARGIN + 43, y: y - 6 }, thickness: .7, color: RED });
-  page!.drawSvgPath('M 0 0 C 8 -11 18 -11 22 0 C 26 11 36 11 44 0 M 16 0 L 28 0 M 22 -6 L 22 6', { x: SIZE[0] / 2 - 22, y: y - 6, borderColor: RED, borderWidth: .8 });
-  page!.drawLine({ start: { x: SIZE[0] - MARGIN - 43, y: y - 6 }, end: { x: SIZE[0] - MARGIN, y: y - 6 }, thickness: .7, color: RED });
-  y -= 23;
-  // Book catalogue titles often append a long edition in parentheses. Keep the
-  // full original PDF title, while giving the edition its own compact line.
-  const bookTitle = snapshot.kind === 'book' ? /^(.+?)\s+(\([^()]+\))$/u.exec(snapshot.title) : null;
+  // Eight-point Orthodox cross: stem, short upper bar, main bar, slanted footrest.
+  const center = SIZE[0] / 2;
+  for (const [x1, y1, x2, y2] of [[0, 1, 0, -21], [-3, -3, 3, -3], [-7, -9, 7, -9], [-4, -14, 4, -18]]) {
+    page!.drawLine({ start: { x: center + x1!, y: y + y1! }, end: { x: center + x2!, y: y + y2! }, thickness: .9, color: RED });
+  }
+  y -= 30;
   paragraph(bookTitle?.[1] ?? snapshot.title, 20, INK, snapshot.titleLanguage);
-  if (bookTitle?.[2]) paragraph(bookTitle[2], 11);
   if (snapshot.subtitle) paragraph(snapshot.subtitle, 11, MUTED, snapshot.titleLanguage);
   for (const text of snapshot.information) paragraph(text, 9);
   const partialService = snapshot.kind === 'dated-service' && !snapshot.complete;
@@ -230,17 +227,11 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     y -= block.kind === 'heading' ? 3 : 7;
     if (index % 8 === 7) await yieldWork();
   }
-  if (snapshot.warnings.length || snapshot.sources.length) {
+  if (snapshot.warnings.length) {
     y -= 16;
-    const closingHeight = snapshot.warnings.reduce((sum, text) => sum + wrap([{ text }], undefined, 9).length * 9 * 1.35 + 5, 0)
-      + (snapshot.sources.length ? 26 : 0)
-      + snapshot.sources.reduce((sum, text) => sum + wrap([{ text }], undefined, 8.5).length * 8.5 * 1.35 + 5, 0);
+    const closingHeight = snapshot.warnings.reduce((sum, text) => sum + wrap([{ text }], undefined, 9).length * 9 * 1.35 + 5, 0);
     ensure(Math.min(closingHeight + 8, SIZE[1] - MARGIN - BOTTOM));
     for (const text of snapshot.warnings) paragraph(text, 9, RED);
-    if (snapshot.sources.length) {
-      paragraph(snapshot.labels.sources, 11, INK);
-      for (const source of snapshot.sources) paragraph(source, 8.5);
-    }
   }
   sealPage(page);
   const destination = (target: { page: PDFPage; y: number }) => pdf.context.obj([target.page.ref, PDFName.of('XYZ'), null, target.y, null]);

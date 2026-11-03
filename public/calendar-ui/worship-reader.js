@@ -395,7 +395,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       status: create('span', coverageLabel(result)).textContent, complete: result.status === 'ready' || result.complete === true,
       information: [contextLabel.textContent, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
       warnings: result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],
-      sources: [...new Set((result.sourceVersions || result.template?.sourceVersions || []).map(item => [item.work, item.edition, item.source?.url || item.sourceUrl || item.source_url].filter(Boolean).join(' · ')).filter(Boolean))],
+      sources: [],
       sourceMetadata: { selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence }, status: result.assignmentsStatus },
       labels: { contents: create('span', 'Оглавление').textContent, sources: create('span', 'Источники').textContent, incomplete: create('span', 'Полная служба выбранной даты не составлена.').textContent, page: create('span', 'Страница').textContent }
     });

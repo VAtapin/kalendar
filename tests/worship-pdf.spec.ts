@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { PDFDocument, PDFName } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFPage } from 'pdf-lib';
 import { describe, expect, it, vi } from 'vitest';
 import { exportWorshipPdf, StaleWorshipPdfError, type WorshipPdfSnapshot } from '../src/export/worship-pdf';
 
@@ -16,6 +16,24 @@ function fixture(): WorshipPdfSnapshot {
     ] };
 }
 describe('real worship PDF export', () => {
+  it('draws the Orthodox cross with four vector lines and never prints provenance, even from older snapshots', async () => {
+    const lines = vi.spyOn(PDFPage.prototype, 'drawLine');
+    const source = fixture(); source.sources = ['https://source.example/private-edition'];
+    source.sourceMetadata = { work: 'internal-work', edition: 'internal-edition' };
+    try {
+      const result = await exportWorshipPdf(source, { fontBytes, collectPlacements: true });
+      const pdf = await PDFDocument.load(result.bytes);
+      expect(pdf.getSubject()).toBeUndefined();
+      const text = result.placements.map(placement => placement.text).join('');
+      expect(text).not.toContain(source.sources[0]); expect(text).not.toContain(source.labels.sources);
+      const cross = lines.mock.calls.slice(0, 4).map(([line]) => line!);
+      expect(cross).toHaveLength(4);
+      expect(cross[0]!.start.x).toBe(cross[0]!.end.x);
+      expect(cross[1]!.start.y).toBe(cross[1]!.end.y);
+      expect(cross[2]!.end.x - cross[2]!.start.x).toBeGreaterThan(cross[1]!.end.x - cross[1]!.start.x);
+      expect(cross[3]!.start.y).toBeGreaterThan(cross[3]!.end.y);
+    } finally { lines.mockRestore(); }
+  });
   it('supports a native CU book title and exposes cancellable block progress', async () => {
     const source = fixture(); source.kind = 'book'; source.title = 'Ѻ҆ктѡ́ихъ'; source.titleLanguage = 'cu';
     const onProgress = vi.fn(); const result = await exportWorshipPdf(source, { fontBytes, onProgress, collectPlacements: true });
@@ -81,16 +99,16 @@ describe('real worship PDF export', () => {
     expect(text).toContain('Whole source book');
     expect(text).not.toContain('Not a complete appointed service');
   });
-  it('keeps the full source title and wraps a long title/edition within the page', async () => {
+  it('omits the appended catalogue edition from the book heading and PDF title', async () => {
     const source = fixture(); source.kind = 'book';
     source.sources = [];
     source.title = 'Октоих (' + 'Полное церковнославянское издание '.repeat(8) + 'Ponomar)';
     const result = await exportWorshipPdf(source, { fontBytes, collectPlacements: true });
     const pdf = await PDFDocument.load(result.bytes);
-    expect(pdf.getTitle()).toBe(source.title);
+    expect(pdf.getTitle()).toBe('Октоих');
     const title = result.placements.filter(p => p.size === 20);
     expect(title.map(p => p.text).join('')).toBe('Октоих');
-    expect(result.placements.filter(p => p.size === 11).map(p => p.text).join('')).toBe(source.title.slice('Октоих '.length));
+    expect(result.placements.filter(p => p.size === 11)).toEqual([]);
     expect(result.placements.every(p => p.x + p.width <= 549.277)).toBe(true);
   });
   it('captures immutable input before its asynchronous work and rejects unsupported glyphs', async () => {

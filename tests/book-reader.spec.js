@@ -11,6 +11,14 @@ function reader(f = libraryFixture(), options = {}) {
   return { instance, state, nodes: () => descendants(instance.page) };
 }
 describe('book mode reader and document snapshot', () => {
+  it('omits an appended edition from catalogue, reading and PDF headings without changing source words', async () => {
+    const f = libraryFixture(); f.data.title = f.work.title = 'Книга (Служебное издание)';
+    const ui = reader(f); await ui.instance.start();
+    expect(ui.instance.getDocument().title).toBe('Книга');
+    expect(ui.nodes().some(node => node.textContent === f.work.title)).toBe(false);
+    expect(ui.instance.getDocument().blocks[0].runs[0].text).toBe(f.data.blocks[0].text);
+    ui.instance.dispose();
+  });
   it('opens only a bounded Menaion part and keeps navigation, deep links, print and PDF on that range', async () => {
     const f = libraryFixture(undefined, 241), downloads = vi.fn(async () => ({})), print = vi.fn(), changes = [];
     const ui = reader(f, { print, pdfLoad: async () => ({ downloadWorshipPdf: downloads }), onStateChange: (values, options) => changes.push({ values, options }) });
@@ -68,7 +76,10 @@ describe('book mode reader and document snapshot', () => {
     const f = libraryFixture(), ui = reader(f); await ui.instance.start();
     const snapshot = ui.instance.getDocument();
     expect(snapshot.kind).toBe('book'); expect(snapshot.warnings).toEqual([]);
-    expect(snapshot.status).toBe('Книжный источник'); expect(snapshot.sourceMetadata.edition).toBe(f.data.edition);
+    expect(snapshot.status).toBe('Книжный текст'); expect(snapshot.sourceMetadata.edition).toBe(f.data.edition);
+    expect(snapshot.sources).toEqual([]);
+    expect(snapshot.information).not.toContain(f.data.edition_title);
+    expect(ui.nodes().some(node => node.textContent === 'Источник' || node.textContent === f.data.edition_title || node.textContent === f.data.edition)).toBe(false);
     expect(snapshot.blocks.flatMap(block => block.runs.map(run => run.text))).toEqual(f.data.blocks.flatMap(block => block.segments.map(segment => segment.text)));
     expect(snapshot.blocks[0].runs[0].rubric).toBe(true);
     expect(JSON.stringify(snapshot)).not.toMatch(/2027-12-24|nicholas|missing|partial|служба дня|не подтвержден/);

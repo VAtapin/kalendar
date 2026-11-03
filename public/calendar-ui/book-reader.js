@@ -3,6 +3,7 @@ import { createReaderPdfControls } from './reader-pdf-controls.js';
 import { BOOK_GROUPS, BOOK_MONTHS, BOOK_WEEKDAYS, fetchBookCatalogue, fetchBookText, filterBooks, sourceBookIndex } from './book-library.js';
 
 const nextFrame = () => new Promise(resolve => globalThis.requestAnimationFrame ? requestAnimationFrame(resolve) : setTimeout(resolve, 0));
+const displayTitle = title => /^(.+?)\s+\([^()]+\)$/u.exec(title)?.[1] || title;
 export function createBookReader({ base, state, create, onStateChange, onCalendar, fetcher = fetch, print = () => globalThis.print(), pdfLoad, yieldFrame = nextFrame }) {
   const page = create('section', '', 'worship-page book-page');
   const title = create('h2', 'Книги'), back = create('button', '← К календарю', 'reader-button'); back.type = 'button'; back.addEventListener('click', onCalendar);
@@ -62,8 +63,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
     for (const item of found.slice(0, visibleLimit)) {
       const button = create('button', '', 'book-card'); button.type = 'button'; button.dataset.bookSlug = item.slug; button.dataset.bookEdition = item.edition.code;
       if (item.locator) button.append(create('span', BOOK_MONTHS[item.locator.month - 1], 'edition-label'), dataNode('span', ' · ' + item.locator.day));
-      const heading = dataNode('span', item.title); heading.dataset.textLanguage = 'cu'; heading.lang = 'cu'; button.append(heading);
-      button.append(dataNode('small', item.edition.title || item.edition.code, 'edition-label'));
+      const heading = dataNode('span', displayTitle(item.title)); heading.dataset.textLanguage = 'cu'; heading.lang = 'cu'; button.append(heading);
       button.addEventListener('click', () => { save({ book: item.slug, edition: item.edition.code, bookTone: '', bookWeekday: '', bookPart: '' }, true); void openBook(item); }); list.append(button);
     }
     if (!found.length) list.append(create('p', 'В опубликованном каталоге нет подходящей редакции.', 'reader-message'));
@@ -151,18 +151,13 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
       positionLabel.textContent = `${position + 1} / ${sections.length}`;
       renderSectionToc(scopes);
     }
-    const sourceTitle = dataNode('h2', value.title); sourceTitle.dataset.textLanguage = 'cu'; sourceTitle.lang = 'cu'; content.append(sourceTitle);
+    const sourceTitle = dataNode('h2', displayTitle(value.title)); sourceTitle.dataset.textLanguage = 'cu'; sourceTitle.lang = 'cu'; content.append(sourceTitle);
     content.append(create('p', value.artifactType === 'source-book'
       ? 'В тексте сохранены исходные рубрики и отсылки.'
       : 'Объём опубликованного текста определяется выбранной редакцией.', 'hint'));
     if (activeSection) { const label = dataNode('p', sectionLabel(activeSection), 'book-section-title'); label.dataset.textLanguage = 'cu'; label.lang = 'cu'; content.append(label); }
     if (activeSection) content.append(dataNode('p', scopeLabel(activeSection), 'book-scope'));
     if (activeSection) content.append(create('p', 'Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.', 'hint'));
-    content.append(dataNode('p', value.edition_title, 'edition-label'));
-    try {
-      const source = new URL(value.source_url);
-      if (['https:', 'http:'].includes(source.protocol)) { const link = create('a', 'Источник'); link.href = source.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; content.append(link); }
-    } catch { /* Never turn an invalid source URL into an executable link. */ }
     const toc = create('details', '', 'worship-navigation'); toc.append(create('summary', 'Оглавление'));
     const headings = documentHeadings();
     for (const heading of headings) {
@@ -233,10 +228,10 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
         if (tone && item.weekday && !firstDays.has(key)) { firstDays.add(key); return true; }
         return false;
       }).map(item => ({ blockIndex: item.index - activeRange.start, title: item.text, language: 'cu' }));
-      return structuredClone({ kind: 'book', title: book.title, titleLanguage: 'cu', subtitle: activeSection ? sectionLabel(activeSection) : undefined,
-        status: translate(book.artifactType === 'source-book' ? 'Книжный источник' : 'Опубликованный текст'), complete: false, warnings: [],
-        information: [book.edition_title, ...(activeSection ? [scopeLabel(activeSection), translate('Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.')] : [])],
-        sources: [book.source_url, book.credit].filter(Boolean),
+      return structuredClone({ kind: 'book', title: displayTitle(book.title), titleLanguage: 'cu', subtitle: activeSection ? sectionLabel(activeSection) : undefined,
+        status: translate('Книжный текст'), complete: false, warnings: [],
+        information: activeSection ? [scopeLabel(activeSection), translate('Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.')] : [],
+        sources: [],
         blocks: book.blocks.slice(activeRange.start, activeRange.end).map((block, offset) => ({ kind: ids.has(offset + activeRange.start) ? 'heading' : 'paragraph',
           language: 'cu', origin: 'source', runs: block.segments.map(segment => ({ text: segment.text, rubric: segment.style === 'rubric' || block.kind === 'rubric', language: 'cu' })) })),
         navigation, contents,

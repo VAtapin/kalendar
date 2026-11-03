@@ -85,7 +85,7 @@ describe('reader PDF controls', () => {
     expect(snapshot.kind).toBe('dated-service'); expect(snapshot.complete).toBe(false); expect(snapshot.warnings).not.toEqual([]);
     expect(snapshot.sourceMetadata.selection.date).toBe('2026-11-03'); reader.dispose();
   });
-  it('includes the composed hymn edition in the dated PDF bibliography', async () => {
+  it('keeps composed hymn provenance internal and omits the PDF bibliography', async () => {
     const state = { office: 'third-hour', sequence: 'standalone', temple: 'nicholas', date: '2026-11-03' };
     const template = templateFor(state.office), assignments = assignmentsFor(template, state);
     const source = { work: 'appointed-source', edition: 'cu-civil', language: 'cu-civil', sourceUrl: 'https://source.example/appointed' };
@@ -95,9 +95,11 @@ describe('reader PDF controls', () => {
     const reader = renderWorshipReader({ state, create, formatDate: value => value, onChange() {}, onCalendar() {}, onRetry() {},
       pdfLoad: async () => ({ captureWorshipPdf, downloadWorshipPdf }) });
     try {
-      reader.render(await composeParts(template, assignments, state));
+      const result = await composeParts(template, assignments, state);
+      expect(result.sourceVersions).toContainEqual(source);
+      reader.render(result);
       await descendants(reader.page).find(node => node.textContent === 'Скачать PDF').events.click();
-      expect(downloadWorshipPdf.mock.calls[0][0].sources).toEqual(['fixture-fixed-source', 'appointed-source · cu-civil · https://source.example/appointed']);
+      expect(downloadWorshipPdf.mock.calls[0][0].sources).toEqual([]);
     } finally { reader.dispose(); vi.unstubAllGlobals(); }
   });
 });
