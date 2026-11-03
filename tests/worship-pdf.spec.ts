@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { PDFDocument, PDFName, PDFPage } from 'pdf-lib';
 import { describe, expect, it, vi } from 'vitest';
+import fontkit from '@pdf-lib/fontkit';
 import { exportWorshipPdf, StaleWorshipPdfError, type WorshipPdfSnapshot } from '../src/export/worship-pdf';
 
 const fontBytes = { civil: readFileSync('public/fonts/DejaVuSerif.ttf'), cu: readFileSync('public/fonts/Ponomar-Regular.ttf'), fallback: readFileSync('public/fonts/DejaVuSans.ttf') };
@@ -69,6 +70,27 @@ describe('real worship PDF export', () => {
     expect(output).toBe(text.replace(/\n/g, ''));
     expect(result.placements.every(p => p.x + p.width <= 549.277 && p.y >= 49)).toBe(true);
   }, 30_000);
+  it('keeps a real Church Slavonic bottom prayer above the footer by shaped glyph bounds', async () => {
+    const text = 'А҆ми́нь. Гдⷭ҇и поми́лꙋй.';
+    const source = fixture(); source.title = 'Bottom boundary'; source.information = Array(4).fill('Selection');
+    source.status = 'Complete reader text'; source.complete = true; source.warnings = []; source.sources = [];
+    source.blocks = Array.from({ length: 60 }, () => ({ kind: 'paragraph', language: 'cu', runs: [{ text }] }));
+    const result = await exportWorshipPdf(source, { fontBytes, collectPlacements: true });
+    const body = result.placements.filter(p => p.size === 12), face = fontkit.create(fontBytes.cu);
+    expect(result.pageCount).toBeGreaterThan(1);
+    expect(body.map(p => p.text).join('')).toBe(text.repeat(60));
+    for (const placement of body) {
+      const run = face.layout(placement.text), scale = placement.size / face.unitsPerEm;
+      let cursorY = 0;
+      run.glyphs.forEach((glyph, index) => {
+        const position = run.positions[index]!;
+        const inkBottom = placement.y + cursorY + (position.yOffset + glyph.bbox.minY) * scale;
+        // Footer rule is at35pt; preserve14pt separation plus4pt mark clearance.
+        expect(inkBottom).toBeGreaterThanOrEqual(53);
+        cursorY += position.yAdvance * scale;
+      });
+    }
+  });
   it('stops a stale selection before font loading and during a long export', async () => {
     await expect(exportWorshipPdf(fixture(), { fontBytes, isCurrent: () => false })).rejects.toBeInstanceOf(StaleWorshipPdfError);
     const source = fixture(); source.blocks = Array.from({ length: 70 }, () => source.blocks[1]!);

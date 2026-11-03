@@ -49,7 +49,9 @@ export class StaleWorshipPdfError extends Error {
 
 const SIZE = [595.276, 841.89] as const;
 const MARGIN = 46;
-const BOTTOM = 49;
+const FOOTER_LINE_Y = 35;
+const BOTTOM = FOOTER_LINE_Y + 14;
+const INK_PADDING = 4;
 const WIDTH = SIZE[0] - MARGIN * 2;
 const INK = rgb(.14, .13, .12), RED = rgb(.48, .13, .12), MUTED = rgb(.36, .34, .31);
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
@@ -167,9 +169,13 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     }
     atPage.pushOperators(PDFOperator.of('EMC' as never));
   }
+  function descent(line: Line, size: number) {
+    return Math.max(0, ...line.pieces.map(piece => piece.font.heightAtSize(size)
+      - piece.font.heightAtSize(size, { descender: false })));
+  }
   function paragraph(text: string, size = 10, color = MUTED, language?: string) {
     for (const line of wrap([{ text }], language, size)) {
-      ensure(size * 1.65); y -= size * 1.35; drawLine(line, size, page, y, MARGIN, color);
+      ensure(size * 1.65 + descent(line, size) + INK_PADDING); y -= size * 1.35; drawLine(line, size, page, y, MARGIN, color);
     }
     y -= 5;
   }
@@ -204,7 +210,7 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
       // Printed navigation uses the source's first heading line; full title stays
       // in the detailed PDF outline and in the unmodified body.
       const lines = wrap([{ text: block.runs.map(run => run.text).join('').split(/\r?\n/)[0]! }], block.language, 9, WIDTH - 40);
-      lines.forEach((line, i) => { ensure(17); y -= 14; toc.push({ page: page!, y, line, blockIndex: index, last: i === lines.length - 1 }); });
+      lines.forEach((line, i) => { ensure(17 + descent(line, 9) + INK_PADDING); y -= 14; toc.push({ page: page!, y, line, blockIndex: index, last: i === lines.length - 1 }); });
     }
     y -= 15;
   }
@@ -218,7 +224,8 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     const lines = wrap(block.runs, block.language, size);
     if (block.kind === 'heading') { ensure(leading * Math.min(lines.length, 2) + 35); y -= 8; }
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      ensure(leading);
+      // y is a baseline: reserve the font's descent and mark clearance as well.
+      ensure(leading + descent(lines[lineIndex]!, size) + INK_PADDING);
       y -= leading;
       if (!lineIndex && navigationTargets.has(index)) targets.set(index, { page: page!, y: y + size + 5, number: pages.length });
       drawLine(lines[lineIndex]!, size, page, y, MARGIN, block.kind === 'warning' ? RED : INK, true);
@@ -256,7 +263,7 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     pdf.catalog.set(PDFName.of('Outlines'), root);
   }
   pages.forEach((p, index) => {
-    p.drawLine({ start: { x: MARGIN, y: 35 }, end: { x: SIZE[0] - MARGIN, y: 35 }, thickness: .4, color: MUTED });
+    p.drawLine({ start: { x: MARGIN, y: FOOTER_LINE_Y }, end: { x: SIZE[0] - MARGIN, y: FOOTER_LINE_Y }, thickness: .4, color: MUTED });
     const label = `${snapshot.labels.page} ${index + 1} / ${pages.length}`;
     drawPdfText(p, label, { x: (SIZE[0] - pdfTextWidth(fonts.civil, label, 8)) / 2, y: 23, size: 8, font: fonts.civil, color: MUTED });
   });

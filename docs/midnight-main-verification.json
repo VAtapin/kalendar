@@ -137,7 +137,7 @@
   "replay": {
     "fullReaderModularCases": 4,
     "privateClergyCase": 1,
-    "fullPdfPages": 67,
+    "fullPdfPages": 68,
     "partialPdfPages": 15,
     "remainingPartialNames": 3,
     "negativeMutations": 147,
@@ -148,30 +148,44 @@
     "copyAndPrintVitest": 27,
     "productionBuildAndTypecheck": "PASS",
     "builtPdfAssets": "PASS",
-    "nativeWordsAndFlagsUnchanged": true
+    "nativeWordsAndFlagsUnchanged": true,
+    "footerRegressionTests": 16,
+    "fontDescentAndMarkPadding": "PASS: real shaped CU glyph bounds; body12pt unchanged"
   },
   "finalVisualPair": {
     "pdf": {
       "path": "tmp/pdfs/midnight-main-clergy-review.pdf",
-      "sha256": "d2e9b68b0cef8f48925164874a7f85b51d4e044c57b93395d6b1358c2d3e2e47",
-      "pages": 14
+      "sha256": "48b52ec7541a4b3a3f877394a3dbc6c632f8aef8d84ad79f954e3f5fd37b36c0",
+      "pages": 15
     },
     "first": {
       "path": "tmp/pdfs/midnight-main-clergy-first.png",
-      "sha256": "b3823483d4dbe36be6db71005ea114b3d631ebab4593c9d801dc2c54fb48855c",
+      "sha256": "3841ac38e0231c427ea27925e483dd00ce75ebb9e13f0a251dbae522e33fde6c",
       "page": 1
     },
     "last": {
       "path": "tmp/pdfs/midnight-main-clergy-last.png",
-      "sha256": "0ac48178967c0b56f7379c5e35b312ef1b4e9df91b0c65845e4a07b5a70db367",
-      "page": 14
+      "sha256": "1b8e58126de90a7e66fc259eaa0584966728b0b9a0aaa95455e266c084532441",
+      "page": 15
     },
     "sameFinalPdf": true,
-    "visualReview": "PASS: compact positive scope/name captions, Orthodox vector cross, readable CU, no source IDs/bibliography; original dynamic rubric preserved"
+    "visualReview": "PASS after footer reserve fix: one current15-page PDF, first1/15 and last15/15 plus affected13/14 inspected; compact captions/cross/native text/no source bibliography unchanged",
+    "affectedPages": [
+      {
+        "page": 13,
+        "path": "tmp/pdfs/midnight-main-clergy-page-13.png",
+        "sha256": "38a396a1e455373804761d0eab87ed8a41439f96e20901f8839b80230ad55d0f"
+      },
+      {
+        "page": 14,
+        "path": "tmp/pdfs/midnight-main-clergy-page-14.png",
+        "sha256": "b9ddfa07714f0177884987595b4ac60ca9129cb84d4218cbf9f75e3b6728da76"
+      }
+    ]
   },
   "hoursGeneralVariantPdf": {
     "path": "tmp/pdfs/hours4fc-general-main-review.pdf",
-    "sha256": "09d7e982beebc4f43bba2a5def29973ea39e95fcc9bb33d606a2ec027d4c0426",
+    "sha256": "2356b5350c7718950b03bb4dee1da31cae6ec3fbac11daf336dd7e13fe227092",
     "pages": 5,
     "selectedService": "actual full response selects general main service with Octoechos; modular body parity PASS",
     "selectedVariantCaptionImplemented": false
@@ -184,5 +198,132 @@
   ],
   "backendPush": "main -> origin/main",
   "backendConfirmation": "Root confirmed commit/push of26 scoped files; App/source freeze and24 pinned byte hashes unchanged; Linux fixture-path case fix normal1/101 PASS",
-  "captionCommit": "8244b35d866c72fc64ca683b66fe3939b163db8f"
+  "captionCommit": "8244b35d866c72fc64ca683b66fe3939b163db8f",
+  "footerBounds": {
+    "ruleY": 35,
+    "minimumInkTargetY": 53,
+    "reserve": "font descent +4pt mark clearance above49pt body floor",
+    "beforeMainMinimumCharacterBoxY": 44.97,
+    "beforeMainMinimumPage": 13,
+    "after": [
+      {
+        "file": "tmp/pdfs/midnight-main-clergy-review.pdf",
+        "pages": 15,
+        "minimumCharacterBoxY": 53.77,
+        "pageBounds": [
+          {
+            "page": 1,
+            "minimumCharacterBoxY": 69.82,
+            "footerRuleY": 35
+          },
+          {
+            "page": 2,
+            "minimumCharacterBoxY": 73.558,
+            "footerRuleY": 35
+          },
+          {
+            "page": 3,
+            "minimumCharacterBoxY": 70.546,
+            "footerRuleY": 35
+          },
+          {
+            "page": 4,
+            "minimumCharacterBoxY": 57.77,
+            "footerRuleY": 35
+          },
+          {
+            "page": 5,
+            "minimumCharacterBoxY": 55.958,
+            "footerRuleY": 35
+          },
+          {
+            "page": 6,
+            "minimumCharacterBoxY": 57.77,
+            "footerRuleY": 35
+          },
+          {
+            "page": 7,
+            "minimumCharacterBoxY": 64.758,
+            "footerRuleY": 35
+          },
+          {
+            "page": 8,
+            "minimumCharacterBoxY": 58.97,
+            "footerRuleY": 35
+          },
+          {
+            "page": 9,
+            "minimumCharacterBoxY": 53.77,
+            "footerRuleY": 35
+          },
+          {
+            "page": 10,
+            "minimumCharacterBoxY": 81.158,
+            "footerRuleY": 35
+          },
+          {
+            "page": 11,
+            "minimumCharacterBoxY": 71.77,
+            "footerRuleY": 35
+          },
+          {
+            "page": 12,
+            "minimumCharacterBoxY": 73.57,
+            "footerRuleY": 35
+          },
+          {
+            "page": 13,
+            "minimumCharacterBoxY": 66.558,
+            "footerRuleY": 35
+          },
+          {
+            "page": 14,
+            "minimumCharacterBoxY": 59.57,
+            "footerRuleY": 35
+          },
+          {
+            "page": 15,
+            "minimumCharacterBoxY": 711.57,
+            "footerRuleY": 35
+          }
+        ]
+      },
+      {
+        "file": "tmp/pdfs/hours4fc-general-main-review.pdf",
+        "pages": 5,
+        "minimumCharacterBoxY": 62.72,
+        "pageBounds": [
+          {
+            "page": 1,
+            "minimumCharacterBoxY": 62.72,
+            "footerRuleY": 35
+          },
+          {
+            "page": 2,
+            "minimumCharacterBoxY": 74.558,
+            "footerRuleY": 35
+          },
+          {
+            "page": 3,
+            "minimumCharacterBoxY": 67.558,
+            "footerRuleY": 35
+          },
+          {
+            "page": 4,
+            "minimumCharacterBoxY": 71.158,
+            "footerRuleY": 35
+          },
+          {
+            "page": 5,
+            "minimumCharacterBoxY": 415.57,
+            "footerRuleY": 35
+          }
+        ]
+      }
+    ],
+    "regressionBeforeInkMinimumY": 51.078,
+    "regressionAfterInkMinimumY": 57.178,
+    "regressionTextPreserved": true,
+    "bodyFontSizeUnchanged": 12
+  }
 }
