@@ -106,3 +106,34 @@ Saint-v2:765/30 и10 частей; legacy791/25, held754/32;60 отрицате�
 Никаких заявлений о полном годовом составе или выполненном deployment здесь нет.
 
 Backend generic v2 опубликован в Git commit f8d9d933; это не production deployment.
+
+## Canonical type6 / protocol v3
+
+Consumer поддерживает `ordinary-sourced-temple-after-entrance-v3` рядом с v1/v2.
+`sixSticheraOrderCapability=bacdf1dc…` входит в точный derived templateVersion
+вместе с baseSourceReview и templeSourceCapabilities. Для actual6 отдельно
+проверяются canonical George/Nicholas, actualPrincipalTypeCode6 и
+type6RemappedTo7=false на обоих уровнях selection/capability, три pinned
+witness/review/order proof hashes и точный порядок reviewed weekday capability.
+Старый7 сохраняет source review0348, Dormition —5980 и9 частей. Старые source,
+ownership, range/text, operation order/repeat, context и outer-wrapper guards
+не заменяются общим разрешением v3. Receipt-поля не удаляются для подгонки версии.
+Только проверенный actual6 v3 допускает отсутствие прежнего orderResolver:
+его контракт возвращает отдельную reviewedOrderCapability/proof-chain.
+Неизвестный resolver по-прежнему отвергается. Новых query fields нет.
+
+```powershell
+node --import tsx scripts/test-liturgy-troparia-api.mjs D:/Projekte/BibleDesktop/storage/app/worship-research/type6-canonical-port/installed-api --type6
+```
+
+Проверены31 HTTP bodies:2 шаблона,26 assignments и3 честных full-route409 без
+blocks. Все26 reader/print/реальных PDF Unicode body parity PASS;644 мутации
+реальных ответов отвергнуты.16 actual6 дают10 T/K частей и оставляют31 missing;
+прежние saint/Dormition, legacy и held сохраняют свои30/25/32 missing.
+Все Литургии остаются partial; полнота всего года не заявляется.
+
+У5 Dormition request-sidecars `path` отсутствовал при захвате и добавлен
+владельцем из действительного test contract. Harness отдельно читает
+`DORMITION_REQUEST_PATH_ANNOTATION.json`, проверяет annotated SHA и неизменность
+body/HTTP-sidecar SHA. Эти пути не описываются как captured request paths.
+Браузер/production не используются; тела ответов и корпус в Git не добавляются.

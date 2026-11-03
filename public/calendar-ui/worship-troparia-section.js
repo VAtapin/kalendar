@@ -45,6 +45,7 @@ export async function validateTropariaWrapper(template, assignments) {
 export async function tropariaReceipt(section, receipt, state, assignments) {
   const selection = receipt?.selection, parts = await tropariaProtocol(section,receipt,state);
   if (!parts) return false;
+  const actualSix = section.ruleVersion === 'ordinary-sourced-temple-after-entrance-v3' && selection.actualPrincipalTypeCode === 6;
   if (state.office !== 'liturgy' || (state.rite && state.rite !== 'john-chrysostom') || !['default','standalone'].includes(state.sequence)
     || section?.templateId !== 'liturgy:cu:' + TROPARIA_SECTION || section.scope !== SCOPE
     || section.language !== 'cu' || section.compositionReady !== true || !digest(section.templateVersion)
@@ -53,7 +54,7 @@ export async function tropariaReceipt(section, receipt, state, assignments) {
     || receipt.issues?.length !== 0 || receipt.missing?.length !== 0
     || !matchesWorshipContext(receipt.context,state) || receipt.context.language !== 'cu' || receipt.context.tradition !== 'russian-julian'
     || selection?.status !== 'selected' || selection.issues?.length !== 0
-    || selection.orderResolver !== 'App\\Services\\Liturgical\\WorshipEntranceOrder' || ![1,2,3,5].includes(selection.weekday)
+    || (selection.orderResolver !== 'App\\Services\\Liturgical\\WorshipEntranceOrder' && !(actualSix && selection.orderResolver === undefined)) || ![1,2,3,5].includes(selection.weekday)
     || selection.templeProfile?.id !== state.temple || selection.saintAbsenceInferred !== false
     || ['wholeLiturgyAccepted','wholeDatedServiceAccepted','dateAppointmentApproved'].some(key => section[key] !== false || receipt[key] !== false || selection[key] !== false)
     || ['publicAdmissionGranted','antiphonsAccepted'].some(key => receipt[key] !== false || selection[key] !== false)
