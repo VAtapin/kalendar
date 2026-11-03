@@ -1,3 +1,4 @@
+import { validateTropariaWrapper } from './worship-troparia-section.js';
 import { sourceComponentReceipt } from './worship-section-receipt.js';
 import { partsHash } from './worship-hash.js';
 import { isAdditionalLiturgy, fetchAdditionalLiturgy } from './worship-additional-liturgy.js';
@@ -60,6 +61,7 @@ export async function composeParts(template, assignments, state) {
   if (!matchesWorshipContext(context, state)
     || !['complete', 'partial', 'not-appointed'].includes(assignments.status)
     || !Array.isArray(assignments.operations) || !Array.isArray(assignments.missing)) throw new Error('Invalid dated assignments');
+  await validateTropariaWrapper(template, assignments);
   const outline = template.status === 'source-outline';
   if (outline && (assignments.status === 'complete' || assignments.operations.length)) throw new Error('Outline is not a composable rite');
   const nodes = new Map(template.nodes.map(node => [node.nodeId, node])), operations = new Map();
@@ -67,7 +69,7 @@ export async function composeParts(template, assignments, state) {
   for (const id of new Set(assignments.operations.map(op => op.sectionId).filter(Boolean))) {
     const section = template.sections?.[id], verified = assignments.verifiedSections?.[id];
     if (!section || !verified || verified.status !== 'complete' || (!(verified.acceptance?.status === 'approved' && verified.profileStatus === 'confirmed-for-fragment')
-        && !await sourceComponentReceipt(id, section, verified, state)) || !Array.isArray(verified.operationIndexes)
+        && !await sourceComponentReceipt(id, section, verified, state, assignments)) || !Array.isArray(verified.operationIndexes)
       || !verified.operationIndexes.length) throw new Error('Unverified service section');
     for (const key of ['schemaVersion', 'templateId', 'templateVersion', 'ruleVersion']) {
       if (section[key] !== verified[key]) throw new Error('Incompatible section versions');

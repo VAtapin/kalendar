@@ -1,3 +1,4 @@
+import { TROPARIA_SECTION, tropariaReceipt } from './worship-troparia-section.js';
 import { partsHash } from './worship-hash.js';
 import { matchesWorshipContext } from './worship-context.js';
 const components = {
@@ -9,7 +10,8 @@ const components = {
 };
 const digest = value => /^[a-f0-9]{64}$/.test(value || '');
 /** Explicit source-component receipts are not whole-service approval or a generic approval bypass. */
-export async function sourceComponentReceipt(id, section, receipt, state) {
+export async function sourceComponentReceipt(id, section, receipt, state, assignments) {
+  if (id === TROPARIA_SECTION) return tropariaReceipt(section, receipt, state, assignments);
   const contract = components[id];
   if (!contract || !section || !receipt || receipt.acceptance !== undefined || receipt.profileStatus !== undefined) return false;
   if (state.office !== 'liturgy' || !['default', 'standalone'].includes(state.sequence)
