@@ -1,3 +1,4 @@
+import {TYPIKA_VARIANTS}from'./worship-typika.js';
 import {OFFICE_MODE_LABELS}from'./worship-office-mode.js';
 import { fetchMidnightFull } from './worship-midnight-context.js';
 import { createReaderPdfControls } from './reader-pdf-controls.js';
@@ -12,7 +13,7 @@ import { compactRepetitions, repetitionEntries, repetitionNumber } from './worsh
 export const OFFICES = {
   'midnight-office': 'Полунощница', 'first-hour': 'Первый час', 'third-hour': 'Третий час',
   'sixth-hour': 'Шестой час', 'ninth-hour': 'Девятый час', liturgy: 'Литургия',
-  matins: 'Утреня', vespers: 'Вечерня',
+  matins: 'Утреня', vespers: 'Вечерня', typika: 'Изобразительны',
 };
 export const TEMPLES = {
   'george-victorious': 'Храм великомученика Георгия', nicholas: 'Храм святителя Николая',
@@ -20,6 +21,7 @@ export const TEMPLES = {
 };
 export const EDITIONS = { cu: 'Церковнославянский', 'cu-civil': 'Церковнославянский — гражданская запись', ru: 'Русский' };
 export const MODES = {
+  typika:{standalone:'После шестого часа'},
   'midnight-office': { standalone: 'Самостоятельно' },
   'first-hour': { 'after-matins': 'После утрени (отпуст совершён)' },
   'third-hour': { standalone: 'Самостоятельно' },
@@ -74,6 +76,7 @@ export function calendarAssignments(value) {
 }
 
 function coverageLabel(result) {
+  if(result.typikaPrepared)return 'Полный текст выбранного варианта';
   if (result.midnightPrepared) return 'Полная Полунощница — выбранный печатный чин';
   if (result.additionalFixed) return 'Постоянная основа — назначения дня не подтверждены';
   if (result.outline) return 'Книжный текст — служба дня не составлена';
@@ -173,7 +176,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   select('Служба', 'office', OFFICES);
   if (state.office === 'liturgy') select('Чин Литургии', 'rite', LITURGY_RITES);
   if (additional && state.rite === 'presanctified') select('Ветвь постоянного текста', 'midLentBranch', { '': 'Выберите ветвь', ...MID_LENT_BRANCHES });
-  select('Язык текста', 'textLanguage', (additional || state.office === 'midnight-office') ? { auto: 'Автоматически — сначала церковнославянский', cu: EDITIONS.cu } : { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
+  select('Язык текста', 'textLanguage', (additional || ['midnight-office','typika'].includes(state.office)) ? { auto: 'Автоматически — сначала церковнославянский', cu: EDITIONS.cu } : { auto: 'Автоматически — сначала церковнославянский', ...EDITIONS });
   if (!additional) {
     select('Храм', 'temple', TEMPLES);
     select('Порядок службы', 'sequence', MODES[state.office]);
@@ -184,6 +187,13 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     select('Место чтения', 'midnightLocation', MIDNIGHT_LOCATIONS);
     select('Участие в службе', 'midnightProfile', MIDNIGHT_PROFILES);
     if (state.midnightProfile === 'clergy') select('Титул правящего архиерея', 'midnightBishopTitle', MIDNIGHT_BISHOP_TITLES);
+  }
+  if(state.office==='typika'){
+    select('Печатный вариант','typikaVariant',{'':'Выберите вариант',...TYPIKA_VARIANTS});
+    const label=create('label','','control'),confirmation=create('input');confirmation.type='checkbox';confirmation.checked=state.typikaNoLiturgy===true;
+    confirmation.dataset.worshipControl='typikaNoLiturgy';
+    confirmation.addEventListener('change',()=>onChange('typikaNoLiturgy',confirmation.checked));
+    label.append(confirmation,create('span','Подтверждаю: Изобразительны читаются без Литургии.'));controls.append(label);
   }
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input');
   size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize);
@@ -215,7 +225,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   });
   controls.append(printButton);
   let navigationObserver, localForm, snapshotProvider, pdfReady = false;
-  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage, state.officeMode || 'auto']), getSnapshot: module => snapshotProvider?.(module) });
+  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage, state.officeMode || 'auto',state.typikaVariant||'',state.typikaNoLiturgy===true]), getSnapshot: module => snapshotProvider?.(module) });
   function render(result) {
     ++renderVersion; snapshotProvider = null; pdf.refresh();
     printButton.disabled = !['ready', 'parts'].includes(result.status) || result.assignmentsStatus === 'loading';
@@ -253,6 +263,8 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
+        'typika-context-required':'Выберите печатный вариант для Преображенского храма и подтвердите чтение без Литургии.',
+        'typika-unavailable':'Для выбранного дня этот печатный вариант Изобразительных не подготовлен.',
         'context-required': 'Выберите ветвь постоянного текста Преждеосвященной Литургии. Дата сама по себе не определяет этот выбор.',
         pending: 'BibleDesktop пока не смог составить эту службу для выбранного дня. Назначения переменных частей требуют уточнения.',
         unavailable: 'Эта служба пока недоступна. Её можно проверить позднее.',
@@ -297,6 +309,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
     }
     content.append(coverage);
+    if(result.typikaPrepared)content.append(create('p','Выбранный печатный вариант без Литургии.','reader-message'));
     if(result.serviceMode?.selectedMode==='god-is-lord')content.append(create('p','Подготовлен вариант «Бог Господь».','reader-message'));
     if (result.midnightPrepared) content.append(create('p', result.midnightHolySpirit?'Полунощница понедельника Святого Духа без местного бдения.':'Обычный самостоятельный чин без местного бдения.', 'reader-message'));
     if (result.localValuesApplied) {
@@ -319,7 +332,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       if (result.outline) content.append(create('p', state.office === 'liturgy'
         ? 'Книжная основа Литургии Иоанна Златоуста. Переменные части и условные варианты ещё не выбраны для этой даты; это не готовая служба дня.'
         : 'Показан полный исходный текст службы. Дневные вставки и условные варианты ещё не выбраны; это не готовая служба дня.', 'reader-message'));
-      if (!result.complete) {
+      if (!result.complete && !result.typikaPrepared) {
         const notice = create('p', result.outline && result.assignmentsStatus !== 'not-appointed'
           ? (result.assignmentsStatus === 'error' ? notices.error : 'Дневные вставки пока не определены.')
           : notices[result.assignmentsStatus] || notices.partial, 'reader-message');
@@ -476,12 +489,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       kind: 'dated-service', title: head.children[0].textContent, subtitle: formatDate(state.date),
       status: create('span', coverageLabel(result)).textContent, complete: result.status === 'ready' || result.complete === true,
       information: [contextLabel.textContent, ...missingSummary, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
-      warnings: result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],
+      warnings: result.typikaPrepared?[]:result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],
       sources: [],
-      sourceMetadata: { selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence, officeMode: state.officeMode || 'auto' }, status: result.assignmentsStatus,
+      sourceMetadata: { ...(result.typikaPrepared?{serviceContract:result.serviceContract}:{}), selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence, officeMode: state.officeMode || 'auto', ...(result.typikaPrepared?{typikaVariant:state.typikaVariant,typikaNoLiturgy:state.typikaNoLiturgy}:{}) }, status: result.assignmentsStatus,
         ...(result.serviceMode?{serviceMode:result.serviceMode,ordinaryLiturgyAvailable:result.ordinaryLiturgyAvailable}:{}),
         ...(result.modeContract?{verifiedModeSections:Object.fromEntries(Object.entries(result.modeContract.verifiedSections||{}).filter(([,r])=>r.serviceMode).map(([id,r])=>[id,{serviceMode:r.serviceMode,selection:r.selection,acceptance:r.acceptance}]))}:{}) },
-      labels: { contents: create('span', 'Оглавление').textContent, sources: create('span', 'Источники').textContent, incomplete: create('span', 'Полная служба выбранной даты не составлена.').textContent, page: create('span', 'Страница').textContent }
+      labels: { contents: create('span', 'Оглавление').textContent, sources: create('span', 'Источники').textContent, incomplete: create('span', result.typikaPrepared?'Условный печатный вариант.':'Полная служба выбранной даты не составлена.').textContent, page: create('span', 'Страница').textContent }
     });
     pdf.refresh();
   }

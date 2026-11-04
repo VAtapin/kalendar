@@ -1,3 +1,4 @@
+import {TYPIKA_URL_KEYS,readTypikaSelection,bindTypikaConfirmation,retainTypikaConfirmation}from'./worship-typika.js';
 import { MIDNIGHT_URL_KEYS, readMidnightSelection } from './worship-midnight-context.js';
 import { validWorshipDate } from './worship-context.js';
 import { isAdditionalLiturgy, readLiturgySelection } from './worship-additional-liturgy.js';
@@ -19,7 +20,7 @@ function localIsoDate(now = new Date()) {
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
   office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '', officeMode: 'auto',
-  midnightProfile: 'reader', midnightLocation: 'church', midnightBishopTitle: 'bishop',
+  typikaVariant:'',typikaNoLiturgy:false, midnightProfile: 'reader', midnightLocation: 'church', midnightBishopTitle: 'bishop',
   book: '', edition: '', bookGroup: 'minea', bookMonth: '', bookDay: '', bookTone: '', bookWeekday: '', bookPart: '' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
 let disposeWorshipReader = () => {};
@@ -129,13 +130,14 @@ function syncControls() {
 }
 
 function saveLocation(push = false) {
+  retainTypikaConfirmation(state);
   const url = new URL(location.href);
   url.search = '';
   const calendarKeys = ['view', 'date', 'lang', 'profile', 'eventLimit'];
-  const worshipKeys = [...calendarKeys, 'office', 'temple', 'sequence', 'afterHourHymn', 'location', 'textSize', 'textLanguage', 'rite', 'midLentBranch', 'officeMode', ...MIDNIGHT_URL_KEYS];
+  const worshipKeys = [...calendarKeys, 'office', 'temple', 'sequence', 'afterHourHymn', 'location', 'textSize', 'textLanguage', 'rite', 'midLentBranch', 'officeMode', ...MIDNIGHT_URL_KEYS, ...TYPIKA_URL_KEYS];
   const keys = state.view === 'books' ? BOOK_URL_KEYS : state.view === 'worship' ? worshipKeys : calendarKeys;
   Object.entries(state).forEach(([key, value]) => {
-    if (keys.includes(key)) url.searchParams.set(key, value);
+    if (keys.includes(key)) url.searchParams.set(key,key==='typikaNoLiturgy'?(value?'1':'0'):value);
   });
   if (push && url.href !== location.href) history.pushState(null, '', url);
   else history.replaceState(null, '', url);
@@ -147,6 +149,7 @@ function readLocation() {
   readLiturgySelection(params, state);
   state.officeMode=params.has('officeMode')?params.get('officeMode'):'auto'; // Invalid explicit values must fail, never select ordinary words.
   readMidnightSelection(params, state);
+
   const view = params.get('view'), date = params.get('date'), lang = params.get('lang'), profile = params.get('profile'), eventLimit = Number(params.get('eventLimit'));
   if (['day', 'week', 'month', 'year', 'worship', 'books'].includes(view)) state.view = view;
   if (validWorshipDate(date)) state.date = date;
@@ -161,6 +164,7 @@ function readLocation() {
   if (['nave', 'narthex'].includes(params.get('location'))) state.location = params.get('location');
   const size = Number(params.get('textSize'));
   if (Number.isInteger(size) && size >= 18 && size <= 32) state.textSize = size;
+  readTypikaSelection(params,state);bindTypikaConfirmation(state);
 }
 
 function weekdayNames() { return Array.from({ length: 7 }, (_, index) => titleDate('2024-01-' + String(index + 1).padStart(2, '0'), { weekday: 'short' }).replace('.', '')); }
@@ -731,10 +735,12 @@ async function showWorship() {
     },
     onChange: (field, value) => {
       state[field] = value;
+      if(field==='typikaNoLiturgy')bindTypikaConfirmation(state);
+      if(['date','office','temple','textLanguage','typikaVariant'].includes(field))state.typikaNoLiturgy=false;
       if(['date','office','rite','temple','textLanguage','sequence'].includes(field))state.officeMode='auto';
       if (field === 'rite' && isAdditionalLiturgy(state)) state.textLanguage = 'cu';
       if (field === 'textSize') { saveLocation(); return; }
-      if (field === 'office') { state.sequence = Object.keys(MODES[value])[0]; if (value === 'midnight-office') state.textLanguage = 'cu'; }
+      if (field === 'office') { state.sequence = Object.keys(MODES[value])[0]; if (['midnight-office','typika'].includes(value)) state.textLanguage = 'cu'; }
       void load();
     },
   });

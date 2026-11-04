@@ -1,6 +1,7 @@
 import {requestedOfficeMode,validateServiceMode,officeModeUnavailable} from './worship-office-mode.js';
 import {PAIR_SECTION,MODE_PAIR_SECTION} from './worship-antiphon-pair.js';
 import { fetchMidnightParts } from './worship-midnight.js';
+import { fetchTypikaParts } from './worship-typika.js';
 import { validateTropariaWrapper } from './worship-troparia-section.js';
 import { sourceComponentReceipt } from './worship-section-receipt.js';
 import { partsHash } from './worship-hash.js';
@@ -161,6 +162,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   state = { ...state };
   if(Object.hasOwn(state,'officeMode')&&state.officeMode!=='auto')requestedOfficeMode(state);
   if (state.office === 'midnight-office') return fetchMidnightParts(base, state, onBase, fetcher, signal, options);
+  if (state.office === 'typika') return fetchTypikaParts(base,state,fetcher,signal);
   const requestSignal = worshipRequestSignal(signal);
   let modeGated=false;
   const request = async (path, params = {}, body, validationProbe = false) => {

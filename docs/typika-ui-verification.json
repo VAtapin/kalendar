@@ -1,0 +1,374 @@
+{
+  "scope": "Actual installed main17 HTTP responses and canonical196 frozen53 bodies; no server/browser/network",
+  "backendCommit": "3385e5678a09596a053226cfdba6beec4fdf3d7b",
+  "indexSha256": "d323c1c7257b019cc70e047bff5f6605896be3061a9dfa6d216f8bac3c9515ce",
+  "mainResponses": 17,
+  "mainCases": [
+    {
+      "date": "2026-01-01",
+      "pages": 5,
+      "blocks": 73,
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-06-30",
+      "pages": 5,
+      "blocks": 72,
+      "conditionalOnly": true
+    }
+  ],
+  "cases": [
+    {
+      "date": "2026-01-01",
+      "blocks": 73,
+      "bodyHash": "aa533ec6ee128c2236772767d52226059c2186e94f34b57d0619c5cd9fc038f9",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-02-05",
+      "blocks": 73,
+      "bodyHash": "f7e509dbe25f35f63f2d0addb3ca9728c1bf8741f8658f905fff5df5dbb26259",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-06-16",
+      "blocks": 72,
+      "bodyHash": "074d9579c419a07d66bd5d42b4c25b119d97f81b8e9edb4da8f9827fd77de959",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-06-18",
+      "blocks": 73,
+      "bodyHash": "6ebd2bb37ba23468538dff38d648583f21a0e36b0bc2684e778e678090768b1d",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-06-30",
+      "blocks": 72,
+      "bodyHash": "4081f218b608c3e1e5e38b58896b6a44f0fabacb9658e7c15a423f3b01306c7a",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-07-01",
+      "blocks": 72,
+      "bodyHash": "24a9359c16b1c5fa35bb569c8605f1b20489fe00ba28af68ddaedc84360644b8",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-07-03",
+      "blocks": 72,
+      "bodyHash": "de1084339ccdce85661e38c3e1fc98f9caa80995f8efbfe4a0e2d109ec4832f6",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-07-22",
+      "blocks": 72,
+      "bodyHash": "3a8a83a25eae41a5b9cd0570b78c011544792d3a90e77097a3ca744e20f7b511",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-07-29",
+      "blocks": 72,
+      "bodyHash": "9f15ca5e30373146810076d7ec8e02d8b349da4c3db5108d952856aa7d742101",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-08-11",
+      "blocks": 72,
+      "bodyHash": "fb397da2ce7d9b2c0d58f379907a66ca3947a8bd1073818e9412242d63fecc39",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-08-17",
+      "blocks": 72,
+      "bodyHash": "06874eb9a28fe3fa1f53ce6df3b01b19220361f03e56ae2c2a15b2f8fbedec6f",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-09-09",
+      "blocks": 72,
+      "bodyHash": "f903a80093462b8ad30c248961fa25cc026e576f7d21e9e05178d9757bfb1f59",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-10-21",
+      "blocks": 72,
+      "bodyHash": "f108524d241ee3c67f3be90f6f6ed2abf7370a35cbed07d0270246c4afaf80ca",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-10-29",
+      "blocks": 73,
+      "bodyHash": "d41556b5b2b8f35ad119a203043af342f7e6f86adc75619e5c76a8e46d6be81c",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-11-09",
+      "blocks": 72,
+      "bodyHash": "c02faaa3383ab8c3e8afdf7bae08a743390dfaa9ec09c6491d79d621c225d8c6",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-11-12",
+      "blocks": 73,
+      "bodyHash": "da4691ea0ea09ad37cd687e7cf86d736f0059aba57083a60bf3de732e18766c1",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-11-13",
+      "blocks": 72,
+      "bodyHash": "7f872ee97097918781a99a4c6994efbfc12a290cf65bf98b4d6021e103971644",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-11-23",
+      "blocks": 72,
+      "bodyHash": "f0c97d2f204a1ace7708fddcb32b28670c1a8238d5033fcb5f6c2b67c1482264",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-12-14",
+      "blocks": 72,
+      "bodyHash": "e0f64f04c9dd2967a2ed6e5232f2bb867f839c42aa728189960cba5672a03b35",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-12-15",
+      "blocks": 72,
+      "bodyHash": "eca22da808f3e3585217a645e749a3e91509eef45b1633f7aededaa2e6fd9d1a",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-12-21",
+      "blocks": 72,
+      "bodyHash": "a126de459dd22f0c8b5e6706370e9a0891ac14b74e5a23b35b782e39e0fb2975",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-12-24",
+      "blocks": 73,
+      "bodyHash": "4a6c3630d8d6509d2e1d642fdf484a747a3d8019e38f917c7342f41439195b63",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-12-29",
+      "blocks": 72,
+      "bodyHash": "f138a8b38bbe1b8372f5fe1c4933b9827a605bff15201c4cd40f60b994ac7cc5",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2026-12-31",
+      "blocks": 73,
+      "bodyHash": "c5564b7b7f2ca4666df4065b368914d0a193bffbe2f4643e2d144ee8e91f1def",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-01-01",
+      "blocks": 72,
+      "bodyHash": "978e473d73858fdeaa21992b7fa5764e037687be21224ae79cb47cb0f1710823",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-02-05",
+      "blocks": 72,
+      "bodyHash": "95b1ee34b2adc37609234ec24f3663aaa4bfeffa8d9aef32a99bee858b420af4",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-02-08",
+      "blocks": 72,
+      "bodyHash": "328da2f99a1c7e2bec02403eac0f47d6649b6d21db1b3ed925f35dc363769baf",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-02-23",
+      "blocks": 72,
+      "bodyHash": "ac25eb4330fb2909292db8d2d04e1fd0c1a5ac4c8415771875ae3a604e431187",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-02-26",
+      "blocks": 72,
+      "bodyHash": "b09a3a0d5209ec3f2bf183f346f100893446d28988c9a21a20601422cf682720",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-03-03",
+      "blocks": 72,
+      "bodyHash": "f170098fc8ddbc4f8720c3e920e2756db41f02f96bd94f3b172b1901de25c638",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-03-04",
+      "blocks": 73,
+      "bodyHash": "28000e375593e77076895ab8d29e97972718c4430fb83935166797f028857c00",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-03-05",
+      "blocks": 72,
+      "bodyHash": "50038193c683694ad02af4c6e23decb52011035f5f9d542478244c07f826ce1e",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-03-08",
+      "blocks": 72,
+      "bodyHash": "ddfaaa38af5c1d9551cca2066ef0b55001169e084d29555d938b6b2f762ac028",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-06-30",
+      "blocks": 72,
+      "bodyHash": "25c5c2a70d5818c906983d9b51aab73a7f3cc8097ff3e3a857b4abb052545383",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-07-01",
+      "blocks": 73,
+      "bodyHash": "c8e5acee89172602b319c34f8f91b6d2cfbe5b9f4e741d77ebc3140229582280",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-07-05",
+      "blocks": 72,
+      "bodyHash": "03e4215c60a1578442c677d2d166fe463040635587cb6258e29bbd765f2d283b",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-07-22",
+      "blocks": 73,
+      "bodyHash": "963291885f1637e5e796864f562686a136cd29873d1b0e7090ed60c21fa5c169",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-07-29",
+      "blocks": 73,
+      "bodyHash": "a5a56718aa30af7aa46b4d8cca087d18e7bc1dd26f1b887a20387ad968867bd1",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-08-11",
+      "blocks": 72,
+      "bodyHash": "79b84e8c30a367f2d00589822f75422cca7a9c4678e6d2223ff309da7cb491bf",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-08-17",
+      "blocks": 72,
+      "bodyHash": "b3cab934f5208a6f2db20d8a04be2ab3ba31e71d0e62b7d104a61bce50b94d26",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-09-09",
+      "blocks": 73,
+      "bodyHash": "b71761dbf8752b3a2413402a59c5400d548e1ae2d0e28b67eb463c851997319d",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-10-21",
+      "blocks": 73,
+      "bodyHash": "8afe996456e8eec37b37f25f3955cb822168e2353d87efc63dd8dbd878f6f668",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-10-29",
+      "blocks": 72,
+      "bodyHash": "f9b1cbf124dfb395a677fc464481ff65a5100b20bb11fe04e904e9c30484be10",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-11-09",
+      "blocks": 72,
+      "bodyHash": "a93841a4896dc8d9b0a31193639c395e267ff7d80d545985b7deb386c11c118a",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-11-12",
+      "blocks": 72,
+      "bodyHash": "0b322ef793c2224aaff0a3191c897469f4075cc981c0ed58c19ad28c88f1e771",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-11-15",
+      "blocks": 72,
+      "bodyHash": "896ae48c6413bd622013cf9d88e99bdb3bd10d316bd5fdcbd8c19c146a64779e",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-11-23",
+      "blocks": 72,
+      "bodyHash": "e7a1c37d4a39e895c1a4ec0eb6523e187a29c0c800315b3eb8b7fc4879b24829",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-12-14",
+      "blocks": 72,
+      "bodyHash": "9d585a0e951da8517d8ba84583b21db5846a34b1274517b8fd20cdb4105af411",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-12-15",
+      "blocks": 72,
+      "bodyHash": "2734b154b36b85b161f26e50ff94bf99943d16874c90e8d9296ccfa821b70fea",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-12-21",
+      "blocks": 72,
+      "bodyHash": "accb0ad58c5b46267d1e41447d8a17bd496fd0074af9c5c5ddf757df248f5ae4",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-12-24",
+      "blocks": 72,
+      "bodyHash": "104b49d226e10d7265c636a7197a4a95a63b3aa5227061dc2ffc6f190f62f699",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-12-29",
+      "blocks": 72,
+      "bodyHash": "77c7b5756b264879468ccec20c99404f703621796e31d3c7aceb4f9f7f60c364",
+      "conditionalOnly": true
+    },
+    {
+      "date": "2027-12-31",
+      "blocks": 72,
+      "bodyHash": "99ac77be193ac685fed3fdef76091cb0647fe0e15f183fc1a8a70da17e8f858b",
+      "conditionalOnly": true
+    }
+  ],
+  "negativeMutations": 371,
+  "checks": {
+    "vitest": 319,
+    "productionBuild": true,
+    "builtPdfAssets": true,
+    "all53PdfGlyphCoverage": true,
+    "firstLastVisualCheck": true
+  },
+  "pdfBounds": [
+    {
+      "file": "tmp/pdfs/typika-main-2026-01-01.pdf",
+      "pages": 5,
+      "minimumCharacterBoxY": 56.558
+    },
+    {
+      "file": "tmp/pdfs/typika-main-2026-06-30.pdf",
+      "pages": 5,
+      "minimumCharacterBoxY": 56.558
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "D:/Projekte/Kalendar/tmp/pdfs/typika-main-2026-06-30.pdf",
+      "sha256": "f8d1a7b3c597d2d1972a89f5d787bab5c68ac9546ef7579ea49d73154160d9a1"
+    },
+    {
+      "path": "D:/Projekte/Kalendar/tmp/pdfs/typika-main-first.png",
+      "sha256": "448a37b0871651ae5261ac3a6dedf107591f335538a0808091cb44838db89585"
+    },
+    {
+      "path": "D:/Projekte/Kalendar/tmp/pdfs/typika-main-last.png",
+      "sha256": "4240541d6d73647e262f93301d92bc26495105b72b4ec97c23cf0999d4635e5c"
+    }
+  ]
+}
