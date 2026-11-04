@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "checkedDate": "2026-11-04",
+  "scope": "Read-only offline consumer replay of actual installed backend responses; no production/browser/network requests",
+  "backendCommit": "436f9c43",
+  "backendCommitReportedBy": "Root",
+  "clientCommit": "943af846b2a691af5bebc14a9d0bf6aa63fc6490",
+  "profileHash": "0e98e7c907177f0e692757bcacc712adaad023def6e9c62e6e1b86c28a1dd74d",
+  "manifest": {
+    "dataset": "extended-hours-installed-api-0e98",
+    "sha256": "2b93d4f6c106a685d44f4279854b76e7207d47ff8bff568eb6accffd856b0351",
+    "responseCount": 35
+  },
+  "backendReportedDerivedFullDays": 169,
+  "wholeYearClaim": false,
+  "consumerFullCases": 14,
+  "contexts": [
+    "first-hour-after-matins-none",
+    "first-hour-after-matins-vzbrannoi",
+    "ninth-hour-before-vespers-narthex",
+    "ninth-hour-before-vespers-nave",
+    "ninth-hour-standalone",
+    "sixth-hour",
+    "third-hour"
+  ],
+  "cases": [
+    {
+      "id": "case-0-full",
+      "context": "first-hour-after-matins-none",
+      "blocks": 96,
+      "missing": 0,
+      "pdfPages": 4
+    },
+    {
+      "id": "case-1-full",
+      "context": "first-hour-after-matins-vzbrannoi",
+      "blocks": 99,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-10-full",
+      "context": "sixth-hour",
+      "blocks": 89,
+      "missing": 0,
+      "pdfPages": 4
+    },
+    {
+      "id": "case-11-full",
+      "context": "ninth-hour-standalone",
+      "blocks": 122,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-12-full",
+      "context": "ninth-hour-before-vespers-nave",
+      "blocks": 116,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-13-full",
+      "context": "ninth-hour-before-vespers-narthex",
+      "blocks": 122,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-2-full",
+      "context": "third-hour",
+      "blocks": 118,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-3-full",
+      "context": "sixth-hour",
+      "blocks": 89,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-4-full",
+      "context": "ninth-hour-standalone",
+      "blocks": 123,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-5-full",
+      "context": "ninth-hour-before-vespers-nave",
+      "blocks": 116,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-6-full",
+      "context": "ninth-hour-before-vespers-narthex",
+      "blocks": 123,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-7-full",
+      "context": "first-hour-after-matins-none",
+      "blocks": 96,
+      "missing": 0,
+      "pdfPages": 4
+    },
+    {
+      "id": "case-8-full",
+      "context": "first-hour-after-matins-vzbrannoi",
+      "blocks": 100,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "case-9-full",
+      "context": "third-hour",
+      "blocks": 118,
+      "missing": 0,
+      "pdfPages": 5
+    }
+  ],
+  "responseHashes": [
+    {
+      "id": "case-0-assignments",
+      "responseSha256": "cb40e672cd462245a7b7dbdf1784e993c98cec782d07a57b679ac12e89ec5c8c"
+    },
+    {
+      "id": "case-0-full",
+      "responseSha256": "063718b7a2e43b70c6472b3043530340eaf1d632ac26e94d3fd6ae8378e964cc"
+    },
+    {
+      "id": "case-1-assignments",
+      "responseSha256": "dd74118066ada6bdb305e41d04e007ec87a54e7740c18c73a1722fe367447101"
+    },
+    {
+      "id": "case-1-full",
+      "responseSha256": "bd624fd0d354c7e4acf49fc71122eace917a2e95a7001abafa8b56eb1731d9d3"
+    },
+    {
+      "id": "case-10-assignments",
+      "responseSha256": "4e55d0758d16d1a55ee984a06ab1e6afaecdb4772d1272df56f311e25ec57cf1"
+    },
+    {
+      "id": "case-10-full",
+      "responseSha256": "2f14f638af10d3f0afec8de2c54dc3fbc408fcc4ea0ebaf5bac4dd8609b2356c"
+    },
+    {
+      "id": "case-11-assignments",
+      "responseSha256": "fbbd3a02181a17ddee6a113ed5a43fce59ebde0181780b7b7bf6fe5d80e32309"
+    },
+    {
+      "id": "case-11-full",
+      "responseSha256": "e565664d1ec5100a3e807f40b509833a0b48473e361fcf62b55d9d682673fc8e"
+    },
+    {
+      "id": "case-12-assignments",
+      "responseSha256": "101d5cb7ecda14e0972b555466f2d17d3ff572dc3fb0504eb2c369b21d4fc1d2"
+    },
+    {
+      "id": "case-12-full",
+      "responseSha256": "cc98235f914f75d9cbe368f8aea796e345835f314ece1d8f20dde649db1a3656"
+    },
+    {
+      "id": "case-13-assignments",
+      "responseSha256": "980b0b37bea3c9501fac998106701ff78510952a279c24bb42b75427c1082e35"
+    },
+    {
+      "id": "case-13-full",
+      "responseSha256": "8d45a3b6b84bde8f54b894177d3326aff8f1298a0295cf22500a9c04d67b6a6d"
+    },
+    {
+      "id": "case-2-assignments",
+      "responseSha256": "d21d600d81066031c5679e3771dcdded954f28bd25a5c5852134388b638bba10"
+    },
+    {
+      "id": "case-2-full",
+      "responseSha256": "17bb20a5d6d97c266ee8ce3d5c2b1f04fc7b1ba395c57f9d8a8992ed663c5e24"
+    },
+    {
+      "id": "case-3-assignments",
+      "responseSha256": "2c5d465aea09f2c25982c97bf9e1322989a46a37692650430ce7ce4bea7a4a7b"
+    },
+    {
+      "id": "case-3-full",
+      "responseSha256": "bec23159fe902ece1e2627530426cb20006bdfcbee13c9f385bc3addae068551"
+    },
+    {
+      "id": "case-4-assignments",
+      "responseSha256": "7b57841ba2813c01b0f9fb9ad3b0bfa88e8f604579588708c99ef9664fe7ff13"
+    },
+    {
+      "id": "case-4-full",
+      "responseSha256": "abea540e477dae8f79ec3ba0e4212af822a617ce697c8407a3607ba357e55602"
+    },
+    {
+      "id": "case-5-assignments",
+      "responseSha256": "c98212f4a22c7d7c6014216ef25f0947ce50ae965380f584af87ead2d4c57a93"
+    },
+    {
+      "id": "case-5-full",
+      "responseSha256": "086e566e183793d5878c95adc429251d3fc663631e782c0de3d8eeab61f47fab"
+    },
+    {
+      "id": "case-6-assignments",
+      "responseSha256": "c46cca4420ec0ca5bc8cd033712c6fb871c90f014c568227f6d9ff9466fd20bc"
+    },
+    {
+      "id": "case-6-full",
+      "responseSha256": "e09452ed186bd040123c0ce03396d91c99271314f1e093f0245fdabc8425cf5d"
+    },
+    {
+      "id": "case-7-assignments",
+      "responseSha256": "1cd5665f1f587346149bbf9275c6b09d90ece7778c72a0e14cb61227c3e59244"
+    },
+    {
+      "id": "case-7-full",
+      "responseSha256": "aa0fb9ca2d690cdc34b293cf7c8180c4cf96e16fb874a740c31cd6ae9e514d5c"
+    },
+    {
+      "id": "case-8-assignments",
+      "responseSha256": "0b488e3394dcd01689720b3252b1a960de2edc5bb9cb8558c961dc7cf2916830"
+    },
+    {
+      "id": "case-8-full",
+      "responseSha256": "577af6c9cf47af807a9de019209e5fca8d1b9a46500434d4bb339c92f51f391b"
+    },
+    {
+      "id": "case-9-assignments",
+      "responseSha256": "844545e3c589eaff05ecb4da16b4e1804cab2e556a87561f0f7bd9dcb296b097"
+    },
+    {
+      "id": "case-9-full",
+      "responseSha256": "789a675081a248ec04646fafce39dfd9d9977ec602ab9bdb7f7713bafc9a5b21"
+    },
+    {
+      "id": "template-first-hour-after-matins-none",
+      "responseSha256": "c075faf1d72abeb2070db4574240af45a4f8e16c938829abd988f49c9c3146b8"
+    },
+    {
+      "id": "template-first-hour-after-matins-vzbrannoi",
+      "responseSha256": "fbca32933e3c751fa2185b928dc2c2a15a16e3f50e23282b2b67df645849baa1"
+    },
+    {
+      "id": "template-ninth-hour-before-vespers-narthex",
+      "responseSha256": "1822b848b92d825befe288be0e481ce354ea05fd797b9a70b77f3ab49bb70971"
+    },
+    {
+      "id": "template-ninth-hour-before-vespers-nave",
+      "responseSha256": "8f9b768ff5ca531afa7913941bb35b188bdf645b3e7b0a41f86ed839dab12f28"
+    },
+    {
+      "id": "template-ninth-hour-standalone",
+      "responseSha256": "64e8388417384e30fedc2d1b3090f322c6e6bd003cc7ebe0b1701fe027c4f539"
+    },
+    {
+      "id": "template-sixth-hour",
+      "responseSha256": "ce1c2af19b33d021d0c0546d3eaa8466fea285cf8bec16c459cf6a311f6c0b5d"
+    },
+    {
+      "id": "template-third-hour",
+      "responseSha256": "b489981f4256ff92bc3ef0fa98e9d5349ab15aec03855e5ee4004b8b73c5d263"
+    }
+  ],
+  "checks": {
+    "fullModularNativeBodyParity": "PASS",
+    "readerPrintPdfUnicodeParity": "PASS",
+    "realPdfs": 14,
+    "pdfPages": 67,
+    "missing": 0,
+    "negativeChecks": 154,
+    "privateNoStoreAndBodySha": "PASS",
+    "existingGuardsUnchanged": true
+  },
+  "requestNormalization": [
+    "Existing client sends explicit calendarStyle=julian; actual captures use the same validated Julian default",
+    "First-hour captured boolean true and1 both represent matinsDismissalDone; existing client wire stays1"
+  ],
+  "runtimeChanges": false,
+  "deploymentRequired": false
+}
