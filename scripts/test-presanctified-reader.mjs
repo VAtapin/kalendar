@@ -31,6 +31,10 @@ try {
   assert.ok(printed); assert.ok(snapshot); assert.equal(snapshot.kind, 'book'); assert.equal(snapshot.complete, true);
   assert.deepEqual(snapshot.sources, []); assert.deepEqual(snapshot.sourceMetadata.preparedContract, body.data);
   assert.deepEqual(snapshot.sourceMetadata.preparedSourceProposal, proposal);
+  assert.equal(snapshot.status, 'Полный текст выбранного печатного чина');
+  assert.equal(snapshot.subtitle, state.date);
+  assert.ok(snapshot.information.some(text => text.includes('Имена: из вашего ввода.')));
+  assert.ok(snapshot.information.every(text => !text.includes('местное совершение и расписание не подтверждены')));
   for (const flag of ['wholeLiturgyAccepted', 'wholeDatedServiceAccepted', 'dateAppointmentApproved',
     'actualPerformedSequenceConfirmed', 'actualLocalScheduleConfirmed', 'actualCurrentPeopleAsserted']) {
     assert.equal(snapshot.sourceMetadata.preparedContract[flag], false);

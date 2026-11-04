@@ -92,7 +92,6 @@
     }
   ],
   "checks": {
-    "targetedVitest": 246,
     "productionBuildAndTypecheck": true,
     "builtPdfAssets": true,
     "existingDispatch": true,
@@ -106,11 +105,26 @@
     "sourceHidden": true,
     "falseAdmissionFlagsPreserved": true,
     "firstLastVisualReviewed": true,
-    "finalFirstLastPixelIdenticalToReviewed": true,
     "allPageBodyReserveAbove53Pt": true,
-    "minBodyBottomReservePt": 54.17
+    "minBodyBottomReservePt": 53.158,
+    "initialImplementationVitest": 246,
+    "headerOnlyVitest": 69
   },
   "productionDeploymentExecuted": false,
   "productionVerified": false,
-  "backendAnnualCoverageClaimed": false
+  "backendAnnualCoverageClaimed": false,
+  "neutralHeaderFollowup": {
+    "scope": "Remove only the visible schedule/performance caveat; neutral printed-rite status, date, temple, branch and user names retained",
+    "printedCaveatRemoved": true,
+    "strictValidationUnchanged": true,
+    "allSixFalseAdmissionFlagsPreserved": true,
+    "native681BlocksUnchanged": true,
+    "pdfPages": 37,
+    "firstLastVisualReviewed": true,
+    "firstPng": "tmp/pdfs/presanctified-neutral-first.png",
+    "lastPng": "tmp/pdfs/presanctified-neutral-last.png",
+    "targetedVitest": 69,
+    "productionBuildAndTypecheck": true,
+    "builtPdfAssets": true
+  }
 }

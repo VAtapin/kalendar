@@ -71,4 +71,14 @@ describe('typed private printed Presanctified input', () => {
     for (const text of ['Полный текст выбранного печатного чина', 'Подготавливаю выбранный печатный чин…',
       'Святые минейного дня вечерни — готовая родительная форма для отпуста']) expect(UI_DE[text]).toBeTruthy();
   });
+  it('uses a neutral printed-rite heading without an actual-schedule caveat', () => {
+    const reader = renderWorshipReader({ state, create, formatDate: date => date });
+    // UI model only; genuine PDF capture and preserved false flags use the owner replay.
+    reader.render({ status: 'parts', assignmentsStatus: 'complete', complete: true, preparedPrintedBook: true,
+      localValuesApplied: true, localTempleId: 'nicholas', entries: [], template: {} });
+    expect(reader.page.querySelector('.worship-coverage').textContent).toBe('Полный текст выбранного печатного чина');
+    expect(reader.page.textContent).toContain('Имена: из вашего ввода.');
+    expect(reader.page.textContent).not.toContain('местное совершение и расписание не подтверждены');
+    reader.dispose();
+  });
 });

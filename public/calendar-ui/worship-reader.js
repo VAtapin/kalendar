@@ -312,7 +312,6 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
     }
     content.append(coverage);
-    if(result.preparedPrintedBook)content.append(create('p','Выбранный печатный чин; местное совершение и расписание не подтверждены.','reader-message'));
     if(result.typikaPrepared)content.append(create('p','Выбранный печатный вариант без Литургии.','reader-message'));
     if(result.serviceMode?.selectedMode==='god-is-lord')content.append(create('p','Подготовлен вариант «Бог Господь».','reader-message'));
     if (result.midnightPrepared) content.append(create('p', result.midnightHolySpirit?'Полунощница понедельника Святого Духа без местного бдения.':'Обычный самостоятельный чин без местного бдения.', 'reader-message'));

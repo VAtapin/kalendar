@@ -1,6 +1,5 @@
 export const UI_DE = {
     "Полный текст выбранного печатного чина": "Vollständiger Text des gewählten gedruckten Ritus",
-    "Выбранный печатный чин; местное совершение и расписание не подтверждены.": "Gewählter gedruckter Ritus; örtliche Durchführung und Gottesdienstplan sind nicht bestätigt.",
     "Выбранный печатный чин.": "Gewählter gedruckter Ritus.",
     "Подготавливаю выбранный печатный чин…": "Der gewählte gedruckte Ritus wird vorbereitet…",
     "Не удалось подготовить выбранный печатный чин. Проверьте выбор и местные формы.": "Der gewählte gedruckte Ritus konnte nicht vorbereitet werden. Prüfen Sie die Auswahl und die örtlichen Namensformen.",
