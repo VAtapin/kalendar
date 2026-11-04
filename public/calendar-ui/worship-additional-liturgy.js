@@ -128,11 +128,15 @@ export async function composeAdditionalAssignments(assignments, template, state,
     || await partsHash(entries.flatMap(node => node.blocks || [])) !== assignments.composedBlocksHash) throw new Error('Additional extract digest mismatch');
   return { ...values, entries, dayValuesApplied: !!day, selectedConditionalIds: day ? [day.conditionalId] : [] };
 }
-export async function fetchAdditionalLiturgy(state, onBase, request, signal, localContext, probeLocalContext = false) {
+export async function fetchAdditionalLiturgy(state, onBase, request, signal, localContext, probeLocalContext = false, preparePrintedBook) {
   if (state.rite === 'presanctified' && !state.midLentBranch) return { status: 'context-required' };
   if (!['auto', 'cu'].includes(state.textLanguage || 'auto')) return { status: 'edition-unavailable' };
   if (!validWorshipDate(state.date)) throw new Error('Invalid worship date');
   const params = selector(state), template = await validateAdditionalTemplate(await request('templates', params), state);
+  if (preparePrintedBook !== undefined) {
+    if (typeof preparePrintedBook !== 'function' || state.rite !== 'presanctified') throw Error('Invalid printed source request');
+    signal?.throwIfAborted(); return preparePrintedBook(template);
+  }
   const base = { status: 'parts', template, additionalFixed: true, complete: false, outline: false, assignmentsStatus: 'loading',
     entries: template.nodes.map(node => node.kind === 'slot' ? { ...node, missing: true, contract: template.requiredContracts[node.slotId] }
       : { ...node, language: 'cu' }) };

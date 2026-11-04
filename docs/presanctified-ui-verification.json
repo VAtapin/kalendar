@@ -1,0 +1,116 @@
+{
+  "scope": "First admitted printed Presanctified composition only; actual installed main raw responses, no server/browser/network",
+  "backendCommitReportedByCoordinator": "aa44d830",
+  "positiveProtocolReplays": 1,
+  "requests": 2,
+  "nativeBlocks": 681,
+  "negatives": 76,
+  "realNetworkRequests": 0,
+  "rawHeaderComparison": true,
+  "sourceWordAdmissionComplete": true,
+  "indexSha256": "2a2b5152d71bd6a9ef31e1e82561419f964561eadd2f323fe039a6112bb3c3ba",
+  "rawTriples": 9,
+  "firstCompositionSourceOperationPins": true,
+  "limitation": "First admitted printed composition only; no annual coverage or actual local performance claim.",
+  "date": "2026-03-18",
+  "temple": "nicholas",
+  "vespersMenaionOldStyleDate": "2026-03-06",
+  "selectedSourceDayIds": [
+    "memory-day-0384"
+  ],
+  "sourceBodyVersion": "b1e8202ffcf969bd321fe5794b0f3d87739f32c1893ac633778d32647403ab91",
+  "publicTemplateVersion": "96a9f57edb3bc6ccc1d7f1c92e14ab9da02596fbddc1be62d04e876d88c33f26",
+  "sourceVersions": 11,
+  "uniqueSourceIdentities": 11,
+  "sourceDayOperationPins": 21,
+  "localRecipePins": 41,
+  "nativeBlocksHash": "5c6314e6d706364aa276be08951b010f945cf9936f4d70e09346150bd7c767c2",
+  "nativeBlocksAndPublicTemplateUnchanged": true,
+  "rawResponses": [
+    {
+      "id": "response-01",
+      "method": "GET",
+      "status": 200,
+      "bodySha256": "3616ac98d61b1981fe511030f3605126b0b7534bd4ed1a95375b939665e84f2c",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-02",
+      "method": "POST",
+      "status": 409,
+      "bodySha256": "1c7ffd8fe858799536cffa64f8838a62facb1bf77fe79118dad06526187f8e0f",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-03",
+      "method": "POST",
+      "status": 200,
+      "bodySha256": "c58ef9d0139358fb77671ff0ef38942274c8001d57a32123bb932027a841af4c",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-04",
+      "method": "POST",
+      "status": 409,
+      "bodySha256": "72e9a129077fa6e16eb551872acbc9d7eabae1d29a095c06178b7bb2e08fb57e",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-05",
+      "method": "POST",
+      "status": 422,
+      "bodySha256": "243e391ae3493013fbc03d52b6bac5ea74e6b78ea673259c5dd37826575a68f2",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-06",
+      "method": "POST",
+      "status": 200,
+      "bodySha256": "8327dbb4b3fdd1fb64201443a06c72cf35d1e5a586da054babeb5657e4d87c5e",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-07",
+      "method": "GET",
+      "status": 422,
+      "bodySha256": "a7ab69f049bbc2bc4a6e8a1579bccec5877faea4e2e39ae8c975a0f261364e31",
+      "cacheControl": "no-cache, private"
+    },
+    {
+      "id": "response-08",
+      "method": "POST",
+      "status": 409,
+      "bodySha256": "4c573c3cf2fc7233e83e1f56425ed73eacb6f5127940f2ee8c8949c3c666c7e6",
+      "cacheControl": "no-store, private"
+    },
+    {
+      "id": "response-09",
+      "method": "POST",
+      "status": 409,
+      "bodySha256": "4c573c3cf2fc7233e83e1f56425ed73eacb6f5127940f2ee8c8949c3c666c7e6",
+      "cacheControl": "no-store, private"
+    }
+  ],
+  "checks": {
+    "targetedVitest": 246,
+    "productionBuildAndTypecheck": true,
+    "builtPdfAssets": true,
+    "existingDispatch": true,
+    "privateFormConsentAbortClear": true,
+    "readerPrintPdfSnapshot": true,
+    "pdfPages": 37,
+    "pdfCompactedBlocks": 659,
+    "pdfUnicodeParity": true,
+    "pdfGlyphCoverage": true,
+    "pdfNoSubject": true,
+    "sourceHidden": true,
+    "falseAdmissionFlagsPreserved": true,
+    "firstLastVisualReviewed": true,
+    "finalFirstLastPixelIdenticalToReviewed": true,
+    "allPageBodyReserveAbove53Pt": true,
+    "minBodyBottomReservePt": 54.17
+  },
+  "productionDeploymentExecuted": false,
+  "productionVerified": false,
+  "backendAnnualCoverageClaimed": false
+}

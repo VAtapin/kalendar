@@ -1,3 +1,4 @@
+import {fetchPreparedPresanctified} from './worship-presanctified-prepared.js';
 import {requestedOfficeMode,validateServiceMode,officeModeUnavailable} from './worship-office-mode.js';
 import {PAIR_SECTION,MODE_PAIR_SECTION} from './worship-antiphon-pair.js';
 import { fetchMidnightParts } from './worship-midnight.js';
@@ -192,7 +193,9 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   };
   const requested = state.textLanguage || 'auto';
   if (!['auto', 'cu', 'cu-civil', 'ru'].includes(requested)) throw new Error('Invalid text language');
-  if (isAdditionalLiturgy(state)) return fetchAdditionalLiturgy(state, onBase, request, signal, options.localContext, options.probeLocalContext);
+  if (isAdditionalLiturgy(state)) return fetchAdditionalLiturgy(state, onBase, request, signal, options.localContext, options.probeLocalContext,
+    Object.hasOwn(options, 'preparedSourceChoices') ? template => fetchPreparedPresanctified(base,
+      {...state, temple: options.localContext?.templeProfileId}, template, options.localContext, options.preparedSourceChoices, fetcher, signal, options.isCurrent) : undefined);
   let template, language;
   const hour = ['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour'].includes(state.office);
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {

@@ -720,18 +720,26 @@ async function showWorship() {
   const selected = { ...state };
   worshipController = new AbortController();
   const signal = worshipController.signal;
-  let basisResult, localApplied = false;
-  const clearLocal = () => { if (localApplied) { localApplied = false; if (basisResult) reader.render(basisResult); } };
+  let basisResult, localApplied = false, preparedAttempt = false;
+  const clearLocal = () => { if (localApplied || preparedAttempt) { localApplied = false; preparedAttempt = false; if (basisResult) reader.render(basisResult); } };
   const reader = renderWorshipReader({ state: selected, create: e, formatDate: titleDate,
     isCurrent: () => request === worshipSequence && state.view === 'worship',
     onCalendar: () => { state.view = 'day'; void load(); },
     onRetry: () => void load(),
     onLocalDirty: clearLocal, onLocalClear: clearLocal,
     onLocalSubmit: async (localContext, pending) => {
-      const result = await fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, () => {}, fetch,
-        AbortSignal.any([signal, pending.signal]), { localContext, printedVariantConfirmed: pending.printedVariantConfirmed });
-      if (!result.localValuesApplied) throw new Error('Local values unavailable');
-      if (current() && pending.isCurrent()) { localApplied = true; reader.render(result); }
+      const prepared = Object.hasOwn(pending, 'preparedSourceChoices');
+      if (prepared) { preparedAttempt = true; localApplied = false; reader.render({ status: 'prepared-loading' }); }
+      try {
+        const result = await fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, () => {}, fetch,
+          AbortSignal.any([signal, pending.signal]), { localContext, printedVariantConfirmed: pending.printedVariantConfirmed,
+            ...(prepared ? { preparedSourceChoices: pending.preparedSourceChoices, isCurrent: pending.isCurrent } : {}) });
+        if (!result.localValuesApplied) throw new Error('Local values unavailable');
+        if (current() && pending.isCurrent()) { localApplied = true; reader.render(result); }
+      } catch (error) {
+        if (prepared && current() && pending.isCurrent()) reader.render({ status: 'prepared-unavailable' });
+        throw error;
+      }
     },
     onChange: (field, value) => {
       state[field] = value;
@@ -765,11 +773,11 @@ async function showWorship() {
   });
   const service = fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, result => {
     basisResult = result;
-    if (current() && !localApplied) reader.render(result);
+    if (current() && !localApplied && !preparedAttempt) reader.render(result);
   }, fetch, signal, { probeLocalContext: true }).then(result => {
     basisResult = result;
-    if (current() && !localApplied) reader.render(result);
-  }).catch(() => { if (current()) reader.render({ status: 'error' }); });
+    if (current() && !localApplied && !preparedAttempt) reader.render(result);
+  }).catch(() => { if (current() && !localApplied && !preparedAttempt) reader.render({ status: 'error' }); });
   await Promise.allSettled([summary, service]);
 }
 

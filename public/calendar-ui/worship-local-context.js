@@ -1,3 +1,4 @@
+import { createPreparedPresanctifiedFields } from './worship-presanctified-form.js';
 import { midnightParams } from './worship-midnight-context.js';
 // Typed request preparation only. No network, persistence or assignment fabrication.
 const keys=(object,allowed)=>object&&typeof object==='object'&&!Array.isArray(object)&&Object.keys(object).every(key=>allowed.includes(key));
@@ -122,6 +123,8 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
     input.dataset.localField = field.key; wrapper.append(input); form.append(wrapper); inputs.set(field.key, input);
     labels.set(field.key, label);
   }
+  const prepared = createPreparedPresanctifiedFields({ state, create, values, temple: () => temple.value, onDirty: dirty });
+  if (prepared) form.append(prepared.page);
   const preview = create('div', '', 'local-form-preview'); preview.setAttribute('aria-live', 'polite'); preview.hidden = true;
   form.append(preview);
   const applied = create('p', '', 'hint'); applied.setAttribute('role', 'status'); applied.hidden = true; form.append(applied);
@@ -153,12 +156,13 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
       const literal = create('span'); literal.textContent = input.value; literal.lang = 'cu'; literal.dataset.textLanguage = 'cu'; line.append(literal); preview.append(line);
     }
     preview.append(create('p', 'Пустые поля не будут заполнены автоматически. Текст с этими формами появится после применения.', 'hint'));
-    preview.hidden = disposed || !filled.length;
+    prepared?.preview(preview);
+    preview.hidden = disposed || (!filled.length && !prepared?.active());
     if (invalid && !disposed) {
       error.textContent = create('span', 'Проверьте буквальные формы: кириллица, не более 160 символов, без начальных и конечных пробелов.').textContent;
       error.hidden = false;
     }
-    submit.disabled = disposed || pending || !consent.checked || (variantConsent && !variantConsent.checked) || !filled.length || invalid;
+    submit.disabled = disposed || pending || !consent.checked || (variantConsent && !variantConsent.checked) || !filled.length || invalid || !!(prepared?.active() && !prepared.valid());
   }
   function dirty() { ++version; controller?.abort(); consent.checked = false; if (variantConsent) variantConsent.checked = false; error.hidden = true; applied.hidden = true; applied.textContent = ''; update(); onDirty(); }
   for (const input of inputs.values()) input.addEventListener('input', dirty);
@@ -168,17 +172,19 @@ export function createLocalContextForm({ state, temples, create, onSubmit, onCle
     event.preventDefault(); if (disposed || pending || submit.disabled) return;
     const request = ++version;
     try {
-      const context = buildLocalClergyContext(state, values(), temple.value, consent.checked, temples);
+      const full = prepared?.active() ? prepared.collect(consent.checked) : null;
+      const context = full?.context || buildLocalClergyContext(state, values(), temple.value, consent.checked, temples);
       controller = new AbortController();
       pending = true; update();
       await onSubmit(context, { signal: controller.signal, isCurrent: () => !disposed && request === version,
-        ...(variantConsent ? { printedVariantConfirmed: variantConsent.checked } : {}) });
+        ...(variantConsent ? { printedVariantConfirmed: variantConsent.checked } : {}),
+        ...(full ? { preparedSourceChoices: full.choices } : {}) });
       if (!disposed && request === version && !controller.signal.aborted) { applied.textContent = create('span', 'Введённые формы применены. Проверьте текст службы ниже.').textContent; applied.hidden = false; }
     } catch {
       if (!disposed && request === version) { error.textContent = create('span', 'Не удалось применить местные формы. Проверьте ввод и попробуйте ещё раз.').textContent; error.hidden = false; }
     } finally { pending = false; update(); }
   });
-  function erase() { ++version; controller?.abort(); for (const input of inputs.values()) input.value = ''; consent.checked = false; if (variantConsent) variantConsent.checked = false; error.hidden = true; applied.hidden = true; applied.textContent = ''; update(); }
+  function erase() { ++version; controller?.abort(); for (const input of inputs.values()) input.value = ''; prepared?.erase(); consent.checked = false; if (variantConsent) variantConsent.checked = false; error.hidden = true; applied.hidden = true; applied.textContent = ''; update(); }
   clear.addEventListener('click', () => { erase(); onDirty(); onClear(); });
   return { page, dispose() { disposed = true; erase(); } };
 }
