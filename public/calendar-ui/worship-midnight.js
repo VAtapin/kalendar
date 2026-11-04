@@ -2,14 +2,13 @@ import { partsHash } from './worship-hash.js';
 import { worshipRequestSignal } from './worship-context.js';
 import { midnightParams, midnightTypedParams, validateMidnightNativeBlocks, validateMidnightReaderBlocks } from './worship-midnight-context.js';
 import { normalizeMidnightClergyContext, buildMidnightClergyPost } from './worship-local-context.js';
-const MATERIAL='d0fc075a512cb8b7881d4d64fde43545ab25190164ca8564eca20e810adb4e51';
-const RULES='ab431b34ecfd2028f516bab274bb99d91b86b05d89682f9ca330632a1007563f';
+import {MIDNIGHT_PROTOCOLS,HOLY_SPIRIT_RULES,midnightSourceClass,validateHolySpiritNative} from './worship-midnight-protocol.js';
 const hash=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
 export async function validateMidnightTemplate(body,state){
   const input=midnightTypedParams(state),t=body?.data;
-  if(t?.schemaVersion!==1||t.office!=='midnight-office'||t.profile!==input.profile||t.ruleVersion!==RULES
-    ||typeof t.variant!=='string'||!/^(weekday-ordinary-(winter|summer)|saturday-(church|cell)|sunday-tone-[1-8])$/.test(t.variant)||t.templateId!=='midnight-office:cu:'+t.variant+':'+input.profile
-    ||t.sourceClass!=='ordinary-standalone-no-vigil'||!hash(t.templateVersion)
+  if(t?.schemaVersion!==1||t.office!=='midnight-office'||t.profile!==input.profile||!Object.hasOwn(MIDNIGHT_PROTOCOLS,t.ruleVersion)
+    ||typeof t.variant!=='string'||!/^(holy-spirit-monday|weekday-ordinary-(winter|summer)|saturday-(church|cell)|sunday-tone-[1-8])$/.test(t.variant)||t.templateId!=='midnight-office:cu:'+t.variant+':'+input.profile
+    ||t.sourceClass!==midnightSourceClass(t.variant,t.ruleVersion)||(t.variant==='holy-spirit-monday'&&t.ruleVersion!==HOLY_SPIRIT_RULES)||!hash(t.templateVersion)
     ||['wholeOfficeAccepted','runtimeAdmissionGranted','calendarServiceAppointed','actualLocalContextVerified'].some(key=>t[key]!==false)
     ||!Array.isArray(t.sourceVersions)||!t.sourceVersions.length||!Array.isArray(t.nodes)||!t.nodes.length)throw Error('Invalid typed Midnight reader template');
   if(t.sourceVersions.some(s=>typeof s.work!=='string'||typeof s.edition!=='string'||s.language!=='cu'||!hash(s.hash)||!hash(s.sourceHash)))throw Error('Invalid Midnight sources');
@@ -25,8 +24,9 @@ export async function validateMidnightTemplate(body,state){
     for(const b of node.blocks){const p=b.provenance;if(!t.sourceVersions.some(s=>s.work===p.canonicalWork&&s.edition===p.canonicalEdition&&s.hash===p.canonicalBodyHash&&s.sourceHash===p.canonicalSourceHash))throw Error('Unbound canonical block');}
   }
   validateMidnightNativeBlocks(t.nodes.flatMap(n=>n.blocks),input.profile);
+  if(t.variant==='holy-spirit-monday')await validateHolySpiritNative(t.nodes.flatMap(n=>n.blocks));
   if(input.profile==='clergy'&&JSON.stringify(slots)!==JSON.stringify(['local.patriarch-dative','local.bishop-dative','local.superior-dative']))throw Error('Invalid Midnight local field order');
-  if(await partsHash([MATERIAL,RULES,t.sourceVersions,t.variant,input.profile,input.bishopTitle||'bishop'])!==t.templateVersion)throw Error('Midnight template version mismatch');
+  if(await partsHash([MIDNIGHT_PROTOCOLS[t.ruleVersion],t.ruleVersion,t.sourceVersions,t.variant,input.profile,input.bishopTitle||'bishop'])!==t.templateVersion)throw Error('Midnight template version mismatch');
   return t;
 }
 export async function validateMidnightReaderTemplate(body,state){midnightParams(state);return validateMidnightTemplate(body,state);}
@@ -46,7 +46,7 @@ export async function composeMidnightReader(templateBody,assignmentBody,state,ac
   if(!hash(a.composedBlocksHash)||a.composedBlocksHash!==await partsHash(blocks))throw Error('Midnight reader composition hash mismatch');
   // This is a UI model composed from typed modular replies, never an invented HTTP body.
   return{status:'parts',template:t,entries:t.nodes.map(n=>({...n,language:'cu'})),sourceVersions:t.sourceVersions,
-    assignmentsStatus:'complete',complete:true,midnightPrepared:true,midnightContract:a};
+    assignmentsStatus:'complete',complete:true,midnightPrepared:true,midnightHolySpirit:t.variant==='holy-spirit-monday',midnightContract:a};
 }
 
 const targets = { 'local.patriarch-dative': 'primate', 'local.bishop-dative': 'diocesan', 'local.superior-dative': 'rector' };
@@ -106,7 +106,7 @@ export async function composeMidnightClergy(templateBody,assignmentBody,state,ac
   if(!digest(a.composedBlocksHash)||a.composedBlocksHash!==await partsHash(blocks))throw Error('Midnight clergy composition digest mismatch');
   const performance=await validateMidnightPerformance(a.performance,t,blocks);
   return{status:'parts',template:t,entries,sourceVersions:t.sourceVersions,assignmentsStatus:a.status,complete,
-    midnightPrepared:complete,midnightClergy:true,localContextAvailable:true,localValuesApplied:filled.size>0,
+    midnightPrepared:complete,midnightHolySpirit:t.variant==='holy-spirit-monday',midnightClergy:true,localContextAvailable:true,localValuesApplied:filled.size>0,
     localFilledCount:filled.size,midnightContract:a,performance};
 }
 

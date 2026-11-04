@@ -1,0 +1,134 @@
+{
+  "scope": "Final owner isolated original HTTP exports; main installation pending, no server/browser/POST",
+  "sourceSha256": "c735b3d09c4523ddd5640a860305464cdfa9d62e346bdf8142f9aa2db72f50e2",
+  "cases": [
+    {
+      "case": "reader-0",
+      "readerPrintPdf": "PASS",
+      "nativeBlocks": 160,
+      "renderedBlocks": 160,
+      "pages": 13,
+      "dynamicRubricPreserved": false
+    },
+    {
+      "case": "reader-3",
+      "readerPrintPdf": "PASS",
+      "nativeBlocks": 160,
+      "renderedBlocks": 160,
+      "pages": 13,
+      "dynamicRubricPreserved": false
+    },
+    {
+      "case": "clergy-8",
+      "readerPrintPdf": "PASS",
+      "nativeBlocks": 179,
+      "renderedBlocks": 168,
+      "pages": 13,
+      "dynamicRubricPreserved": true
+    },
+    {
+      "case": "reader-9",
+      "readerPrintPdf": "PASS",
+      "nativeBlocks": 160,
+      "renderedBlocks": 160,
+      "pages": 13,
+      "dynamicRubricPreserved": false
+    },
+    {
+      "case": "reader-12",
+      "readerPrintPdf": "PASS",
+      "nativeBlocks": 160,
+      "renderedBlocks": 160,
+      "pages": 13,
+      "dynamicRubricPreserved": false
+    },
+    {
+      "case": "clergy-17",
+      "readerPrintPdf": "PASS",
+      "nativeBlocks": 179,
+      "renderedBlocks": 168,
+      "pages": 13,
+      "dynamicRubricPreserved": true
+    }
+  ],
+  "negativeMutations": 199,
+  "partialPdfPages": 13,
+  "oldFullControls": 6,
+  "manifest": {
+    "sha256": "e3f2f541b1e9814835322f6c0d1351708dec119c2fa03a5aa7c9a88165310bf4",
+    "verifiedFiles": 15
+  },
+  "oldMainCompatibility": {
+    "scope": "Actual supplied HTTP envelopes; provenance/install scope follows the supplied index; no server/browser/network access",
+    "indexPath": "D:/Projekte/Kalendar/tmp/midnight-main-index.json",
+    "indexSha256": "ae3403172b461502b7e4329901f222e4024649cdd0ac22aa3f405cde766a2660",
+    "cases": [
+      {
+        "case": "01-2026-11-09-george-victorious-services-GET.json",
+        "readerPrintPdf": "PASS",
+        "nativeBlocks": 174,
+        "renderedBlocks": 174,
+        "pages": 14,
+        "dynamicRubricPreserved": false
+      },
+      {
+        "case": "04-2026-11-07-george-victorious-services-GET.json",
+        "readerPrintPdf": "PASS",
+        "nativeBlocks": 174,
+        "renderedBlocks": 174,
+        "pages": 13,
+        "dynamicRubricPreserved": false
+      },
+      {
+        "case": "07-2026-11-15-george-victorious-services-GET.json",
+        "readerPrintPdf": "PASS",
+        "nativeBlocks": 190,
+        "renderedBlocks": 190,
+        "pages": 12,
+        "dynamicRubricPreserved": false
+      },
+      {
+        "case": "10-2026-11-09-dormition-services-GET.json",
+        "readerPrintPdf": "PASS",
+        "nativeBlocks": 174,
+        "renderedBlocks": 174,
+        "pages": 14,
+        "dynamicRubricPreserved": false
+      },
+      {
+        "case": "15-2026-11-09-george-victorious-assignments-POST.json",
+        "readerPrintPdf": "PASS",
+        "nativeBlocks": 193,
+        "renderedBlocks": 182,
+        "pages": 15,
+        "dynamicRubricPreserved": true
+      }
+    ],
+    "partialSource": "/api/v1/liturgical/services/midnight-office",
+    "partialPdfPages": 15,
+    "negativeMutations": 147,
+    "actualNegativeHttp": 3,
+    "sourceIdsVisible": false,
+    "actualPOSTsent": false
+  },
+  "pdfBounds": [
+    {
+      "file": "tmp/pdfs/reader-0.pdf",
+      "pages": 13,
+      "minimumCharacterBoxY": 53.77
+    },
+    {
+      "file": "tmp/pdfs/clergy-8.pdf",
+      "pages": 13,
+      "minimumCharacterBoxY": 53.77
+    }
+  ],
+  "checks": {
+    "vitest": 308,
+    "productionBuild": true,
+    "builtPdfAssets": true,
+    "firstLastVisualCheck": true
+  },
+  "backendInstalled": false,
+  "note": "Dual-compatible UI; new backend remains owner-isolated, main promotion/public source publication require coordinator"
+}

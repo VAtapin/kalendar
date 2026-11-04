@@ -298,7 +298,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     content.append(coverage);
     if(result.serviceMode?.selectedMode==='god-is-lord')content.append(create('p','Подготовлен вариант «Бог Господь».','reader-message'));
-    if (result.midnightPrepared) content.append(create('p', 'Обычный самостоятельный чин без местного бдения.', 'reader-message'));
+    if (result.midnightPrepared) content.append(create('p', result.midnightHolySpirit?'Полунощница понедельника Святого Духа без местного бдения.':'Обычный самостоятельный чин без местного бдения.', 'reader-message'));
     if (result.localValuesApplied) {
       const notice = create('p', '', 'reader-message');
       notice.append(create('span', result.midnightClergy ? 'Имена: из вашего ввода.' : 'Местные имена введены пользователем. Они не подтверждают назначение всей службы.'),

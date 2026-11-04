@@ -1,3 +1,5 @@
+import {HOLY_SPIRIT_CLASS,HOLY_SPIRIT_READER_VERSION,HOLY_SPIRIT_READER_BODY} from './worship-midnight-protocol.js';
+import {partsHash} from './worship-hash.js';
 export const MIDNIGHT_PROFILES={reader:'Чтение без священника',clergy:'Со священником'};
 export const MIDNIGHT_LOCATIONS={church:'В храме',cell:'В келии'};
 export const MIDNIGHT_BISHOP_TITLES={bishop:'Епископ',archbishop:'Архиепископ',metropolitan:'Митрополит'};
@@ -36,12 +38,13 @@ export function validateMidnightFull(body,state) {
     && data.actualVigilScheduleVerified===false;
   if (data?.schemaVersion!==1||data.office!=='midnight-office'||data.status!=='complete'||data.date!==params.date
     || !c || c.office!=='midnight-office' || Object.entries(params).some(([key,value])=>c[key]!==value) || !digest(data.templateVersion)||!digest(data.calendarHash)
-    || data.sourceClass!=='ordinary-standalone-no-vigil'
+    || (data.sourceClass!=='ordinary-standalone-no-vigil'&&!(data.sourceClass===HOLY_SPIRIT_CLASS&&data.templateVersion===HOLY_SPIRIT_READER_VERSION))
+    || (data.templateVersion===HOLY_SPIRIT_READER_VERSION)!==(data.sourceClass===HOLY_SPIRIT_CLASS)
     || !prepared||data.actualLocalContextVerified!==false
     || data.performance!==null || !Array.isArray(data.blocks)||!data.blocks.length) throw Error('Invalid Midnight full contract');
   validateMidnightReaderBlocks(data.blocks);
   // UI completeness refers to the selected text only. Preserve all API admission flags.
-  return {status:'ready',language:'cu',midnightPrepared:prepared,data};
+  return {status:'ready',language:'cu',midnightPrepared:prepared,midnightHolySpirit:data.sourceClass===HOLY_SPIRIT_CLASS,data};
 }
 export function validateMidnightNativeBlocks(blocks,profile='reader'){
   if(!Array.isArray(blocks)||!blocks.length)throw Error('Missing Midnight reader blocks');
@@ -70,5 +73,7 @@ export async function fetchMidnightFull(base,state,fetcher=fetch,signal){
   if(response.status===404)return{status:'unavailable'};
   if(response.status===409){const value=await response.json();if(value?.data?.status==='partial'&&!value.data.blocks)return{status:'pending'};throw Error('Invalid Midnight held response');}
   if(response.status!==200)throw Error('Midnight text unavailable: '+response.status);
-  return validateMidnightFull(await response.json(),state);
+  const body=await response.json();
+  if(body?.data?.sourceClass===HOLY_SPIRIT_CLASS&&await partsHash(body.data.blocks)!==HOLY_SPIRIT_READER_BODY)throw Error('Changed Holy Spirit Midnight native body');
+  return validateMidnightFull(body,state);
 }

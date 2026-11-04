@@ -1,4 +1,5 @@
 export const UI_DE = {
+    "Полунощница понедельника Святого Духа без местного бдения.": "Mitternachtsgottesdienst am Montag des Heiligen Geistes ohne örtliche Vigil.",
     "Вариант подготовки": "Vorbereitete Variante",
     "По правилу подготовки": "Nach der Vorbereitungsregel",
     "«Бог Господь»": "„Gott ist der Herr“",
