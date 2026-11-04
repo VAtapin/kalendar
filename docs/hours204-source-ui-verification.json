@@ -4,13 +4,13 @@
   "old196Controls": 1,
   "raw204HttpEnvelopes": 0,
   "networkRequests": 0,
-  "templateEvidence": "204 modular replay pending: data e76abe9d differs from original196 template1042be69; no version rewriting",
+  "templateEvidence": "Caller-supplied actual matching204 template",
   "templateSha256": "3ddb7286c01747ba282249712cb9dd0e305a87e1ad8f0f887421c4df20ebff05",
   "sourceManifestSha256": "1b01aa3828a6353d099fd682a104f5bfb0341ca0cbc7d4bf44f6043c9b670d1f",
   "profileHash": "09ba7479a74777a1f0dd80a3ca3db38bb70466ab76dbafda1fa8ddad3d55e358",
   "old196IndexSha256": "89b00ab00e1dcb64025a39551f399fa50901be776ac5c41f744bb4d15c549d8a",
   "consumerRuntimeChanged": false,
-  "negatives": 10,
+  "negatives": 90,
   "rows": [
     {
       "id": "2026-06-27",
@@ -18,7 +18,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "91ce6eaad1f902e22e8ce76467c6158e0eb1c92d715e0f10c668b84db9288944",
       "nativeBlocks": 119,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "fc75a2673c969b296730156091061abe7119f0acd3f5f67a0c690b06f0d1f9bb",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -42,7 +42,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "334e0e35fc56d637befcf9b793fe2ec62c2c1e0dd0fc350519f93e39813c28db",
       "nativeBlocks": 119,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "652aef78ab02b49ec44d711cfbce44d38542739ea62398671b85cfa268798333",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -66,7 +66,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "fd74bd339d2c5bd43cd9492182df698ec05aef87527296a10e783fd8f68afdf5",
       "nativeBlocks": 117,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "a264132ea462fd644f1e6d467053b408e240fd148e5a41cfd53326c962643e4f",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -90,7 +90,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "0c3d25948689dce49edfadb5631a391bfd28b7019d96d59ef91a22296fc06ccd",
       "nativeBlocks": 119,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "652aef78ab02b49ec44d711cfbce44d38542739ea62398671b85cfa268798333",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -114,7 +114,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "52be6cd831315741f48381659f9cbd3e383a9f0231334c7daedbc06bd1cb5994",
       "nativeBlocks": 117,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "a264132ea462fd644f1e6d467053b408e240fd148e5a41cfd53326c962643e4f",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -138,7 +138,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "5de06eae7460c3eb928338ca94ad66ec0969c06237d14afa7cb988b767ef2aac",
       "nativeBlocks": 119,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "c221086cd486e680560fafcbbddaf418e49493530661014ecff71f553f6b1e38",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -162,7 +162,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "0fd75728058a920a63c544c41a8fc620d4d4733a429141d556ec3ed539c063ab",
       "nativeBlocks": 119,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "d648215030b04140f3e0ce94728ae89369979daf0a16609606f301367b8ce42a",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -186,7 +186,7 @@
       "evidence": "source-data-pair-no-HTTP-envelope",
       "dataFileSha256": "c662f499587c07fcd2f74a31faa6814530d6a1af972effd281aa02e1b4dbe8d1",
       "nativeBlocks": 119,
-      "modularReplay": false,
+      "modularReplay": true,
       "bodyHash": "cf3dc83a00384ae42fb4ac749afee6c12497898c038df3fb12fe67412eb0dc8e",
       "acceptance": {
         "basis": "whole-CU-primary-sources-and-ordinary-rule-domain",
@@ -230,11 +230,10 @@
   ],
   "inMemoryPdfs": 9,
   "pdfPages": 45,
-  "modular204Cases": 0,
-  "modular204Pending": true,
+  "modular204Cases": 8,
+  "modular204Pending": false,
   "limitation": "Eight supplied pairs cover third-hour full-data reader only until matching template is provided. No four-hour HTTP/headers, production or annual consumer coverage inferred. Fresh MAIN templates/raw responses remain pending.",
-  "negativeChecksScope": "Ten mutations of the old196 typed control only; no204 modular positive or negative admission claimed",
-  "pausedAtCheckpoint": true,
+  "matchingTemplate": "next-hours-204-release/observed-current/template-third-hour.json",
   "productionDeploymentExecuted": false,
   "productionVerified": false
 }
