@@ -1,3 +1,4 @@
+import {OFFICE_MODE_LABELS}from'./worship-office-mode.js';
 import { fetchMidnightFull } from './worship-midnight-context.js';
 import { createReaderPdfControls } from './reader-pdf-controls.js';
 import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipRequestSignal } from './worship-context.js';
@@ -189,6 +190,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   size.addEventListener('input', () => { state.textSize = Number(size.value); onChange('textSize', state.textSize); page.style.setProperty('--reader-size', size.value + 'px'); });
   sizeLabel.append(size); controls.append(sizeLabel); page.append(controls);
   page.style.setProperty('--reader-size', state.textSize + 'px');
+  const modeHost=create('label','Вариант подготовки','control');modeHost.hidden=true;controls.append(modeHost);
   const localHost = create('div'); localHost.hidden = true; page.append(localHost);
   const summary = create('div', '', 'worship-day-summary');
   const content = create('div', '', 'worship-content'); content.setAttribute('aria-live', 'polite');
@@ -213,13 +215,33 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   });
   controls.append(printButton);
   let navigationObserver, localForm, snapshotProvider, pdfReady = false;
-  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage]), getSnapshot: module => snapshotProvider?.(module) });
+  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage, state.officeMode || 'auto']), getSnapshot: module => snapshotProvider?.(module) });
   function render(result) {
     ++renderVersion; snapshotProvider = null; pdf.refresh();
     printButton.disabled = !['ready', 'parts'].includes(result.status) || result.assignmentsStatus === 'loading';
     pdfReady = !printButton.disabled;
     navigationObserver?.disconnect();
     content.replaceChildren();
+    modeHost.hidden=true;modeHost.replaceChildren();
+    if(result.serviceMode){
+      const title=create('span','Вариант подготовки'),input=create('select');input.dataset.worshipControl='officeMode';
+      for(const mode of ['auto',...result.serviceMode.permittedModes]){
+        const option=create('option',OFFICE_MODE_LABELS[mode]);option.value=mode;input.append(option);
+      }
+      input.value=state.officeMode||'auto';
+      input.addEventListener('change',()=>{
+        ++renderVersion;snapshotProvider=null;pdfReady=false;printButton.disabled=true;pdf.refresh();
+        content.replaceChildren(create('p','Загружаю службу…','hint'));modeHost.hidden=true;
+        onChange('officeMode',input.value);
+      });
+      modeHost.append(title,input);modeHost.hidden=false;
+    }
+    if(result.status==='office-mode-unavailable'){
+      const message=create('p',result.serviceMode?.selectedMode==='alleluia'
+        ?'Вариант «Аллилуия»: обычная Литургия не подготовляется.'
+        :'Для выбранного варианта обычная Литургия недоступна.','reader-message');
+      message.setAttribute('role','status');content.append(message);return;
+    }
     if ((result.additionalFixed || result.midnightClergy) && result.localContextAvailable && onLocalSubmit && !localForm) {
       localForm = createLocalContextForm({ state, temples: TEMPLES, create, onSubmit: onLocalSubmit, onDirty: onLocalDirty, onClear: onLocalClear });
       localHost.append(localForm.page); localHost.hidden = false;
@@ -275,6 +297,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       }
     }
     content.append(coverage);
+    if(result.serviceMode?.selectedMode==='god-is-lord')content.append(create('p','Подготовлен вариант «Бог Господь».','reader-message'));
     if (result.midnightPrepared) content.append(create('p', 'Обычный самостоятельный чин без местного бдения.', 'reader-message'));
     if (result.localValuesApplied) {
       const notice = create('p', '', 'reader-message');
@@ -455,7 +478,9 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       information: [contextLabel.textContent, ...missingSummary, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
       warnings: result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],
       sources: [],
-      sourceMetadata: { selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence }, status: result.assignmentsStatus },
+      sourceMetadata: { selection: { date: state.date, office: state.office, rite: state.rite, midLentBranch: state.midLentBranch, temple: state.temple, edition: state.textLanguage, sequence: state.sequence, officeMode: state.officeMode || 'auto' }, status: result.assignmentsStatus,
+        ...(result.serviceMode?{serviceMode:result.serviceMode,ordinaryLiturgyAvailable:result.ordinaryLiturgyAvailable}:{}),
+        ...(result.modeContract?{verifiedModeSections:Object.fromEntries(Object.entries(result.modeContract.verifiedSections||{}).filter(([,r])=>r.serviceMode).map(([id,r])=>[id,{serviceMode:r.serviceMode,selection:r.selection,acceptance:r.acceptance}]))}:{}) },
       labels: { contents: create('span', 'Оглавление').textContent, sources: create('span', 'Источники').textContent, incomplete: create('span', 'Полная служба выбранной даты не составлена.').textContent, page: create('span', 'Страница').textContent }
     });
     pdf.refresh();

@@ -1,3 +1,4 @@
+import {validatePairTemplate,PAIR_SECTION,MODE_PAIR_SECTION} from './worship-antiphon-pair.js';
 import { tropariaProtocol } from './worship-troparia-protocol.js';
 import { partsHash, textHash } from './worship-hash.js';
 import { matchesWorshipContext } from './worship-context.js';
@@ -18,9 +19,15 @@ export async function validateTropariaWrapper(template, assignments) {
     return;
   }
   const target = template.nodes.find(node => node.nodeId === TARGET), preserved = assignments.preservedLegacySections || {};
+  const pair=template.sections[PAIR_SECTION],modePair=template.sections[MODE_PAIR_SECTION];
+  const version={dayTemplateVersion:template.tropariaBaseTemplateVersion,tropariaSectionVersion:section.templateVersion};
+  if(pair||modePair){
+    if(!pair||!modePair||!await validatePairTemplate(PAIR_SECTION,pair,template)||!await validatePairTemplate(MODE_PAIR_SECTION,modePair,template))throw Error('Unbound two-antiphon wrapper');
+    version.antiphons12SectionVersion=pair.templateVersion;version.governingModeSectionVersion=modePair.templateVersion;
+  }
   if (template.status !== 'fixed-template' || !digest(template.tropariaBaseTemplateVersion) || !digest(template.baseTemplateVersion)
     || assignments.tropariaBaseTemplateVersion !== template.tropariaBaseTemplateVersion || assignments.baseTemplateVersion !== template.baseTemplateVersion
-    || template.templateVersion !== await partsHash({ dayTemplateVersion: template.tropariaBaseTemplateVersion, tropariaSectionVersion: section.templateVersion })
+    || template.templateVersion !== await partsHash(version)
     || section.nodes?.length !== 1 || !target || !await same(section.nodes[0],target)
     || target.kind !== 'slot' || target.slotId !== 'troparia-kontakia' || target.role !== 'choir' || target.parallelGroup !== 'entrance-prayer'
     || assignments.status !== 'partial' || assignments.completeness?.appointment !== false || assignments.completeness.composition !== false

@@ -1,0 +1,685 @@
+{
+  "scope": "Installed Kalendar consumer; genuine canonical normal-route triples, backend66ce0d63",
+  "cases": 67,
+  "modeChangeClears": 46,
+  "negativeMutations": 382,
+  "rows": [
+    {
+      "file": "alleluia-dormition-2026-12-14.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-dormition-2026-12-15.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-dormition-2026-12-21.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-dormition-2027-12-14.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-dormition-2027-12-15.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-dormition-2027-12-21.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-george-victorious-2026-12-14.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-george-victorious-2026-12-15.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-george-victorious-2026-12-21.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-george-victorious-2027-12-14.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-george-victorious-2027-12-15.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-george-victorious-2027-12-21.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-nicholas-2026-12-14.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-nicholas-2026-12-15.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-nicholas-2026-12-21.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-nicholas-2027-12-14.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-nicholas-2027-12-15.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "alleluia-nicholas-2027-12-21.json",
+      "httpStatus": 409,
+      "status": "office-mode-unavailable",
+      "blocks": 0,
+      "missing": 0,
+      "selectedMode": "alleluia",
+      "readerPrintSnapshot": false
+    },
+    {
+      "file": "mode-dormition-2026-07-22.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-08-11.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-09-09.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-10-21.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 779,
+      "missing": 28,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-10-29.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-11-12.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-12-14.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-12-15.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-dormition-2026-12-21.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 779,
+      "missing": 28,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-07-22.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 779,
+      "missing": 28,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-08-11.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-09-09.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-10-21.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 791,
+      "missing": 25,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-10-29.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-11-12.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-12-14.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-12-15.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2026-12-21.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 779,
+      "missing": 28,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-george-victorious-2027-07-22.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-07-22.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 779,
+      "missing": 28,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-08-11.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-09-09.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-10-21.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 791,
+      "missing": 25,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-10-29.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-11-12.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-12-14.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-12-15.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 769,
+      "missing": 29,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "mode-nicholas-2026-12-21.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 779,
+      "missing": 28,
+      "selectedMode": "god-is-lord",
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2026-07-27.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2026-10-07.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2026-11-02.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2027-02-11.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2027-07-27.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2027-10-07.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-dormition-2027-11-02.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2026-07-27.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2026-10-07.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2026-11-02.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2027-02-11.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2027-07-27.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2027-10-07.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-george-victorious-2027-11-02.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2026-07-27.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2026-10-07.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2026-11-02.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2027-02-11.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2027-07-27.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2027-10-07.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    },
+    {
+      "file": "residual196-nicholas-2027-11-02.json",
+      "httpStatus": 200,
+      "status": "parts",
+      "blocks": 764,
+      "missing": 29,
+      "readerPrintSnapshot": true
+    }
+  ],
+  "backendCommit": "66ce0d63c7ad3d4e01dfabc047e602b10230ab70",
+  "canonicalTuples": {
+    "rawSha256": "acac9d8226a9830875b5f3fa4267cdbd480790b16a59770be41756c5274798e8",
+    "objectHash": "b2b149c4b89893b8714b98ce4e73de516494a6051589de4ca69f31e5df9d284b",
+    "checked": 68,
+    "validation": {
+      "passed": true,
+      "plannedTriples": 68,
+      "validatedTriples": 68,
+      "planFileSha256": "f300c5162cb55a5a266411711746456eec12cec7bbd6e3f98e496fee354df7d7",
+      "validatorFileSha256": "c4cacaf016d547887ee87cff59c40092f7f53c0f1314060df963909a7abd11b8",
+      "sourceReviewHashes": [
+        "1e87fce9f3a087c340f71c5c1da32dae62089fada59734ad26949e9b6a4a0da8",
+        "03f8dd76c860d84115a5f0e9baba9663a82dacf8736b369b2f969a4d190dbd99",
+        "7c3995b636be66a8dc3d5cabcd6db209628f5695e6642eed01e25f23ab65593b"
+      ]
+    }
+  },
+  "pdfQA": {
+    "scope": "Canonical staged normal API triples; not main/production",
+    "rows": [
+      {
+        "id": "mode-george-victorious-2026-12-14",
+        "path": "D:/Projekte/Kalendar/tmp/liturgy-mode-ui-staging/pdfs/mode-george-victorious-2026-12-14.pdf",
+        "pages": 44,
+        "sha256": "088c016acab4df6410b1df34b78a53f14ed492627d0c9fea98abf6de61dd458b",
+        "missing": 29,
+        "nativeSections": [
+          "ordinary-choir-cherubic",
+          "general-ordinary-choir-trisagion",
+          "general-ordinary-entrance-verse",
+          "governing-mode-daily-antiphons-1-2"
+        ],
+        "selectedMode": "god-is-lord",
+        "unicodeBodyParity": true,
+        "sourceIdsVisible": false,
+        "subjectPresent": false
+      },
+      {
+        "id": "residual196-george-victorious-2026-11-02",
+        "path": "D:/Projekte/Kalendar/tmp/liturgy-mode-ui-staging/pdfs/residual196-george-victorious-2026-11-02.pdf",
+        "pages": 45,
+        "sha256": "bbe1ba0522ca42a4df2458874eb5ab9abee801be8e5a469b9106f6fc22108a8b",
+        "missing": 29,
+        "nativeSections": [
+          "ordinary-choir-cherubic",
+          "general-ordinary-choir-trisagion",
+          "general-ordinary-entrance-verse",
+          "ordinary-appointed-antiphons-1-2"
+        ],
+        "selectedMode": null,
+        "unicodeBodyParity": true,
+        "sourceIdsVisible": false,
+        "subjectPresent": false
+      },
+      {
+        "id": "mode-dormition-2026-10-21",
+        "path": "D:/Projekte/Kalendar/tmp/liturgy-mode-ui-staging/pdfs/mode-dormition-2026-10-21.pdf",
+        "pages": 45,
+        "sha256": "461a0473bd26b5a79186de228f0b13c601b26f7c51d0786a179b2dc734296c78",
+        "missing": 28,
+        "nativeSections": [
+          "ordinary-antiphons-and-entrance",
+          "ordinary-choir-cherubic",
+          "general-ordinary-choir-trisagion"
+        ],
+        "selectedMode": "god-is-lord",
+        "unicodeBodyParity": true,
+        "sourceIdsVisible": false,
+        "subjectPresent": false
+      }
+    ]
+  },
+  "pdfFooterBounds": [
+    {
+      "file": "tmp\\liturgy-mode-ui-staging\\pdfs\\mode-dormition-2026-10-21.pdf",
+      "pages": 45,
+      "minimumCharacterBoxY": 54.158
+    },
+    {
+      "file": "tmp\\liturgy-mode-ui-staging\\pdfs\\mode-george-victorious-2026-12-14.pdf",
+      "pages": 44,
+      "minimumCharacterBoxY": 54.42
+    },
+    {
+      "file": "tmp\\liturgy-mode-ui-staging\\pdfs\\residual196-george-victorious-2026-11-02.pdf",
+      "pages": 45,
+      "minimumCharacterBoxY": 54.17
+    }
+  ],
+  "checks": {
+    "vitest": 305,
+    "productionBuild": true,
+    "builtPdfAssets": true
+  }
+}

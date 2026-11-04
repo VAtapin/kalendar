@@ -1,4 +1,11 @@
 export const UI_DE = {
+    "Вариант подготовки": "Vorbereitete Variante",
+    "По правилу подготовки": "Nach der Vorbereitungsregel",
+    "«Бог Господь»": "„Gott ist der Herr“",
+    "«Аллилуия»": "„Halleluja“",
+    "Подготовлен вариант «Бог Господь».": "Die Variante „Gott ist der Herr“ wurde vorbereitet.",
+    "Вариант «Аллилуия»: обычная Литургия не подготовляется.": "Variante „Halleluja“: Die gewöhnliche Liturgie wird nicht vorbereitet.",
+    "Для выбранного варианта обычная Литургия недоступна.": "Für die gewählte Variante ist die gewöhnliche Liturgie nicht verfügbar.",
     "Полунощница": "Mitternachtsgottesdienst",
     "Полная Полунощница — выбранный печатный чин": "Vollständiger Mitternachtsgottesdienst – gewählte gedruckte Ordnung",
     "Обычный самостоятельный чин без местного бдения.": "Gewöhnliche eigenständige Ordnung ohne örtliche Vigil.",

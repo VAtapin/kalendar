@@ -1,3 +1,5 @@
+import {requestedOfficeMode,validateServiceMode,officeModeUnavailable} from './worship-office-mode.js';
+import {PAIR_SECTION,MODE_PAIR_SECTION} from './worship-antiphon-pair.js';
 import { fetchMidnightParts } from './worship-midnight.js';
 import { validateTropariaWrapper } from './worship-troparia-section.js';
 import { sourceComponentReceipt } from './worship-section-receipt.js';
@@ -63,13 +65,22 @@ export async function composeParts(template, assignments, state) {
     || !['complete', 'partial', 'not-appointed'].includes(assignments.status)
     || !Array.isArray(assignments.operations) || !Array.isArray(assignments.missing)) throw new Error('Invalid dated assignments');
   await validateTropariaWrapper(template, assignments);
+  const modeGated=!!template.sections?.[MODE_PAIR_SECTION];
+  if(modeGated){
+    const requested=requestedOfficeMode(state);
+    if(['actualRectorElectionProved','actualRectorBlessingClaimed','localConfirmationAssumed','actualLocalConfirmationProved','actualDateAppointmentApproved'].some(k=>Object.hasOwn(assignments,k)&&assignments[k]!==false))throw Error('Unsupported factual office-mode claim');
+    if(assignments.serviceMode){
+      await validateServiceMode(assignments.serviceMode,state);
+      if(assignments.serviceMode.selectedMode!=='god-is-lord'||assignments.ordinaryLiturgyAvailable!==true)throw Error('Ordinary body conflicts with governing office mode');
+    }else if(requested!=='auto'||Object.hasOwn(assignments,'ordinaryLiturgyAvailable'))throw Error('Missing office-mode declaration');
+  }
   const outline = template.status === 'source-outline';
   if (outline && (assignments.status === 'complete' || assignments.operations.length)) throw new Error('Outline is not a composable rite');
   const nodes = new Map(template.nodes.map(node => [node.nodeId, node])), operations = new Map();
   if (template.status === 'fixed-template' && assignments.operations.some(op => !op.sectionId)) throw new Error('Unverified service section');
   for (const id of new Set(assignments.operations.map(op => op.sectionId).filter(Boolean))) {
     const section = template.sections?.[id], verified = assignments.verifiedSections?.[id];
-    if (!section || !verified || verified.status !== 'complete' || (!(verified.acceptance?.status === 'approved' && verified.profileStatus === 'confirmed-for-fragment')
+    if (!section || !verified || verified.status !== 'complete' || (!(!(['general-ordinary-entrance-verse',PAIR_SECTION,MODE_PAIR_SECTION].includes(id)||(id==='ordinary-antiphons-and-entrance'&&modeGated)) && verified.acceptance?.status === 'approved' && verified.profileStatus === 'confirmed-for-fragment')
         && !await sourceComponentReceipt(id, section, verified, state, assignments)) || !Array.isArray(verified.operationIndexes)
       || !verified.operationIndexes.length) throw new Error('Unverified service section');
     for (const key of ['schemaVersion', 'templateId', 'templateVersion', 'ruleVersion']) {
@@ -141,13 +152,17 @@ export async function composeParts(template, assignments, state) {
     .flatMap(operation => operation.blockSources || [])];
   const sourceVersions = [...new Map(sources.map(source => [JSON.stringify(source), source])).values()];
   return { status: 'parts', template, entries, sourceVersions, assignmentsStatus: assignments.status,
-    complete: assignments.status === 'complete', outline, profileStatus: assignments.profileStatus };
+    complete: assignments.status === 'complete', outline, profileStatus: assignments.profileStatus,
+    ...(modeGated?{officeMode:requestedOfficeMode(state),serviceMode:assignments.serviceMode,
+      ordinaryLiturgyAvailable:assignments.ordinaryLiturgyAvailable,modeContract:assignments}:{} ) };
 }
 
 export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher = fetch, signal, options = {}) {
   state = { ...state };
+  if(Object.hasOwn(state,'officeMode')&&state.officeMode!=='auto')requestedOfficeMode(state);
   if (state.office === 'midnight-office') return fetchMidnightParts(base, state, onBase, fetcher, signal, options);
   const requestSignal = worshipRequestSignal(signal);
+  let modeGated=false;
   const request = async (path, params = {}, body, validationProbe = false) => {
     requestSignal.throwIfAborted();
     const url = new URL('/api/v1/liturgical/' + path + '/' + state.office, base);
@@ -169,6 +184,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
       if (value.errors && Object.keys(value.errors).length === 1 && Array.isArray(value.errors.language)
         && value.errors.language.length && value.errors.language.every(error => error === 'validation.in')) return null;
     }
+    if(response.status===409&&path==='assignments'&&modeGated)return officeModeUnavailable(await response.json(),state);
     if (response.status !== 200) throw new Error('Worship parts request failed: ' + response.status);
     return (await response.json()).data;
   };
@@ -189,20 +205,26 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
     language = candidate; break;
   }
   if (!template) return { status: 'edition-unavailable' };
+  modeGated=!!template.sections?.[MODE_PAIR_SECTION];
+  if(modeGated)requestedOfficeMode(state);
+  else if(Object.hasOwn(state,'officeMode')&&state.officeMode!=='auto')throw Error('Office mode requires a mode-gated traditional Liturgy');
   const fallback = requested === 'auto' && language !== 'cu';
   const baseResult = { status: 'parts', template, entries: baseEntries(template), assignmentsStatus: 'loading',
     complete: false, outline: template.status === 'source-outline', fallback };
   requestSignal.throwIfAborted();
-  onBase(baseResult);
+  if(!modeGated)onBase(baseResult); // Do not expose ordinary source words before governing-mode admission.
   const params = { ...datedWorshipParams(state, language), templateVersion: template.templateVersion };
   if (language === 'cu' && hour) params.profile = 'ordinary-clergy';
   if (language === 'cu' && state.office === 'liturgy') params.mode = 'fixed';
+  if(modeGated&&requestedOfficeMode(state)!=='auto')params.officeMode=requestedOfficeMode(state);
+  if(modeGated&&requestedOfficeMode(state)==='alleluia')delete params.templateVersion; // This branch prepares no ordinary text.
   try {
     const assignments = await request('assignments', params);
+    if(assignments?.status==='office-mode-unavailable')return assignments;
     if (assignments?.context?.language !== language) throw new Error('Wrong assignment edition');
     return { ...await composeParts(template, assignments, state), fallback };
   } catch {
     signal?.throwIfAborted();
-    return { ...baseResult, assignmentsStatus: 'error' };
+    return modeGated?{status:'error',entries:[],assignmentsStatus:'error',complete:false}:{ ...baseResult, assignmentsStatus: 'error' };
   }
 }
