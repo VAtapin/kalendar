@@ -1,0 +1,454 @@
+{
+  "scope": "Ignored staging only; original owner captures, no runtime/UI activation, no production or network",
+  "matinsContexts196": 4,
+  "vespersSealedContexts": 27,
+  "complineGndShapeCases": 3,
+  "negatives": 151,
+  "files": [
+    {
+      "file": "matins-polyeleos-current196-3385-release/2026-10-21-normal-api-ui-triple.json",
+      "sha256": "e7a2e3064b3dd3de15df7563df92797b2a8a0831abf07bfefec06565995f8560"
+    },
+    {
+      "file": "matins-polyeleos-fourfull-current169/2026-10-21-normal-api-ui-triple.json",
+      "sha256": "09ad8d427fab27710cee4ed715019feac07a66a38bd71e767f4bfa57cfdad914"
+    },
+    {
+      "file": "matins-polyeleos-current196-3385-release/2026-11-09-normal-api-ui-triple.json",
+      "sha256": "16fd78f98165cc7c5983ff346ddecd8505d9630ab679f7b99170757b7603d125"
+    },
+    {
+      "file": "matins-polyeleos-fourfull-current169/2026-11-09-normal-api-ui-triple.json",
+      "sha256": "18990ec6c742ad392d2ae0a5558382b01de1ca02d2d1c3e12ac372554b85483d"
+    },
+    {
+      "file": "matins-polyeleos-current196-3385-release/2027-10-21-normal-api-ui-triple.json",
+      "sha256": "2611a20400cb6488df0e1686d80696c05284ee8d1c8eecf8c8b4265325306a8f"
+    },
+    {
+      "file": "matins-polyeleos-fourfull-current169/2027-10-21-normal-api-ui-triple.json",
+      "sha256": "80d96b4df2f223f77f478237cffb016e6c47ab3915926dc9f532e1612f5e4e57"
+    },
+    {
+      "file": "matins-polyeleos-current196-3385-release/2027-11-09-normal-api-ui-triple.json",
+      "sha256": "893df610637578e5ee33a24439d933d324bb1987cd29795c147b4f3ad49ff65f"
+    },
+    {
+      "file": "matins-polyeleos-fourfull-current169/2027-11-09-normal-api-ui-triple.json",
+      "sha256": "7b5704e34dfe0d99e96390c015595f58fd655c364a3f7d55c6a3b0c08e93e949"
+    },
+    {
+      "file": "vespers-current169-frozen-8ac98ecaa504abd9-420aa113-3385-sealed/current-ui-http-triples.json",
+      "sha256": "327c4be97fc1571aae1ff05888820cc385dddeca8f122034bcb0c40a00323f96"
+    },
+    {
+      "file": "vespers-current169-install/current-ui-http-triples.json",
+      "sha256": "327c4be97fc1571aae1ff05888820cc385dddeca8f122034bcb0c40a00323f96"
+    },
+    {
+      "file": "compline-gnd-ui-triples/manifest.json",
+      "sha256": "7d27837c9418a361ddf7c309c8952c8be6f5abea0b762162bc481bf561d84087"
+    },
+    {
+      "file": "compline-gnd-ui-triples/george-victorious-template.json",
+      "sha256": "008832e8a2d2b499c89ba9573f08fdde5b563ab05fbd0f25ce5b65f46cb2a5cf"
+    },
+    {
+      "file": "compline-gnd-ui-triples/george-victorious-full.json",
+      "sha256": "bd613b17ee9b67e4282f1dc6d9b1bae8084269be8eae2821d7acd63e64f75e44"
+    },
+    {
+      "file": "compline-gnd-ui-triples/nicholas-template.json",
+      "sha256": "008832e8a2d2b499c89ba9573f08fdde5b563ab05fbd0f25ce5b65f46cb2a5cf"
+    },
+    {
+      "file": "compline-gnd-ui-triples/nicholas-full.json",
+      "sha256": "2b1bc0648ec3a7706f2567005edff57e8b03343b408758fd0571cf89f6b41493"
+    },
+    {
+      "file": "compline-gnd-ui-triples/dormition-template.json",
+      "sha256": "008832e8a2d2b499c89ba9573f08fdde5b563ab05fbd0f25ce5b65f46cb2a5cf"
+    },
+    {
+      "file": "compline-gnd-ui-triples/dormition-full.json",
+      "sha256": "cce259e24beb9d55458135afb8d42d8a7104f0e831150b275d89f5d90cb5cd20"
+    }
+  ],
+  "rows": [
+    {
+      "office": "matins",
+      "date": "2026-10-21",
+      "temple": "george-victorious",
+      "metadataBase": "196",
+      "nativeBlocks": 1229,
+      "nativeBodyAndParallelTracksEqual169": true,
+      "wholeOfficeAccepted": false,
+      "wholeYearAccepted": false,
+      "headersRecorded": false
+    },
+    {
+      "office": "matins",
+      "date": "2026-11-09",
+      "temple": "george-victorious",
+      "metadataBase": "196",
+      "nativeBlocks": 1172,
+      "nativeBodyAndParallelTracksEqual169": true,
+      "wholeOfficeAccepted": false,
+      "wholeYearAccepted": false,
+      "headersRecorded": false
+    },
+    {
+      "office": "matins",
+      "date": "2027-10-21",
+      "temple": "george-victorious",
+      "metadataBase": "196",
+      "nativeBlocks": 1174,
+      "nativeBodyAndParallelTracksEqual169": true,
+      "wholeOfficeAccepted": false,
+      "wholeYearAccepted": false,
+      "headersRecorded": false
+    },
+    {
+      "office": "matins",
+      "date": "2027-11-09",
+      "temple": "george-victorious",
+      "metadataBase": "196",
+      "nativeBlocks": 1148,
+      "nativeBodyAndParallelTracksEqual169": true,
+      "wholeOfficeAccepted": false,
+      "wholeYearAccepted": false,
+      "headersRecorded": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-01-28",
+      "nativeBlocks": 317,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-06-30",
+      "nativeBlocks": 332,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-07-21",
+      "nativeBlocks": 330,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-07-29",
+      "nativeBlocks": 342,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-08-10",
+      "nativeBlocks": 351,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-09-08",
+      "nativeBlocks": 332,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-10-14",
+      "nativeBlocks": 180,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-10-19",
+      "nativeBlocks": 352,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-10-20",
+      "nativeBlocks": 316,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-10-28",
+      "nativeBlocks": 317,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-11-11",
+      "nativeBlocks": 316,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-11-30",
+      "nativeBlocks": 316,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2026-12-24",
+      "nativeBlocks": 317,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-01-28",
+      "nativeBlocks": 317,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-06-30",
+      "nativeBlocks": 342,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-07-21",
+      "nativeBlocks": 340,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-07-29",
+      "nativeBlocks": 352,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-08-10",
+      "nativeBlocks": 331,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-09-08",
+      "nativeBlocks": 342,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-10-14",
+      "nativeBlocks": 180,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-10-19",
+      "nativeBlocks": 332,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-10-20",
+      "nativeBlocks": 316,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-10-28",
+      "nativeBlocks": 317,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-11-01",
+      "nativeBlocks": 317,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-11-08",
+      "nativeBlocks": 315,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-11-11",
+      "nativeBlocks": 316,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "vespers",
+      "date": "2027-11-30",
+      "nativeBlocks": 316,
+      "sealedPacket": "420aa113-3385",
+      "nativeBodyEqualPrevious27": true,
+      "headersRecorded": false,
+      "installedMainClaimed": false
+    },
+    {
+      "office": "compline",
+      "date": "2026-07-13",
+      "temple": "george-victorious",
+      "nativeBlocks": 258,
+      "templateVersion": "0ecec4bfc78fcf8438ad008028b3610cf906bf93c2a98a2dd24e849554754397",
+      "responseShapeOnly": true,
+      "requestBindingProvidedByApi": false,
+      "rawPostOrHeadersRecorded": false
+    },
+    {
+      "office": "compline",
+      "date": "2026-07-13",
+      "temple": "nicholas",
+      "nativeBlocks": 258,
+      "templateVersion": "0ecec4bfc78fcf8438ad008028b3610cf906bf93c2a98a2dd24e849554754397",
+      "responseShapeOnly": true,
+      "requestBindingProvidedByApi": false,
+      "rawPostOrHeadersRecorded": false
+    },
+    {
+      "office": "compline",
+      "date": "2026-07-13",
+      "temple": "dormition",
+      "nativeBlocks": 258,
+      "templateVersion": "0ecec4bfc78fcf8438ad008028b3610cf906bf93c2a98a2dd24e849554754397",
+      "responseShapeOnly": true,
+      "requestBindingProvidedByApi": false,
+      "rawPostOrHeadersRecorded": false
+    }
+  ],
+  "limitation": "Matins/Vespers counts are the same admitted contexts on refreshed metadata, not new coverage; Compline lacks original raw POST/header evidence. Font publication and final installed contracts remain pending.",
+  "previousRuntimeCommit": "b15600021cd29cfd7fd641294a1abd87b56f46d0",
+  "newPublicRuntimeChanges": false,
+  "matinsIndependentSourcePins": {
+    "uniqueContexts": 4,
+    "raw169And196HaveIdenticalNativeBodiesAndParallelTracks": true,
+    "recomputedTemplateDigestMutationRejected": true,
+    "sourceOnlyOperationPins": true,
+    "parallelSourcePins": true
+  },
+  "complineTypedBuilderOnly": {
+    "cases": 3,
+    "negatives": 12,
+    "syntheticLiterals": true,
+    "httpAdmissionEvidence": false
+  },
+  "pdf": {
+    "scope": "Three GND Compline owner body shapes only; no request-bound acceptance",
+    "cases": [
+      {
+        "temple": "nicholas",
+        "date": "2026-07-13",
+        "pages": 13,
+        "unicodeParity": true,
+        "sourcesHidden": true
+      },
+      {
+        "temple": "george-victorious",
+        "date": "2026-07-13",
+        "pages": 13,
+        "unicodeParity": true,
+        "sourcesHidden": true
+      },
+      {
+        "temple": "dormition",
+        "date": "2026-07-13",
+        "pages": 13,
+        "unicodeParity": true,
+        "sourcesHidden": true
+      }
+    ],
+    "nativeGlyphCoverage": true,
+    "all39PageBodyBoundsAbove53Pt": true,
+    "minBodyBottomReservePt": 53.77,
+    "noSubject": true,
+    "representativeVisualReview": {
+      "temple": "nicholas",
+      "pages": [
+        1,
+        13
+      ],
+      "orthodoxCross": true,
+      "sourceHidden": true
+    }
+  },
+  "productionInstalled": false,
+  "productionDeploymentExecuted": false,
+  "productionVerified": false
+}
