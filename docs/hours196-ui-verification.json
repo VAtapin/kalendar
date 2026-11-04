@@ -1,0 +1,167 @@
+{
+  "scope": "actual installed App HTTP replay; server/browser not accessed; no new API acceptance inferred",
+  "ownerManifest": {
+    "path": "D:\\Projekte\\BibleDesktop\\storage\\app\\worship-research\\runtime-compat-196-check\\installed-api-final\\INDEX.json",
+    "sha256": "89b00ab00e1dcb64025a39551f399fa50901be776ac5c41f744bb4d15c549d8a",
+    "responses": 11,
+    "profileHash": "1042be6976dcdef2ad5daad50a7ecd79c24ed5c9dfd28324cfc313a570c12be7"
+  },
+  "captures": [
+    {
+      "id": "template-third-hour",
+      "responseSha256": "3ddb7286c01747ba282249712cb9dd0e305a87e1ad8f0f887421c4df20ebff05"
+    },
+    {
+      "id": "SundayNamedSix-2026-07-05",
+      "responseSha256": "3ccca356cb3acaa65f6e3d79b1b625384ee391589b779cc916be53f8ffb7009e"
+    },
+    {
+      "id": "SundayNamedSix-2026-07-05-assignments",
+      "responseSha256": "1ff2839a17a6fe1abaf8881026b4991393050f6078440b3884926c33eeaf5aad"
+    },
+    {
+      "id": "ForepostRoles-2027-02-19",
+      "responseSha256": "e471768cf2e63500c166c9302ef7015655c072c9451918363d891f4867afdf88"
+    },
+    {
+      "id": "ForepostRoles-2027-02-19-assignments",
+      "responseSha256": "e390d20ae45700c99d3d33d8b46b9ae2dba4246620236fc6007cc0d34fe95d31"
+    },
+    {
+      "id": "RankedSaint-2027-11-27",
+      "responseSha256": "eacbf0142236cf5b9c9b17173e703f8c2bfd116a6575ea10bcf5ea368154defb"
+    },
+    {
+      "id": "RankedSaint-2027-11-27-assignments",
+      "responseSha256": "7899ad515d02e7a022f3ee5694da1f572bfebeb63fa145882fabdafe72591a91"
+    },
+    {
+      "id": "IconJoin-2026-07-09",
+      "responseSha256": "267a5e1f429ee7260b51bbb9e9187d23a0d007377f72444c618741f2308528da"
+    },
+    {
+      "id": "IconJoin-2026-07-09-assignments",
+      "responseSha256": "476b1d68acca20112caec32c6707762b1775ba38e2892abc26208fa4cfc22f77"
+    },
+    {
+      "id": "HistoricalControl-2026-09-28",
+      "responseSha256": "5939bcffb82dd7d6b9f7651d2484c79acb8e2e69d53b1dfb79bb9cde23c325f6"
+    },
+    {
+      "id": "HistoricalControl-2026-09-28-assignments",
+      "responseSha256": "637b7a30fca29fe2b54bc8f1fcc10e859cd5d7d16b9f77c29acaa1e3ec303988"
+    }
+  ],
+  "families": [
+    "SundayNamedSix-2026-07-05",
+    "ForepostRoles-2027-02-19",
+    "RankedSaint-2027-11-27",
+    "IconJoin-2026-07-09",
+    "HistoricalControl-2026-09-28"
+  ],
+  "contexts": [
+    "third-hour"
+  ],
+  "cases": [
+    {
+      "id": "SundayNamedSix-2026-07-05",
+      "context": "third-hour",
+      "blocks": 119,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "ForepostRoles-2027-02-19",
+      "context": "third-hour",
+      "blocks": 118,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "RankedSaint-2027-11-27",
+      "context": "third-hour",
+      "blocks": 117,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "IconJoin-2026-07-09",
+      "context": "third-hour",
+      "blocks": 119,
+      "missing": 0,
+      "pdfPages": 5
+    },
+    {
+      "id": "HistoricalControl-2026-09-28",
+      "context": "third-hour",
+      "blocks": 118,
+      "missing": 0,
+      "pdfPages": 5
+    }
+  ],
+  "negativeChecks": 55,
+  "actualPdfs": 5,
+  "pages": 25,
+  "backendState": "Installed main locally, backend commit pending coordinator",
+  "derivedCoverage": 196,
+  "wholeYearClaim": false,
+  "periodAndFamilyMetadata": [
+    {
+      "id": "SundayNamedSix-2026-07-05",
+      "generalRuleClass": "sunday-single-menaion",
+      "generalRuleHash": "52a1f2e2f44aa40b90cf1449f6a574247b7399aaef62f62f5cbce10adf757728",
+      "publicAdmissionGranted": false,
+      "policy": "resurrection-only",
+      "nativeHymnRoles": null
+    },
+    {
+      "id": "ForepostRoles-2027-02-19",
+      "generalRuleClass": "native-fixed-period-required-hymn-roles-hours-v1",
+      "generalRuleHash": "72fd5b0ce3465df2a770c88d376e189ac541ffd09cd1d72999496167c06d8d71",
+      "publicAdmissionGranted": false,
+      "policy": "native-feast-kontakion-all-hours",
+      "nativeHymnRoles": {
+        "factsHash": "a8d4450d3253719919ef6e028cbd4acfa1fefec774f61977b07567824d7abb44",
+        "saint": "memory-day-0352",
+        "caseHash": "416fce7b52783fe7f5b7cdf4c588bcbe9f0b9eeeadf4ce6c7a7d4f8969735922",
+        "binding": {
+          "kind": "native-fixed-period-hymn-roles",
+          "factsHash": "a8d4450d3253719919ef6e028cbd4acfa1fefec774f61977b07567824d7abb44",
+          "calendarHash": "3a96b0ac356b116ac81240dd1090520645dde67b64a9d9253a7f51ecca5a4c0d",
+          "calendarRuleKey": "fixed-afterfeast-0202-4",
+          "cycleRole": "postfeast",
+          "namedMemoryHash": "45cb334f21e74082b3cc18af678222d928acf8177c2d01110129a818d0cdbecb",
+          "caseHash": "416fce7b52783fe7f5b7cdf4c588bcbe9f0b9eeeadf4ce6c7a7d4f8969735922"
+        },
+        "basis": "Whole printed ordinary Menaion hymn roles and Typikon52 lines4736/4740; only actually appointed hymn roles are selected",
+        "catalogueAbsenceIsAppointmentEvidence": false,
+        "unusedSaintKontakionInvented": false,
+        "saintSuppressedByRank": false
+      }
+    },
+    {
+      "id": "RankedSaint-2027-11-27",
+      "generalRuleClass": "saturday-single-polyeleos-saint",
+      "generalRuleHash": "9340aff454cc0e57df993f419a504b3b1e817849d70c651fd2f358aee8bfd251",
+      "publicAdmissionGranted": false,
+      "policy": "own-on-all-hours",
+      "nativeHymnRoles": null
+    },
+    {
+      "id": "IconJoin-2026-07-09",
+      "generalRuleClass": "weekday-higher-lower-explicit-joint",
+      "generalRuleHash": "8206003397ddb59673569be665a16cd936e3d567e52c5cd358e9f2fbb22f59eb",
+      "publicAdmissionGranted": false,
+      "policy": "higher-only",
+      "nativeHymnRoles": null
+    },
+    {
+      "id": "HistoricalControl-2026-09-28",
+      "generalRuleClass": "Cross-postfeast-ordinary-single-saint-source-rule-v1",
+      "generalRuleHash": "9f363e143439fbe5b7a7bd1cc2284d9f4432c22e37ceec3217895424a9f769b1",
+      "publicAdmissionGranted": false,
+      "policy": "cycle-on-all-hours",
+      "nativeHymnRoles": null
+    }
+  ]
+}
