@@ -1,8 +1,11 @@
 import { validLocalLiteral } from './worship-local-context.js';
 import { normalizePreparedLiturgyContext } from './worship-presanctified-prepared-context.js';
 const required={primate:['locative','accusative'],diocesan:['locative','accusative'],celebrant:['dative','nominative'],deacon:['nominative'],communicant:['nominative']};
+export function isArtemyContext(state){
+ return state.office==='liturgy'&&state.rite==='john-chrysostom'&&['2026-11-02','2027-11-02'].includes(state.date)&&state.temple==='george-victorious'&&['auto','cu',undefined].includes(state.textLanguage)&&['auto',undefined].includes(state.officeMode);
+}
 export function buildArtemyPost(state,version,localContext,manyYearsContext){
- if(state.office!=='liturgy'||state.rite!=='john-chrysostom'||!['2026-11-02','2027-11-02'].includes(state.date)||state.temple!=='george-victorious'||!['auto','cu'].includes(state.textLanguage||'auto')||!['auto',undefined].includes(state.officeMode)||!/^[a-f0-9]{64}$/.test(version||''))throw Error('Unsupported printed Liturgy context');
+ if(!isArtemyContext(state)||!/^[a-f0-9]{64}$/.test(version||''))throw Error('Unsupported printed Liturgy context');
  const normalized=normalizePreparedLiturgyContext(localContext,state.temple);
  if(normalized.commemorations.living.length||normalized.commemorations.departed.length)throw Error('Unsupported commemoration lists');
  if(!Object.hasOwn(localContext,'people')||!Object.hasOwn(manyYearsContext||{},'confirmedLiteralForm'))throw Error('Explicit private input required');

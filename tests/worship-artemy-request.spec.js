@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fetchWorshipParts } from '../public/calendar-ui/worship-parts.js';
+import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
+import { create, installReaderPdfDocument } from './fixtures/reader-pdf-dom.mjs';
 
 const state = { office: 'liturgy', rite: 'john-chrysostom', date: '2026-11-02', temple: 'george-victorious',
   sequence: 'default', textLanguage: 'cu', officeMode: 'auto' };
@@ -18,7 +20,22 @@ const template = { schemaVersion: 1, artifactType: 'source-bound-template', stat
 const templateResponse = () => ({ status: 200, json: async () => ({ data: template }) });
 
 describe('Artemy private transport', () => {
+  it('opens the preparation form without waiting for the unrelated failing dated GET', async () => {
+    const fetcher = vi.fn(() => { throw Error('Unexpected dated request'); });
+    const result = await fetchWorshipParts('https://offline.invalid', state, vi.fn(), fetcher);
+    expect(result.status).toBe('artemy-context-required'); expect(fetcher).not.toHaveBeenCalled();
+    const restore = installReaderPdfDocument();
+    try {
+      const reader = renderWorshipReader({ state, create, formatDate: date => date, onChange() {}, onRetry() {}, onLocalSubmit() {} });
+      reader.render(result);
+      expect(reader.page.textContent).toContain('Введите и подтвердите местные формы');
+      expect(reader.page.querySelectorAll('input').filter(input => input.type === 'text')).toHaveLength(9);
+      expect(reader.page.querySelectorAll('button').find(button => button.textContent === 'Печать службы').disabled).toBe(true);
+      reader.dispose();
+    } finally { restore(); }
+  });
   it('sends names only in a private JSON POST and does not fall back on failure', async () => {
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
     const calls = [], onBase = vi.fn();
     const fetcher = vi.fn(async (url, options) => {
       calls.push({ url, options });
@@ -31,6 +48,7 @@ describe('Artemy private transport', () => {
     expect(calls[1].options.credentials).toBe('omit'); expect(calls[1].options.cache).toBe('no-store');
     expect(JSON.parse(calls[1].options.body)).toMatchObject({ localContext, manyYearsContext });
     expect(calls[0].url.href).not.toContain('Тест');
+    expect(timeout).toHaveBeenCalledWith(120_000); timeout.mockRestore();
   });
   it('aborts a pending private response before it can be read or applied', async () => {
     let resolvePost, postStarted; const started = new Promise(resolve => { postStarted = resolve; });

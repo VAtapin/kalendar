@@ -1,11 +1,9 @@
 import { validLocalLiteral } from './worship-local-context.js';
+import { isArtemyContext } from './worship-artemy-request.js';
 
 // Values stay in this form until the user explicitly applies them.
 export function createArtemyFields({ state, create, onDirty }) {
-  if (state.office !== 'liturgy' || state.rite !== 'john-chrysostom'
-      || !['2026-11-02', '2027-11-02'].includes(state.date)
-      || state.temple !== 'george-victorious' || !['auto', 'cu', undefined].includes(state.textLanguage)
-      || !['auto', undefined].includes(state.officeMode)) return null;
+  if (!isArtemyContext(state)) return null;
   const page = create('fieldset');
   page.append(create('legend', 'Подготовленный печатный чин'));
   const fields = [

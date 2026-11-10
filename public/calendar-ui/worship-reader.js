@@ -271,6 +271,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
+        'artemy-context-required':'Введите и подтвердите местные формы для подготовки выбранного печатного чина.',
         'prepared-loading':'Подготавливаю выбранный печатный чин…',
         'prepared-unavailable':'Не удалось подготовить выбранный печатный чин. Проверьте выбор и местные формы.',
         'typika-context-required':'Выберите печатный вариант для Преображенского храма и подтвердите чтение без Литургии.',
@@ -283,7 +284,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       };
       const message = create('p', messages[result.status] || messages.error, 'reader-message');
       message.setAttribute('role', 'status'); content.append(message);
-      if (!['not-appointed', 'context-required', 'prepared-loading', 'prepared-unavailable'].includes(result.status)) {
+      if (!['not-appointed', 'context-required', 'artemy-context-required', 'prepared-loading', 'prepared-unavailable'].includes(result.status)) {
         const retry = create('button', 'Проверить доступность', 'reader-button');
         retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
       }

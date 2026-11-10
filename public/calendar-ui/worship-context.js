@@ -27,6 +27,6 @@ export function matchesWorshipContext(context, state) {
     key === 'matinsDismissalDone' ? context[key] === true : context[key] === value);
 }
 
-export function worshipRequestSignal(signal) {
-  return signal ? AbortSignal.any([signal, AbortSignal.timeout(20_000)]) : AbortSignal.timeout(20_000);
+export function worshipRequestSignal(signal, timeout = 20_000) {
+  return signal ? AbortSignal.any([signal, AbortSignal.timeout(timeout)]) : AbortSignal.timeout(timeout);
 }
