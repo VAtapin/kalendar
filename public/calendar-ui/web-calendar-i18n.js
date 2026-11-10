@@ -1,4 +1,8 @@
 export const UI_DE = {
+    "Песнопения календарного дня": "Gesänge des Kalendertages",
+    "Справочно: порядок службы не подтверждён.": "Zur Information: Die Ordnung des Gottesdienstes ist nicht bestätigt.",
+    "Песнопения календаря сейчас недоступны.": "Die Kalendergesänge sind derzeit nicht verfügbar.",
+    "Для этого дня тексты песнопений пока недоступны.": "Für diesen Tag sind noch keine Gesangstexte verfügbar.",
     "По выбранной дате": "Für das gewählte Datum",
     "Подготовить печатный чин": "Gedruckten Ritus vorbereiten",
     "Митрополит — предложный падеж (о ком?)": "Metropolit – Präpositiv (über wen?)",

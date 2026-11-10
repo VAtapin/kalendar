@@ -3,7 +3,8 @@ import { MIDNIGHT_URL_KEYS, readMidnightSelection } from './worship-midnight-con
 import { validWorshipDate } from './worship-context.js';
 import { isAdditionalLiturgy, readLiturgySelection } from './worship-additional-liturgy.js';
 import { UI_DE } from './web-calendar-i18n.js';
-import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, validateCalendarTexts, calendarAssignments, renderWorshipReader } from './worship-reader.js';
+import { OFFICES, TEMPLES, MODES, EDITIONS, lectionNumber, textLanguage, calendarAssignments, renderWorshipReader } from './worship-reader.js';
+import { HOUR_OFFICES, calendarServiceValue, renderCalendarHymns } from './worship-calendar-hymns.js';
 import { fetchWorshipParts } from './worship-parts.js';
 import { BOOK_URL_KEYS, readBookLocation } from './book-library.js';
 import { createBookReader } from './book-reader.js';
@@ -703,9 +704,9 @@ function renderYear(value) {
 }
 
 // The ecclesiastical edition priority is the same for every interface language.
-async function serviceFor(date) {
-  return validateCalendarTexts(await api('service', { date, text_policy: 'calendar-language-v1', calendar_lang: 'ru',
-    profile: state.profile, office: 'sixth-hour', expansion: 'full' }));
+async function serviceFor(date, office = 'sixth-hour', signal, profile = state.profile) {
+  return calendarServiceValue(await api('service', { date, text_policy: 'calendar-language-v1', calendar_lang: 'ru',
+    profile, office, expansion: 'full' }, signal));
 }
 
 function openWorship(date) {
@@ -773,6 +774,11 @@ async function showWorship() {
   }).catch(() => {
     if (current()) reader.summary.append(e('p', 'Календарные сведения сейчас недоступны.', 'hint'));
   });
+  const hymns = HOUR_OFFICES.includes(selected.office)
+    ? serviceFor(selected.date, selected.office, AbortSignal.any([signal, AbortSignal.timeout(20_000)]), selected.profile)
+      .then(value => { if (current()) reader.summary.append(renderCalendarHymns({ create: e, state: selected, value })); })
+      .catch(() => { if (current()) reader.summary.append(renderCalendarHymns({ create: e, state: selected, error: true })); })
+    : Promise.resolve();
   const service = fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, result => {
     basisResult = result;
     if (current() && !localApplied && !preparedAttempt) reader.render(result);
@@ -780,7 +786,7 @@ async function showWorship() {
     basisResult = result;
     if (current() && !localApplied && !preparedAttempt) reader.render(result);
   }).catch(() => { if (current() && !localApplied && !preparedAttempt) reader.render({ status: 'error' }); });
-  await Promise.allSettled([summary, service]);
+  await Promise.allSettled([summary, service, hymns]);
 }
 
 async function showDay(date, dialog = false) {
