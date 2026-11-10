@@ -104,6 +104,7 @@ function calendar_convert_pdf_x1a(string $source, string $destination, string $p
     }
     if ($exitCode !== 0 || !is_file($destination)) {
         @unlink($destination);
+        calendar_error_record(['kind' => 'export', 'code' => 'pdf_x1a_failed']);
         error_log('Calendar PDF/X-1a conversion failed: ' . $messages);
         calendar_fail('pdf_conversion_failed', 500, 'Не удалось подготовить PDF/X-1a:2001');
     }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/email-template.php';
+require_once __DIR__ . '/error-journal.php';
 require_once __DIR__ . '/admin-store.php';
 require_once __DIR__ . '/admin-auth.php';
 require_once __DIR__ . '/newsletter.php';

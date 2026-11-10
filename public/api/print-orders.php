@@ -138,7 +138,7 @@ trait CalendarPrintOrders {
             try{$recipient=$this->printConfig()['notificationEmail'];if(!filter_var($recipient,FILTER_VALIDATE_EMAIL))throw new RuntimeException('recipient_missing');
                 $text="Новый заказ печати: {$o['id']}\n{$o['name']}\n{$o['email']}\nТираж: {$o['quantity']}\nФормат: {$o['quote']['format']}\nСумма: ".($o['quote']['total']/100).' '.strtoupper($o['quote']['currency'])."\nОткройте раздел «Заказы печати» в админке для проверки PDF и подтверждения заказа.";
                 calendar_send_message($recipient,calendar_verification_message($recipient,'',calendar_mail_sender_address(),calendar_mail_sender_name(),false,['subject'=>'Новый заказ календарей','text'=>$text,'html'=>'<p>'.nl2br(htmlspecialchars($text,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8')).'</p>']));$o['notification']='sent';
-            }catch(Throwable $error){$o['notification']='failed';error_log('Print order notification failed: '.$id);}
+            }catch(Throwable $error){$o['notification']='failed';calendar_error_record(['kind'=>'delivery','code'=>'print_order_notification_failed']+calendar_error_exception($error));error_log('Print order notification failed: '.$id);}
             calendar_atomic_json_write($this->printOrderPath($id),$o);return $o;
         });
     }

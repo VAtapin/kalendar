@@ -8,6 +8,11 @@ header_remove('X-Powered-By');
 
 function api_response(int $status, mixed $body = null, bool $cache = false): never
 {
+    if ($status >= 400) {
+        $code = is_array($body) && is_string($body['error'] ?? null) ? $body['error'] : 'http_error';
+        calendar_error_record(['kind' => 'api', 'status' => $status,
+            'code' => preg_match('/^[a-z0-9_-]{1,100}$/i', $code) ? $code : 'http_error'] + ($GLOBALS['calendar_error_exception'] ?? []));
+    }
     http_response_code($status);
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -240,12 +245,23 @@ try {
         ? calendar_project_root() . DIRECTORY_SEPARATOR . 'storage'
         : calendar_project_root() . DIRECTORY_SEPARATOR . '.data' . DIRECTORY_SEPARATOR . 'php-api';
     $dataDirectory = calendar_config_value('CALENDAR_DATA_DIR', $defaultDataDirectory);
+    calendar_install_error_journal($dataDirectory);
     $store = new CalendarStore($dataDirectory);
     $maxProjectBytes = calendar_config_int('MAX_SHARED_PROJECT_BYTES', 100 * 1024 * 1024);
     $maxPdfBytes = calendar_config_int('MAX_PDF_EXPORT_BYTES', 300 * 1024 * 1024);
     $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     $path = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
     $path = preg_replace('#^/api(?=/|$)#', '', $path) ?: '/';
+    if ($path === '/v1/client-errors' && $method === 'POST') {
+        calendar_admin_check_origin();
+        $body = api_request_json(2048);
+        if (!in_array($body['kind'] ?? null, ['network', 'http', 'javascript', 'unhandled-rejection', 'resource', 'vue'], true)
+            || !in_array($body['operation'] ?? null, ['calendar-save', 'account', 'api', 'external', 'application'], true)
+            || !is_int($body['status'] ?? null) || $body['status'] < 0 || $body['status'] > 599) calendar_fail('invalid_diagnostic', 400);
+        if (calendar_accept_client_error(api_client_address())) calendar_error_record([
+            'kind' => 'client', 'clientKind' => $body['kind'], 'operation' => $body['operation'], 'status' => $body['status']]);
+        api_response(204);
+    }
     calendar_print_routes($store, $method, $path);
     calendar_domain_session_routes($store, $method, $path);
     calendar_site_routes($store, $method, $path);
@@ -377,6 +393,7 @@ try {
         }
         $store->logMail($email, 'verification', $accepted ? 'accepted' : 'failed');
         if ($sendError !== null && (!$development || !isset($verification))) {
+                calendar_error_record(['kind' => 'delivery', 'code' => 'mail_delivery_failed'] + calendar_error_exception($sendError));
                 error_log('Calendar mail delivery: ' . $sendError->getMessage());
                 api_response(502, [
                     'error' => 'mail_delivery_failed',
@@ -567,8 +584,10 @@ try {
 
     api_response(404, ['error' => 'not_found']);
 } catch (ApiFailure $error) {
+    $GLOBALS['calendar_error_exception'] = calendar_error_exception($error);
     api_response($error->httpStatus, ['error' => $error->errorCode, 'message' => $error->getMessage()]);
 } catch (Throwable $error) {
+    $GLOBALS['calendar_error_exception'] = calendar_error_exception($error);
     error_log('Calendar API: ' . $error);
     api_response(500, ['error' => 'server_error', 'message' => 'Внутренняя ошибка сервера']);
 }

@@ -164,10 +164,12 @@ trait CalendarAccounts
         if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) throw new RuntimeException('storage_unavailable');
         return $directory . '/' . $id . '.json';
     }
-    public function accountCalendars(?string $owner): array {
+    public function accountCalendars(?string $owner, ?string $excludeId = null): array {
         $rows = [];
         $owners = array_column($this->accountUsers(), 'email', 'id');
         foreach (glob($this->dataDirectory . '/calendars/*.json') ?: [] as $file) {
+            // Quota checks already hold the active calendar, including its history.
+            if ($excludeId !== null && basename($file, '.json') === $excludeId) continue;
             $value = calendar_read_json_file($file, null);
             if (!$value || ($owner !== null && $value['owner'] !== $owner)) continue;
             $rows[] = ['id' => $value['id'], 'owner' => $value['owner'], 'name' => $value['project']['name'],
@@ -199,7 +201,7 @@ trait CalendarAccounts
             $value = ['id' => $id, 'owner' => $owner, 'revision' => ($old['revision'] ?? 0) + 1,
                 'updatedAt' => calendar_now(), 'project' => $project, 'history' => $history];
             $usedBytes = 0;
-            foreach ($this->accountCalendars($owner) as $calendar) if ($calendar['id'] !== $id) $usedBytes += $calendar['bytes'];
+            foreach ($this->accountCalendars($owner, $id) as $calendar) $usedBytes += $calendar['bytes'];
             if ($usedBytes + strlen(json_encode($value)) > 1024 * 1024 * 1024) calendar_fail('storage_quota', 413, 'Лимит кабинета — 1 ГБ вместе с резервными версиями. Удалите ненужные календари.');
             calendar_atomic_json_write($this->privateCalendarFile($id), $value);
             unset($value['project'], $value['history']); return $value;
@@ -307,6 +309,9 @@ function calendar_account_routes(CalendarStore $store, string $method, string $p
                 $body['project'] = $found[0]['project'];
             }
             if (!api_valid_project($body['project'] ?? null) || !is_int($body['revision'] ?? null)) calendar_fail('invalid_project', 400);
+            // Release the read used for asset reuse/restore before the locked save
+            // reads it again. A full yearly snapshot in each backup is expensive.
+            unset($value, $previousAssets);
             api_response(200, $store->accountSaveCalendar($user['id'], $m[1], $body['project'], $body['revision']));
         }
         if ($method === 'DELETE') { $store->accountDeleteCalendar($m[1], $user['id']); api_response(204); }

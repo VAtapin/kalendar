@@ -150,6 +150,7 @@ trait CalendarAdminStore
                         calendar_send_newsletter($email, $campaign['subject'], $campaign['text'], $url, $campaign['blocks'] ?? []);
                         return 'accepted';
                     } catch (Throwable $error) {
+                        calendar_error_record(['kind' => 'background', 'code' => 'newsletter_failed'] + calendar_error_exception($error));
                         error_log('Calendar newsletter: ' . $error->getMessage());
                         return 'failed';
                     }

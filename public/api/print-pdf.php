@@ -43,6 +43,7 @@ function calendar_build_print_pdf(string $source, string $destination, string $p
     }
     if ($exitCode !== 0 || !is_file($destination) || file_get_contents($destination, false, null, 0, 8) !== '%PDF-1.3') {
         @unlink($destination);
+        calendar_error_record(['kind' => 'export', 'code' => 'print_pdf_failed']);
         error_log('Calendar direct print PDF failed: ' . $messages);
         calendar_fail('pdf_conversion_failed', 500, 'Не удалось создать PDF/X-1a:2001 из страниц календаря');
     }
