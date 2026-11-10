@@ -1,4 +1,10 @@
 export const UI_DE = {
+    "После утрени, до её отпуста; без заключительного песнопения": "Nach der Matutin, vor ihrer Entlassung; ohne Schlussgesang",
+    "Имена для отпуста утрени": "Namen für die Entlassung der Matutin",
+    "Введите готовые формы имён в винительном падеже. Для выбранного печатного варианта указаны патриарх и епископ.": "Geben Sie die fertigen Namensformen im Akkusativ ein. Die gewählte Druckfassung nennt Patriarch und Bischof.",
+    "Епископ — винительный падеж (кого?)": "Bischof – Akkusativ (wen?)",
+    "Введите и подтвердите формы имён для завершения отпуста утрени.": "Geben Sie die Namensformen für die Entlassung der Matutin ein und bestätigen Sie sie.",
+    "Не удалось подготовить Первый час. Проверьте ввод и попробуйте ещё раз.": "Die erste Stunde konnte nicht vorbereitet werden. Prüfen Sie die Eingaben und versuchen Sie es erneut.",
     "После шестого часа, перед Изобразительными": "Nach der sechsten Stunde, vor den Typika",
     "Песнопения календарного дня": "Gesänge des Kalendertages",
     "Справочно: порядок службы не подтверждён.": "Zur Information: Die Ordnung des Gottesdienstes ist nicht bestätigt.",

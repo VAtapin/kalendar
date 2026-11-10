@@ -162,6 +162,7 @@ function readLocation() {
   if (['auto', 'cu', 'cu-civil', 'ru'].includes(params.get('textLanguage'))) state.textLanguage = params.get('textLanguage');
   state.sequence = Object.hasOwn(MODES[state.office], params.get('sequence')) ? params.get('sequence') : Object.keys(MODES[state.office])[0];
   if (['none', 'vzbrannoi'].includes(params.get('afterHourHymn'))) state.afterHourHymn = params.get('afterHourHymn');
+  if (state.office === 'first-hour' && state.sequence === 'before-matins-dismissal') state.afterHourHymn = 'none';
   if (['nave', 'narthex'].includes(params.get('location'))) state.location = params.get('location');
   const size = Number(params.get('textSize'));
   if (Number.isInteger(size) && size >= 18 && size <= 32) state.textSize = size;
@@ -729,7 +730,7 @@ async function showWorship() {
     onRetry: () => void load(),
     onLocalDirty: clearLocal, onLocalClear: clearLocal,
     onLocalSubmit: async (localContext, pending) => {
-      const prepared = Object.hasOwn(pending, 'preparedSourceChoices') || Object.hasOwn(pending, 'manyYearsContext');
+      const prepared = Object.hasOwn(pending, 'preparedSourceChoices') || Object.hasOwn(pending, 'manyYearsContext') || pending.firstSeasonPrepared === true;
       if (prepared) { preparedAttempt = true; localApplied = false; reader.render({ status: 'prepared-loading' }); }
       try {
         const result = await fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, () => {}, fetch,
@@ -746,6 +747,7 @@ async function showWorship() {
     },
     onChange: (field, value) => {
       state[field] = value;
+      if (field === 'sequence' && state.office === 'first-hour' && value === 'before-matins-dismissal') state.afterHourHymn = 'none';
       if(field==='typikaNoLiturgy')bindTypikaConfirmation(state);
       if(['date','office','temple','textLanguage','typikaVariant'].includes(field))state.typikaNoLiturgy=false;
       if(['date','office','rite','temple','textLanguage','sequence'].includes(field))state.officeMode='auto';

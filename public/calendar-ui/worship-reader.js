@@ -6,6 +6,7 @@ import { datedWorshipParams, matchesWorshipContext, validWorshipDate, worshipReq
 import { LITURGY_RITES, MID_LENT_BRANCHES, isAdditionalLiturgy } from './worship-additional-liturgy.js';
 import { createLocalContextForm } from './worship-local-context.js';
 import { createArtemyForm } from './worship-artemy-form.js';
+import { createFirstSeasonForm } from './worship-first-season-form.js';
 import { midnightPresentationEntries } from './worship-midnight-presentation.js';
 import { MIDNIGHT_PROFILES, MIDNIGHT_LOCATIONS, MIDNIGHT_BISHOP_TITLES } from './worship-midnight-context.js';
 // Public Bible Desktop contracts. Availability is always resolved by the server.
@@ -24,7 +25,7 @@ export const EDITIONS = { cu: 'Церковнославянский', 'cu-civil'
 export const MODES = {
   typika:{standalone:'После шестого часа'},
   'midnight-office': { standalone: 'Самостоятельно' },
-  'first-hour': { 'after-matins': 'После утрени (отпуст совершён)' },
+  'first-hour': { 'after-matins': 'После утрени (отпуст совершён)', 'before-matins-dismissal': 'После утрени, до её отпуста; без заключительного песнопения' },
   'third-hour': { standalone: 'Самостоятельно' },
   'sixth-hour': { 'after-third-hour': 'После третьего часа' },
   'ninth-hour': { standalone: 'Самостоятельно', 'before-vespers': 'Перед вечерней', 'after-sixth-hour': 'После шестого часа, перед Изобразительными' },
@@ -185,7 +186,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     select('Храм', 'temple', TEMPLES);
     select('Порядок службы', 'sequence', MODES[state.office]);
   }
-  if (state.office === 'first-hour') select('После первого часа', 'afterHourHymn', { vzbrannoi: 'Взбранной Воеводе', none: 'Без заключительного песнопения' });
+  if (state.office === 'first-hour' && state.sequence !== 'before-matins-dismissal') select('После первого часа', 'afterHourHymn', { vzbrannoi: 'Взбранной Воеводе', none: 'Без заключительного песнопения' });
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') select('Место чтения', 'location', { nave: 'В храме', narthex: 'В притворе' });
   if (state.office === 'midnight-office') {
     select('Место чтения', 'midnightLocation', MIDNIGHT_LOCATIONS);
@@ -264,6 +265,10 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       localForm = createArtemyForm({ state, create, onSubmit: onLocalSubmit, onDirty: onLocalDirty, onClear: onLocalClear });
       if (localForm) { localHost.append(localForm.page); localHost.hidden = false; }
     }
+    if (result.firstSeasonAvailable && onLocalSubmit && !localForm) {
+      localForm = createFirstSeasonForm({ state, create, onSubmit: onLocalSubmit, onDirty: onLocalDirty, onClear: onLocalClear });
+      localHost.append(localForm.page); localHost.hidden = false;
+    }
     if (result.status === 'edition-unavailable') {
       content.append(create('p', 'Выбранная редакция этой службы пока отсутствует в BibleDesktop.', 'reader-message'));
       const retry = create('button', 'Проверить доступность', 'reader-button'); retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
@@ -271,6 +276,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
+        'first-season-context-required': 'Введите и подтвердите формы имён для завершения отпуста утрени.',
         'artemy-context-required':'Введите и подтвердите местные формы для подготовки выбранного печатного чина.',
         'prepared-loading':'Подготавливаю выбранный печатный чин…',
         'prepared-unavailable':'Не удалось подготовить выбранный печатный чин. Проверьте выбор и местные формы.',
@@ -284,7 +290,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       };
       const message = create('p', messages[result.status] || messages.error, 'reader-message');
       message.setAttribute('role', 'status'); content.append(message);
-      if (!['not-appointed', 'context-required', 'artemy-context-required', 'prepared-loading', 'prepared-unavailable'].includes(result.status)) {
+      if (!['not-appointed', 'context-required', 'artemy-context-required', 'first-season-context-required', 'prepared-loading', 'prepared-unavailable'].includes(result.status)) {
         const retry = create('button', 'Проверить доступность', 'reader-button');
         retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
       }

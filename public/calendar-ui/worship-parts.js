@@ -1,6 +1,7 @@
 import {fetchPreparedPresanctified} from './worship-presanctified-prepared.js';
 import { buildArtemyPost, isArtemyContext } from './worship-artemy-request.js';
 import { composeArtemy } from './worship-artemy-composer.js';
+import { fetchFirstSeason, firstSeasonSelected } from './worship-first-season.js';
 import {requestedOfficeMode,validateServiceMode,officeModeUnavailable} from './worship-office-mode.js';
 import {PAIR_SECTION,MODE_PAIR_SECTION} from './worship-antiphon-pair.js';
 import { fetchMidnightParts } from './worship-midnight.js';
@@ -194,6 +195,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   if(Object.hasOwn(state,'officeMode')&&state.officeMode!=='auto')requestedOfficeMode(state);
   if (state.office === 'midnight-office') return fetchMidnightParts(base, state, onBase, fetcher, signal, options);
   if (state.office === 'typika') return fetchTypikaParts(base,state,fetcher,signal);
+  if (firstSeasonSelected(state)) return fetchFirstSeason(base, state, fetcher, worshipRequestSignal(signal, 120_000), options.localContext, options.isCurrent);
   if (isArtemyContext(state) && !Object.hasOwn(options, 'manyYearsContext')) return { status: 'artemy-context-required' };
   const requestSignal = worshipRequestSignal(signal, Object.hasOwn(options, 'manyYearsContext') ? 120_000 : 20_000);
   let modeGated=false;

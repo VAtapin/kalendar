@@ -1,0 +1,10 @@
+{
+  "scope": "Local BibleDesktop routes, SQLite in memory, synthetic personal inputs; 2026-03-03, George temple, First Hour with the Matins dismissal after the Hour.",
+  "responseSha256": {
+    "template": "29317075865fb64ca2686ee447e71be1324b40896bfc68804a511d83297b8580",
+    "assignments": "a534b9e6af99d883e600e7af1978e40213c3d95520e15009653062ff7dbfeb62",
+    "full": "dcfc567a03a66864367d788a30cbdfe2bd80373aa238e1f5e2ffe349e272c78d"
+  },
+  "verification": "302 blocks equal original full response; reader, print and PDF in memory (15 pages), seven negative mutations including changed source range and recomputed digest, 99 targeted Vitest and production build passed. Original local JSON bodies replayed offline; raw HTTP headers not captured, private/no-store asserted by replay.",
+  "limits": "Other dates and temples not independently verified; unpinned source ranges are rejected. No live private POST, browser or production deployment. Printed variant requires explicit patriarch and bishop accusative forms; no authority or entire Matins attestation."
+}
