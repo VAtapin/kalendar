@@ -14,6 +14,8 @@ describe('calendar hymn references beside the Hours', () => {
   });
   it.each(HOUR_OFFICES)('displays published texts with actual language for %s', office => {
     const section = renderCalendarHymns({ create, state: { date: '2026-11-02', office }, value: value(office) });
+    expect(section.tagName).toBe('DETAILS'); expect(section.open).toBe(false);
+    expect(section.children[0].tagName).toBe('SUMMARY');
     expect(section.textContent).toContain('Справочно: порядок службы не подтверждён.');
     expect(section.querySelectorAll('article')).toHaveLength(2);
     expect(section.textContent).toContain('Тропарь памяти');

@@ -7,8 +7,9 @@ export function calendarServiceValue(response) {
 }
 
 export function renderCalendarHymns({ create, state, value, error = false }) {
-  const section = create('section', '', 'section-card calendar-hour-hymns');
-  section.append(create('h3', 'Песнопения календарного дня'));
+  const section = create('details', '', 'section-card calendar-hour-hymns');
+  section.open = false;
+  section.append(create('summary', 'Песнопения календарного дня'));
   section.append(create('p', 'Справочно: порядок службы не подтверждён.', 'hint'));
   if (error) {
     section.append(create('p', 'Песнопения календаря сейчас недоступны.', 'hint'));
