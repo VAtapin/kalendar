@@ -1,5 +1,6 @@
 import type { CalendarProject, PageModel } from "../document/types";
 import { BUNDLED_FONT_FILES, type BundledFontFamily } from "../typography/font-catalog";
+import { translateInterfaceText } from '../i18n/interface-language';
 
 interface PrintFontFace {
   family: string;
@@ -9,6 +10,7 @@ interface PrintFontFace {
 }
 
 const bundledFontData = new Map<string, Promise<string>>();
+const loadedPrintFaces = new WeakMap<FontFaceSet, Map<string, Map<string, Promise<FontFace>>>>();
 
 function blobAsDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -25,10 +27,34 @@ function bundledDataUrl(file: string): Promise<string> {
     pending = fetch(`/fonts/${file}`).then(async (response) => {
       if (!response.ok) throw new Error(`Не удалось загрузить шрифт ${file}: HTTP ${response.status}`);
       return blobAsDataUrl(await response.blob());
+    }).catch(error => {
+      // A temporary failure must not poison every later export in this tab.
+      if (bundledFontData.get(file) === pending) bundledFontData.delete(file);
+      throw error;
     });
     bundledFontData.set(file, pending);
   }
   return pending;
+}
+
+async function loadPrintFace(face: PrintFontFace): Promise<void> {
+  const fonts = document.fonts;
+  let variants = loadedPrintFaces.get(fonts);
+  if (!variants) { variants = new Map(); loadedPrintFaces.set(fonts, variants); }
+  const variant = JSON.stringify([face.family, face.style, face.weight]);
+  let sources = variants.get(variant);
+  if (!sources) { sources = new Map(); variants.set(variant, sources); }
+  let pending = sources.get(face.source);
+  if (!pending) {
+    pending = new FontFace(face.family, `url(${JSON.stringify(face.source)})`, {
+      style: face.style, weight: String(face.weight),
+    }).load().then(loaded => { fonts.add(loaded); return loaded; }).catch(error => {
+      if (sources.get(face.source) === pending) sources.delete(face.source);
+      throw new Error(translateInterfaceText('Не удалось подготовить шрифты для печати. Повторите попытку.'), { cause: error });
+    });
+    sources.set(face.source, pending);
+  }
+  await pending;
 }
 
 function usedPageFontFamilies(page: PageModel, project: CalendarProject): Set<string> {
@@ -79,8 +105,11 @@ export async function preparePrintFontCss(page: PageModel, project: CalendarProj
     if (!asset?.source.startsWith("data:")) throw new Error(`Не найден шрифт ${face.family} для печати`);
     faces.push({ family: face.family, source: asset.source, weight: face.fontWeight, style: face.fontStyle });
   }
-  if (faces.length && "fonts" in document) {
-    await Promise.all(faces.map((face) => document.fonts.load(`${face.style} ${face.weight} 12px ${JSON.stringify(face.family)}`)));
+  if (faces.length && "fonts" in document && typeof FontFace !== 'undefined') {
+    // Load the embedded bytes themselves. FontFaceSet.load also retries failed
+    // screen/CSS registrations of the same family and can reject with NetworkError
+    // even though every font needed by the print SVG has already been fetched.
+    for (const face of faces) await loadPrintFace(face);
     await document.fonts.ready;
   }
   return faces.map((face) => `@font-face{font-family:${JSON.stringify(face.family)};src:url(${JSON.stringify(face.source)});font-style:${face.style};font-weight:${face.weight}}`).join("\n");

@@ -272,6 +272,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   "Сохранено": { de: "Gespeichert", en: "Saved", uk: "Збережено" },
   "Сохранение…": { de: "Speichern…", en: "Saving…", uk: "Збереження…" },
   "Ошибка сохранения": { de: "Speicherfehler", en: "Save error", uk: "Помилка збереження" },
+  "Не удалось подготовить шрифты для печати. Повторите попытку.": { de: "Die Druckschriften konnten nicht vorbereitet werden. Versuchen Sie es erneut.", en: "Could not prepare fonts for printing. Please try again.", uk: "Не вдалося підготувати шрифти до друку. Спробуйте ще раз." },
   "Источник: ММ": { de: "Quelle: MM", en: "Source: MM", uk: "Джерело: ММ" },
   "КНИЖНАЯ": { de: "HOCHFORMAT", en: "PORTRAIT", uk: "КНИЖКОВА" },
   "АЛЬБОМНАЯ": { de: "QUERFORMAT", en: "LANDSCAPE", uk: "АЛЬБОМНА" },

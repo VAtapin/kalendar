@@ -1,6 +1,13 @@
-type ErrorKind = 'network' | 'http' | 'javascript' | 'unhandled-rejection' | 'resource' | 'vue';
-type Operation = 'calendar-save' | 'account' | 'api' | 'external' | 'application';
+type ErrorKind = 'network' | 'http' | 'javascript' | 'unhandled-rejection' | 'resource' | 'vue' | 'print';
+type Operation = 'calendar-save' | 'account' | 'api' | 'external' | 'application' | 'print-fonts' | 'print-render' | 'print-profile' | 'print-upload';
 const endpoint = '/api/v1/client-errors';
+let applicationReporter: ((kind: ErrorKind, operation: Operation) => void) | undefined;
+
+export function reportPrintError(phase: string): void {
+  const operation: Operation = phase === 'load-fonts' ? 'print-fonts' : phase === 'render-pages' ? 'print-render'
+    : phase === 'load-profile' ? 'print-profile' : 'print-upload';
+  applicationReporter?.('print', operation);
+}
 
 /** Metadata only. Do not send messages, stacks, URLs, project data or private input. */
 export function installErrorJournal(target: Window = window): (kind: ErrorKind) => void {
@@ -17,6 +24,7 @@ export function installErrorJournal(target: Window = window): (kind: ErrorKind) 
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, operation, status }) }).catch(() => {});
     } catch { /* Reporting must not change application behavior. */ }
   };
+  applicationReporter = report;
   target.fetch = async (input, init) => {
     let operation: Operation = 'external';
     let diagnostic = false;

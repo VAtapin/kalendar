@@ -1,7 +1,7 @@
 import { expect, it, vi } from 'vitest';
-import { installErrorJournal } from '../src/diagnostics/error-journal';
+import { installErrorJournal, reportPrintError } from '../src/diagnostics/error-journal';
 
-function setup(fetch = vi.fn(async () => new Response(null, { status: 204 }))) {
+function setup(fetch = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(null, { status: 204 }))) {
   const target = new EventTarget() as unknown as Window;
   Object.assign(target, { fetch, location: { href: 'https://example.org/calendar/private?token=secret', origin: 'https://example.org' } });
   const report = installErrorJournal(target);
@@ -40,4 +40,10 @@ it('ignores successful requests and bounds reports from application errors', asy
   Object.assign(event, { reason: new Error('private input') });
   target.dispatchEvent(event);
   expect(fetch).toHaveBeenCalledTimes(21);
+});
+
+it('records the failed print stage without sending exception messages or URLs', () => {
+  const { fetch } = setup();
+  reportPrintError('load-fonts');
+  expect(JSON.parse(fetch.mock.calls[0]![1]!.body as string)).toEqual({ kind: 'print', operation: 'print-fonts', status: 0 });
 });

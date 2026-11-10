@@ -255,8 +255,8 @@ try {
     if ($path === '/v1/client-errors' && $method === 'POST') {
         calendar_admin_check_origin();
         $body = api_request_json(2048);
-        if (!in_array($body['kind'] ?? null, ['network', 'http', 'javascript', 'unhandled-rejection', 'resource', 'vue'], true)
-            || !in_array($body['operation'] ?? null, ['calendar-save', 'account', 'api', 'external', 'application'], true)
+        if (!in_array($body['kind'] ?? null, ['network', 'http', 'javascript', 'unhandled-rejection', 'resource', 'vue', 'print'], true)
+            || !in_array($body['operation'] ?? null, ['calendar-save', 'account', 'api', 'external', 'application', 'print-fonts', 'print-render', 'print-profile', 'print-upload'], true)
             || !is_int($body['status'] ?? null) || $body['status'] < 0 || $body['status'] > 599) calendar_fail('invalid_diagnostic', 400);
         if (calendar_accept_client_error(api_client_address())) calendar_error_record([
             'kind' => 'client', 'clientKind' => $body['kind'], 'operation' => $body['operation'], 'status' => $body['status']]);

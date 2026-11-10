@@ -5,6 +5,7 @@ import { computed, markRaw, defineAsyncComponent, nextTick, onBeforeUnmount, onM
 import { editorIntent } from './editor-intent';
 import { BUILT_IN_PRINT_PROFILES, type PrintProfileChoice } from './export/print-profile';
 import { preparePrintFontCss } from './export/print-fonts';
+import { reportPrintError } from './diagnostics/error-journal';
 import { packagePrintPages } from './export/print-raster';
 import { flattenPrintSvgTextShadows, inlinePrintSvgStyles } from './export/print-svg-styles';
 import { loadPdfExporter } from './export/load-pdf-exporter';
@@ -1590,7 +1591,9 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
     printCaptureProject.value = snapshot;
     const images: Blob[] = [];
     for (const [index, page] of snapshot.document.pages.entries()) {
+      phase = 'load-fonts';
       const fontEmbedCSS = await preparePrintFontCss(page, snapshot);
+      phase = 'render-pages';
       printCapturePage.value = page;
       await nextTick();
       await document.fonts.ready;
@@ -1654,8 +1657,8 @@ async function createPrintPdf(choice: PrintProfileChoice): Promise<void> {
     operationNotice.value = "PDF сохранён на сервере; ссылка на скачивание готова";
   } catch (error) {
     pdfExportState.value = "error";
-    // Browser-local diagnostics only: no calendar contents or credentials sent
-    // to a logging service. Error.cause preserves the failing module URL/stack.
+    reportPrintError(phase);
+    // Only the fixed stage goes to the private journal; details stay in console.
     console.error(`[Calendar PDF: ${phase}]`, error);
     if (error instanceof SharedProjectApiError && error.code === "email_required") {
       localStorage.removeItem(EMAIL_ACCESS_TOKEN_KEY);

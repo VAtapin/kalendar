@@ -66,12 +66,14 @@ try {
   assert.equal((await request('client-errors', 'POST', { kind: 'network', operation: 'calendar-save', status: 0,
     message: 'private calendar', token: 'secret' }, false)).status, 204);
   assert.equal((await request('client-errors', 'POST', { kind: 'invalid', operation: 'api', status: 0 }, false)).status, 400);
+  assert.equal((await request('client-errors', 'POST', { kind: 'print', operation: 'print-fonts', status: 0 }, false)).status, 204);
   const journalPath = resolve(data, 'logs/errors.jsonl');
   const logs = () => readFileSync(journalPath, 'utf8').trim().split('\n').map(line => JSON.parse(line));
   const entries = logs();
   assert.deepEqual(entries.filter(e => e.kind === 'api').map(e => e.status), [409, 401, 404, 400]);
   assert.equal(entries.find(e => e.status === 409).code, 'revision_conflict');
   assert.ok(entries.some(e => e.kind === 'client' && e.operation === 'calendar-save'));
+  assert.ok(entries.some(e => e.kind === 'client' && e.operation === 'print-fonts'));
   assert.doesNotMatch(readFileSync(journalPath, 'utf8'), /secret|private calendar|regression@example|data:image/);
   for (let n = 0; n < 35; n++) await request('client-errors', 'POST', { kind: 'vue', operation: 'application', status: 0 }, false);
   assert.equal(logs().filter(e => e.kind === 'client').length, 30);
