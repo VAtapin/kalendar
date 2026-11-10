@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { templateFor, assignmentsFor, hash } from './fixtures/worship-parts.mjs';
 import { composeParts, fetchWorshipParts, validateTemplate } from '../public/calendar-ui/worship-parts.js';
+import { createHash } from 'node:crypto';
 
 const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave', textLanguage: 'cu-civil' };
 const clone = value => structuredClone(value);
@@ -64,6 +65,22 @@ describe('source-bound worship parts', () => {
     expect(result.sourceVersions).toEqual([...template.sourceVersions, source]);
     assignments.operations[1].blocks[0].provenance.bodyHash = 'c'.repeat(64);
     await expect(composeParts(template, assignments, state)).rejects.toThrow('Unidentified operation text');
+  });
+  it('checks the source ranges in the seasonal ninth Hour before Typika', async () => {
+    const selected = { ...state, office: 'ninth-hour', sequence: 'after-sixth-hour' };
+    const template = templateFor(selected.office); template.profile.seasonProfile = 'lenten-practical-v1';
+    const assignments = assignmentsFor(template, selected, false);
+    assignments.context.nextOffice = 'typika';
+    assignments.acceptance = { sourceCandidateOnly: true, runtimeAcceptanceGranted: false, strictMonasticProfileAccepted: false, wholeFourHourDayAccepted: false };
+    const source = { work: 'source', edition: 'cu', language: 'cu', hash: 'b'.repeat(64), sourceHash: 'c'.repeat(64) };
+    assignments.sourceVersions = [source];
+    const text = 'Тест', digest = createHash('sha256').update(text).digest('hex');
+    assignments.operations = [{ type: 'fill', nodeId: 'last', slotId: 'troparion-of-day:last', blocks: [{ kind: 'text', segments: [{ text }], provenance: { sourcePieces: [{ work: source.work, edition: source.edition, bodyHash: source.hash, sourceHash: source.sourceHash, range: { length: [...text].length, textSha256: digest } }] } }] }];
+    expect((await composeParts(template, assignments, selected)).entries.find(entry => entry.nodeId === 'last').language).toBe('cu');
+    const changed = clone(assignments); changed.operations[0].blocks[0].segments[0].text += '!';
+    await expect(composeParts(template, changed, selected)).rejects.toThrow('Unidentified operation text');
+    const unreviewed = clone(assignments); unreviewed.acceptance.runtimeAcceptanceGranted = true;
+    await expect(composeParts(template, unreviewed, selected)).rejects.toThrow('Unidentified operation text');
   });
   it('keeps only sources used by composed operations alongside the template bibliography', async () => {
     const template = templateFor(state.office), assignments = assignmentsFor(template, state);

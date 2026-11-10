@@ -1,4 +1,5 @@
 export const UI_DE = {
+    "После шестого часа, перед Изобразительными": "Nach der sechsten Stunde, vor den Typika",
     "Песнопения календарного дня": "Gesänge des Kalendertages",
     "Справочно: порядок службы не подтверждён.": "Zur Information: Die Ordnung des Gottesdienstes ist nicht bestätigt.",
     "Песнопения календаря сейчас недоступны.": "Die Kalendergesänge sind derzeit nicht verfügbar.",

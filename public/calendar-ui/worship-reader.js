@@ -27,7 +27,7 @@ export const MODES = {
   'first-hour': { 'after-matins': 'После утрени (отпуст совершён)' },
   'third-hour': { standalone: 'Самостоятельно' },
   'sixth-hour': { 'after-third-hour': 'После третьего часа' },
-  'ninth-hour': { standalone: 'Самостоятельно', 'before-vespers': 'Перед вечерней' },
+  'ninth-hour': { standalone: 'Самостоятельно', 'before-vespers': 'Перед вечерней', 'after-sixth-hour': 'После шестого часа, перед Изобразительными' },
   liturgy: { default: 'По назначению дня' },
   matins: { standalone: 'Самостоятельно', vigil: 'В составе всенощного бдения' },
   vespers: { standalone: 'Самостоятельно', vigil: 'В составе всенощного бдения' },

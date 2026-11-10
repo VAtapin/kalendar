@@ -42,6 +42,12 @@ describe('selected worship context', () => {
       expect(matchesWorshipContext(context, selected)).toBe(false);
     }
   });
+  it('binds the ninth Hour before Typika to its explicit continuation', () => {
+    const selected = { ...state, office: 'ninth-hour', sequence: 'after-sixth-hour' };
+    const context = { ...datedWorshipParams(selected, 'cu'), office: selected.office };
+    expect(context.nextOffice).toBe('typika'); expect(matchesWorshipContext(context, selected)).toBe(true);
+    context.nextOffice = 'vespers'; expect(matchesWorshipContext(context, selected)).toBe(false);
+  });
   it('cancels the previous assignment request instead of returning a stale fallback', async () => {
     const controller = new AbortController(), seen = [];
     const promise = fetchWorshipParts('https://bible.example', state, result => seen.push(result), async (url, options) => {

@@ -8,6 +8,7 @@ export function validWorshipDate(value) {
 
 export function hourContext(state) {
   if (state.office === 'first-hour') return { matinsDismissalDone: '1', afterHourHymn: state.afterHourHymn };
+  if (state.office === 'ninth-hour' && state.sequence === 'after-sixth-hour') return { nextOffice: 'typika' };
   if (state.office === 'ninth-hour' && state.sequence === 'before-vespers') return { nextOffice: 'vespers', location: state.location };
   return {};
 }

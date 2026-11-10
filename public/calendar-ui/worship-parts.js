@@ -7,7 +7,7 @@ import { fetchMidnightParts } from './worship-midnight.js';
 import { fetchTypikaParts } from './worship-typika.js';
 import { validateTropariaWrapper } from './worship-troparia-section.js';
 import { sourceComponentReceipt } from './worship-section-receipt.js';
-import { partsHash } from './worship-hash.js';
+import { partsHash, textHash } from './worship-hash.js';
 import { isAdditionalLiturgy, fetchAdditionalLiturgy } from './worship-additional-liturgy.js';
 import { datedWorshipParams, hourContext, matchesWorshipContext, worshipRequestSignal } from './worship-context.js';
 // Connect the published source-bound templates and explicit daily operations.
@@ -59,6 +59,28 @@ function baseEntries(template) {
   });
 }
 
+async function seasonalBlockSource(block, sources) {
+  const provenance = block?.provenance, pieces = provenance?.sourcePieces;
+  const resolve = piece => {
+    const candidates = sources.filter(source => source.hash === piece?.bodyHash
+      && (!piece.work || source.work === piece.work) && (!piece.edition || source.edition === piece.edition)
+      && (!piece.sourceHash || source.sourceHash === piece.sourceHash) && sourceLanguage(source));
+    return candidates.length === 1 ? candidates[0] : null;
+  };
+  if (!pieces) return resolve(provenance);
+  if (!Array.isArray(pieces) || !pieces.length) return null;
+  const chars = [...block.segments.map(segment => segment.text).join('')], identified = [];
+  let offset = 0;
+  for (const piece of pieces) {
+    const source = resolve(piece), range = piece?.range || piece?.sourceRange;
+    if (!source || !Number.isInteger(range?.length) || range.length < 1 || !/^[a-f0-9]{64}$/.test(range.textSha256 || '')) return null;
+    const text = chars.slice(offset, offset + range.length).join(''); offset += range.length;
+    if (await textHash(text) !== range.textSha256) return null;
+    identified.push(source);
+  }
+  return offset === chars.length && new Set(identified.map(sourceLanguage)).size === 1 ? identified[0] : null;
+}
+
 export async function composeParts(template, assignments, state) {
   for (const key of ['schemaVersion', 'templateId', 'templateVersion', 'ruleVersion']) {
     if (template[key] !== assignments?.[key]) throw new Error('Incompatible worship versions');
@@ -103,12 +125,18 @@ export async function composeParts(template, assignments, state) {
     if (operation.type === 'replace' && operation.blocks === undefined && Array.isArray(operation.blockMetadata)
       && Array.isArray(operation.fieldOrder)) operation.metadataOnly = true;
     if (operation.type === 'fill' && operation.blockSources === undefined && Array.isArray(operation.blocks)) {
-      operation.blockSources = operation.blocks.map(block => {
+      operation.blockSources = await Promise.all(operation.blocks.map(async block => {
         const provenance = block?.provenance;
         const matches = (assignments.sourceVersions || []).filter(source => source.work === provenance?.work
           && source.edition === provenance?.edition && source.hash === provenance?.bodyHash);
-        return matches.length && new Set(matches.map(sourceLanguage)).size === 1 ? matches[0] : null;
-      });
+        if (matches.length && new Set(matches.map(sourceLanguage)).size === 1) return matches[0];
+        if (state.office === 'ninth-hour' && state.sequence === 'after-sixth-hour'
+          && template.profile?.seasonProfile === 'lenten-practical-v1'
+          && assignments.acceptance?.sourceCandidateOnly === true && assignments.acceptance?.runtimeAcceptanceGranted === false
+          && assignments.acceptance?.strictMonasticProfileAccepted === false && assignments.acceptance?.wholeFourHourDayAccepted === false)
+          return seasonalBlockSource(block, assignments.sourceVersions || []);
+        return null;
+      }));
     }
     const node = nodes.get(operation?.nodeId);
     if (!node || operations.has(node.nodeId) || (operation.slotId ?? null) !== (node.slotId ?? null)
