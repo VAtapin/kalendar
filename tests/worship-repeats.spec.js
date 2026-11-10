@@ -39,6 +39,30 @@ describe('liturgical repetition presentation', () => {
     expect(blocks).toEqual(before);
     blocks[1].role = 'priest'; expect(compactRepetitions(blocks)[0].count).toBe(1);
   });
+  it('compacts separately allocated midnight mercy responses while preserving voice and source boundaries', () => {
+    const blocks = repeat(12).map((block, index) => ({ ...block, role: 'assembly', slot: 'ending-part-' + index,
+      provenance: { work: 'horologion', block: 99, endingReference: 'mercy' },
+      occurrenceId: 'midnight:' + index, repeatCount: 1, repeatIndex: 1 }));
+    const entries = blocks.map((block, index) => ({ nodeId: 'midnight:' + index, kind: 'fixed', language: 'cu', blocks: [block] }));
+    const original = structuredClone(entries), joined = repetitionEntries(entries);
+    expect(joined).toHaveLength(1);
+    expect(compactRepetitions(joined[0].blocks).map(item => item.count)).toEqual([12]);
+    expect(entries).toEqual(original);
+    const differentVoice = structuredClone(entries); differentVoice[6].blocks[0].role = 'priest';
+    expect(repetitionEntries(differentVoice).length).toBeGreaterThan(1);
+    const differentSource = structuredClone(entries); differentSource[6].blocks[0].provenance.block = 100;
+    expect(repetitionEntries(differentSource).length).toBeGreaterThan(1);
+  });
+  it.each([3, 12, 40])('compacts %i source-identified parent copies without changing them', count => {
+    const blocks = repeat(count).map((block, i) => ({ ...block, role: 'assembly', slot: 'part-' + i,
+      repeatCount: 1, repeatIndex: 1, provenance: { work: 'horologion', parentSlot: 'opening-mercy', parentOccurrenceId: 'source:12:0:' + i } }));
+    const entries = blocks.map((block, i) => ({ nodeId: 'midnight:' + i, kind: 'fixed', language: 'cu', blocks: [block] }));
+    const joined = repetitionEntries(entries);
+    expect(joined).toHaveLength(1);
+    expect(compactRepetitions(joined[0].blocks).map(item => item.count)).toEqual([count]);
+    const changed = structuredClone(entries); changed[1].blocks[0].provenance.parentOccurrenceId = 'other:0:1';
+    expect(repetitionEntries(changed).length).toBeGreaterThan(1);
+  });
   it('joins adjacent blocks without node IDs only when their entry context agrees', () => {
     const entries = repeat(12).map(block => ({ kind: 'fixed', language: 'cu', role: 'reader', blocks: [block] }));
     const joined = repetitionEntries(entries);
