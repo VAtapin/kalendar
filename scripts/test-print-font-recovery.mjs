@@ -41,6 +41,11 @@ try {
     try { await document.fonts.load('12px "Cormorant Garamond"'); } catch (error) { originalError = error.name; }
     const project = createBlankCalendarProject(2027);
     project.document.pages = createFullCalendarTemplate('A3', 'portrait', 2027, 'Тест').slice(0, 3);
+    // The actual owner calendar failed on this bundled legacy font, independently
+    // of the synthetic failed-screen-face scenario above.
+    const heading = project.document.pages[1].elements.find(element => element.type === 'text' || element.type === 'month-text');
+    if (!heading) throw new Error('Missing regression heading');
+    heading.typography.fontFamily = 'TauernInlineCTT';
     const calendar = snapshotCalendar(fixture);
     const root = document.querySelector('#capture');
     root.className = 'print-capture-page';
@@ -71,6 +76,7 @@ try {
         canvas.width = 0; canvas.height = 0;
       }
       const bundle = packagePrintPages(project.document.pages, images, project.printSettings);
+      if (!Array.from(document.fonts).some(face => face.family === 'TauernInlineCTT' && face.status === 'loaded')) throw new Error('Tauern did not load');
       const bytes = new Uint8Array(await bundle.arrayBuffer());
       let binary = '';
       for (let start = 0; start < bytes.length; start += 8192) binary += String.fromCharCode(...bytes.subarray(start, start + 8192));
