@@ -90,10 +90,30 @@ describe('source-bound worship parts', () => {
       return { status: 200, json: async () => ({ data: url.pathname.includes('/templates/') ? template : assignments }) };
     });
     expect(urls.every(url => url.searchParams.get('profile') === 'ordinary-clergy')).toBe(true);
+    expect(urls[0].searchParams.get('date')).toBe(selected.date);
+    expect(urls[0].searchParams.get('temple')).toBe(selected.temple);
+    expect(urls[0].searchParams.get('calendarStyle')).toBe('julian');
     if (['first-hour','ninth-hour'].includes(office)) expect(urls[0].searchParams.get('sequence')).toBe(selected.sequence);
     else expect(urls[0].searchParams.has('sequence')).toBe(false);
     if (office === 'first-hour') expect(urls[0].searchParams.get('afterHourHymn')).toBe(selected.afterHourHymn);
     if (office === 'ninth-hour') expect(urls[0].searchParams.get('location')).toBe(selected.location);
+  });
+  it('retries the ordinary template only for the exact unsupported dispatch coordinates', async () => {
+    const selected = { ...state, office: 'third-hour', sequence: 'standalone', textLanguage: 'cu' };
+    const template = templateFor(selected.office); template.language = 'cu'; template.orthography = 'traditional';
+    template.nodes.filter(node => node.kind !== 'slot').forEach(node => { node.language = 'cu'; });
+    const urls = [], errors = Object.fromEntries(['date', 'temple', 'calendarStyle'].map(key => [key, ['Unsupported Hour parts parameter.']]));
+    const result = await fetchWorshipParts('https://bible.example', selected, () => {}, async url => {
+      urls.push(url);
+      if (urls.length === 1) return { status: 422, json: async () => ({ errors }) };
+      const assignment = assignmentsFor(template, selected, false); assignment.context.language = 'cu';
+      return { status: 200, json: async () => ({ data: urls.length === 2 ? template : assignment }) };
+    });
+    expect(result.status).toBe('parts'); expect(urls).toHaveLength(3);
+    expect(urls[1].searchParams.has('date')).toBe(false); expect(urls[1].searchParams.has('temple')).toBe(false);
+    expect(urls[1].searchParams.has('calendarStyle')).toBe(false);
+    await expect(fetchWorshipParts('https://bible.example', selected, () => {}, async () => ({ status: 409 }))).rejects.toThrow();
+    await expect(fetchWorshipParts('https://bible.example', selected, () => {}, async () => ({ status: 422, json: async () => ({ errors: { ...errors, sequence: ['wrong'] } }) }))).rejects.toThrow();
   });
   it.each(['first-hour', 'third-hour', 'sixth-hour', 'ninth-hour', 'matins', 'vespers'])('accepts the published source outline for %s without choosing branches', async office => {
     const template = templateFor('liturgy');

@@ -169,7 +169,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   if (isArtemyContext(state) && !Object.hasOwn(options, 'manyYearsContext')) return { status: 'artemy-context-required' };
   const requestSignal = worshipRequestSignal(signal, Object.hasOwn(options, 'manyYearsContext') ? 120_000 : 20_000);
   let modeGated=false;
-  const request = async (path, params = {}, body, validationProbe = false) => {
+  const request = async (path, params = {}, body, validationProbe = false, allowLegacyTemplate = false) => {
     requestSignal.throwIfAborted();
     const url = new URL('/api/v1/liturgical/' + path + '/' + state.office, base);
     for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
@@ -185,6 +185,15 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
     }
     if (response.status === 422 && path === 'templates') {
       const value = await response.json();
+      // Older ordinary-Hour handlers reject these dispatch coordinates.
+      // Retry only their exact validation errors, never a seasonal/source failure.
+      const errors = value.errors || {};
+      if (allowLegacyTemplate && Object.keys(errors).length === 3
+        && ['date', 'temple', 'calendarStyle'].every(key => Array.isArray(errors[key]) && errors[key].length === 1
+          && errors[key][0] === 'Unsupported Hour parts parameter.')) {
+        const { date, temple, calendarStyle, ...legacyParams } = params;
+        return request(path, legacyParams, body, validationProbe);
+      }
       // The published API validates the supported edition through errors.language.
       // Other validation errors must never trigger a language substitution.
       if (value.errors && Object.keys(value.errors).length === 1 && Array.isArray(value.errors.language)
@@ -204,8 +213,10 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   for (const candidate of requested === 'auto' ? ['cu', 'cu-civil', 'ru'] : [requested]) {
     const profile = candidate === 'cu' && hour ? { profile: 'ordinary-clergy',
       ...(['first-hour', 'ninth-hour'].includes(state.office) ? { sequence: state.sequence, ...hourContext(state) } : {}) } : {};
+    const seasonalDispatch = candidate === 'cu' && hour;
     const value = await request('templates', { language: candidate, ...profile,
-      ...(candidate === 'cu' && state.office === 'liturgy' ? { mode: 'fixed' } : {}) });
+      ...(seasonalDispatch ? { date: state.date, temple: state.temple, calendarStyle: 'julian' } : {}),
+      ...(candidate === 'cu' && state.office === 'liturgy' ? { mode: 'fixed' } : {}) }, undefined, false, seasonalDispatch);
     if (value === null) continue;
     template = validateTemplate(value, state.office);
     const sources = template.nodes.filter(node => node.kind !== 'slot');
