@@ -17,9 +17,9 @@ function fixture(): WorshipPdfSnapshot {
     ] };
 }
 describe('real worship PDF export', () => {
-  it('uses a readable 16pt baseline and follows the selected reader scale', async () => {
+  it('uses a larger Church Slavonic baseline and follows the selected reader scale', async () => {
     const source = fixture(); source.blocks = [{ kind: 'paragraph', language: 'cu', runs: [{ text: 'Господи, помилуй.' }] }];
-    for (const [scale, expected] of [[1, 16], [1.25, 20], [.75, 12]]) {
+    for (const [scale, expected] of [[1, 32], [1.25, 40], [.75, 24]]) {
       source.readingScale = scale;
       const pdf = await exportWorshipPdf(source, { fontBytes, collectPlacements: true });
       expect(pdf.placements.find(p => p.text.includes('Господи'))?.size).toBe(expected);

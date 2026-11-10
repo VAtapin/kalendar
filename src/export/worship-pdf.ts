@@ -237,8 +237,8 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
       else activeBox = undefined;
     }
     const size = snapshot.readingScale === undefined ? (block.kind === 'heading' ? 15 : 12)
-      : (block.kind === 'heading' ? 18 : 16) * snapshot.readingScale;
-    const leading = size * (snapshot.readingScale === undefined ? 1.8 : 1.5);
+      : (block.kind === 'heading' ? 18 : 16) * snapshot.readingScale * (block.language === 'cu' ? 2 : 1);
+    const leading = size * (snapshot.readingScale === undefined || block.language === 'cu' ? 1.8 : 1.5);
     const lines = wrap(block.runs, block.language, size);
     if (block.kind === 'heading') { ensure(leading * Math.min(lines.length, 2) + 35); y -= 8; }
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {

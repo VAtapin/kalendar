@@ -17,6 +17,8 @@ describe('printing the displayed worship body', () => {
     expect(css).toContain('page: worship;');
     expect(css).toContain('--reader-size: var(--reader-print-size, 16pt) !important;');
     expect(css).toContain('.worship-block { white-space: pre-wrap; margin: 0; }');
+    expect(css).toContain('font-size: 2em; line-height: 1.8;');
+    expect(css).toContain('.worship-text .worship-part[data-text-language="cu"] { font-size: 2em; }');
     expect(css).toContain('body:has(.worship-page) main > :not(.shell)');
     expect(css).toContain('.worship-controls, .worship-navigation');
     expect(css.slice(css.indexOf('@media print'))).toContain('.calendar-hour-hymns');

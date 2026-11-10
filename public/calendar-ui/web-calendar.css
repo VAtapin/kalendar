@@ -184,10 +184,12 @@ dialog::backdrop { background: #18291e88; }
 .calendar-text.cu .event-card h4, .calendar-text.cu .hero h3 { font-family: "Calendar API Slavonic", serif; }
 @font-face { font-family: "Calendar Liturgical Slavonic"; src: url("/fonts/Ponomar-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: "Calendar Civil Text"; src: url("/fonts/DejaVuSerif.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
-[data-text-language="cu"] { font-family: "Calendar Liturgical Slavonic", serif; font-size: 1em; line-height: 1.5; }
+[data-text-language="cu"] { font-family: "Calendar Liturgical Slavonic", serif; font-size: 2em; line-height: 1.8; }
 [data-text-language="cu-civil"], [data-text-language="ru"] { font-family: "Calendar Civil Text", serif; font-size: 18px; line-height: 1.75; }
 .worship-text [data-text-language] { font-size: inherit; }
 .worship-text[data-text-language] { font-size: var(--reader-size, 1em); }
+.worship-text .worship-part[data-text-language="cu"] { font-size: 2em; }
+.worship-text[data-text-language="cu"] { font-size: calc(var(--reader-size, 1em) * 2); }
 .worship-missing { margin: 18px 0; padding: 12px 16px; border: 1px dashed var(--gold); border-radius: 8px; background: #f9f7ef; color: var(--muted); font: 15px/1.5 system-ui, sans-serif; }
 .worship-missing p { margin: 5px 0 0; }
 .outline-missing, .worship-navigation, .worship-appendix { margin: 18px 0; }
