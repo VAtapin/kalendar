@@ -22,7 +22,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   group.disabled = true; month.disabled = true; day.disabled = true; search.disabled = true;
   const listStatus = create('p', 'Загружаю каталог книг…', 'hint'), list = create('div', '', 'book-list'); catalogue.append(create('p', 'Месяц и день — по печатной Минее (старый стиль), а не гражданская дата службы. Память можно найти по названию.', 'hint'), listStatus, list); page.append(catalogue);
   const controls = create('div', '', 'worship-controls book-controls'); page.append(controls);
-  const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input'); size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize || 22); sizeLabel.append(size); controls.append(sizeLabel);
+  const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input'); size.type = 'range'; size.min = '12'; size.max = '32'; size.value = String(state.textSize ?? 16); sizeLabel.append(size); controls.append(sizeLabel);
   const toneLabel = create('label', 'Глас Октоиха', 'control'), tone = create('select'); tone.dataset.bookControl = 'bookTone'; toneLabel.append(tone); controls.append(toneLabel);
   const weekdayLabel = create('label', 'День недели в книге', 'control'), weekday = create('select'); weekday.dataset.bookControl = 'bookWeekday'; weekdayLabel.append(weekday); controls.append(weekdayLabel);
   const partLabel = create('label', 'Служба / раздел', 'control'), part = create('select'); part.dataset.bookControl = 'bookPart'; part.dataset.textLanguage = 'cu'; part.lang = 'cu'; partLabel.classList.add('book-part-control'); partLabel.append(part); controls.append(partLabel);
@@ -37,7 +37,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
   const content = create('div', '', 'book-content'); content.setAttribute('aria-live', 'polite'); page.append(content);
   let entries = [], book, index, entry, controller, disposed = false, generation = 0, complete = false, visibleLimit = 60, wantedIndex;
   let sections = [], activeSection, activeRange, blockNodes = new Map(), navigationObserver;
-  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => complete && !disposed, selection: () => generation + ':' + (state.bookWeekday || ''), getSnapshot: () => getDocument() });
+  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => complete && !disposed, selection: () => generation + ':' + (state.bookWeekday || '') + ':' + size.value, getSnapshot: () => getDocument() });
   function dataNode(tag, value, className = '') { const node = create(tag, null, className); node.textContent = value; return node; }
   function save(values, history = false) { Object.assign(state, values); onStateChange(values, { history }); }
   function clearBook() {
@@ -70,8 +70,9 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
     if (found.length > visibleLimit) { const more = create('button', 'Показать ещё', 'reader-button'); more.type = 'button'; more.addEventListener('click', () => { visibleLimit += 60; renderList(); }); list.append(more); }
   }
   search.addEventListener('input', () => { visibleLimit = 60; renderList(); });
-  size.addEventListener('input', () => { page.style.setProperty('--reader-size', size.value + 'px'); save({ textSize: Number(size.value) }); });
-  page.style.setProperty('--reader-size', size.value + 'px');
+  function applySize() { page.style.setProperty('--reader-size', (Number(size.value) / 16) + 'em'); page.style.setProperty('--reader-print-size', Number(size.value) + 'pt'); }
+  size.addEventListener('input', () => { applySize(); save({ textSize: Number(size.value) }); });
+  applySize();
   tone.addEventListener('change', () => { save({ bookTone: tone.value, bookWeekday: '', bookPart: '' }, true); return renderBook(); });
   weekday.addEventListener('change', () => { save({ bookWeekday: weekday.value, bookPart: '' }, true); return renderBook(); });
   part.addEventListener('change', () => chooseSection(part.value));
@@ -228,7 +229,7 @@ export function createBookReader({ base, state, create, onStateChange, onCalenda
         if (tone && item.weekday && !firstDays.has(key)) { firstDays.add(key); return true; }
         return false;
       }).map(item => ({ blockIndex: item.index - activeRange.start, title: item.text, language: 'cu' }));
-      return structuredClone({ kind: 'book', title: displayTitle(book.title), titleLanguage: 'cu', subtitle: activeSection ? sectionLabel(activeSection) : undefined,
+      return structuredClone({ kind: 'book', title: displayTitle(book.title), titleLanguage: 'cu', subtitle: activeSection ? sectionLabel(activeSection) : undefined, readingScale: Number(size.value) / 16,
         status: translate('Книжный текст'), complete: false, warnings: [],
         information: activeSection ? [scopeLabel(activeSection), translate('Открыт только выбранный книжный раздел. Печать и PDF сохраняют этот же объём.')] : [],
         sources: [],

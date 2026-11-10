@@ -20,7 +20,7 @@ function localIsoDate(now = new Date()) {
 }
 
 const state = { view: 'month', date: localIsoDate(), lang: 'ru', profile: 'typikon-strict', eventLimit: 3,
-  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 22, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '', officeMode: 'auto',
+  office: 'third-hour', temple: 'george-victorious', sequence: 'standalone', afterHourHymn: 'vzbrannoi', location: 'nave', textSize: 16, textLanguage: 'auto', rite: 'john-chrysostom', midLentBranch: '', officeMode: 'auto',
   typikaVariant:'',typikaNoLiturgy:false, midnightProfile: 'reader', midnightLocation: 'church', midnightBishopTitle: 'bishop',
   book: '', edition: '', bookGroup: 'minea', bookMonth: '', bookDay: '', bookTone: '', bookWeekday: '', bookPart: '' };
 let slavonicFontUrl = '', slavonicFontFace, loadSequence = 0, daySequence = 0, worshipSequence = 0;
@@ -165,7 +165,7 @@ function readLocation() {
   if (state.office === 'first-hour' && state.sequence === 'before-matins-dismissal') state.afterHourHymn = 'none';
   if (['nave', 'narthex'].includes(params.get('location'))) state.location = params.get('location');
   const size = Number(params.get('textSize'));
-  if (Number.isInteger(size) && size >= 18 && size <= 32) state.textSize = size;
+  if (Number.isInteger(size) && size >= 12 && size <= 32) state.textSize = size;
   readTypikaSelection(params,state);bindTypikaConfirmation(state);
 }
 
@@ -781,13 +781,19 @@ async function showWorship() {
       .then(value => { if (current()) reader.summary.append(renderCalendarHymns({ create: e, state: selected, value })); })
       .catch(() => { if (current()) reader.summary.append(renderCalendarHymns({ create: e, state: selected, error: true })); })
     : Promise.resolve();
+  const slowNotice = selected.office === 'liturgy' ? setTimeout(() => {
+    if (!current() || localApplied || preparedAttempt) return;
+    if (!basisResult) reader.render({ status: 'slow-loading' });
+    else if (basisResult.assignmentsStatus === 'loading') reader.render({ ...basisResult, slowLoading: true });
+  }, 4_000) : null;
   const service = fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, result => {
     basisResult = result;
     if (current() && !localApplied && !preparedAttempt) reader.render(result);
   }, fetch, signal, { probeLocalContext: true }).then(result => {
     basisResult = result;
     if (current() && !localApplied && !preparedAttempt) reader.render(result);
-  }).catch(() => { if (current() && !localApplied && !preparedAttempt) reader.render({ status: 'error' }); });
+  }).catch(() => { if (current() && !localApplied && !preparedAttempt) reader.render({ status: 'error' }); })
+    .finally(() => { if (slowNotice !== null) clearTimeout(slowNotice); });
   await Promise.allSettled([summary, service, hymns]);
 }
 

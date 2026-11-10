@@ -11,6 +11,7 @@ export interface WorshipPdfBlock {
   /** Metadata is retained for consumers; it does not add inferred spoken words. */
   role?: string;
   origin?: string;
+  variableGroup?: string;
 }
 export interface WorshipPdfSnapshot {
   kind: 'book' | 'dated-service';
@@ -22,6 +23,8 @@ export interface WorshipPdfSnapshot {
   status: string;
   /** Daily-service completeness. Book scope is described by its own status/info. */
   complete: boolean;
+  /** User-selected reader scale; 1 means the 16pt worship-reading baseline. */
+  readingScale?: number;
   warnings: string[];
   sources: string[];
   blocks: WorshipPdfBlock[];
@@ -75,6 +78,7 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
   };
   check();
   if (!snapshot.title || !snapshot.status || !snapshot.blocks.length) throw new Error('Empty worship PDF snapshot');
+  if (snapshot.readingScale !== undefined && (!Number.isFinite(snapshot.readingScale) || snapshot.readingScale < .75 || snapshot.readingScale > 2)) throw new Error('Invalid worship PDF text size');
   const data = options.fontBytes ?? await (async () => {
     const [civil, cu, fallback] = await Promise.all([
       fetchFont('DejaVuSerif.ttf'), fetchFont('Ponomar-Regular.ttf'), fetchFont('DejaVuSans.ttf'),
@@ -97,6 +101,13 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
   const placements: WorshipPdfPlacement[] = [];
   const pages: PDFPage[] = [];
   let page!: PDFPage, y = 0;
+  let activeBox: { group: string; page: PDFPage; top: number } | undefined;
+  function drawBox() {
+    if (!activeBox) return;
+    const bottom = Math.max(BOTTOM, y - 6), height = activeBox.top - bottom;
+    if (height > 1) activeBox.page.drawRectangle({ x: MARGIN - 7, y: bottom, width: WIDTH + 14, height,
+      borderColor: MUTED, borderWidth: .5 });
+  }
   function sealPage(previous: PDFPage) {
     // pdf-lib 1.17 retains one JS object per glyph operator until save(). Compress
     // completed page streams now, and open a tiny new stream for later TOC/footer.
@@ -107,8 +118,9 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     state.getContentStream(false);
   }
   function newPage() {
-    if (page) sealPage(page);
+    if (page) { drawBox(); sealPage(page); }
     page = pdf.addPage([...SIZE]); pages.push(page); y = SIZE[1] - MARGIN;
+    if (activeBox) activeBox = { group: activeBox.group, page, top: y };
   }
   newPage();
   function ensure(height: number) { if (y - height < BOTTOM) newPage(); }
@@ -219,8 +231,14 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
     options.onProgress?.(index, snapshot.blocks.length);
     check();
     const block = snapshot.blocks[index]!;
-    const size = block.kind === 'heading' ? 15 : 12;
-    const leading = size * 1.8; // Room for stacked CU superscripts and descenders.
+    if (block.variableGroup !== activeBox?.group) {
+      if (activeBox) { drawBox(); activeBox = undefined; y -= 12; }
+      if (block.variableGroup) { ensure(20); y -= 10; activeBox = { group: block.variableGroup, page, top: y + 1 }; }
+      else activeBox = undefined;
+    }
+    const size = snapshot.readingScale === undefined ? (block.kind === 'heading' ? 15 : 12)
+      : (block.kind === 'heading' ? 18 : 16) * snapshot.readingScale;
+    const leading = size * (snapshot.readingScale === undefined ? 1.8 : 1.5);
     const lines = wrap(block.runs, block.language, size);
     if (block.kind === 'heading') { ensure(leading * Math.min(lines.length, 2) + 35); y -= 8; }
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
@@ -231,9 +249,10 @@ export async function exportWorshipPdf(input: WorshipPdfSnapshot, options: Worsh
       drawLine(lines[lineIndex]!, size, page, y, MARGIN, block.kind === 'warning' ? RED : INK, true);
       if (lineIndex % 48 === 47) await yieldWork();
     }
-    y -= block.kind === 'heading' ? 3 : 7;
+    y -= block.kind === 'heading' ? 3 : snapshot.readingScale === undefined ? 7 : 0;
     if (index % 8 === 7) await yieldWork();
   }
+  drawBox(); activeBox = undefined;
   if (snapshot.warnings.length) {
     y -= 16;
     const closingHeight = snapshot.warnings.reduce((sum, text) => sum + wrap([{ text }], undefined, 9).length * 9 * 1.35 + 5, 0);

@@ -85,7 +85,7 @@ export async function composeArtemy(template,data,state,input,many){
  }
  const entries=template.nodes.flatMap(node=>{const op=ops.get(node.nodeId);if(op?.type==='remove')return [];
   const blocks=op?.blocks||node.blocks;if(!Array.isArray(blocks)||!blocks.length)throw Error('Unfilled prepared slot');
-  return [{...node,kind:'fixed',language:'cu',blocks}];});
+  return [{...node,kind:'fixed',language:'cu',blocks,...(op?.type==='fill'&&node.kind==='slot'?{variableSlotId:node.slotId}:{})}];});
  const composed=entries.flatMap(entry=>entry.blocks);
  if(!await same(composed,data.blocks)||await partsHash(composed)!==data.composedBlocksHash)throw Error('Changed prepared composition');
  return {status:'parts',assignmentsStatus:'complete',complete:false,preparedPrintedBook:true,localValuesApplied:true,localTempleId:state.temple,

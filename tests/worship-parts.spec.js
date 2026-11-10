@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { templateFor, assignmentsFor, hash } from './fixtures/worship-parts.mjs';
 import { composeParts, fetchWorshipParts, validateTemplate } from '../public/calendar-ui/worship-parts.js';
 import { createHash } from 'node:crypto';
@@ -6,6 +6,36 @@ import { createHash } from 'node:crypto';
 const state = { office: 'sixth-hour', date: '2026-10-12', sequence: 'after-third-hour', temple: 'george-victorious', afterHourHymn: 'vzbrannoi', location: 'nave', textLanguage: 'cu-civil' };
 const clone = value => structuredClone(value);
 describe('source-bound worship parts', () => {
+  it('allows a slow Liturgy request while retaining cancellation and the shorter Hour limit', async () => {
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    const controller = new AbortController();
+    const selected = { ...state, office: 'liturgy', sequence: 'default', textLanguage: 'cu' };
+    let start; const started = new Promise(resolve => { start = resolve; });
+    const request = fetchWorshipParts('https://bible.example', selected, () => {}, async (_url, options) => {
+      start(); return new Promise((_resolve, reject) => options.signal.addEventListener('abort', () => reject(options.signal.reason), { once: true }));
+    }, controller.signal);
+    await started; expect(timeout).toHaveBeenCalledWith(150_000);
+    controller.abort(); await expect(request).rejects.toMatchObject({ name: 'AbortError' });
+    const hour = { ...state }; const template = templateFor(hour.office);
+    await fetchWorshipParts('https://bible.example', hour, () => {}, async url => ({ status: 200, json: async () => ({ data: url.pathname.includes('/templates/') ? template : assignmentsFor(template, hour, false) }) }));
+    expect(timeout).toHaveBeenCalledWith(20_000); timeout.mockRestore();
+  });
+  it('keeps the Liturgy request alive through a 34-second assignment response', async () => {
+    vi.useFakeTimers();
+    const timeout = vi.spyOn(AbortSignal, 'timeout').mockImplementation(ms => {
+      const controller = new AbortController(); setTimeout(() => controller.abort(new DOMException('Timeout', 'TimeoutError')), ms); return controller.signal;
+    });
+    try {
+      const selected = { ...state, office: 'liturgy', date: '2026-11-10', sequence: 'default', textLanguage: 'cu-civil' };
+      const template = templateFor('liturgy'), assignment = assignmentsFor(template, selected, false);
+      const fetcher = async url => url.pathname.includes('/templates/')
+        ? { status: 200, json: async () => ({ data: template }) }
+        : new Promise(resolve => setTimeout(() => resolve({ status: 200, json: async () => ({ data: assignment }) }), 34_000));
+      const request = fetchWorshipParts('https://bible.example', selected, () => {}, fetcher);
+      await vi.advanceTimersByTimeAsync(34_001);
+      expect((await request).assignmentsStatus).toBe('partial');
+    } finally { timeout.mockRestore(); vi.useRealTimers(); }
+  });
   function fixedLiturgy() {
     const template = templateFor('liturgy');
     Object.assign(template, { status: 'fixed-template', cleanTemplate: true, compositionReady: true, wholeLiturgyAccepted: false,

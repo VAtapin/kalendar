@@ -15,7 +15,8 @@ describe('printing the displayed worship body', () => {
     const css = readFileSync(new URL('../public/calendar-ui/web-calendar.css', import.meta.url), 'utf8');
     expect(css).toMatch(/@page worship\s*\{\s*size: A4;\s*margin: 16mm;/);
     expect(css).toContain('page: worship;');
-    expect(css).toContain('--reader-size: 12pt !important;');
+    expect(css).toContain('--reader-size: var(--reader-print-size, 16pt) !important;');
+    expect(css).toContain('.worship-block { white-space: pre-wrap; margin: 0; }');
     expect(css).toContain('body:has(.worship-page) main > :not(.shell)');
     expect(css).toContain('.worship-controls, .worship-navigation');
     expect(css.slice(css.indexOf('@media print'))).toContain('.calendar-hour-hymns');

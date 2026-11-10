@@ -32,7 +32,7 @@ function element(tag: string, attributes = {}, ...children: (string | NodeFixtur
 describe('displayed reader PDF snapshot', () => {
   it('retains exact mixed segments, repeated labels, user provenance and appendix, excluding other articles', () => {
     const body = element('article', {},
-      element('section', { 'data-text-language': 'cu', 'data-origin': 'user-provided', 'data-role': 'priest' },
+      element('section', { 'data-text-language': 'cu', 'data-origin': 'user-provided', 'data-role': 'priest', 'data-variable-group': 'daily-hymn' },
         element('h3', {}, 'Источник'),
         element('p', {}, element('span', {}, 'І҆ѡа́ннъ'), ' ', element('span', { class: 'rubric' }, '(трижды)'))),
       element('aside', { class: 'worship-missing' }, element('strong', {}, 'Часть'), element('p', {}, 'Не определена.')),
@@ -42,7 +42,7 @@ describe('displayed reader PDF snapshot', () => {
     const snapshot = captureWorshipPdf(body as unknown as Element, { kind: 'dated-service', title: 'Reader', information: [], status: 'Partial', complete: false,
       warnings: ['No assignment'], sources: [], labels: { contents: 'Contents', sources: 'Sources', incomplete: 'Incomplete', page: 'Page' } });
     expect(snapshot.blocks).toHaveLength(5);
-    expect(snapshot.blocks[1]).toMatchObject({ language: 'cu', role: 'priest', origin: 'user-provided', runs: [
+    expect(snapshot.blocks[1]).toMatchObject({ language: 'cu', role: 'priest', origin: 'user-provided', variableGroup: 'daily-hymn', runs: [
       { text: 'І҆ѡа́ннъ', rubric: false, language: 'cu' }, { text: ' ', rubric: false, language: 'cu' }, { text: '(трижды)', rubric: true, language: 'cu' },
     ] });
     expect(snapshot.blocks[2]).toMatchObject({ kind: 'warning' });

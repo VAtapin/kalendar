@@ -48,7 +48,7 @@ describe('Artemy private transport', () => {
     expect(calls[1].options.credentials).toBe('omit'); expect(calls[1].options.cache).toBe('no-store');
     expect(JSON.parse(calls[1].options.body)).toMatchObject({ localContext, manyYearsContext });
     expect(calls[0].url.href).not.toContain('Тест');
-    expect(timeout).toHaveBeenCalledWith(120_000); timeout.mockRestore();
+    expect(timeout).toHaveBeenCalledWith(150_000); timeout.mockRestore();
   });
   it('aborts a pending private response before it can be read or applied', async () => {
     let resolvePost, postStarted; const started = new Promise(resolve => { postStarted = resolve; });

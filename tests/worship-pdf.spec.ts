@@ -17,6 +17,30 @@ function fixture(): WorshipPdfSnapshot {
     ] };
 }
 describe('real worship PDF export', () => {
+  it('uses a readable 16pt baseline and follows the selected reader scale', async () => {
+    const source = fixture(); source.blocks = [{ kind: 'paragraph', language: 'cu', runs: [{ text: 'Господи, помилуй.' }] }];
+    for (const [scale, expected] of [[1, 16], [1.25, 20], [.75, 12]]) {
+      source.readingScale = scale;
+      const pdf = await exportWorshipPdf(source, { fontBytes, collectPlacements: true });
+      expect(pdf.placements.find(p => p.text.includes('Господи'))?.size).toBe(expected);
+      expect(pdf.placements.every(p => p.x + p.width <= 549.277 && p.y >= 49)).toBe(true);
+    }
+  });
+  it('continues a variable-text frame across pages without losing text', async () => {
+    const rectangles = vi.spyOn(PDFPage.prototype, 'drawRectangle');
+    try {
+      const source = fixture(); source.readingScale = 1;
+      source.blocks = [{ kind: 'heading', variableGroup: 'day', runs: [{ text: 'Тропарь' }] },
+        { kind: 'paragraph', variableGroup: 'day', runs: [{ text: 'слово '.repeat(900) }] }];
+      const result = await exportWorshipPdf(source, { fontBytes, collectPlacements: true });
+      expect(result.pageCount).toBeGreaterThan(1); expect(rectangles.mock.calls.length).toBeGreaterThan(1);
+      for (const [rect] of rectangles.mock.calls) {
+        expect(rect!.y).toBeGreaterThanOrEqual(49); expect(rect!.height).toBeGreaterThan(0);
+        expect(rect!.y! + rect!.height!).toBeLessThanOrEqual(796);
+      }
+      expect(result.placements.filter(p => p.size === 16).map(p => p.text).join('')).toBe('слово '.repeat(900));
+    } finally { rectangles.mockRestore(); }
+  });
   it('draws the Orthodox cross with four vector lines and never prints provenance, even from older snapshots', async () => {
     const lines = vi.spyOn(PDFPage.prototype, 'drawLine');
     const source = fixture(); source.sources = ['https://source.example/private-edition'];

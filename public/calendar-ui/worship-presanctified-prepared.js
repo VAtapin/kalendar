@@ -141,7 +141,7 @@ export async function composePreparedPresanctified(publicTemplate,body,state,req
    ||receipt.currentAuthorityAttestation!==false||!await same(receipt.operationIndexes,userIndexes))throw Error('Changed prepared communion receipt');
  const entries=[];
  for(const n of t.nodes){const op=operations.get(n.nodeId);if(op?.type==='remove')continue;const blocks=op?.blocks||n.blocks;
-  if(!Array.isArray(blocks)||!blocks.length)throw Error('Unfilled prepared source slot');entries.push({...n,kind:'fixed',blocks,language:'cu'});
+  if(!Array.isArray(blocks)||!blocks.length)throw Error('Unfilled prepared source slot');entries.push({...n,kind:'fixed',blocks,language:'cu',...(op?.type==='fill'&&n.kind==='slot'?{variableSlotId:n.slotId}:{})});
  }
  const blocks=entries.flatMap(e=>e.blocks);
  if(await partsHash(blocks)!==a.composedBlocksHash||!await same(blocks,a.blocks))throw Error('Changed prepared printed body');

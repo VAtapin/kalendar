@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fetchWorshipParts } from '../public/calendar-ui/worship-parts.js';
 import { renderWorshipReader } from '../public/calendar-ui/worship-reader.js';
@@ -45,8 +45,13 @@ try {
   reader.render(result);
   await reader.page.querySelectorAll('button').find(button => button.textContent === 'Печать службы').events.click();
   await reader.page.querySelectorAll('button').find(button => button.textContent === 'Скачать PDF').events.click();
+  const repeats = reader.page.querySelectorAll('p').filter(node => node.dataset.repeatCount);
+  assert.ok(repeats.some(node => node.dataset.repeatCount === '12' && node.textContent.includes('в҃і')));
+  assert.ok(snapshot.blocks.some(block => block.runs.some(run => run.text === 'в҃і' && run.rubric === true)));
+  assert.ok(snapshot.blocks.some(block => block.runs.some(run => run.text.includes('Сла́ва:') && run.rubric === true)));
   const fonts = { civil: await readFile('public/fonts/DejaVuSerif.ttf'), cu: await readFile('public/fonts/Ponomar-Regular.ttf'), fallback: await readFile('public/fonts/DejaVuSans.ttf') };
   const pdf = await exportWorshipPdf(snapshot, { fontBytes: fonts });
+  if (process.argv.includes('--pdf')) await writeFile('tmp/pdfs/first-season-presentation-review.pdf', pdf.bytes);
   assert.ok(printed && snapshot.blocks.length && pdf.bytes.length);
   console.log(JSON.stringify({ blocks: full.data.blocks.length, snapshotBlocks: snapshot.blocks.length, pages: pdf.pageCount, negative: 7, actualBody: true })); reader.dispose();
 } finally { restore(); }

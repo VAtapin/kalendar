@@ -184,9 +184,10 @@ dialog::backdrop { background: #18291e88; }
 .calendar-text.cu .event-card h4, .calendar-text.cu .hero h3 { font-family: "Calendar API Slavonic", serif; }
 @font-face { font-family: "Calendar Liturgical Slavonic"; src: url("/fonts/Ponomar-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: "Calendar Civil Text"; src: url("/fonts/DejaVuSerif.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
-[data-text-language="cu"] { font-family: "Calendar Liturgical Slavonic", serif; font-size: 21px; line-height: 1.85; }
+[data-text-language="cu"] { font-family: "Calendar Liturgical Slavonic", serif; font-size: 1em; line-height: 1.5; }
 [data-text-language="cu-civil"], [data-text-language="ru"] { font-family: "Calendar Civil Text", serif; font-size: 18px; line-height: 1.75; }
-.worship-text [data-text-language], .worship-text[data-text-language] { font-size: var(--reader-size, 22px); }
+.worship-text [data-text-language] { font-size: inherit; }
+.worship-text[data-text-language] { font-size: var(--reader-size, 1em); }
 .worship-missing { margin: 18px 0; padding: 12px 16px; border: 1px dashed var(--gold); border-radius: 8px; background: #f9f7ef; color: var(--muted); font: 15px/1.5 system-ui, sans-serif; }
 .worship-missing p { margin: 5px 0 0; }
 .outline-missing, .worship-navigation, .worship-appendix { margin: 18px 0; }
@@ -225,9 +226,13 @@ dialog::backdrop { background: #18291e88; }
 .worship-navigation { scroll-margin-top: 20px; }
 .worship-to-toc { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 20; box-shadow: 0 3px 12px #0002; }
 .worship-to-toc[hidden] { display: none; }
-.worship-text { font-size: var(--reader-size, 22px); padding: 10px 0 40px; overflow-wrap: anywhere; }
-.worship-block { white-space: pre-wrap; margin: 1em 0; }
+.worship-text { font-size: var(--reader-size, 1em); padding: 10px 0 40px; overflow-wrap: anywhere; }
+.worship-variable { border: 1px solid #b9aa94; border-radius: 4px; padding: 0 14px; margin: 14px 0; }
+.worship-variable > h3 { margin-top: .6em; }
+.worship-next { display: block; width: 100%; min-height: 64px; margin: 24px 0; font-size: 1.15rem; }
+.worship-block { white-space: pre-wrap; margin: 0; }
 .worship-text h3 { font-size: 1.15em; margin-top: 1.5em; scroll-margin-top: 20px; }
+.worship-text h3.worship-block { margin: 0; }
 .worship-text .rubric { color: #9c3027; }
 .worship-text .parallel-prayer { border-left: 2px solid var(--line); padding-left: 15px; }
 
@@ -269,7 +274,7 @@ dialog::backdrop { background: #18291e88; }
   body:has(.worship-page) #status,
   .book-section-navigation, .book-section-toc, .reader-pdf-controls, .worship-page button, .worship-controls, .worship-navigation, .worship-local-context, .calendar-hour-hymns, .book-catalog, .reader-back-to-contents { display: none !important; }
   body:has(.worship-page) .content { border: 0; box-shadow: none; padding: 0; }
-  .worship-page { page: worship; max-width: none; --reader-size: 12pt !important; }
+  .worship-page { page: worship; max-width: none; --reader-size: var(--reader-print-size, 16pt) !important; }
   .worship-text { overflow: visible; }
   .book-content > a[href]::after { content: " (" attr(href) ")"; overflow-wrap: anywhere; }
   .worship-block { orphans: 3; widows: 3; }

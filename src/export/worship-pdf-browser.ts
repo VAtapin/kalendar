@@ -23,6 +23,7 @@ export function captureWorshipPdf(body: Element, metadata: Omit<WorshipPdfSnapsh
         runs: captured, language: languageOf(element),
         role: element.closest('[data-role]')?.getAttribute('data-role') ?? undefined,
         origin: element.closest('[data-origin]')?.getAttribute('data-origin') ?? undefined,
+        variableGroup: element.closest('[data-variable-group]')?.getAttribute('data-variable-group') ?? undefined,
       });
       return;
     }

@@ -191,6 +191,7 @@ export async function composeParts(template, assignments, state) {
     }
     return op.blocks.map((block, index) => ({ nodeId: node.nodeId, kind: 'fixed', section: node.section,
       role: node.role, parallelGroup: node.parallelGroup, delivery: node.delivery,
+      ...(node.kind === 'slot' && node.slotId !== 'seasonal-office' ? { variableSlotId: node.slotId } : {}),
       language: sourceLanguage(op.blockSources[index]), blocks: [block] }));
   });
   if (assignments.status === 'complete') {
@@ -215,7 +216,7 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
   if (state.office === 'typika') return fetchTypikaParts(base,state,fetcher,signal);
   if (firstSeasonSelected(state)) return fetchFirstSeason(base, state, fetcher, worshipRequestSignal(signal, 120_000), options.localContext, options.isCurrent);
   if (isArtemyContext(state) && !Object.hasOwn(options, 'manyYearsContext')) return { status: 'artemy-context-required' };
-  const requestSignal = worshipRequestSignal(signal, Object.hasOwn(options, 'manyYearsContext') ? 120_000 : 20_000);
+  const requestSignal = worshipRequestSignal(signal, state.office === 'liturgy' ? 150_000 : 20_000);
   let modeGated=false;
   const request = async (path, params = {}, body, validationProbe = false, allowLegacyTemplate = false) => {
     requestSignal.throwIfAborted();

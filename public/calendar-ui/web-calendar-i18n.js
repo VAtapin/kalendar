@@ -1,4 +1,9 @@
 export const UI_DE = {
+    "Постоянный текст загружен. Уточнение переменных частей может занять несколько минут.": "Der feste Text ist geladen. Die Ermittlung der wechselnden Teile kann einige Minuten dauern.",
+    "Литургия ещё загружается. Подготовка текста может занять несколько минут.": "Die Liturgie wird noch geladen. Die Vorbereitung des Textes kann einige Minuten dauern.",
+    "Не удалось загрузить Литургию. Проверьте соединение и попробуйте ещё раз.": "Die Liturgie konnte nicht geladen werden. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
+    "Следующая служба: Третий час →": "Nächster Gottesdienst: Dritte Stunde →",
+    "Следующая служба: Шестой час →": "Nächster Gottesdienst: Sechste Stunde →",
     "После утрени, до её отпуста; без заключительного песнопения": "Nach der Matutin, vor ihrer Entlassung; ohne Schlussgesang",
     "Имена для отпуста утрени": "Namen für die Entlassung der Matutin",
     "Введите готовые формы имён в винительном падеже. Для выбранного печатного варианта указаны патриарх и епископ.": "Geben Sie die fertigen Namensformen im Akkusativ ein. Die gewählte Druckfassung nennt Patriarch und Bischof.",

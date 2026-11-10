@@ -11,7 +11,7 @@ import { midnightPresentationEntries } from './worship-midnight-presentation.js'
 import { MIDNIGHT_PROFILES, MIDNIGHT_LOCATIONS, MIDNIGHT_BISHOP_TITLES } from './worship-midnight-context.js';
 // Public Bible Desktop contracts. Availability is always resolved by the server.
 import { sourceLanguage } from './worship-parts.js';
-import { compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
+import { abbreviatedDoxology, compactRepetitions, repetitionEntries, repetitionNumber } from './worship-repeats.js';
 export const OFFICES = {
   'midnight-office': 'Полунощница', 'first-hour': 'Первый час', 'third-hour': 'Третий час',
   'sixth-hour': 'Шестой час', 'ninth-hour': 'Девятый час', liturgy: 'Литургия',
@@ -201,16 +201,22 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     label.append(confirmation,create('span','Подтверждаю: Изобразительны читаются без Литургии.'));controls.append(label);
   }
   const sizeLabel = create('label', 'Размер текста', 'control'), size = create('input');
-  size.type = 'range'; size.min = '18'; size.max = '32'; size.value = String(state.textSize);
-  size.addEventListener('input', () => { state.textSize = Number(size.value); onChange('textSize', state.textSize); page.style.setProperty('--reader-size', size.value + 'px'); });
+  size.type = 'range'; size.min = '12'; size.max = '32'; size.value = String(state.textSize ?? 16);
+  size.addEventListener('input', () => { state.textSize = Number(size.value); onChange('textSize', state.textSize); page.style.setProperty('--reader-size', (state.textSize / 16) + 'em'); page.style.setProperty('--reader-print-size', state.textSize + 'pt'); });
   sizeLabel.append(size); controls.append(sizeLabel); page.append(controls);
-  page.style.setProperty('--reader-size', state.textSize + 'px');
+  page.style.setProperty('--reader-size', ((state.textSize ?? 16) / 16) + 'em');
+  page.style.setProperty('--reader-print-size', (state.textSize ?? 16) + 'pt');
   const modeHost=create('label','Вариант подготовки','control');modeHost.hidden=true;controls.append(modeHost);
   const localHost = create('div'); localHost.hidden = true; page.append(localHost);
   const summary = create('div', '', 'worship-day-summary');
   const content = create('div', '', 'worship-content'); content.setAttribute('aria-live', 'polite');
   const loading = create('p', 'Загружаю службу…', 'hint'); loading.setAttribute('role', 'status');
   content.append(loading); page.append(summary, content);
+  const nextHour = { 'first-hour': ['third-hour', 'Третий час'], 'third-hour': ['sixth-hour', 'Шестой час'] }[state.office];
+  if (nextHour && onChange) {
+    const next = create('button', 'Следующая служба: ' + nextHour[1] + ' →', 'reader-button worship-next');
+    next.type = 'button'; next.addEventListener('click', () => onChange('office', nextHour[0])); page.append(next);
+  }
   const printButton = create('button', 'Печать службы', 'reader-button worship-print');
   printButton.type = 'button'; printButton.disabled = true;
   let disposed = false, renderVersion = 0;
@@ -230,7 +236,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
   });
   controls.append(printButton);
   let navigationObserver, localForm, snapshotProvider, pdfReady = false;
-  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage, state.officeMode || 'auto',state.typikaVariant||'',state.typikaNoLiturgy===true]), getSnapshot: module => snapshotProvider?.(module) });
+  const pdf = createReaderPdfControls({ create, load: pdfLoad, host: controls, available: () => !disposed && isCurrent() && pdfReady && !!snapshotProvider, selection: () => JSON.stringify([renderVersion, state.date, state.office, state.rite, state.midLentBranch, state.temple, state.sequence, state.textLanguage, state.textSize, state.officeMode || 'auto',state.typikaVariant||'',state.typikaNoLiturgy===true]), getSnapshot: module => snapshotProvider?.(module) });
   function render(result) {
     ++renderVersion; snapshotProvider = null; pdf.refresh();
     printButton.disabled = !['ready', 'parts'].includes(result.status) || result.assignmentsStatus === 'loading';
@@ -276,6 +282,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     if (!['ready', 'parts'].includes(result.status)) {
       const messages = {
+        'slow-loading': 'Литургия ещё загружается. Подготовка текста может занять несколько минут.',
         'first-season-context-required': 'Введите и подтвердите формы имён для завершения отпуста утрени.',
         'artemy-context-required':'Введите и подтвердите местные формы для подготовки выбранного печатного чина.',
         'prepared-loading':'Подготавливаю выбранный печатный чин…',
@@ -286,11 +293,11 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         pending: 'BibleDesktop пока не смог составить эту службу для выбранного дня. Назначения переменных частей требуют уточнения.',
         unavailable: 'Эта служба пока недоступна. Её можно проверить позднее.',
         'not-appointed': 'Литургия в этот день не назначена.',
-        error: 'Не удалось загрузить службу. Попробуйте ещё раз.',
+        error: state.office === 'liturgy' ? 'Не удалось загрузить Литургию. Проверьте соединение и попробуйте ещё раз.' : 'Не удалось загрузить службу. Попробуйте ещё раз.',
       };
       const message = create('p', messages[result.status] || messages.error, 'reader-message');
       message.setAttribute('role', 'status'); content.append(message);
-      if (!['not-appointed', 'context-required', 'artemy-context-required', 'first-season-context-required', 'prepared-loading', 'prepared-unavailable'].includes(result.status)) {
+      if (!['not-appointed', 'context-required', 'artemy-context-required', 'first-season-context-required', 'slow-loading', 'prepared-loading', 'prepared-unavailable'].includes(result.status)) {
         const retry = create('button', 'Проверить доступность', 'reader-button');
         retry.type = 'button'; retry.addEventListener('click', onRetry); content.append(retry);
       }
@@ -340,7 +347,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
       if (result.template?.status === 'fixed-template' && !result.preparedPrintedBook) content.append(create('p', 'Постоянная основа Литургии: один священник и один диакон.', 'edition-label'));
       if (result.fallback) content.append(create('p', 'Церковнославянская редакция пока недоступна; показана следующая доступная редакция.', 'reader-message'));
       const notices = {
-        loading: 'Постоянный текст загружен. Уточняю переменные части дня…',
+        loading: result.slowLoading ? 'Постоянный текст загружен. Уточнение переменных частей может занять несколько минут.' : 'Постоянный текст загружен. Уточняю переменные части дня…',
         partial: result.additionalFixed ? 'Обязательные вставки отмечены в тексте. Полная служба выбранной даты не составлена.' : state.office === 'liturgy' ? 'Постоянный текст Литургии и подтверждённые дневные вставки показаны. Неопределённые части отмечены; полная служба этого дня ещё не подтверждена.'
           : 'Показана постоянная основа обычного Часа. Неопределённые вставки отмечены в тексте; полный порядок этого дня пока не подтверждён.',
         error: 'Постоянный текст доступен. Дневные назначения сейчас не получены; места вставок отмечены в тексте.',
@@ -403,6 +410,12 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         continue;
       }
       const part = create('section', '', 'worship-part');
+      if (entry.variableSlotId) {
+        part.classList.add('worship-variable');
+        part.dataset.variableGroup = entry.nodeId || entry.variableSlotId;
+        const heading = slotNames[entry.variableSlotId];
+        if (heading && !entry.blocks.some(block => block.kind === 'heading')) part.append(create('h3', heading));
+      }
       if (result.template?.status === 'fixed-template' || result.preparedPrintedBook) {
         if (entry.role) part.dataset.role = entry.role;
         const parallelGroup = entry.parallelGroup || Object.entries(result.template.parallelGroups || {}).find(([, group]) =>
@@ -436,13 +449,15 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
         if (Number.isInteger(block.tone) && block.tone >= 1 && block.tone <= 8) {
           const tone = create('small', 'Глас', 'edition-label'); tone.append(document.createTextNode(' ' + block.tone)); node.append(tone);
         }
-        for (const segment of block.segments) {
+        const abbreviation = abbreviatedDoxology(block);
+        for (const segment of abbreviation ? [{ text: abbreviation, style: 'rubric' }] : block.segments) {
           const span = create('span', null, segment.style === 'rubric' ? 'rubric' : '');
           span.textContent = segment.text; node.append(span);
         }
         if (count > 1) {
           node.dataset.repeatCount = String(count);
           const number = create('span', null, 'rubric repetition-number');
+          number.dataset.textLanguage = 'cu'; number.lang = 'cu';
           number.textContent = repetitionNumber(count, entry.language);
           node.append(document.createTextNode(' '), number);
         }
@@ -506,6 +521,7 @@ export function renderWorshipReader({ state, create, formatDate, onChange, onCal
     }
     snapshotProvider = module => module.captureWorshipPdf(body, {
       kind: result.preparedPrintedBook ? 'book' : 'dated-service', title: head.children[0].textContent, subtitle: formatDate(state.date),
+      readingScale: (state.textSize ?? 16) / 16,
       status: create('span', coverageLabel(result)).textContent, complete: result.status === 'ready' || result.complete === true || result.preparedPrintedBook === true,
       information: [contextLabel.textContent, ...missingSummary, ...[...content.children].filter(node => ['reader-message', 'edition-label'].some(name => node.classList.contains(name))).map(node => node.textContent)].filter(Boolean),
       warnings: result.typikaPrepared || result.preparedPrintedBook?[]:result.status === 'ready' || result.complete ? [] : [create('span', 'Полная служба выбранной даты не составлена.').textContent, ...[...content.children].filter(node => node.classList.contains('outline-missing')).map(node => node.textContent)],

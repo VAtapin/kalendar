@@ -14,6 +14,26 @@ function render(result) {
     coverage: nodes.find(node => node.className === 'worship-coverage') };
 }
 describe('service completeness in the reader', () => {
+  it('offers the next Hour as navigation without changing the selected date, temple or language', () => {
+    const selected = { ...state, office: 'third-hour', sequence: 'standalone' }, before = structuredClone(selected), onChange = vi.fn();
+    const reader = renderWorshipReader({ state: selected, create, formatDate: date => date, onChange });
+    const button = descendants(reader.page).find(node => node.className.includes('worship-next'));
+    expect(button.textContent).toContain('Шестой час'); button.events.click();
+    expect(onChange).toHaveBeenCalledWith('office', 'sixth-hour'); expect(selected).toEqual(before); reader.dispose();
+  });
+  it('starts at one em and allows smaller and larger reading text', () => {
+    const selected = { ...state, textSize: 16 }, onChange = vi.fn();
+    const createWithStyle = (...args) => { const node = create(...args); node.style.setProperty = vi.fn(); return node; };
+    const reader = renderWorshipReader({ state: selected, create: createWithStyle, formatDate: date => date, onChange });
+    const slider = descendants(reader.page).find(node => node.type === 'range');
+    expect(slider.min).toBe('12'); expect(slider.max).toBe('32');
+    expect(reader.page.style.setProperty).toHaveBeenCalledWith('--reader-size', '1em');
+    slider.value = '12'; slider.events.input(); expect(onChange).toHaveBeenCalledWith('textSize', 12);
+    expect(reader.page.style.setProperty).toHaveBeenCalledWith('--reader-size', '0.75em');
+    slider.value = '20'; slider.events.input(); expect(reader.page.style.setProperty).toHaveBeenCalledWith('--reader-size', '1.25em');
+    expect(reader.page.style.setProperty).toHaveBeenCalledWith('--reader-print-size', '20pt');
+    reader.dispose();
+  });
   it('labels the prepared Midnight scope positively and keeps user names distinct without a new incomplete warning', () => {
     const selected = { ...state, office: 'midnight-office', sequence: 'standalone', midnightProfile: 'reader', midnightLocation: 'church' };
     const reader = renderWorshipReader({ state: selected, create, formatDate: date => date });
