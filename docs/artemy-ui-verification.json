@@ -1,0 +1,13 @@
+{
+  "backendCaptureHead": "3e47dd1234f41b82c0c5a19752419805e63add57",
+  "capture": "Original local API response bodies, synthetic personal inputs, SQLite in memory; HTTP status and private/no-store headers asserted by backend test, not recorded as raw envelopes.",
+  "templateSha256": "0b43ec5b07cd8258f7812f78738258b929e6d9abda895b0936b8efa6c7878065",
+  "cases": [
+    {"date": "2026-11-02", "sha256": "f77dfa653de50660cca6b937fb065bca44531c3992e0a326d6e1c66f57089609", "blocks": 864, "negativeChecks": 8},
+    {"date": "2027-11-02", "sha256": "d71a8d962a97bbe4c1125fbf839be1a769f1e94aff1d43878c5e1e7056c9762e", "blocks": 865, "negativeChecks": 8}
+  ],
+  "scope": "George temple, Church Slavonic, automatic mode; complete selected printed book only. Appointment, actual schedule, performance and authority flags remain false.",
+  "verification": "Offline replay of original bodies and actual template; source, operation and template fingerprints; synthetic variable literals; 50 targeted Vitest tests and 19 after heading change; production build and built-PDF check passed.",
+  "pdf": "48 pages generated from actual template and original response; Unicode parity, glyph coverage and hidden sources passed; first and last pages visually reviewed.",
+  "production": "Not deployed or verified; browser and real private POST not used."
+}

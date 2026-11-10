@@ -1,4 +1,6 @@
 import {fetchPreparedPresanctified} from './worship-presanctified-prepared.js';
+import { buildArtemyPost } from './worship-artemy-request.js';
+import { composeArtemy } from './worship-artemy-composer.js';
 import {requestedOfficeMode,validateServiceMode,officeModeUnavailable} from './worship-office-mode.js';
 import {PAIR_SECTION,MODE_PAIR_SECTION} from './worship-antiphon-pair.js';
 import { fetchMidnightParts } from './worship-midnight.js';
@@ -210,6 +212,22 @@ export async function fetchWorshipParts(base, state, onBase = () => {}, fetcher 
     language = candidate; break;
   }
   if (!template) return { status: 'edition-unavailable' };
+  if (Object.hasOwn(options, 'manyYearsContext')) {
+    const body = buildArtemyPost(state, template.templateVersion, options.localContext, options.manyYearsContext);
+    const url = new URL('/api/v1/liturgical/assignments/liturgy', base);
+    const response = await fetcher(url, { method: 'POST', credentials: 'omit', cache: 'no-store',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: requestSignal });
+    requestSignal.throwIfAborted();
+    if (options.isCurrent && !options.isCurrent()) throw new DOMException('Stale preparation', 'AbortError');
+    const cache = (response.headers?.get('cache-control') || '').toLowerCase().split(',').map(value => value.trim());
+    if (response.status !== 200 || !cache.includes('private') || !cache.includes('no-store') || cache.includes('public')) throw Error('Private preparation unavailable');
+    const payload = await response.json();
+    requestSignal.throwIfAborted();
+    const result = await composeArtemy(template, payload.data, state, options.localContext, options.manyYearsContext);
+    requestSignal.throwIfAborted();
+    if (options.isCurrent && !options.isCurrent()) throw new DOMException('Stale preparation', 'AbortError');
+    return result;
+  }
   modeGated=!!template.sections?.[MODE_PAIR_SECTION];
   if(modeGated)requestedOfficeMode(state);
   else if(Object.hasOwn(state,'officeMode')&&state.officeMode!=='auto')throw Error('Office mode requires a mode-gated traditional Liturgy');

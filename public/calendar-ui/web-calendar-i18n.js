@@ -1,4 +1,13 @@
 export const UI_DE = {
+    "По выбранной дате": "Für das gewählte Datum",
+    "Подготовить печатный чин": "Gedruckten Ritus vorbereiten",
+    "Митрополит — предложный падеж (о ком?)": "Metropolit – Präpositiv (über wen?)",
+    "Митрополит — винительный падеж (кого?)": "Metropolit – Akkusativ (wen?)",
+    "Причастник — именительный падеж (кто?)": "Kommunikant – Nominativ (wer?)",
+    "Митрополит с титулом — винительный падеж для многолетия": "Metropolit mit Titel – Akkusativ für das Vieljahresgebet",
+    "Подтверждаю точность формы для многолетия.": "Ich bestätige die Richtigkeit der Form für das Vieljahresgebet.",
+    "Подтверждаю точность введённых форм имён.": "Ich bestätige die Richtigkeit der eingegebenen Namensformen.",
+    "Не удалось подготовить выбранный печатный чин.": "Der gewählte gedruckte Ritus konnte nicht vorbereitet werden.",
     "Полный текст выбранного печатного чина": "Vollständiger Text des gewählten gedruckten Ritus",
     "Выбранный печатный чин.": "Gewählter gedruckter Ritus.",
     "Подготавливаю выбранный печатный чин…": "Der gewählte gedruckte Ritus wird vorbereitet…",

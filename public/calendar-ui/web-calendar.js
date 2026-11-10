@@ -728,12 +728,14 @@ async function showWorship() {
     onRetry: () => void load(),
     onLocalDirty: clearLocal, onLocalClear: clearLocal,
     onLocalSubmit: async (localContext, pending) => {
-      const prepared = Object.hasOwn(pending, 'preparedSourceChoices');
+      const prepared = Object.hasOwn(pending, 'preparedSourceChoices') || Object.hasOwn(pending, 'manyYearsContext');
       if (prepared) { preparedAttempt = true; localApplied = false; reader.render({ status: 'prepared-loading' }); }
       try {
         const result = await fetchWorshipParts(globalThis.KalendarConfig.publicApiUrl, selected, () => {}, fetch,
           AbortSignal.any([signal, pending.signal]), { localContext, printedVariantConfirmed: pending.printedVariantConfirmed,
-            ...(prepared ? { preparedSourceChoices: pending.preparedSourceChoices, isCurrent: pending.isCurrent } : {}) });
+            ...(Object.hasOwn(pending, 'preparedSourceChoices') ? { preparedSourceChoices: pending.preparedSourceChoices } : {}),
+            ...(Object.hasOwn(pending, 'manyYearsContext') ? { manyYearsContext: pending.manyYearsContext } : {}),
+            ...(prepared ? { isCurrent: pending.isCurrent } : {}) });
         if (!result.localValuesApplied) throw new Error('Local values unavailable');
         if (current() && pending.isCurrent()) { localApplied = true; reader.render(result); }
       } catch (error) {
