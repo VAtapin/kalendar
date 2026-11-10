@@ -82,6 +82,20 @@ async function seasonalBlockSource(block, sources) {
   return offset === chars.length && new Set(identified.map(sourceLanguage)).size === 1 ? identified[0] : null;
 }
 
+// The ordinary Palm Sunday provider replaces exactly this small dismissal.
+async function palmDismissalSource(node, operation, assignments, state) {
+  if (!['first-hour', 'ninth-hour'].includes(state.office) || assignments.status !== 'complete'
+    || node?.kind !== 'fixed' || node.role !== 'priest' || node.blocks?.length !== 1
+    || node.blocks[0].slot !== 'fixed:small-hour-dismissal' || operation.blocks?.length !== 1) return null;
+  const block = operation.blocks[0], p = block?.provenance;
+  if (block?.slot !== 'fixed:small-hour-dismissal' || block.role !== 'priest' || p?.work !== 'whole-cu-sluzhebnik-archive'
+    || p.block !== 1210 || await partsHash(p.sourceRange) !== 'c026233cab3760f594a0f3839c3dc6f7fc8e6fb1ffa86209eb626f2ad4db9e03'
+    || await partsHash({ kind: block.kind, segments: block.segments }) !== 'fb294f12b77de30ab52e45e94198c3c851f9b397832151d178bc9871c483bf8a') return null;
+  const sources = (assignments.sourceVersions || []).filter(source => source.work === p.work && source.edition === p.edition && source.hash === p.bodyHash);
+  if (sources.length !== 1 || await partsHash(sources[0]) !== 'a3ac1b26378dffac28f74e92c8d802387c789754c0f3cf6a8c925b5e4c022156') return null;
+  return sources[0];
+}
+
 export async function composeParts(template, assignments, state) {
   for (const key of ['schemaVersion', 'templateId', 'templateVersion', 'ruleVersion']) {
     if (template[key] !== assignments?.[key]) throw new Error('Incompatible worship versions');
@@ -146,6 +160,10 @@ export async function composeParts(template, assignments, state) {
     if (operation.type === 'replace' && node.kind !== 'fixed') throw new Error('Replace must target a fixed node');
     if (operation.type === 'remove' && typeof operation.reason !== 'string'
       && !(node.kind === 'slot' && assignments.status === 'complete')) throw new Error('Removal reason missing');
+    if (operation.type === 'replace' && operation.blocks && !operation.blockSources) {
+      const source = await palmDismissalSource(node, operation, assignments, state);
+      if (source) operation.blockSources = [source];
+    }
     if (operation.type !== 'remove' && operation.metadataOnly !== true) {
       if (!validBlocks(operation.blocks) || !Array.isArray(operation.blockSources)
         || operation.blockSources.length !== operation.blocks.length || operation.blockSources.some(source => !sourceLanguage(source))) {

@@ -1,0 +1,9 @@
+{
+  "scope": "Local BibleDesktop routes with SQLite in memory, 2026-04-05, George temple, First Hour after Matins with no ending hymn.",
+  "responseSha256": {
+    "template": "26fe096025135021a996eed72d4b1a02cba1fc3df3ea70f3b7d0ec00fece2414",
+    "assignments": "61c46e881726a3aa360f0cc37c56a1af093337ba56beb87946b5aa3657abf15a",
+    "full": "ed8225809893a08efda680d520d6d038b5c589d3701a242a51299e7808fc2b3b"
+  },
+  "verification": "98 composed blocks equal the actual full response; reader, print and PDF in memory (4 pages), three negative mutations, 94 targeted Vitest and production build passed. Original local bodies replayed; legacy template 422 emulated from the controller contract. Other cases and production were not tested."
+}

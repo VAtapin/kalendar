@@ -18,6 +18,7 @@ describe('printing the displayed worship body', () => {
     expect(css).toContain('--reader-size: 12pt !important;');
     expect(css).toContain('body:has(.worship-page) main > :not(.shell)');
     expect(css).toContain('.worship-controls, .worship-navigation');
+    expect(css.slice(css.indexOf('@media print'))).toContain('.calendar-hour-hymns');
   });
   function setup(isCurrent = () => true, selected = state, callbacks = {}) {
     let fontsReady;
